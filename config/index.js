@@ -1,0 +1,135 @@
+'use strict'
+// Template version: 1.3.1
+// see http://vuejs-templates.github.io/webpack for documentation.
+
+const path = require('path')
+module.exports = {
+  dev: {
+    env: require('./dev.env'),
+    // Paths
+    assetsSubDirectory: 'static',
+    assetsPublicPath: '/',
+
+    proxyTable: {
+      '/apiTWO': {
+        target: 'https://api.weixin.qq.com',
+        // secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/apiTWO': '/'
+        }
+      },
+      '/v1': {
+        // 说明：开发环境代理目标，默认指向本地开发服务器；
+        // 如需使用其他地址，请在 shell 中导出 API_PROXY_TARGET 或在 .env.local 中配置 VUE_APP_API_BASE。
+        // 示例：export API_PROXY_TARGET=https://api.example.com:14001
+        target: process.env.API_PROXY_TARGET ,
+        // secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/v1': '/v1'
+        }
+      },
+
+      // '/v1': {
+      //   target: 'http://8.147.132.217:14001/v1/',
+      //   // secure: false,
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/v1': ''
+      //   }
+      // },
+      // '/123': {
+      //   target: 'http://192.168.2.11:8089/123',
+      //   // secure: false,
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/123': '/'
+      //   }
+      // },
+      // '/v1': {
+      //   target: 'https://hz0vm00041.apac.bosch.com:14001',
+      //   secure: true,
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/v1": ""
+      //   }
+      // },
+      // "/v1": {
+      //   target: "http://192.168.2.30:14001/v1/",
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/v1": ""
+      //   }
+      // },
+
+
+      // 离线地图
+      // "/data": {
+      //   target: "http://192.168.2.11:8089/data/",
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/data": ""
+      //   }
+      // },
+    },
+
+    // Various Dev Server settings
+    // host: '172.16.1.129', // can be overwritten by process.env.HOST
+    host: 'localhost', // can be overwritten by process.env.HOST
+    // host: '192.168.2.11', // can be overwritten by process.env.HOST
+    // host: '192.168.2.15', // can be overwritten by process.env.HOST
+    port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    autoOpenBrowser: true,
+    errorOverlay: true,
+    notifyOnErrors: true,
+    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+
+
+    /**
+     * Source Maps
+     */
+
+    // https://webpack.js.org/configuration/devtool/#development
+    devtool: 'cheap-module-eval-source-map',
+
+    // If you have problems debugging vue-files in devtools,
+    // set this to false - it *may* help
+    // https://vue-loader.vuejs.org/en/options.html#cachebusting
+    cacheBusting: true,
+
+    cssSourceMap: true
+  },
+
+  build: {
+    env: require('./prod.env'),
+    // Template for index.html
+    index: path.resolve(__dirname, '../dist/index.html'),
+
+    // Paths
+    assetsRoot: path.resolve(__dirname, '../dist'),
+    assetsSubDirectory: 'static',
+    assetsPublicPath: './',
+
+    /**
+     * Source Maps
+     */
+
+    productionSourceMap: false,
+    // https://webpack.js.org/configuration/devtool/#production
+    devtool: '#source-map',
+
+    // Gzip off by default as many popular static hosts such as
+    // Surge or Netlify already gzip all static assets for you.
+    // Before setting to `true`, make sure to:
+    // npm install --save-dev compression-webpack-plugin
+    productionGzip: true,
+    productionGzipExtensions: ['js', 'css'],
+
+    // Run the build command with an extra argument to
+    // View the bundle analyzer report after build finishes:
+    // `npm run build --report`
+    // Set to `true` or `false` to always turn it on or off
+    bundleAnalyzerReport: process.env.npm_config_report
+  }
+}

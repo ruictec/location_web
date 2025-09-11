@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 中文模板
+    url: https://github.com/your-org/location-web/issues/new/choose
+    about: 使用中文模板提交问题或功能请求
+  - name: English Templates
+    url: https://github.com/your-org/location-web/issues/new/choose
+    about: Use English templates to submit issues or feature requests

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+static/
+public/
+*.min.js
+*.bundle.js
+*.map
+*.log
+src/components/test/
+src/i18n/langs/*.js
