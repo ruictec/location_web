@@ -1,5 +1,7 @@
 # Location Web Platform
 
+中文 | [English](README_EN.md)
+
 A comprehensive location tracking and management platform built with Vue.js 2.x technology stack.
 
 ## 📋 Quick Navigation
