@@ -27,7 +27,7 @@ module.exports = {
         // secure: false,
         changeOrigin: true,
         pathRewrite: {
-          '^/v1': '/v1'
+          '^/v1': ''
         }
       },
 
@@ -78,7 +78,7 @@ module.exports = {
     // host: '172.16.1.129', // can be overwritten by process.env.HOST
     host: 'localhost', // can be overwritten by process.env.HOST
     // host: '192.168.2.11', // can be overwritten by process.env.HOST
-    // host: '192.168.2.15', // can be overwritten by process.env.HOST
+    host: '192.168.2.236', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
