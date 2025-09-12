@@ -567,7 +567,7 @@ export default {
 
         this.$axios({
           method: "POST",
-          url: "v1/user/login",
+          url: "user/login",
           data: {
             username: this.loginForm.username.toString(),
             userkey: this.loginForm.password.toString(),

@@ -1,6 +1,6 @@
 # Location Web Platform
 
-A comprehensive location tracking and management platform built with Vue.js 2.x.
+A comprehensive location tracking and management platform built with Vue.js 2.x technology stack.
 
 ## 📋 Quick Navigation
 
@@ -24,12 +24,19 @@ A comprehensive location tracking and management platform built with Vue.js 2.x.
 
 ## Technology Stack
 
-- **Frontend**: Vue.js 2.x, Vue Router, Vuex
-- **Build Tool**: Webpack 3.x
-- **Maps**: OpenLayers, Fengmap
-- **UI Framework**: Element UI
-- **Charts**: ECharts
-- **3D Visualization**: Three.js
+**Current version uses Vue 2.x technology stack:**
+
+- 🏗️ **Vue.js 2.6.12** - Frontend framework
+- 📦 **Older technology stack** - Based on 2018-2019 technology choices
+- 🔄 **Modernization plan** - Version 2.0 will upgrade to Vue 3.x and modern technology stack
+
+### Technical Details
+- **Frontend**: Vue.js 2.6.12, Vue Router 3.4.6, Vuex 3.5.1
+- **Build Tool**: Webpack 3.12.0
+- **Maps**: OpenLayers 6.4.3, Fengmap 3.1.4
+- **UI Framework**: Element UI 2.14.1, View Design 4.5.0
+- **Charts**: ECharts 4.9.0
+- **3D Visualization**: Three.js 0.150.1
 
 ## Quick Start
 
@@ -189,3 +196,7 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) / [CODE_OF_CONDUCT_EN.md](C
 ## Support
 
 For technical support and questions, please contact the development team.
+
+---
+
+**Technology Stack Note**: Current version is based on Vue 2.x technology stack, which is older but fully functional. Modern version v2.0 is under development.

@@ -19,3 +19,15 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+SECURITY NOTICE:
+
+This software contains known security vulnerabilities and is provided for
+educational and research purposes only. DO NOT use this software in production
+environments or with sensitive data. The maintainers are not responsible for
+any security incidents or data breaches that may occur from using this software.
+
+For security-related issues, please refer to SECURITY.md or contact the
+maintainers through the appropriate channels.

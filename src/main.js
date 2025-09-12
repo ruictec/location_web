@@ -38,6 +38,8 @@ Vue.prototype.websocket = websocket
 /*使用axios插件*/
 // 请求允许携带cookie
 axios.defaults.withCredentials = true
+// 设置axios的baseURL
+axios.defaults.baseURL = process.env.VUE_APP_API_BASE
 Vue.prototype.$axios = axios
 Vue.prototype.qs = qs
 
