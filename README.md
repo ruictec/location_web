@@ -1,5 +1,7 @@
 # Location Web Platform
 
+[English](README_EN.md) | 中文
+
 一个基于Vue.js 2.x的室内定位和地图管理系统。
 
 ## 📋 技术栈说明
