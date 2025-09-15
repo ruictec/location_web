@@ -17,6 +17,13 @@
                 property="nsid"
                 :label="$t('nsconfig.nsid1')"
                 show-overflow-tooltip
+                min-width="50"
+              >
+              </el-table-column>
+              <el-table-column
+                property="tenId"
+                :label="$t('manage.Orid')"
+                show-overflow-tooltip
                 min-width="87"
               >
               </el-table-column>
@@ -25,13 +32,13 @@
                 property="name"
                 :label="$t('manage.Appname')"
                 show-overflow-tooltip
-                min-width="87"
+                min-width="50"
               ></el-table-column>
               <el-table-column
                 property="scheme"
                 :label="$t('manage.AppSpid')"
                 show-overflow-tooltip
-                min-width="87"
+                min-width="50"
               ></el-table-column>
               <el-table-column
                 property="applicationId"
@@ -128,22 +135,21 @@ export default {
     //监听中英文 重新渲染下拉框内容
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
-      Object.assign(
-        this.$data.addRules,
-        this.$options.data.call(this).addRules
-      );
-      Object.assign(
-        this.$data.searchInallotList,
-        this.$options.data.call(this).searchInallotList
-      );
-      Object.assign(
-        this.$data.inuseType,
-        this.$options.data.call(this).inuseType
-      );
-      Object.assign(
-        this.$data.workType,
-        this.$options.data.call(this).workType
-      );
+      const newData = this.$options.data.call(this);
+      if (newData) {
+        if (newData.addRules) {
+          Object.assign(this.$data.addRules, newData.addRules);
+        }
+        if (newData.searchInallotList) {
+          Object.assign(this.$data.searchInallotList, newData.searchInallotList);
+        }
+        if (newData.inuseType) {
+          Object.assign(this.$data.inuseType, newData.inuseType);
+        }
+        if (newData.workType) {
+          Object.assign(this.$data.workType, newData.workType);
+        }
+      }
     },
   },
 };

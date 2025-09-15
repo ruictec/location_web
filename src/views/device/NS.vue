@@ -79,13 +79,6 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="levelstr"
-                :label="$t('ns.Grade')"
-                show-overflow-tooltip
-                min-width="47"
-                align="center"
-              ></el-table-column>
-              <el-table-column
                 property="domain"
                 :label="$t('ns.domain')"
                 show-overflow-tooltip

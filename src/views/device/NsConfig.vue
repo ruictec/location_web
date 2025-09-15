@@ -9,8 +9,8 @@
         <el-main> 
 
           <el-tabs v-model="activeName" @tab-click="changeTab">
-            <el-tab-pane name="0" label="Teannts">
-              <Teannts ref="Teannts" />
+            <el-tab-pane name="0" label="Teanats">
+              <Teanats ref="Teanats" />
             </el-tab-pane>
             <el-tab-pane name="1" label="Applications">
               <Applications ref="Applications" />
@@ -27,12 +27,12 @@
 <script>
 import Menu from "../../components/menu/Menu";
 import Devicemanagement from "../../components/devicemanagement/devicemanagement";
-import Teannts from "./nsConfig/tenant.vue";
+import Teanats from "./nsConfig/tenant.vue";
 import Applications from "./nsConfig/application.vue";
 import Devices from "./nsConfig/device.vue";
 
 export default {
-  components: { Menu, Devicemanagement, Teannts, Applications, Devices },
+  components: { Menu, Devicemanagement, Teanats, Applications, Devices },
   name: "NsConfig",
   data() {
     return {
@@ -44,7 +44,7 @@ export default {
     changeTab(tab, event) {
       switch (tab.name) {
         case "0":
-          this.$refs.Teannts.getOrganizationOnes();
+          this.$refs.Teanats.getOrganizationOnes();
           break;
         case "1":
           this.$refs.Applications.getApplicationOnes();
@@ -58,7 +58,7 @@ export default {
     },
   },
   mounted() {
-    this.$refs.Teannts.getOrganizationOnes();
+    this.$refs.Teanats.getOrganizationOnes();
   },
 };
 </script>

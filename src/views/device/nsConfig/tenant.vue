@@ -161,10 +161,10 @@ export default {
     //监听中英文 重新渲染下拉框内容
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
-      Object.assign(
-        this.$data.addRules,
-        this.$options.data.call(this).addRules
-      );
+      const newData = this.$options.data.call(this);
+      if (newData && newData.addRules) {
+        Object.assign(this.$data.addRules, newData.addRules);
+      }
     },
   },
 };
