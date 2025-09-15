@@ -4478,38 +4478,33 @@ export default {
     //监听中英文 重新渲染下拉框内容
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
-      Object.assign(
-        this.$data.addRules,
-        this.$options.data.call(this).addRules
-      );
-      Object.assign(
-        this.$data.searchInallotList,
-        this.$options.data.call(this).searchInallotList
-      );
-      Object.assign(
-        this.$data.searchBatteryList,
-        this.$options.data.call(this).searchBatteryList
-      );
-      Object.assign(
-        this.$data.devtimeList,
-        this.$options.data.call(this).devtimeList
-      );
-      Object.assign(
-        this.$data.beaconType,
-        this.$options.data.call(this).beaconType
-      );
-      Object.assign(
-        this.$data.inuseType,
-        this.$options.data.call(this).inuseType
-      );
-      Object.assign(
-        this.$data.workType,
-        this.$options.data.call(this).workType
-      );
-      Object.assign(
-        this.$data.editRules,
-        this.$options.data.call(this).editRules
-      );
+      const newData = this.$options.data.call(this);
+      if (newData) {
+        if (newData.addRules) {
+          Object.assign(this.$data.addRules, newData.addRules);
+        }
+        if (newData.searchInallotList) {
+          Object.assign(this.$data.searchInallotList, newData.searchInallotList);
+        }
+        if (newData.searchBatteryList) {
+          Object.assign(this.$data.searchBatteryList, newData.searchBatteryList);
+        }
+        if (newData.devtimeList) {
+          Object.assign(this.$data.devtimeList, newData.devtimeList);
+        }
+        if (newData.beaconType) {
+          Object.assign(this.$data.beaconType, newData.beaconType);
+        }
+        if (newData.inuseType) {
+          Object.assign(this.$data.inuseType, newData.inuseType);
+        }
+        if (newData.workType) {
+          Object.assign(this.$data.workType, newData.workType);
+        }
+        if (newData.editRules) {
+          Object.assign(this.$data.editRules, newData.editRules);
+        }
+      }
     },
   },
 };
