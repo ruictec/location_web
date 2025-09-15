@@ -13,17 +13,17 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 // const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
 // 说明：根据 prionum 动态注入路由；仅注入一次，刷新时若未注入再补注入
-let hasAddedRoutes = false
 function injectRoutesByRole (prionum) {
   try {
     resetRouter()
   } catch (e) {}
   if (Number(prionum) === 5) {
+    store.commit('addRoutes', userRoutes)
     router.addRoutes(userRoutes)
   } else {
+    store.commit('addRoutes', adminRoutes)
     router.addRoutes(adminRoutes)
   }
-  hasAddedRoutes = true
 }
 router.beforeEach((to, from, next) => {
   var that = this
@@ -32,7 +32,8 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login') {
     // 若已登录（store 中已有用户信息），直接按角色注入并跳转到 dashboard
     if (store.state.userInfo && store.state.userInfo.prionum) {
-      if (!hasAddedRoutes) {
+      const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
+      if (!hasRoles) {
         try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
       }
       NProgress.done()
@@ -137,7 +138,8 @@ router.beforeEach((to, from, next) => {
             }
           } catch (e) { /* ignore */ }
         }
-        if (!hasAddedRoutes && store.state.userInfo && store.state.userInfo.prionum) {
+        const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
+        if (!hasRoles && store.state.userInfo && store.state.userInfo.prionum) {
           try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
           return next({ ...to, replace: true })
         }
@@ -170,7 +172,8 @@ router.beforeEach((to, from, next) => {
           }
         } catch (e) { /* ignore */ }
       }
-      if (!hasAddedRoutes && store.state.userInfo && store.state.userInfo.prionum) {
+      const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
+      if (!hasRoles && store.state.userInfo && store.state.userInfo.prionum) {
         try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
         return next({ ...to, replace: true })
       }
