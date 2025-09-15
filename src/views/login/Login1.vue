@@ -82,7 +82,7 @@ import {
   registerSendMail,
   registerUserPwd,
 } from "../../axios/api";
-import router, { adminRoutes, userRoutes, resetRouter } from "../../router/index.js";
+// 路由注入由permission.js处理，不再需要导入
 export default {
   components: {
     agreement,
@@ -592,19 +592,12 @@ export default {
               );
               // that.$store.commit("changeGoNext", true);
               try { localStorage.setItem('userInfo', JSON.stringify(that.userInfo)) } catch (e) {}
-              // 登录成功后，先按权限注入路由，避免首次跳转未命中路由需要点第二次
-              try {
-                resetRouter();
-                if (Number(that.userInfo.prionum) === 5) {
-                  router.addRoutes(userRoutes);
-                } else {
-                  router.addRoutes(adminRoutes);
-                }
-              } catch (e) {}
-              that.$nextTick(() => {
-                const target = that.$route.query.redirect && that.$route.query.redirect !== '/login' ? that.$route.query.redirect : '/dashboard'
-                that.$router.replace(target).catch(() => {})
-              })
+              // 登录成功后直接跳转，路由注入由permission.js处理
+              if (that.$store.state.userInfo.prionum == 5) {
+                that.$router.push("/dashboard").catch(() => {});
+              } else {
+                that.$router.push("/dashboard").catch(() => {});
+              }
               that.$store.commit("changeShow", true);
             } else {
               that.$message({
