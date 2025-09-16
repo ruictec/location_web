@@ -31,54 +31,11 @@ module.exports = {
         }
       },
 
-      // '/v1': {
-      //   target: 'http://8.147.132.217:14001/v1/',
-      //   // secure: false,
-      //   changeOrigin: true,
-      //   pathRewrite: {
-      //     '^/v1': ''
-      //   }
-      // },
-      // '/123': {
-      //   target: 'http://192.168.2.11:8089/123',
-      //   // secure: false,
-      //   changeOrigin: true,
-      //   pathRewrite: {
-      //     '^/123': '/'
-      //   }
-      // },
-      // '/v1': {
-      //   target: 'https://hz0vm00041.apac.bosch.com:14001',
-      //   secure: true,
-      //   changeOrigin: true,
-      //   pathRewrite: {
-      //     "^/v1": ""
-      //   }
-      // },
-      // "/v1": {
-      //   target: "http://192.168.2.30:14001/v1/",
-      //   changeOrigin: true,
-      //   pathRewrite: {
-      //     "^/v1": ""
-      //   }
-      // },
-
-
-      // 离线地图
-      // "/data": {
-      //   target: "http://192.168.2.11:8089/data/",
-      //   changeOrigin: true,
-      //   pathRewrite: {
-      //     "^/data": ""
-      //   }
-      // },
     },
 
     // Various Dev Server settings
     // host: '172.16.1.129', // can be overwritten by process.env.HOST
     host: 'localhost', // can be overwritten by process.env.HOST
-    // host: '192.168.2.11', // can be overwritten by process.env.HOST
-    host: '192.168.50.56', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
