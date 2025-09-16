@@ -33,7 +33,7 @@
 
 ## 📦 环境要求
 
-- Node.js 14.21.3 (推荐使用nvm管理版本)
+- Node.js 16.20.2 (推荐使用nvm管理版本)
 - npm 6.x
 
 ## 🚀 快速开始
@@ -141,6 +141,13 @@ node --max_old_space_size=7168
 - 使用webpack代码分割
 - 图片和资源压缩
 - CSS提取和优化
+
+## 🔗 后端项目
+
+本项目需要配合后端服务使用，后端项目地址：
+
+- **后端仓库**: [https://github.com/ruictec/edwei](https://github.com/ruictec/edwei)
+- **项目说明**: 人员与资产定位管理系统后端，支持智能徽章、BLE信标、GPS、UWB等多种定位技术
 
 ## 📚 相关文档
 
