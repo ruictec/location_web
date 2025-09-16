@@ -2,6 +2,8 @@
 module.exports = {
   NODE_ENV: '"production"',
   // 生产环境配置（开源默认值，建议通过环境变量覆盖）
+  // 说明：如需启用微信小程序跳转，请在部署环境中以环境变量方式注入：
+  // VUE_APP_WECHAT_APPID, VUE_APP_WECHAT_SECRET（不要在仓库中写入默认值）
 
   VUE_APP_API_BASE: '"http://localhost:14001/v1"',
   VUE_APP_WS_BASE: '"ws://localhost:14001/websocket"',

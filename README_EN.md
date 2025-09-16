@@ -97,6 +97,10 @@ VUE_APP_MQTT_BROKER_URL=tcp://mqtt.example.com:1883
 
 # Development environment proxy target address
 API_PROXY_TARGET=http://localhost:14001
+
+# WeChat Mini Program (if needed; do NOT commit secrets)
+VUE_APP_WECHAT_APPID=
+VUE_APP_WECHAT_SECRET=
 ```
 
 #### Production Environment

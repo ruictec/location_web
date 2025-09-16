@@ -838,15 +838,19 @@ export default {
     var that = this;
     this.getCookie();
     this.cambiar_login();
-    // 易寻定位
-    // wxf85f05de6dcf36e7
-    // gh_c4536c12feb2
 
     if (this._isMobile()) {
+      const appid = process.env.VUE_APP_WECHAT_APPID
+      const secret = process.env.VUE_APP_WECHAT_SECRET
+      if (!appid || !secret) {
+        // 未配置敏感凭据时直接返回，避免泄露
+        console.warn('WeChat appid/secret is not configured. Skipping mini-program flow.')
+        return
+      }
       that
         .$axios({
           method: "get",
-          url: "apiTWO/cgi-bin/token?grant_type=client_credential&appid=wxf85f05de6dcf36e7&secret=49dfbb3ecd29364f5a3532dfbfde349f",
+          url: `apiTWO/cgi-bin/token?grant_type=client_credential&appid=${encodeURIComponent(appid)}&secret=${encodeURIComponent(secret)}`,
         })
         .then(function (data) {
           let access_token = JSON.parse(data.request.response).access_token;
