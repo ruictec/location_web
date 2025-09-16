@@ -87,6 +87,33 @@ location_web/
 - 所有依赖版本都固定为具体版本号（无^或~前缀）
 - 使用`--legacy-peer-deps`标志处理依赖冲突
 
+### 环境变量（示例）
+在项目根目录创建 `.env.local` 并配置：
+
+```bash
+# 后端接口与WebSocket
+VUE_APP_API_BASE=http://localhost:14001/v1
+VUE_APP_WS_BASE=ws://localhost:14001/websocket
+
+# 静态资源与文档
+VUE_APP_ASSET_BASE=http://localhost:8079
+VUE_APP_DOC_BASE=http://localhost:8078
+VUE_APP_HELP_BASE=http://localhost:8079
+
+# 地图与第三方
+VUE_APP_TILE_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+VUE_APP_FENGMAP_IMG_BASE=https://developer.fengmap.com/fmAPI/images
+
+# 统计与消息
+VUE_APP_ENABLE_BAIDU_ANALYTICS=false
+VUE_APP_BAIDU_HM_ID=
+VUE_APP_MQTT_BROKER_URL=tcp://mqtt.example.com:1883
+
+# 微信小程序（如需使用，勿提交到仓库）
+VUE_APP_WECHAT_APPID=
+VUE_APP_WECHAT_SECRET=
+```
+
 ### 已知问题
 1. **fengmap压缩文件解析问题**: 某些压缩的JavaScript文件可能导致webpack解析错误
 2. **Vue版本兼容性**: 严格依赖Vue 2.6.12版本
