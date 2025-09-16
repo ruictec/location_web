@@ -1079,19 +1079,19 @@ export default {
           case 0:
             // 说明：示例图片地址改为从环境变量读取基础地址
             that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/bosch/1.png";
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/1.png";
             break;
           case 1:
             that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/bosch/2.png";
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/2.png";
             break;
           case 2:
             that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/bosch/3.png";
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/3.png";
             break;
           default:
             that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/bosch/badge.svg";
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/badge.svg";
             break;
         }
       }

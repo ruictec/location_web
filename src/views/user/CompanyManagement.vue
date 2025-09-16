@@ -104,6 +104,14 @@
                 min-width="88"
                 align="center"
               ></el-table-column>
+              
+              <el-table-column
+                property="tenantkey"
+                label="tenantkey"
+                min-width="88"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
 
               <el-table-column
                 property="tel"
@@ -830,7 +838,7 @@ export default {
       addRules: {
         nsid: [
           {
-            required: true,
+            required: false,
             message: this.$t("project.tet18"),
             trigger: "change",
           },
