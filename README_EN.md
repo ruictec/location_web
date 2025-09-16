@@ -44,7 +44,7 @@ A comprehensive location tracking and management platform built with Vue.js 2.x 
 
 ### Prerequisites
 
-- Node.js >= 12.x
+- Node.js 16.20.2 (recommended to use nvm for version management)
 - npm >= 6.x
 
 ### Installation
@@ -194,6 +194,13 @@ For security issues, see [SECURITY.md](SECURITY.md) / [SECURITY_EN.md](SECURITY_
 ## Code of Conduct
 
 Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) / [CODE_OF_CONDUCT_EN.md](CODE_OF_CONDUCT_EN.md) for our community guidelines.
+
+## Backend Project
+
+This frontend project requires a backend service to function properly. The backend project is available at:
+
+- **Backend Repository**: [https://github.com/ruictec/edwei](https://github.com/ruictec/edwei)
+- **Project Description**: Backend for people and assets location management system, supporting smart badges, BLE beacons, GPS, UWB and other positioning technologies
 
 ## Support
 
