@@ -27,6 +27,13 @@ function injectRoutesByRole (prionum) {
 }
 router.beforeEach((to, from, next) => {
   NProgress.start()
+  
+  // 处理根路径重定向
+  if (to.path === '/') {
+    NProgress.done()
+    return next('/login')
+  }
+  
   // oldCode 风格：登录页允许携带用户名密码直接登录
   if (to.path === '/login') {
     // 若已登录（store 中已有用户信息），直接按角色注入并跳转到 dashboard
