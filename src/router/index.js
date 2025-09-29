@@ -436,6 +436,12 @@ export const userRoutes = [
           component: Beacon,
           name: 'beacon',
           meta: { title: '信标管理', noCache: true }
+        },
+        {
+          path: 'security',
+          component: Security,
+          name: 'security',
+          meta: { title: '安全管理', noCache: true }
         }
       ]
     },
