@@ -108,28 +108,8 @@ new Vue({
     // 设置会话管理
     this.setupSessionManagement();
   },
-  created() {
-    // 在组件创建时就检查会话，确保在路由守卫之前执行
-    this.checkSession();
-  },
+  // 移除created钩子，改为在路由守卫中处理
   methods: {
-    checkSession() {
-      // 检查是否有会话标记
-      const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
-      
-      if (!hasSessionFlag) {
-        // 没有标记，说明是新打开的页面（关闭浏览器后重新打开），清除会话
-        try {
-          window.sessionStorage.removeItem('state');
-          this.$store.commit('setuserInfo', '');
-          this.$store.commit('resetRoutes');
-          // 设置会话标记
-          window.sessionStorage.setItem('hasActiveSession', 'true');
-        } catch (e) {
-          // 忽略错误
-        }
-      }
-    },
     toUrl(url) {
       //首先跳回顶点，防止多次添加记录
       window.history.pushState({ target: "Final", }, "", location.href);
