@@ -128,21 +128,6 @@ router.beforeEach((to, from, next) => {
       // }
       const hasToken = window.sessionStorage.getItem('state')
       if (hasToken) {
-        // 检查是否有页面隐藏标记，如果有且时间过长，清除会话
-        try {
-          const pageHidden = window.sessionStorage.getItem('pageHidden')
-          if (pageHidden) {
-            const timeDiff = Date.now() - parseInt(pageHidden)
-            // 如果页面隐藏超过30分钟，清除会话并要求重新登录
-            if (timeDiff > 30 * 60 * 1000) {
-              window.sessionStorage.removeItem('state')
-              window.sessionStorage.removeItem('pageHidden')
-              NProgress.done()
-              return next(`/login?redirect=${to.path}`)
-            }
-          }
-        } catch (e) { /* ignore */ }
-        
         // 确保刷新或刚登录后 userInfo 可用
         if (!store.state.userInfo || !store.state.userInfo.prionum) {
           try {
