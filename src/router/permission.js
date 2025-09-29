@@ -29,20 +29,6 @@ function injectRoutesByRole (prionum) {
 router.beforeEach((to, from, next) => {
   NProgress.start()
   
-  // 首先检查会话状态
-  const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
-  if (!hasSessionFlag) {
-    // 新打开的页面，清除会话
-    try {
-      window.sessionStorage.removeItem('state');
-      store.commit('setuserInfo', '');
-      store.commit('resetRoutes');
-      window.sessionStorage.setItem('hasActiveSession', 'true');
-    } catch (e) {
-      // 忽略错误
-    }
-  }
-  
   // 处理根路径重定向
   if (to.path === '/') {
     NProgress.done()
@@ -51,6 +37,19 @@ router.beforeEach((to, from, next) => {
   
   // 处理登录页
   if (to.path === '/login') {
+    // 检查会话状态，如果是新打开的页面，清除会话
+    const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
+    if (!hasSessionFlag) {
+      try {
+        window.sessionStorage.removeItem('state');
+        store.commit('setuserInfo', '');
+        store.commit('resetRoutes');
+        window.sessionStorage.setItem('hasActiveSession', 'true');
+      } catch (e) {
+        // 忽略错误
+      }
+    }
+    
     // 若已登录（store 中已有用户信息），直接按角色注入并跳转到 dashboard
     if (store.state.userInfo && store.state.userInfo.prionum) {
       const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
