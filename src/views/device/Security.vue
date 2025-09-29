@@ -59,12 +59,12 @@ export default {
   },
   data() {
     return {
-      contrForPrionum: this.$store.state.userInfo?.prionum || 5,
-      aoagw: this.$store.state.functionParts?.aoagw || false,
-      smoke: this.$store.state.functionParts?.smoke || false,
-      alertor: this.$store.state.functionParts?.alertor || false,
-      blesensor: this.$store.state.functionParts?.blesensor || false,
-      camera: this.$store.state.functionParts?.camera || false,
+      contrForPrionum: this.$store.state.userInfo.prionum,
+      aoagw: this.$store.state.functionParts.aoagw,
+      smoke: this.$store.state.functionParts.smoke,
+      alertor: this.$store.state.functionParts.alertor,
+      blesensor: this.$store.state.functionParts.blesensor,
+      camera: this.$store.state.functionParts.camera,
     };
   },
   computed: {
