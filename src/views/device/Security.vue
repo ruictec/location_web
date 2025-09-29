@@ -8,7 +8,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
-          <el-tabs @tab-click="changeTab">
+          <el-tabs @tab-click="changeTab" v-if="hasAnyDevice">
             <el-tab-pane name="0" :label="$t('otherDev.aoaGateway')" v-if="aoagw">
               <AOA ref="aoa" />
             </el-tab-pane>
@@ -28,6 +28,9 @@
               <Camera ref="camera"
             /></el-tab-pane>
           </el-tabs>
+          <div v-else class="no-device-message">
+            <el-empty :description="$t('common.noDeviceAvailable') || '暂无可用设备'"></el-empty>
+          </div>
         </el-main>
       </el-container>
     </div>
@@ -56,13 +59,18 @@ export default {
   },
   data() {
     return {
-      contrForPrionum: this.$store.state.userInfo.prionum,
-      aoagw: this.$store.state.functionParts.aoagw,
-      smoke: this.$store.state.functionParts.smoke,
-      alertor: this.$store.state.functionParts.alertor,
-      blesensor: this.$store.state.functionParts.blesensor,
-      camera: this.$store.state.functionParts.camera,
+      contrForPrionum: this.$store.state.userInfo?.prionum || 5,
+      aoagw: this.$store.state.functionParts?.aoagw || false,
+      smoke: this.$store.state.functionParts?.smoke || false,
+      alertor: this.$store.state.functionParts?.alertor || false,
+      blesensor: this.$store.state.functionParts?.blesensor || false,
+      camera: this.$store.state.functionParts?.camera || false,
     };
+  },
+  computed: {
+    hasAnyDevice() {
+      return this.aoagw || this.smoke || this.alertor || this.blesensor || this.camera;
+    }
   },
   methods: {
     changeTab(tab) {
@@ -74,18 +82,14 @@ export default {
         case "1":
           that.$refs.smokesensation.search();
           break;
-          break;
         case "2":
           that.$refs.burglaralarm.search();
-          break;
           break;
         case "3":
           that.$refs.ble.search();
           break;
-          break;
         case "4":
           that.$refs.camera.search();
-          break;
           break;
         default:
           break;
@@ -93,7 +97,12 @@ export default {
     },
   },
   mounted() {
-    this.$refs.aoa.search();
+    // 延迟执行，确保组件已渲染
+    this.$nextTick(() => {
+      if (this.aoagw && this.$refs.aoa) {
+        this.$refs.aoa.search();
+      }
+    });
   },
 };
 </script>
@@ -116,5 +125,11 @@ export default {
 }
 .el-main {
   width: 98%;
+}
+.no-device-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
 }
 </style>
