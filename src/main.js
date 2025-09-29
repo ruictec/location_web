@@ -105,7 +105,7 @@ new Vue({
       window.__APP_STORE__ = store
     }
     
-    // 添加浏览器关闭检测，确保关闭浏览器后需要重新登录
+    // 设置会话管理
     this.setupSessionManagement();
   },
   methods: {
@@ -124,9 +124,23 @@ new Vue({
       }, false);
     },
     setupSessionManagement() {
-      // 简化的会话管理：只在浏览器关闭时清除会话
+      // 检查是否是页面刷新还是新打开的页面
+      const isPageRefresh = performance.navigation.type === 1;
+      
+      if (!isPageRefresh) {
+        // 新打开的页面（包括关闭浏览器后重新打开），清除会话
+        try {
+          window.sessionStorage.removeItem('state');
+          // 清除store中的用户信息
+          this.$store.commit('setuserInfo', '');
+          this.$store.commit('resetRoutes');
+        } catch (e) {
+          // 忽略错误
+        }
+      }
+      
+      // 监听页面卸载事件，清除会话
       window.addEventListener('beforeunload', () => {
-        // 清除 sessionStorage 中的登录状态
         try {
           window.sessionStorage.removeItem('state');
         } catch (e) {

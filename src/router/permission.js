@@ -25,6 +25,7 @@ function injectRoutesByRole (prionum) {
     router.addRoutes(adminRoutes)
   }
 }
+
 router.beforeEach((to, from, next) => {
   NProgress.start()
   
@@ -34,7 +35,7 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
   
-  // oldCode 风格：登录页允许携带用户名密码直接登录
+  // 处理登录页
   if (to.path === '/login') {
     // 若已登录（store 中已有用户信息），直接按角色注入并跳转到 dashboard
     if (store.state.userInfo && store.state.userInfo.prionum) {
@@ -49,6 +50,7 @@ router.beforeEach((to, from, next) => {
     try { window.localStorage.removeItem('userInfo') } catch (e) {}
     try { window.sessionStorage.removeItem('state') } catch (e) {}
     try { store.commit('setuserInfo', '') } catch (e) {}
+    
     if (to.query && to.query.username && to.query.password) {
       service({
         method: 'post',
@@ -80,120 +82,64 @@ router.beforeEach((to, from, next) => {
     NProgress.done()
     return next()
   }
-  if (to.query) {
-    let q = to.query
-    if (q.username && q.password) {
-      service({
-        method: "post",
-        // 说明：登录地址改为读取环境变量，默认使用你当前线上地址；
-        // 开源后请在 .env(.local) 中配置 VUE_APP_API_BASE
-        url: process.env.VUE_APP_API_BASE + "/user/login",
-        data: {
-          username: q.username.toString(),
-          userkey: q.password.toString(),
-        },
-        ContentType: "application/json;charset=UTF-8",
-      })
-        .then(function (data) {
-          if (data.code == 1001) {
-            if (data.data.prionum == 5 && data.data.num == 0) {
-              // that.$message({
-              //   message: "未创建项目，与管理员联系",
-              //   type: "warning",
-              // });
-              return;
-            }
-            let userInfo = data.data;
-            store.commit("setuserInfo", userInfo);
-            window.sessionStorage.setItem(
-              "state",
-              JSON.stringify(store.state)
-            );
-            try { injectRoutesByRole(userInfo.prionum) } catch (e) {}
-            const target = (to.query && to.query.redirect && to.query.redirect !== '/login') ? to.query.redirect : '/dashboard'
-            next({ path: target, replace: true })
-            store.state.show = true;
-          } else {
-            // 登录失败，停留当前页或给出提示（此处保持静默以兼容现有逻辑）
-          }
-        })
-        .catch(function () {
-          // 请求异常保持静默
-        });
-    }
+  
+  // 处理注册页
+  if (to.path === '/register') {
+    next()
+    NProgress.done()
+    return
   }
-  if (to.name == null && from.name == null) {
-    if (to.query.username && to.query.password) {
-      next()
-      NProgress.done()
-    } else {
-      // if (!to.path) {
-      //   next({
-      //     path: '/login', // 刷新跳转至login页面
-      //   });
-      //   NProgress.done()
-      // }
-      const hasToken = window.sessionStorage.getItem('state')
-      if (hasToken) {
-        // 确保刷新或刚登录后 userInfo 可用
-        if (!store.state.userInfo || !store.state.userInfo.prionum) {
-          try {
-            const cached = JSON.parse(window.localStorage.getItem('userInfo') || '{}')
-            if (cached && cached.prionum) {
-              store.commit('setuserInfo', cached)
-            }
-          } catch (e) { /* ignore */ }
+  
+  // 检查是否需要认证
+  const hasToken = window.sessionStorage.getItem('state')
+  
+  if (hasToken) {
+    // 有token，检查用户信息
+    if (!store.state.userInfo || !store.state.userInfo.prionum) {
+      try {
+        const cached = JSON.parse(window.localStorage.getItem('userInfo') || '{}')
+        if (cached && cached.prionum) {
+          store.commit('setuserInfo', cached)
+        } else {
+          // 没有有效的用户信息，清除token并跳转到登录页
+          window.sessionStorage.removeItem('state')
+          NProgress.done()
+          return next(`/login?redirect=${to.path}`)
         }
-        const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
-        if (!hasRoles && store.state.userInfo && store.state.userInfo.prionum) {
-          try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
-          return next({ ...to, replace: true })
-        }
-        next()
-      } else {
-        next(`/login?redirect=${to.path}`)
+      } catch (e) {
+        // 解析失败，清除token并跳转到登录页
+        window.sessionStorage.removeItem('state')
         NProgress.done()
+        return next(`/login?redirect=${to.path}`)
       }
     }
-  } else {
-    // 非登录页常规流程
-    if (to.path === '/register') {
-      next()
-      NProgress.done()
-      return
-    }
-    // set page title
-    // document.title = getPageTitle(to.meta.title)
-    // determine whether the user has logged in
-    const hasToken = window.sessionStorage.getItem('state')
-    //  const hasToken = store.state.userInfo
-    // const L =  router.options.routes.length
-    if (hasToken) {
-      // 确保刷新或刚登录后 userInfo 可用
-      if (!store.state.userInfo || !store.state.userInfo.prionum) {
-        try {
-          const cached = JSON.parse(window.localStorage.getItem('userInfo') || '{}')
-          if (cached && cached.prionum) {
-            store.commit('setuserInfo', cached)
-          }
-        } catch (e) { /* ignore */ }
-      }
-      const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
-      if (!hasRoles && store.state.userInfo && store.state.userInfo.prionum) {
-        try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
+    
+    // 检查路由是否已注入
+    const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
+    if (!hasRoles && store.state.userInfo && store.state.userInfo.prionum) {
+      try { 
+        injectRoutesByRole(store.state.userInfo.prionum) 
         return next({ ...to, replace: true })
+      } catch (e) {
+        // 路由注入失败，跳转到登录页
+        window.sessionStorage.removeItem('state')
+        NProgress.done()
+        return next(`/login?redirect=${to.path}`)
       }
-      next()
-    } else {
-      next(`/login?redirect=${to.path}`)
-      NProgress.done()
-      // }
     }
+    
+    // 正常访问
+    next()
+  } else {
+    // 没有token，跳转到登录页
+    next(`/login?redirect=${to.path}`)
+    NProgress.done()
   }
-
 })
 
 router.afterEach(() => {
   // finish progress bar
   NProgress.done()
 })
+
+export default router
