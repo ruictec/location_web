@@ -29,6 +29,20 @@ function injectRoutesByRole (prionum) {
 router.beforeEach((to, from, next) => {
   NProgress.start()
   
+  // 首先检查会话状态
+  const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
+  if (!hasSessionFlag) {
+    // 新打开的页面，清除会话
+    try {
+      window.sessionStorage.removeItem('state');
+      store.commit('setuserInfo', '');
+      store.commit('resetRoutes');
+      window.sessionStorage.setItem('hasActiveSession', 'true');
+    } catch (e) {
+      // 忽略错误
+    }
+  }
+  
   // 处理根路径重定向
   if (to.path === '/') {
     NProgress.done()
