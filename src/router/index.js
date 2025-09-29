@@ -461,13 +461,42 @@ export const userRoutes = [
     {
       path: '/warningu',
       component: Layout,
+      redirect: '/warningu/index',
+      name: 'warningu',
+      meta: {
+        title: '告警管理',
+        icon: 'Warningmanagement'
+      },
       children: [
         {
-          path: '/',
+          path: 'index',
           component: () => import('../views/warning/WarningManagement.vue'),
-
           name: 'Warningmanagement',
-          meta: { title: '告警管理', icon: 'Warningmanagement', affix: true }
+          meta: { title: '告警信息', noCache: true }
+        },
+        {
+          path: 'electronicfence',
+          component: () => import('../views/warning/ElectronicFence.vue'),
+          name: 'ElectronicFence',
+          meta: { title: '电子围栏', noCache: true }
+        },
+        {
+          path: 'warningconfigper',
+          component: () => import('../views/warning/WarningConfigPer.vue'),
+          name: 'WarningConfigPer',
+          meta: { title: '人员告警配置', noCache: true }
+        },
+        {
+          path: 'warningconfigtbox',
+          component: () => import('../views/warning/WarningConfigTBox.vue'),
+          name: 'WarningConfigTbox',
+          meta: { title: '车辆告警配置', noCache: true }
+        },
+        {
+          path: 'warningconfig',
+          component: () => import('../views/warning/WarningConfig.vue'),
+          name: 'WarningConfig',
+          meta: { title: '告警配置', noCache: true }
         }
       ]
     },

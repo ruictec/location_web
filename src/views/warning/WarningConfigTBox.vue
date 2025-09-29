@@ -531,12 +531,12 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      contrForPrionum: this.$store.state.userInfo.prionum,
-      tenantid_A: this.$store.state.userInfo.tenantid,
-      tenantkey_A: this.$store.state.userInfo.tenantkey,
-      userName: this.$store.state.userInfo.username,
-      projectid: this.$store.state.projectid,
-      delprio: this.$store.state.userInfo.delprio,
+      contrForPrionum: this.$store.state.userInfo?.prionum || 5,
+      tenantid_A: this.$store.state.userInfo?.tenantid || '',
+      tenantkey_A: this.$store.state.userInfo?.tenantkey || '',
+      userName: this.$store.state.userInfo?.username || '',
+      projectid: this.$store.state.projectid || '',
+      delprio: this.$store.state.userInfo?.delprio || 0,
       timezone: Math.ceil(0 - new Date().getTimezoneOffset() / 60),
       tableData: [],
       currentPage1: 1,
