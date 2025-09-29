@@ -333,7 +333,7 @@
                 class="clearfix"
                 style="text-align: left; font-weight: 600"
               >
-                <span style="cursor: pointer" @click="$router.push('/warningu/index')">
+                <span style="cursor: pointer" @click="$router.push('/warning/index')">
                   {{ $t("homepage.AlertType") }}
                 </span>
               </div>
@@ -1273,7 +1273,7 @@ export default {
         case this.$t("homepage.SOSalert"):
           type = 1;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1283,7 +1283,7 @@ export default {
         case this.$t("homepage.gatherwarn"):
           type = 2;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1293,7 +1293,7 @@ export default {
         case this.$t("homepage.crosswarn"):
           type = 3;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1303,7 +1303,7 @@ export default {
         case this.$t("homepage.strandedwarn"):
           type = 4;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1313,7 +1313,7 @@ export default {
         case this.$t("homepage.Unusuallystill"):
           type = 5;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1323,7 +1323,7 @@ export default {
         case this.$t("warning.Tilt"):
           type = 6;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1333,7 +1333,7 @@ export default {
         case this.$t("warning.Dumpalarm"):
           type = 7;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1343,7 +1343,7 @@ export default {
         case this.$t("warning.Firealarm"):
           type = 8;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,
@@ -1353,7 +1353,7 @@ export default {
         case this.$t("homepage.closecontact"):
           type = 9;
           this.$router.push({
-            path: "/warningu/index",
+            path: "/warning/index",
             query: {
               warningtype: type,
               statustype: statustype,

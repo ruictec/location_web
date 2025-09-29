@@ -102,7 +102,7 @@ export default {
     goLink(value) {
       switch (value) {
         case "warning":
-          this.$router.push({ path: "/warningu/index" });
+          this.$router.push({ path: "/warning/index" });
           break;
         case "trajectory":
           this.$router.push({ path: "/staff/staffmanagement" });

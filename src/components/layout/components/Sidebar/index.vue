@@ -39,7 +39,7 @@
           >
         </el-submenu>
 
-        <el-submenu ref="subMenu" index="/warningu" popper-append-to-body>
+        <el-submenu ref="subMenu" index="/warning" popper-append-to-body>
           <template slot="title">
             <i class="icon sos"></i>
             <span style="font-weight: 600">{{
@@ -47,9 +47,9 @@
             }}</span>
           </template>
 
-          <el-menu-item index="/warningu/electronicfence" v-if="maprio == 1">{{ $t("warning.electronicFence") }}</el-menu-item>
+          <el-menu-item index="/warning/electronicfence" v-if="maprio == 1">{{ $t("warning.electronicFence") }}</el-menu-item>
 
-          <el-menu-item index="/warningu/index">
+          <el-menu-item index="/warning/index">
             <span>{{ $t("list.Alarminformation") }}</span>
             <el-badge
               :value="warningNum"
@@ -58,16 +58,16 @@
             >
             </el-badge
           ></el-menu-item>
-          <el-menu-item index="/warningu/warningconfigper" v-if="alarmConfig">{{
+          <el-menu-item index="/warning/warningconfigper" v-if="alarmConfig">{{
             $t("list.Personwarning")
           }}</el-menu-item>
 
           <el-menu-item
-            index="/warningu/warningconfigtbox"
+            index="/warning/warningconfigtbox"
             v-show="intoProjectType == 1 && tboxConfig"
             >{{ $t("list.Vehiclewarning") }}</el-menu-item
           >
-          <el-menu-item index="/warningu/warningconfig">{{
+          <el-menu-item index="/warning/warningconfig">{{
             $t("list.Alarmconfiguration")
           }}</el-menu-item>
         </el-submenu>

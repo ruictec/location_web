@@ -459,10 +459,10 @@ export const userRoutes = [
       ]
     },
     {
-      path: '/warningu',
+      path: '/warning',
       component: Layout,
-      redirect: '/warningu/index',
-      name: 'warningu',
+      redirect: '/warning/index',
+      name: 'warning',
       meta: {
         title: '告警管理',
         icon: 'Warningmanagement'
