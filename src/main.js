@@ -124,43 +124,27 @@ new Vue({
       }, false);
     },
     setupSessionManagement() {
-      // 使用更可靠的方法检测页面类型
-      // 检查是否有sessionStorage中的标记
-      const sessionStartTime = window.sessionStorage.getItem('sessionStartTime');
-      const currentTime = Date.now();
+      // 检查是否有会话标记
+      const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
       
-      if (!sessionStartTime) {
-        // 没有标记，说明是新打开的页面，清除会话
+      if (!hasSessionFlag) {
+        // 没有标记，说明是新打开的页面（关闭浏览器后重新打开），清除会话
         try {
           window.sessionStorage.removeItem('state');
           this.$store.commit('setuserInfo', '');
           this.$store.commit('resetRoutes');
-          // 设置新的会话开始时间
-          window.sessionStorage.setItem('sessionStartTime', currentTime.toString());
+          // 设置会话标记
+          window.sessionStorage.setItem('hasActiveSession', 'true');
         } catch (e) {
           // 忽略错误
         }
-      } else {
-        // 有标记，检查是否超过一定时间（比如5分钟）
-        const timeDiff = currentTime - parseInt(sessionStartTime);
-        if (timeDiff > 5 * 60 * 1000) { // 5分钟
-          // 超过5分钟，认为是新会话，清除会话
-          try {
-            window.sessionStorage.removeItem('state');
-            this.$store.commit('setuserInfo', '');
-            this.$store.commit('resetRoutes');
-            window.sessionStorage.setItem('sessionStartTime', currentTime.toString());
-          } catch (e) {
-            // 忽略错误
-          }
-        }
       }
       
-      // 监听页面卸载事件，清除会话
+      // 监听页面卸载事件，清除会话标记
       window.addEventListener('beforeunload', () => {
         try {
           window.sessionStorage.removeItem('state');
-          window.sessionStorage.removeItem('sessionStartTime');
+          window.sessionStorage.removeItem('hasActiveSession');
         } catch (e) {
           // 忽略错误
         }
