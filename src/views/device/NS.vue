@@ -79,8 +79,8 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="domain"
-                :label="$t('ns.domain')"
+                property="dom"
+                :label="$t('ns.dom')"
                 show-overflow-tooltip
                 min-width="77"
                 align="center"
@@ -238,9 +238,9 @@
                   :placeholder="$t('ns.text')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.Domainname')" prop="domain">
+              <el-form-item :label="$t('ns.Domainname')" prop="dom">
                 <el-input
-                  v-model="addData.domain"
+                  v-model="addData.dom"
                   :placeholder="$t('ns.addnsrules')"
                 ></el-input>
               </el-form-item>
@@ -335,9 +335,9 @@
                   :placeholder="$t('ns.text')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.Domainname')" prop="domain">
+              <el-form-item :label="$t('ns.Domainname')" prop="dom">
                 <el-input
-                  v-model="editData.domain"
+                  v-model="editData.dom"
                   :placeholder="$t('ns.addnsrules')"
                 ></el-input>
               </el-form-item>
@@ -445,7 +445,7 @@ export default {
       total: 0,
       add: false,
       addData: {
-        domain: "",
+        dom: "",
         port: "",
         usrname: "",
         token: "",
@@ -511,7 +511,7 @@ export default {
             trigger: "blur",
           },
         ],
-        domain: [
+        dom: [
           {
             required: true,
             message: this.$t("ns.text3"),
@@ -521,7 +521,7 @@ export default {
       },
       edit: false,
       editData: {
-        domain: "",
+        dom: "",
         port: "",
         usrname: "",
         token: "",
@@ -623,7 +623,7 @@ export default {
     addNS() {
       this.add = true;
       this.addData = {
-        domain: "",
+        dom: "",
         port: "",
         usrname: "",
         token: "",
@@ -693,7 +693,7 @@ export default {
 
     //编辑Ns信息
     nsEdit(index) {
-      this.editData.domain = this.tableData[index].domain;
+      this.editData.dom = this.tableData[index].dom;
       this.editData.port = this.tableData[index].port;
       this.editData.usrname = this.tableData[index].usrname;
       this.editData.token = this.tableData[index].token;
@@ -754,7 +754,7 @@ export default {
       }).then(() => {
         let data = {
           id: that.tableData[index].id,
-          domain: that.tableData[index].domain,
+          dom: that.tableData[index].dom,
         };
         delNs(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
           (res) => {
