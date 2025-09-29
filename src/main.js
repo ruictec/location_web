@@ -108,22 +108,12 @@ new Vue({
     // 设置会话管理
     this.setupSessionManagement();
   },
+  created() {
+    // 在组件创建时就检查会话，确保在路由守卫之前执行
+    this.checkSession();
+  },
   methods: {
-    toUrl(url) {
-      //首先跳回顶点，防止多次添加记录
-      window.history.pushState({ target: "Final", }, "", location.href);
-      location.href = url;
-    },
-    stay() {
-      history.forward();
-    },
-    prevent_back() {
-      var that = this
-      window.addEventListener("popstate", function (e) {
-        history.forward();
-      }, false);
-    },
-    setupSessionManagement() {
+    checkSession() {
       // 检查是否有会话标记
       const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
       
@@ -139,7 +129,22 @@ new Vue({
           // 忽略错误
         }
       }
-      
+    },
+    toUrl(url) {
+      //首先跳回顶点，防止多次添加记录
+      window.history.pushState({ target: "Final", }, "", location.href);
+      location.href = url;
+    },
+    stay() {
+      history.forward();
+    },
+    prevent_back() {
+      var that = this
+      window.addEventListener("popstate", function (e) {
+        history.forward();
+      }, false);
+    },
+    setupSessionManagement() {
       // 监听页面卸载事件，清除会话标记
       window.addEventListener('beforeunload', () => {
         try {

@@ -132,8 +132,8 @@ router.beforeEach((to, from, next) => {
     next()
   } else {
     // 没有token，跳转到登录页
-    next(`/login?redirect=${to.path}`)
     NProgress.done()
+    return next(`/login?redirect=${to.path}`)
   }
 })
 
