@@ -104,6 +104,9 @@ new Vue({
       window.__APP_ROUTER__ = router
       window.__APP_STORE__ = store
     }
+    
+    // 添加浏览器关闭检测，确保关闭浏览器后需要重新登录
+    this.setupSessionManagement();
   },
   methods: {
     toUrl(url) {
@@ -119,6 +122,46 @@ new Vue({
       window.addEventListener("popstate", function (e) {
         history.forward();
       }, false);
+    },
+    setupSessionManagement() {
+      // 检测浏览器关闭/刷新，清除会话信息
+      window.addEventListener('beforeunload', () => {
+        // 清除 sessionStorage 中的登录状态
+        try {
+          window.sessionStorage.removeItem('state');
+        } catch (e) {
+          // 忽略错误
+        }
+      });
+      
+      // 检测页面可见性变化（浏览器标签页切换）
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          // 页面隐藏时，设置一个标记
+          try {
+            window.sessionStorage.setItem('pageHidden', Date.now().toString());
+          } catch (e) {
+            // 忽略错误
+          }
+        } else {
+          // 页面重新可见时，检查是否超过一定时间
+          try {
+            const hiddenTime = window.sessionStorage.getItem('pageHidden');
+            if (hiddenTime) {
+              const timeDiff = Date.now() - parseInt(hiddenTime);
+              // 如果隐藏超过30分钟，清除登录状态
+              if (timeDiff > 30 * 60 * 1000) {
+                window.sessionStorage.removeItem('state');
+                window.sessionStorage.removeItem('pageHidden');
+                // 跳转到登录页
+                this.$router.push('/login');
+              }
+            }
+          } catch (e) {
+            // 忽略错误
+          }
+        }
+      });
     }
   }
 })
