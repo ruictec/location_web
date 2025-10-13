@@ -9,7 +9,7 @@
         <el-main> 
 
           <el-tabs v-model="activeName" @tab-click="changeTab">
-            <el-tab-pane name="0" label="Teanats">
+            <el-tab-pane name="0" label="Tenants">
               <Teanats ref="Teanats" />
             </el-tab-pane>
             <el-tab-pane name="1" label="Applications">
