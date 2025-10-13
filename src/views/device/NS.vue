@@ -79,7 +79,7 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="domain"
+                property="dom"
                 :label="$t('ns.domain')"
                 show-overflow-tooltip
                 min-width="77"
