@@ -390,6 +390,8 @@ export default {
       }
     },
     Zuser() {
+      // 过滤掉中文字符
+      this.registerForm.username = this.registerForm.username.replace(/[\u4e00-\u9fa5]/g, '');
       if (this.registerForm.username) {
         this.nouser = false;
       }

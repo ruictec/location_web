@@ -248,6 +248,20 @@
                 >
                 <el-button
                   type="primary"
+                  class="query"
+                  @click="previousDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.previous") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="nextDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.next") }}</el-button
+                >
+                <el-button
+                  type="primary"
                   class="reset"
                   @click="clearBtn()"
                   style="margin-left: 0"
@@ -777,6 +791,20 @@
                 >
                 <el-button
                   type="primary"
+                  class="query"
+                  @click="previousDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.previous") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="nextDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.next") }}</el-button
+                >
+                <el-button
+                  type="primary"
                   class="reset"
                   @click="clearBtn()"
                   style="margin-left: 0"
@@ -1113,6 +1141,20 @@
                       @click="searchInfo()"
                       style="margin-right: 0"
                       >{{ $t("terminal.search") }}</el-button
+                    >
+                    <el-button
+                      type="primary"
+                      class="query"
+                      @click="previousDevice()"
+                      style="margin-left: 0"
+                      >{{ $t("terminal.previous") }}</el-button
+                    >
+                    <el-button
+                      type="primary"
+                      class="query"
+                      @click="nextDevice()"
+                      style="margin-left: 0"
+                      >{{ $t("terminal.next") }}</el-button
                     >
                     <el-button
                       type="primary"
@@ -1472,6 +1514,20 @@
                   @click="searchInfo()"
                   style="margin-right: 0%"
                   >{{ $t("terminal.search") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="previousDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.previous") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="nextDevice()"
+                  style="margin-left: 0"
+                  >{{ $t("terminal.next") }}</el-button
                 >
                 <el-button
                   type="primary"
@@ -3538,9 +3594,9 @@
               <el-form-item :label="$t('terminal.deveui')">
                 <el-input v-model="editData.deveui" disabled></el-input>
               </el-form-item>
-              <el-form-item :label="$t('terminal.alias')" prop="">
+              <!-- <el-form-item :label="$t('terminal.alias')" prop="">
                 <el-input v-model="editData.alias"></el-input>
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item
                 :label="$t('beacon.company')"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
@@ -3771,9 +3827,9 @@
               <el-form-item :label="$t('terminal.deveui')">
                 <el-input v-model="editDatas.deveuiList" disabled></el-input>
               </el-form-item>
-              <el-form-item :label="$t('terminal.alias')">
+              <!-- <el-form-item :label="$t('terminal.alias')">
                 <el-input v-model="editDatas.alias"></el-input>
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item
                 :label="$t('usermanagement.company')"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
@@ -10318,6 +10374,89 @@ export default {
       return uuid;
     },
 
+    // 上一个设备
+    previousDevice() {
+      if (!this.searchList.deveui || this.searchList.deveui.trim() === '') {
+        this.$message({
+          message: this.$t("terminal.pleaseInputDeveui"),
+          type: "warning",
+        });
+        return;
+      }
+      try {
+        const trimmedValue = this.searchList.deveui.trim();
+        // 验证是否为有效的16进制字符串
+        if (!/^[0-9A-Fa-f]+$/.test(trimmedValue)) {
+          this.$message({
+            message: this.$t("terminal.pleaseInputDeveui"),
+            type: "warning",
+          });
+          return;
+        }
+        // 使用BigInt处理大16进制数，避免精度丢失
+        const currentValue = BigInt('0x' + trimmedValue);
+        if (currentValue <= BigInt(0)) {
+          this.$message({
+            message: this.$t("terminal.pleaseInputDeveui"),
+            type: "warning",
+          });
+          return;
+        }
+        // 减1并转换回16进制，保持原格式长度
+        const newValue = currentValue - BigInt(1);
+        const originalLength = trimmedValue.length;
+        let newHex = newValue.toString(16).toUpperCase();
+        // 保持原格式长度
+        this.searchList.deveui = newHex.padStart(originalLength, '0');
+        // 执行查询
+        this.searchInfo();
+      } catch (error) {
+        this.$message({
+          message: this.$t("terminal.pleaseInputDeveui"),
+          type: "warning",
+        });
+      }
+    },
+    // 下一个设备
+    nextDevice() {
+      if (!this.searchList.deveui || this.searchList.deveui.trim() === '') {
+        this.$message({
+          message: this.$t("terminal.pleaseInputDeveui"),
+          type: "warning",
+        });
+        return;
+      }
+      try {
+        const trimmedValue = this.searchList.deveui.trim();
+        // 验证是否为有效的16进制字符串
+        if (!/^[0-9A-Fa-f]+$/.test(trimmedValue)) {
+          this.$message({
+            message: this.$t("terminal.pleaseInputDeveui"),
+            type: "warning",
+          });
+          return;
+        }
+        // 使用BigInt处理大16进制数，避免精度丢失
+        const currentValue = BigInt('0x' + trimmedValue);
+        // 加1并转换回16进制，保持原格式长度
+        const newValue = currentValue + BigInt(1);
+        const originalLength = trimmedValue.length;
+        let newHex = newValue.toString(16).toUpperCase();
+        // 如果新值超过原长度能表示的最大值，允许扩展长度，否则保持原格式长度
+        if (newHex.length > originalLength) {
+          this.searchList.deveui = newHex;
+        } else {
+          this.searchList.deveui = newHex.padStart(originalLength, '0');
+        }
+        // 执行查询
+        this.searchInfo();
+      } catch (error) {
+        this.$message({
+          message: this.$t("terminal.pleaseInputDeveui"),
+          type: "warning",
+        });
+      }
+    },
     // 搜索
     searchInfo() {
       var that = this;
