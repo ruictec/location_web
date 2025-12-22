@@ -421,7 +421,7 @@ export const userRoutes = [
       redirect: '/device/terminal',
       name: 'terminal',
       meta: {
-        title: '设备管理',
+        title: 'router.deviceManagement',
         icon: '404'
       },
       children: [
@@ -429,19 +429,19 @@ export const userRoutes = [
           path: 'terminal',
           component: Terminal,
           name: 'terminal',
-          meta: { title: '终端管理', noCache: true }
+          meta: { title: 'router.terminalManagement', noCache: true }
         },
         {
           path: 'beacon',
           component: Beacon,
           name: 'beacon',
-          meta: { title: '信标管理', noCache: true }
+          meta: { title: 'router.beaconManagement', noCache: true }
         },
         {
           path: 'security',
           component: Security,
           name: 'security',
-          meta: { title: '安全管理', noCache: true }
+          meta: { title: 'router.securityManagement', noCache: true }
         }
       ]
     },
@@ -454,7 +454,7 @@ export const userRoutes = [
           path: '',
           component: Homeuser,
           name: 'HomeUser',
-          meta: { title: '首页', icon: 'Home', affix: true }
+          meta: { title: 'router.homepage', icon: 'Home', affix: true }
         }
       ]
     },
@@ -464,7 +464,7 @@ export const userRoutes = [
       redirect: '/warning/index',
       name: 'warning',
       meta: {
-        title: '告警管理',
+        title: 'router.alarmManagement',
         icon: 'Warningmanagement'
       },
       children: [
@@ -472,31 +472,31 @@ export const userRoutes = [
           path: 'index',
           component: () => import('../views/warning/WarningManagement.vue'),
           name: 'Warningmanagement',
-          meta: { title: '告警信息', noCache: true }
+          meta: { title: 'router.alarmInformation', noCache: true }
         },
         {
           path: 'electronicfence',
           component: () => import('../views/warning/ElectronicFence.vue'),
           name: 'ElectronicFence',
-          meta: { title: '电子围栏', noCache: true }
+          meta: { title: 'router.electronicFence', noCache: true }
         },
         {
           path: 'warningconfigper',
           component: () => import('../views/warning/WarningConfigPer.vue'),
           name: 'WarningConfigPer',
-          meta: { title: '人员告警配置', noCache: true }
+          meta: { title: 'router.personAlarmConfig', noCache: true }
         },
         {
           path: 'warningconfigtbox',
           component: () => import('../views/warning/WarningConfigTBox.vue'),
           name: 'WarningConfigTbox',
-          meta: { title: '车辆告警配置', noCache: true }
+          meta: { title: 'router.vehicleAlarmConfig', noCache: true }
         },
         {
           path: 'warningconfig',
           component: () => import('../views/warning/WarningConfig.vue'),
           name: 'WarningConfig',
-          meta: { title: '告警配置', noCache: true }
+          meta: { title: 'router.alarmConfig', noCache: true }
         }
       ]
     },
@@ -506,7 +506,7 @@ export const userRoutes = [
       redirect: '/staff/staffmanagement',
       name: 'staffmanagement',
       meta: {
-        title: '人员管理',
+        title: 'router.personnelManagement',
         icon: '404'
       },
       children: [
@@ -514,31 +514,31 @@ export const userRoutes = [
           path: 'staffmanagement',
           component: StaffManagement,
           name: 'staffmanagement',
-          meta: { title: '员工管理', noCache: true }
+          meta: { title: 'router.employeeManagement', noCache: true }
         },
         {
           path: 'assetManagement',
           component: AssetManagement,
           name: 'assetManagement',
-          meta: { title: '资产管理', noCache: true }
+          meta: { title: 'router.assetManagement', noCache: true }
         },
         {
           path: 'tboxManagement',
           component: TBoxManagement,
           name: 'tboxManagement',
-          meta: { title: '车辆管理', noCache: true }
+          meta: { title: 'router.vehicleManagement', noCache: true }
         },
         {
           path: 'checkwork',
           component: CheckWork,
           name: 'checkwork',
-          meta: { title: '考勤管理', noCache: true }
+          meta: { title: 'router.attendanceManagement', noCache: true }
         },
         {
           path: 'inspection',
           component: inspection,
           name: 'inspection',
-          meta: { title: '巡检管理', noCache: true }
+          meta: { title: 'router.inspectionManagement', noCache: true }
         }
       ]
     },
@@ -548,7 +548,7 @@ export const userRoutes = [
       redirect: '/location/mapmanagement',
       name: 'mapmanagement',
       meta: {
-        title: '定位管理',
+        title: 'router.locationManagement',
         icon: '404'
       },
       children: [
@@ -556,44 +556,44 @@ export const userRoutes = [
           path: 'mapmanagement',
           component: MapManagement,
           name: 'mapmanagement',
-          meta: { title: '地图管理', noCache: true }
+          meta: { title: 'router.mapManagement', noCache: true }
         },
         {
           path: 'buildingmanagement',
           component: buildingManagement,
           name: 'buildingmanagement',
-          meta: { title: '楼栋管理', noCache: true }
+          meta: { title: 'router.buildingManagement', noCache: true }
         },
         {
           path: 'floormanagement',
           component: BuildingManagement,
           name: 'floormanagement',
-          meta: { title: '楼层管理', noCache: true }
+          meta: { title: 'router.floorManagement', noCache: true }
         },
         {
           path: 'buildingdetails',
           component: GroundDetails,
           name: 'buildingdetails',
-          meta: { title: '楼层详情', noCache: true }
+          meta: { title: 'router.floorDetails', noCache: true }
         },
         {
           path: 'outdoor',
           component: Outdoor,
           name: 'outdoor',
           redirect: '/location/outdoor/locationoutdoor',
-          meta: { title: '室外定位', noCache: true },
+          meta: { title: 'router.outdoorPositioning', noCache: true },
           children: [{
             path: 'locationoutdoor',
             component: LocationOutdoor,
             name: 'locationoutdoor',
-            meta: { title: '定位查询', noCache: true },
+            meta: { title: 'router.locationQuery', noCache: true },
 
           },
           {
             path: 'historical',
             component: Historical,
             name: 'historical',
-            meta: { title: '历史轨迹', noCache: true },
+            meta: { title: 'router.historicalTrack', noCache: true },
 
           }]
         },
@@ -601,20 +601,20 @@ export const userRoutes = [
           path: 'indoor',
           component: Indoor,
           name: 'indoor',
-          meta: { title: '室内定位', noCache: true },
+          meta: { title: 'router.indoorPositioning', noCache: true },
           redirect: '/location/indoor/locationindoor',
           children: [{
             path: 'locationindoor',
             component: LocationIndoor,
             name: 'locationindoor',
-            meta: { title: '定位查询', noCache: true },
+            meta: { title: 'router.locationQuery', noCache: true },
 
           },
           {
             path: 'historical',
             component: LocationIndoorHis,
             name: 'historical',
-            meta: { title: '数据分析', noCache: true },
+            meta: { title: 'router.dataAnalysis', noCache: true },
 
           }]
         },
@@ -628,7 +628,7 @@ export const userRoutes = [
       redirect: '/user/usercenter',
       name: 'usercenter',
       meta: {
-        title: 'user',
+        title: 'router.user',
         icon: '404'
       },
       children: [
@@ -636,13 +636,13 @@ export const userRoutes = [
           path: 'usercenter',
           component: UserCenter,
           name: 'usercenter',
-          meta: { title: '用户中心', noCache: true }
+          meta: { title: 'router.userCenter', noCache: true }
         },
         {
           path: 'myorder',
           component: MyOrder,
           name: 'myorder',
-          meta: { title: '我的工单', noCache: true }
+          meta: { title: 'router.myOrder', noCache: true }
         },
       ]
     },
@@ -658,7 +658,7 @@ export const userRoutes = [
           path: '/',
           component: Message,
           name: 'messageuser',
-          meta: { title: '消息中心', noCache: true }
+          meta: { title: 'router.messageCenter', noCache: true }
         },
 
       ]
