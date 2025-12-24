@@ -67,7 +67,7 @@ router.beforeEach((to, from, next) => {
     if (to.query && to.query.username && to.query.password) {
       service({
         method: 'post',
-        url: process.env.VUE_APP_API_BASE + '/user/login',
+        url: '/user/login',
         data: { username: to.query.username.toString(), userkey: to.query.password.toString() },
         ContentType: 'application/json;charset=UTF-8'
       })
