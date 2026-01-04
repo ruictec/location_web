@@ -3105,6 +3105,8 @@ export default {
                 popMarker.remove();
                 that.popMarkerTip = false;
                 marker.remove();
+                that.selectArrangeData = ""; // 清空选中的设备，以便重新选择
+                that.setNewMarker = true; // 重置标记，允许继续添加新设备
                 that.menuClick(that.activeMenu, that.currentPage2);
               } else {
                 that.$message({
@@ -3129,6 +3131,8 @@ export default {
                   popMarker.remove();
                   that.popMarkerTip = false;
                   marker.remove();
+                  that.selectArrangeData = ""; // 清空选中的设备，以便重新选择
+                  that.setNewMarker = true; // 重置标记，允许继续添加新设备
                   that.getBeaconPos(that.intoProjectid, that.currentPage2);
                   // that.map3d.clearLineMark();
                   that.lineMarkerList.forEach((item) => {
@@ -3161,6 +3165,8 @@ export default {
                   popMarker.remove();
                   that.popMarkerTip = false;
                   marker.remove();
+                  that.selectArrangeData = ""; // 清空选中的设备，以便重新选择
+                  that.setNewMarker = true; // 重置标记，允许继续添加新设备
 
                   that.getGatewayPos(that.intoProjectid, that.currentPage2);
                   // that.map3d.clearLineMark();
