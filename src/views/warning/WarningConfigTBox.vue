@@ -1,8 +1,8 @@
 <template>
   <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
-    <div class="menu_header" v-if="contrForPrionum != 5">
+      <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
-      车辆告警
+      {{ $t("warning.Vehiclewarning") }}
     </div>
     <div class="content">
       <el-container>
@@ -79,7 +79,6 @@
                   <el-popover
                     trigger="hover"
                     placement="bottom"
-                    v-if="scope.row.postype == 1"
                   >
                     <p>{{ $t("tet.tet2") }}</p>
                     <div slot="reference" class="name-wrapper">
@@ -92,7 +91,6 @@
                       >
                     </div>
                   </el-popover>
-                  <p v-else>{{ scope.row.tranches }}</p>
                 </template>
               </el-table-column>
               <el-table-column
@@ -204,26 +202,12 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="触发方式" prop="meth" v-if="showWarnum == false">
-                <el-select v-model="addData.meth" placeholder="请选择越界告警的触发方式">
+              <el-form-item :label="$t('warning.triggerMethod')" prop="meth" v-if="showWarnum == false">
+                <el-select v-model="addData.meth" :placeholder="$t('warning.selectTriggerMethod')">
                   <el-option
                     v-for="item in methList"
                     :key="item.index"
                     :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('project.Locationtype')" prop="postype">
-                <el-select
-                  v-model="addData.postype"
-                  :placeholder="$t('warning.text4')"
-                  @change="changePosType"
-                >
-                  <el-option
-                    v-for="item in postypeList"
-                    :key="item.index"
-                    :label="item.label"
                     :value="item.index"
                   ></el-option>
                 </el-select>
@@ -247,10 +231,11 @@
                   v-model="addTranches"
                   multiple
                   :placeholder="$t('warning.text6')"
+                  @change="handleAddTrancheChange"
                 >
                   <el-option
                     v-for="item in trancheLists"
-                    :key="item.index"
+                    :key="item.id"
                     :label="item.optionname"
                     :value="item.id"
                   ></el-option>
@@ -352,20 +337,6 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('project.Locationtype')" prop="postype">
-                <el-select
-                  v-model="editData.postype"
-                  :placeholder="$t('warning.text4')"
-                  disabled
-                >
-                  <el-option
-                    v-for="item in postypeList"
-                    :key="item.index"
-                    :label="item.label"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item :label="$t('warning.vehicletype1')">
                 <el-select
                   v-model="editWorktypes"
@@ -385,12 +356,13 @@
                   v-model="editTranches"
                   multiple
                   :placeholder="$t('warning.text6')"
+                  @change="handleEditTrancheChange"
                 >
                   <el-option
                     v-for="item in trancheLists"
-                    :key="item.index"
+                    :key="item.id"
                     :label="item.optionname"
-                    :value="item.building + '/' + item.groundname + '/' + item.name"
+                    :value="item.id"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -486,6 +458,21 @@
                   align="center"
                 ></el-table-column>
                 <el-table-column
+                  :label="$t('LocationIndoorHis.Locationtype')"
+                  show-overflow-tooltip
+                  min-width="100"
+                  align="center"
+                >
+                  <template slot-scope="scope">
+                    <span v-if="scope.row.groundid === 0 || scope.row.groundid == 0">
+                      {{ $t("warningVoice.outdoorGps") }}
+                    </span>
+                    <span v-else>
+                      {{ $t("warningVoice.indoorBle") }}
+                    </span>
+                  </template>
+                </el-table-column>
+                <el-table-column
                   property="building"
                   :label="$t('tet.Building')"
                   show-overflow-tooltip
@@ -517,10 +504,9 @@ import {
   delWarningConfig,
   addWarningConfig,
   getTboxType,
-  getTranche,
   updateWarningConfig,
-  getTrancheByIds,
-  getFenceManageAndPointList,
+  getFenceManageByIds,
+  getFenceManageList,
 } from "../../axios/api";
 export default {
   components: {
@@ -566,7 +552,7 @@ export default {
       },
 
       addWorktypes: "", //添加角色集合
-      addTranches: "", //添加区域集合
+      addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
       posTypeVal: "",
@@ -584,14 +570,7 @@ export default {
         meth: [
           {
             required: true,
-            message: "请选择触发方式",
-            trigger: "change",
-          },
-        ],
-        postype: [
-          {
-            required: true,
-            message: this.$t("beacon.Pleasealarm"),
+            message: this.$t("warning.pleaseSelectTriggerMethod"),
             trigger: "change",
           },
         ],
@@ -657,11 +636,11 @@ export default {
       methList: [
         {
           index: 1,
-          value: "进入",
+          value: this.$t("warning.enter"),
         },
         {
           index: 2,
-          value: "离开",
+          value: this.$t("warning.leave"),
         },
       ],
     };
@@ -676,34 +655,60 @@ export default {
         this.showWarnum = true;
       }
       this.typeval = val;
-      if (this.posTypeVal == 1) {
-        // 聚集告警，区域没有室外
-        if (this.typeval == 2) {
-          this.trancheLists = this.trancheListBle.slice(0, -1);
-        } else {
-          this.trancheLists = this.trancheListBle;
+    },
+    // 处理区域选择变化
+    handleTrancheChange(values, target) {
+      const ids = values || [];
+      const selected = this.trancheLists.filter((item) => ids.includes(item.id));
+      const hasOutdoor = selected.some((item) => item.groundid === 0);
+      const hasIndoor = selected.some((item) => item.groundid !== 0);
+
+      if (hasOutdoor && hasIndoor) {
+        // 混选室内和室外围栏时，保留最后选择的类型
+        const lastId = ids[ids.length - 1];
+        const lastItem = this.trancheLists.find((item) => item.id === lastId);
+        if (lastItem) {
+          const keepOutdoor = lastItem.groundid === 0;
+          const filtered = selected
+            .filter((item) => (item.groundid === 0) === keepOutdoor)
+            .map((item) => item.id);
+          this[target] = filtered;
+          this.setPostypeBySelection(target, keepOutdoor);
+          
+          // 使用i18n翻译的提示消息
+          const fenceTypeLabel = keepOutdoor 
+            ? this.$t("warningVoice.outdoorGps") 
+            : this.$t("warningVoice.indoorBle");
+          const message = this.$t("warningVoice.cannotMixFence", { type: fenceTypeLabel });
+          
+          this.$message({
+            message: message,
+            type: "warning",
+          });
         }
-      } else if (this.posTypeVal == 2) {
-        this.trancheLists = this.trancheListGPS;
+        return;
+      }
+      if (hasOutdoor) {
+        this.setPostypeBySelection(target, true);
+      } else if (hasIndoor) {
+        this.setPostypeBySelection(target, false);
+      } else {
+        this.setPostypeBySelection(target, null);
       }
     },
-
-    // 选择告警定位类型，选择室外时需要选择围栏
-    changePosType(val) {
-      this.posTypeVal = val;
-      if (this.edit) {
-        this.editTranches = [];
+    setPostypeBySelection(target, isOutdoor) {
+      const value = isOutdoor === null ? "" : isOutdoor ? 2 : 1;
+      if (target === "addTranches") {
+        this.addData.postype = value;
+      } else {
+        this.editData.postype = value;
       }
-      if (val == 1) {
-        // 聚集告警，区域没有室外
-        if (this.typeval == 2) {
-          this.trancheLists = this.trancheListBle.slice(0, -1);
-        } else {
-          this.trancheLists = this.trancheListBle;
-        }
-      } else if (val == 2) {
-        this.trancheLists = this.trancheListGPS;
-      }
+    },
+    handleAddTrancheChange(val) {
+      this.handleTrancheChange(val, "addTranches");
+    },
+    handleEditTrancheChange(val) {
+      this.handleTrancheChange(val, "editTranches");
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -799,7 +804,6 @@ export default {
         cate: 2,
       };
       this.getWarningLists();
-      this.getTrancheList();
     },
 
     //
@@ -816,44 +820,21 @@ export default {
         }
       );
     },
-    // 获取围栏区域
+    // 获取围栏区域（统一获取所有室内及室外电子围栏）
     getFenceManageAndPointLists() {
       var that = this;
       let data = {
         projectid: this.$store.state.intoProjectid,
       };
-      getFenceManageAndPointList(
+      getFenceManageList(
         data,
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.trancheListGPS = res.data;
-          that.trancheListGPS.forEach((item) => {
-            item.optionname = item.name;
-          });
-        }
-      });
-    },
-    //获取区域
-    getTrancheList() {
-      var that = this;
-      let data = {
-        site: false,
-        projectid: this.projectid,
-      };
-      getTranche(data, this.tenantkey_A, this.tenantid_A, this.userName).then((res) => {
-        if (res.code == 1001) {
-          // that.trancheLists = res.data;
-          that.trancheListBle = res.data;
-          that.trancheListBle.forEach((item) => {
-            if (item.building) {
-              item.optionname = item.building + "/" + item.groundname + "/" + item.name;
-            } else {
-              item.optionname = item.name;
-            }
-          });
+          // 统一处理所有围栏数据
+          that.trancheLists = res.data.map((item) => that.decorateFenceOption(item));
         } else {
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -862,14 +843,25 @@ export default {
         }
       });
     },
+    // 生成区域展示名称
+    decorateFenceOption(item) {
+      const isOutdoor = item.groundid === 0;
+      const outdoorLabel = this.$t("warning.outdoor") || this.$t("warning.outdoorFence");
+      const building = item.building || "";
+      const ground = item.groundname || "";
+      const name = item.name || "";
+      return {
+        ...item,
+        optionname: isOutdoor ? `${outdoorLabel}-${name}` : `${building}-${ground}-${name}`,
+      };
+    },
 
     // 添加
     addWarning() {
       this.getBranchNameList();
-      this.getTrancheList();
       this.getFenceManageAndPointLists();
       this.addWorktypes = "";
-      this.addTranches = "";
+      this.addTranches = [];
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
@@ -909,6 +901,13 @@ export default {
             });
             return;
           }
+          if (!that.addData.postype) {
+            that.$message({
+              message: this.$t("project.Locationtype"),
+              type: "warning",
+            });
+            return;
+          }
           if (this.addData.begintime == "" || this.addData.begintime == null) {
             that.$message({
               message: this.$t("beacon.Pleasestarttime"),
@@ -944,13 +943,7 @@ export default {
             });
             return;
           }
-          for (let i = 0; i < that.addTranches.length; i++) {
-            that.addData.tranches += that.addTranches[i] + ",";
-          }
-          that.addData.tranches = that.addData.tranches.slice(
-            0,
-            that.addData.tranches.length - 1
-          );
+          that.addData.tranches = that.addTranches.join(",");
           if (that.addData.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
@@ -993,15 +986,13 @@ export default {
     EditWarningCommand(index) {
       var that = this;
       this.getBranchNameList();
-      this.getTrancheList();
       this.getFenceManageAndPointLists();
       this.editWorktypes = "";
       this.editTranches = [];
-      this.editTranche = "";
       this.editData.worktypes = "";
       this.editData.tranches = "";
       this.editWorktypes = this.tableData[index].worktypes.split(",");
-      this.editTranche = this.tableData[index].tranches.split(",");
+      const trancheIds = this.tableData[index].tranches.split(",");
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
@@ -1015,29 +1006,16 @@ export default {
       this.editData.warnum = this.tableData[index].warnum;
       this.editData.memo = this.tableData[index].memo;
       this.editData.id = this.tableData[index].id;
+      
+      // 等待围栏数据加载完成后再设置选中的区域
+      this.$nextTick(() => {
+        const selectedItems = this.trancheLists.filter((item) => 
+          trancheIds.includes(String(item.id))
+        );
+        this.editTranches = selectedItems.map((item) => item.id);
+      });
+      
       this.edit = true;
-      let arr = [];
-      if (this.editData.postype == 2) {
-        this.trancheLists = this.trancheListGPS;
-        this.editTranche.forEach((item) => {
-          that.trancheListGPS.forEach((value) => item == value.id && arr.push(value));
-        });
-        arr.forEach((item) => {
-          that.editTranches.push(item.building + "/" + item.groundname + "/" + item.name);
-        });
-      } else {
-        this.editTranche.forEach((item) => {
-          that.trancheListBle.forEach((value) => item == value.id && arr.push(value));
-        });
-        arr.forEach((item) => {
-          that.editTranches.push(item.building + "/" + item.groundname + "/" + item.name);
-        });
-        if (this.editData.type == 2) {
-          this.trancheLists = this.trancheListBle.slice(0, -1);
-        } else {
-          this.trancheLists = this.trancheListBle;
-        }
-      }
     },
     editCancel(editData) {
       this.edit = false;
@@ -1089,33 +1067,8 @@ export default {
         that.editData.worktypes.length - 1
       );
 
-      //用来获取区域id集合
-      let idArr = [];
-      if (this.editData.postype == 2) {
-        this.editTranches.forEach((item) => {
-          that.trancheListGPS.forEach((value) => {
-            if (item == value.building + "/" + value.groundname + "/" + value.name) {
-              idArr.push(value);
-            }
-          });
-        });
-      } else {
-        this.editTranches.forEach((item) => {
-          that.trancheListBle.forEach((value) => {
-            if (item == value.building + "/" + value.groundname + "/" + value.name) {
-              idArr.push(value);
-            }
-          });
-        });
-      }
-
-      for (let i = 0; i < idArr.length; i++) {
-        that.editData.tranches += idArr[i].id + ",";
-      }
-      that.editData.tranches = that.editData.tranches.slice(
-        0,
-        that.editData.tranches.length - 1
-      );
+      // 直接使用选中的id数组
+      that.editData.tranches = that.editTranches.join(",");
       updateWarningConfig(
         that.editData,
         that.tenantkey_A,
@@ -1154,7 +1107,7 @@ export default {
       let data = {
         ids: this.tableData[index].tranches,
       };
-      getTrancheByIds(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
+      getFenceManageByIds(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
         (res) => {
           if (res.code == 1001) {
             that.tranchesDetails = res.data;
@@ -1241,7 +1194,6 @@ export default {
       cate: 2,
     };
     this.getWarningLists();
-    this.getTrancheList();
     this.getFenceManageAndPointLists();
   },
   watch: {
@@ -1250,6 +1202,21 @@ export default {
       this.i8n = this.$store.state.i18n;
       Object.assign(this.$data.addRules, this.$options.data.call(this).addRules);
       Object.assign(this.$data.postypeList, this.$options.data.call(this).postypeList);
+      // 更新触发方式列表
+      this.methList = [
+        {
+          index: 1,
+          value: this.$t("warning.enter"),
+        },
+        {
+          index: 2,
+          value: this.$t("warning.leave"),
+        },
+      ];
+      // 重新生成区域选项的显示名称
+      if (this.trancheLists && this.trancheLists.length > 0) {
+        this.trancheLists = this.trancheLists.map((item) => this.decorateFenceOption(item));
+      }
     },
   },
 };

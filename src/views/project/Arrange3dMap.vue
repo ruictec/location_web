@@ -95,30 +95,12 @@
                       class="reset"
                       >{{ $t("floormanagement.reset") }}</el-button
                     >
-                    <el-popover placement="top">
-                      <div style="display: flex">
-                        <el-button
-                          size="mini"
-                          type="primary"
-                          @click="editTranche('alarm')"
-                          >{{ $t("floormanagement.Alarmarea") }}</el-button
-                        >
-                        <el-button
-                          type="primary"
-                          size="mini"
-                          @click="editTranche('position')"
-                          >{{
-                            $t("floormanagement.Positioningarea")
-                          }}</el-button
-                        >
-                      </div>
-                      <el-button
-                        type="primary"
-                        class="reset"
-                        slot="reference"
-                        >{{ $t("floormanagement.Regionalsettings") }}</el-button
-                      >
-                    </el-popover>
+                    <el-button
+                      type="primary"
+                      class="reset"
+                      @click="editTranche('position')"
+                      >{{ $t("floormanagement.Positioningarea") }}</el-button
+                    >
                     <el-button
                       type="primary"
                       class="reset"
@@ -241,9 +223,6 @@
                           >
                           <el-dropdown-item command="4">{{
                             $t("change.showPosition")
-                          }}</el-dropdown-item>
-                          <el-dropdown-item command="5">{{
-                            $t("change.showAlarm")
                           }}</el-dropdown-item>
                         </el-dropdown-menu>
                       </el-dropdown>
@@ -643,22 +622,6 @@
                     ></el-option>
                   </el-select>
                 </el-form-item>
-
-                <el-form-item :label="$t('floormanagement.Alarmarea1')">
-                  <el-select
-                    v-model="TrancheDatas.alarmid"
-                    clearable
-                    filterable
-                    :placeholder="$t('terminal.choose')"
-                  >
-                    <el-option
-                      v-for="item in setAlarmTrancheList"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id"
-                    ></el-option>
-                  </el-select>
-                </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
                 <el-button @click="updateTrancheCancel3D()">{{
@@ -855,109 +818,6 @@
             </div>
           </el-dialog>
 
-          <!-- 设置告警区域 -->
-          <el-dialog
-            :title="$t('floormanagement.Alarmarea')"
-            :visible.sync="addTrancheAlarm"
-            class="edit"
-            width="40%"
-            style="text-align: center"
-            :close-on-click-modal="false"
-            :close-on-press-escape="false"
-            :modal-append-to-body="false"
-            :append-to-body="true"
-            @close="addTrancheRowCancelAlarm"
-          >
-            <div slot="title" class="dialog-title">
-              <span class="title-text"
-                >{{ $t("floormanagement.Alarmarea") }}
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style=""
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("floormanagement.title6") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </span>
-            </div>
-
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addTrancheRowAlarm"
-                >{{ $t("floormanagement.add") }}</el-button
-              >
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('floormanagement.Import')"
-              >
-                <el-select
-                  v-model="currentProjectid.groundid"
-                  clearable
-                  filterable
-                  @change="importTrancheAlarm"
-                  :placeholder="$t('floormanagement.Importbuilding')"
-                >
-                  <el-option
-                    v-for="item in projectList()"
-                    :key="item.id"
-                    :label="item.ground"
-                    :value="item.id"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="0px"
-              v-for="(item, index) in alarmTrancheList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline addTranche"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <p>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    style="margin-left: 20px"
-                    class="del"
-                    @click="deleTrancheRowAlarm(index, item.name, item.id)"
-                    >{{ $t("floormanagement.delete") }}</el-button
-                  >
-                </p>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addTrancheRowCancelAlarm()">{{
-                $t("change.cancle")
-              }}</el-button>
-              <el-button type="primary" @click="addTrancheRowTrueAlarm()">{{
-                $t("change.sure")
-              }}</el-button>
-            </div>
-          </el-dialog>
-
           <!-- 显示距离 -->
           <el-dialog
             width="30%"
@@ -1064,7 +924,6 @@ export default {
         beaconids: "",
         tranche: "",
         alias: "",
-        alarmid: "",
       },
       currentPage2: 1,
       totalArrange: 0,
@@ -1151,11 +1010,8 @@ export default {
       adjoinBeaconPopMarker: "",
       adjoinBeaconDataList: "",
       positionTrancheList: [],
-      alarmTrancheList: [],
       setTrancheList: [],
-      setAlarmTrancheList: [],
       addTranchePosition: false,
-      addTrancheAlarm: false,
       projectTable: [],
       sub: false, //是否是绘制子区域状态
       addPoint3D: false,
@@ -1186,11 +1042,11 @@ export default {
       changeMajor: true,
       changeMinor: true,
       // 图标显示相关
-      showOption: this.$store.state.intoProjectType == 1 ? 1 : 5,
+      showOption: this.$store.state.intoProjectType == 1 ? 1 : 4,
       showOptionName:
         this.$store.state.intoProjectType == 1
           ? this.$t("change.showAliases")
-          : this.$t("change.showAlarm"),
+          : this.$t("change.showPosition"),
       showOptions: false, //是否显示
       isShowLines: false, //是否显示连接线
       lineMarkerList: [], //存放线数据lineMarker
@@ -1251,9 +1107,6 @@ export default {
           break;
         case 4:
           this.showOptionName = this.$t("change.showPosition");
-          break;
-        case 5:
-          this.showOptionName = this.$t("change.showAlarm");
           break;
         default:
           break;
@@ -1777,7 +1630,6 @@ export default {
                       type: "",
                       clockin: that.selectArrangeData.clockin,
                       tranche: that.selectArrangeData.tranche,
-                      warning: that.selectArrangeData.warning,
                       anglimit: that.selectArrangeData.anglimit,
                       nearbeacons: "",
                     };
@@ -1873,7 +1725,7 @@ export default {
         default:
           break;
       }
-      var names = mapinfo.alarmname ? "/" + mapinfo.alarmname : "";
+      var names = "";
       if (that.showOption == 4) {
         names = mapinfo.tranche ? "/" + mapinfo.tranche : "";
       }
@@ -1896,8 +1748,6 @@ export default {
           minor: mapinfo.minor,
           devtype: mapinfo.devtype,
           tranche: mapinfo.tranche,
-          alarmid: mapinfo.alarmid,
-          alarmname: mapinfo.alarmname,
         };
 
         let src;
@@ -1968,10 +1818,7 @@ export default {
             clockin: mapinfo.clockin,
             tranche: mapinfo.tranche,
             anglimit: mapinfo.anglimit,
-            warning: "",
             nearbeacons: "",
-            alarmid: mapinfo.alarmid,
-            alarmname: mapinfo.alarmname,
           };
           if (mapinfo.type == 2) {
             that.layer = new fengmap.FMCompositeMarker({
@@ -2092,47 +1939,11 @@ export default {
             minor: mapinfo.minor,
             type: "",
             clockin: mapinfo.clockin,
-            warning: mapinfo.warning,
             tranche: mapinfo.tranche,
             anglimit: mapinfo.anglimit,
             nearbeacons: "",
-            alarmid: mapinfo.alarmid,
-            alarmname: mapinfo.alarmname,
           };
-          if (mapinfo.warning == 2) {
-            that.layer = new fengmap.FMCompositeMarker({
-              layout: {
-                style: "timage-btext",
-                align: "center",
-              },
-              text: {
-                padding: [0, 0, 0, 0],
-                plateStrokeWidth: 1,
-                content: {
-                  textAlign: fengmap.FMTextAlign.Center,
-                  lineSpacing: 2,
-                  fontSize: 14,
-                  fontFamily: "Microsoft YaHei",
-                  fillColor: "rgba(0, 0, 238)",
-                  // strokeColor: "rgba(255, 204, 255)",
-                  // strokeWidth: 1,
-                  text: alias + names,
-                },
-              },
-              x: coord.x,
-              y: coord.y,
-              image: {
-                url: "../../../static/gateway_sos.png",
-                size: [100, 100],
-              },
-              height: 1,
-              collision: false,
-              anchor: {
-                baseon: "image",
-                anchor: fengmap.FMMarkerAnchor.CENTER,
-              },
-            });
-          } else if (mapinfo.clockin == 1) {
+          if (mapinfo.clockin == 1) {
             // 打卡点用另一种图标表示
             that.layer = new fengmap.FMCompositeMarker({
               layout: {
@@ -2318,7 +2129,7 @@ export default {
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
           });
-        } else if (mapinfo.warning == 2) {
+        } else {
           that.layer = new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
@@ -2351,46 +2162,11 @@ export default {
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
           });
-        } else {
-          that.layer = new fengmap.FMCompositeMarker({
-            layout: {
-              style: "timage-btext",
-              align: "center",
-            },
-            text: {
-              padding: [0, 0, 0, 0],
-              plateStrokeWidth: 1,
-              content: {
-                textAlign: fengmap.FMTextAlign.Center,
-                lineSpacing: 2,
-                fontSize: 14,
-                fontFamily: "Microsoft YaHei",
-                fillColor: "rgba(0, 0, 238)",
-                // strokeColor: "rgba(255, 204, 255)",
-                // strokeWidth: 1,
-                text: alias,
-              },
-            },
-            x: coord.x,
-            y: coord.y,
-            image: {
-              url: that.iconSrc,
-              size: [100, 100],
-            },
-            height: 1,
-            collision: false,
-            anchor: {
-              baseon: "image",
-              anchor: fengmap.FMMarkerAnchor.CENTER,
-            },
-          });
         }
       }
       //图标添加自定义属性(绑定值)
       that.layer.selfAttr = mapinfo;
       that.layer.selfAttr.tranche = "";
-      that.layer.selfAttr.alarmid = "";
-      that.layer.selfAttr.alarmname = "";
       var level = this.map3d.getLevel();
       var group = this.map3d.getFloor(level);
       that.layer.addTo(group);
@@ -2810,6 +2586,10 @@ export default {
                 message: that.$t("buildingmanagement.deletesuccess"),
                 type: "success",
               });
+              // 重置添加点相关状态，以便可以继续添加设备
+              that.addPoint3D = false;
+              that.sub = false;
+              that.setNewMarker = true;
               that.clearArranges();
             } else {
               that.$message({
@@ -2901,9 +2681,7 @@ export default {
               )}</button>
             </li>
             <li style="margin-top:3px;padding-bottom:3px" ${
-              ((marker.selfAttr.clockin == 2 && marker.selfAttr.type == 1) ||
-                (marker.selfAttr.warning == 1 &&
-                  marker.selfAttr.clockin == 2)) &&
+              marker.selfAttr.clockin == 2 && marker.selfAttr.type == 1 &&
               !marker.selfAttr.devtype
                 ? ""
                 : 'class="hiddenclock"'
@@ -2913,9 +2691,7 @@ export default {
               )}</button>
             </li>
             <li style="margin-top:3px;padding-bottom:3px" ${
-              ((marker.selfAttr.clockin == 1 && marker.selfAttr.type == 1) ||
-                (marker.selfAttr.warning == 1 &&
-                  marker.selfAttr.clockin == 1)) &&
+              marker.selfAttr.clockin == 1 && marker.selfAttr.type == 1 &&
               !marker.selfAttr.devtype
                 ? ""
                 : 'class="hiddenclock"'
@@ -3249,11 +3025,7 @@ export default {
         default:
           break;
       }
-      var names =
-        alias +
-        (that.editFeatureInfo3D.selfAttr.alarmname
-          ? "/" + that.editFeatureInfo3D.selfAttr.alarmname
-          : "");
+      var names = alias;
       if (that.showOption == 4) {
         names =
           alias +
@@ -3360,16 +3132,10 @@ export default {
     setArea3D(marker, popMarker, ground) {
       let that = this;
       this.setTrancheList = [];
-      this.setAlarmTrancheList = [];
       if (marker.selfAttr.tranche) {
         that.TrancheDatas.tranche = marker.selfAttr.tranche;
       } else {
         that.TrancheDatas.tranche = "";
-      }
-      if (marker.selfAttr.alarmid) {
-        that.TrancheDatas.alarmid = marker.selfAttr.alarmid;
-      } else {
-        that.TrancheDatas.alarmid = "";
       }
       that.TrancheDatas.alias = marker.selfAttr.alias;
       that.TrancheDatas.beaconids = marker.selfAttr.deveui;
@@ -3383,40 +3149,17 @@ export default {
             ? that.$store.state.projectid
             : that.$store.state.intoProjectid,
       };
-      let dataAlarm = {
-        site: false,
-        groundid: this.groundid,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-      };
       getTranche(
-        dataAlarm,
+        dataPosition,
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.setAlarmTrancheList = res.data;
-          getTranche(
-            dataPosition,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.setTrancheList = res.data;
-              that.trancheShow3D = true;
-              popMarker.remove();
-              that.popMarkerTip = false;
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
+          that.setTrancheList = res.data;
+          that.trancheShow3D = true;
+          popMarker.remove();
+          that.popMarkerTip = false;
         } else {
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -3437,7 +3180,6 @@ export default {
       if (that.TrancheDatas.devtype) {
         let data = {
           tranche: that.TrancheDatas.tranche,
-          alarmid: that.TrancheDatas.alarmid,
           deveui: that.TrancheDatas.beaconids,
         };
         updateDevOtherTranche(
@@ -3466,10 +3208,8 @@ export default {
             }
 
             e.selfAttr.tranche = that.TrancheDatas.tranche;
-            e.selfAttr.alarmid = that.TrancheDatas.alarmid;
 
             var found = "";
-            var foundAlarm = "";
             if (e.selfAttr.tranche) {
               found = that.setTrancheList.find(function (item) {
                 return item.name == that.TrancheDatas.tranche;
@@ -3478,15 +3218,7 @@ export default {
                 e.selfAttr.tranche = found.name;
               }
             }
-            if (e.selfAttr.alarmid) {
-              foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                return item.id == that.TrancheDatas.alarmid;
-              });
-              if (foundAlarm) {
-                e.selfAttr.alarmname = foundAlarm.name;
-              }
-            }
-            var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+            var names = "";
             if (that.showOption == 4) {
               names = found.name ? "/" + found.name : "";
             }
@@ -3513,7 +3245,6 @@ export default {
         let trancheDatas1 = {
           groundid: that.groundid,
           tranche: that.TrancheDatas.tranche,
-          alarmid: that.TrancheDatas.alarmid,
           deveui: that.TrancheDatas.beaconids,
         };
         if (that.$store.state.intoProjectType == 1) {
@@ -3542,10 +3273,8 @@ export default {
           ).then((res) => {
             if (res.code == 1001) {
               e.selfAttr.tranche = that.TrancheDatas.tranche;
-              e.selfAttr.alarmid = that.TrancheDatas.alarmid;
 
               var found = "";
-              var foundAlarm = "";
               if (e.selfAttr.tranche) {
                 found = that.setTrancheList.find(function (item) {
                   return item.name == that.TrancheDatas.tranche;
@@ -3554,15 +3283,7 @@ export default {
                   e.selfAttr.tranche = found.name;
                 }
               }
-              if (e.selfAttr.alarmid) {
-                foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                  return item.id == that.TrancheDatas.alarmid;
-                });
-                if (foundAlarm) {
-                  e.selfAttr.alarmname = foundAlarm.name;
-                }
-              }
-              var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+              var names = "";
               if (that.showOption == 4) {
                 names = found.name ? "/" + found.name : "";
               }
@@ -3605,9 +3326,7 @@ export default {
           ).then((res) => {
             if (res.code == 1001) {
               e.selfAttr.tranche = that.TrancheDatas.tranche;
-              e.selfAttr.alarmid = that.TrancheDatas.alarmid;
               var found = "";
-              var foundAlarm = "";
               if (e.selfAttr.tranche) {
                 found = that.setTrancheList.find(function (item) {
                   return item.name == that.TrancheDatas.tranche;
@@ -3616,15 +3335,7 @@ export default {
                   e.selfAttr.tranche = found.name;
                 }
               }
-              if (e.selfAttr.alarmid) {
-                foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                  return item.id == that.TrancheDatas.alarmid;
-                });
-                if (foundAlarm) {
-                  e.selfAttr.tranche = foundAlarm.name;
-                }
-              }
-              var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+              var names = "";
               if (that.showOption == 4) {
                 names = found.name ? "/" + found.name : "";
               }
@@ -4296,9 +4007,6 @@ export default {
     addTrancheRowPosition() {
       this.positionTrancheList.push({});
     },
-    addTrancheRowAlarm() {
-      this.alarmTrancheList.push({});
-    },
     //导入区域
     importTranchePosition(val) {
       if (!val) return;
@@ -4345,44 +4053,6 @@ export default {
         }
       );
     },
-    importTrancheAlarm(val) {
-      if (!val) return;
-      var that = this;
-      let data = {
-        site: false,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-        groundid: this.currentProjectid.groundid,
-      };
-
-      getTranche(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
-        (res) => {
-          if (res.code == 1001) {
-            if (res.data.length > 0) {
-              // //导入后自动去重
-              let arr = res.data;
-              that.alarmTrancheList.forEach((i) => {
-                arr.forEach((j, index) => {
-                  if (j.name == i.name) {
-                    arr.splice(index, 1);
-                  }
-                });
-              });
-              arr.forEach((item) => {
-                that.alarmTrancheList.push({ name: item.name, id: "" });
-              });
-            }
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-          }
-        }
-      );
-    },
     //删除区域
     deleTrancheRowPosition(index, name, id) {
       var that = this;
@@ -4416,47 +4086,6 @@ export default {
         ).then((res) => {
           if (res.code == 1001) {
             that.positionTrancheList.splice(index, 1);
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-          }
-        });
-      }
-    },
-    deleTrancheRowAlarm(index, name, id) {
-      var that = this;
-      if (
-        (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
-        (this.$store.state.userInfo.prionum == 4 && this.delprio == 2)
-      ) {
-        that.$message({
-          message: that.$t("warning.permissiondelete"),
-          type: "warning",
-        });
-        return;
-      }
-      if (!id) {
-        this.alarmTrancheList.splice(index, 1);
-      } else {
-        let data = {
-          site: false,
-          id: id,
-          name: name,
-          projectid:
-            this.contrForPrionum == 5
-              ? this.$store.state.projectid
-              : this.$store.state.intoProjectid,
-        };
-        delTranche(
-          JSON.stringify(data),
-          this.tenantkey_A,
-          this.tenantid_A,
-          this.userName
-        ).then((res) => {
-          if (res.code == 1001) {
-            that.alarmTrancheList.splice(index, 1);
           } else {
             that.$message({
               message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -4538,76 +4167,9 @@ export default {
       );
     },
 
-    addTrancheRowTrueAlarm() {
-      var that = this;
-      let flag = false;
-      let flag1 = false;
-      let hash = {};
-      $.each(this.alarmTrancheList, function (i, n) {
-        if (n.id === undefined) {
-          n.id = "";
-        }
-        if (!n.name) {
-          flag = true;
-        }
-        if (hash[n.name]) {
-          flag1 = true;
-        }
-        hash[n.name] = true;
-      });
-      if (flag) {
-        that.$message({
-          message: that.$t("floormanagement.tippp4"),
-          type: "error",
-        });
-        return;
-      }
-      if (flag1) {
-        that.$message({
-          message: that.$t("floormanagement.tippp5"),
-          type: "error",
-        });
-        return;
-      }
-      let data = {
-        site: false,
-        tranches: JSON.parse(JSON.stringify(this.alarmTrancheList)),
-        groundid: that.groundid,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-      };
-      for (let i = 0; i < data.tranches.length; i++) {
-        data.tranches[i].fremove = 2;
-      }
-      data.tranches = JSON.stringify(data.tranches);
-      addTranche(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
-        (res) => {
-          if (res.code == 1001) {
-            that.$message({
-              message: that.$t("Building.Setsuccessfully"),
-              type: "success",
-            });
-            that.addTrancheAlarm = false;
-            flag = false;
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-            flag = false;
-          }
-        }
-      );
-    },
     addTrancheRowCancelPosition() {
       this.addTranchePosition = false;
       this.positionTrancheList = [];
-    },
-    addTrancheRowCancelAlarm() {
-      this.addTrancheAlarm = false;
-      this.alarmTrancheList = [];
     },
 
     // 3D地图设置扫描区域

@@ -841,12 +841,12 @@ export default {
           id: fenceData.id,
           number: fenceData.num,
         });
-        const numberFeature = new Feature({
-          geometry: polygon.getInteriorPoint(),
-          number: fenceData.num,
-          type: "number",
-          id: fenceData.id,
-        });
+        // const numberFeature = new Feature({
+        //   geometry: polygon.getInteriorPoint(),
+        //   number: fenceData.num,
+        //   type: "number",
+        //   id: fenceData.id,
+        // });
         // const feature = new Feature(polygon);
         // // 设置样式
         fenceFeature.setStyle(
@@ -861,23 +861,24 @@ export default {
           })
         );
         // 设置数字样式
-        numberFeature.setStyle(
-          new Style({
-            text: new Text({
-              text: String(fenceData.num) + this.$t("warning.people"),
-              font: "24px Calibri,sans-serif",
-              fill: new Fill({ color: "black" }),
-              stroke: new Stroke({
-                color: "white",
-                width: 2,
-              }),
-            }),
-          })
-        );
+        // numberFeature.setStyle(
+        //   new Style({
+        //     text: new Text({
+        //       text: String(fenceData.num) + this.$t("warning.people"),
+        //       font: "24px Calibri,sans-serif",
+        //       fill: new Fill({ color: "black" }),
+        //       stroke: new Stroke({
+        //         color: "white",
+        //         width: 2,
+        //       }),
+        //     }),
+        //   })
+        // );
 
         this.vectorSource.addFeature(fenceFeature);
-        this.vectorSource.addFeature(numberFeature);
-        this.fences.push({ fenceFeature, numberFeature });
+        // this.vectorSource.addFeature(numberFeature);
+        // this.fences.push({ fenceFeature, numberFeature });
+        this.fences.push({ fenceFeature });
       });
     },
     updateNumber(fenceIndex, newNumber) {

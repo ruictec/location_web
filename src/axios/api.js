@@ -4981,11 +4981,28 @@ export const fenceManage = (datas, tenantkey_A, tenantid_A, username) => { //添
     }).then(res => res)
 };
 
-export const getFenceManageAndPointList = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
+export const getFenceManageAndPointList = (query, tenantkey_A, tenantid_A, username) => { //获取电子围栏
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/map/getFenceManageAndPointList" + tenantkey_A + time_A)
     return service({
         url: "map/getFenceManageAndPointList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getFenceManageAndPointListByPage = (query, tenantkey_A, tenantid_A, username) => { //获取电子围栏（有分页数据）
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/map/getFenceManageAndPointListByPage" + tenantkey_A + time_A)
+    return service({
+        url: "map/getFenceManageAndPointListByPage",
         method: 'get',
         processData: false,
         headers: {
@@ -5031,6 +5048,23 @@ export const getFenceManageList = (query, tenantkey_A, tenantid_A, username) => 
     }).then(res => res)
 };
 
+export const getFenceManageByIds = (query, tenantkey_A, tenantid_A, username) => { //根据id查询电子围栏信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/map/getFenceManageByIds" + tenantkey_A + time_A)
+    return service({
+        url: "map/getFenceManageByIds",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
 export const getFenceManageWhiteList = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/map/getFenceManageWhiteList" + tenantkey_A + time_A)
@@ -5045,6 +5079,22 @@ export const getFenceManageWhiteList = (query, tenantkey_A, tenantid_A, username
             username: username
         },
         params: query
+    }).then(res => res)
+};
+
+export const updateFenceManage = (datas, tenantkey_A, tenantid_A, username) => { //根据围栏id修改围栏信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/map/updateFenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "map/updateFenceManage",
+        method: 'put',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
     }).then(res => res)
 };
 

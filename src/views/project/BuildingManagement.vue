@@ -293,29 +293,6 @@
                     <i class="el-icon-question" />
                   </el-tooltip> </template
               ></el-table-column>
-              <el-table-column
-                property="balarmnum"
-                :label="$t('floormanagement.Numberofalarmdevices')"
-                show-overflow-tooltip
-                min-width="77"
-                align="center"
-                v-if="intoProjectType == 1"
-                ><template slot="header" slot-scope="scope">
-                  <span class="cell" style="padding-right: 0">{{
-                    $t("floormanagement.Numberofalarmdevices")
-                  }}</span>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="font-size: 130%"
-                  >
-                    <div slot="content">
-                      <p>{{ $t("floormanagement.text6") }}</p>
-                    </div>
-                    <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
               <!-- 反向项目 -->
               <el-table-column
                 property="gwnum"
@@ -362,29 +339,6 @@
                   >
                     <div slot="content">
                       <p>{{ $t("floormanagement.text5") }}</p>
-                    </div>
-                    <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
-              <el-table-column
-                property="gwalarmnum"
-                :label="$t('floormanagement.Numberofalarmdevices')"
-                show-overflow-tooltip
-                min-width="77"
-                align="center"
-                v-if="intoProjectType == 2"
-                ><template slot="header" slot-scope="scope">
-                  <span class="cell" style="padding-right: 0">{{
-                    $t("floormanagement.Numberofalarmdevices")
-                  }}</span>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="font-size: 130%"
-                  >
-                    <div slot="content">
-                      <p>{{ $t("floormanagement.text6") }}</p>
                     </div>
                     <i class="el-icon-question" />
                   </el-tooltip> </template
@@ -1443,9 +1397,6 @@ export default {
             case that.$t("floormanagement.Numberofpunchpoints"):
               obj["bclocknum"] = outdata[i][key];
               break;
-            case that.$t("floormanagement.Numberofalarmdevices"):
-              obj["balarmnum"] = outdata[i][key];
-              break;
             case that.$t("project.memo"):
               obj["memo"] = outdata[i][key];
               break;
@@ -1454,9 +1405,6 @@ export default {
               break;
             case that.$t("floormanagement.Numberofpunchpoints"):
               obj["gwclocknum"] = outdata[i][key];
-              break;
-            case that.$t("floormanagement.Numberofalarmdevices"):
-              obj["gwalarmnum"] = outdata[i][key];
               break;
             default:
               break;
@@ -1512,10 +1460,6 @@ export default {
                 value: "bclocknum",
               },
               {
-                msg: that.$t("floormanagement.Numberofalarmdevices"),
-                value: "balarmnum",
-              },
-              {
                 msg: that.$t("project.memo"),
                 value: "memo",
               },
@@ -1554,11 +1498,6 @@ export default {
                 value: "gwclocknum",
               },
               {
-                msg: that.$t("floormanagement.Numberofalarmdevices"),
-                value: "gwalarmnum",
-              },
-
-              {
                 msg: that.$t("project.memo"),
                 value: "memo",
               },
@@ -1580,7 +1519,6 @@ export default {
               "mapname",
               "nums",
               "bclocknum",
-              "balarmnum",
               "memo",
             ]
           : [
@@ -1591,7 +1529,6 @@ export default {
               "mapname",
               "gwnum",
               "gwclocknum",
-              "gwalarmnum",
               "memo",
             ];
       for (let i = 0; i < exprotHeadertype.length; i++) {
@@ -1653,10 +1590,6 @@ export default {
                 value: "bclocknum",
               },
               {
-                msg: that.$t("floormanagement.Numberofalarmdevices"),
-                value: "balarmnum",
-              },
-              {
                 msg: that.$t("project.memo"),
                 value: "memo",
               },
@@ -1694,11 +1627,6 @@ export default {
                 msg: that.$t("floormanagement.Numberofpunchpoints"),
                 value: "gwclocknum",
               },
-              {
-                msg: that.$t("floormanagement.Numberofalarmdevices"),
-                value: "gwalarmnum",
-              },
-
               {
                 msg: that.$t("project.memo"),
                 value: "memo",

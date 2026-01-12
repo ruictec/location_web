@@ -1667,9 +1667,9 @@ export default {
         this.addLine(this.map);
         this.userMapMouse(this.map);
         this.userMapdbclick();
-        that.showAllFence().then(() => {
-          that.recreateFences();
-        });
+        // that.showAllFence().then(() => {
+        //   that.recreateFences();
+        // });
         const dblClickInteraction = this.map
           .getInteractions()
           .getArray()
@@ -2974,10 +2974,12 @@ export default {
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          res.data.fenceList.forEach((item) => {
-            const index = that.AllFences.findIndex((items) => items.id === item.id);
-            that.updateNumber(index, item.num);
-          });
+          if (res.data.fenceList && res.data.fenceList.length > 0) {
+            res.data.fenceList.forEach((item) => {
+              const index = that.AllFences.findIndex((items) => items.id === item.id);
+              that.updateNumber(index, item.num);
+            });
+          }
           that.attendanceNum = res.data.attendanceNum ? res.data.attendanceNum : [];
           that.max_num_build = res.data.max_num_build;
           if (that.max_num_build.length > 0) {
@@ -3066,6 +3068,7 @@ export default {
             },
           ];
           if (res.data.warnNumList.length > 0) {
+            // console.log(res.data.warnNumList);
             that.warnNumList.forEach((item) => {
               res.data.warnNumList.forEach((value) => {
                 if (item.typestr == value.typestr || item.typestr == value.entype) {

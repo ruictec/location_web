@@ -548,9 +548,9 @@ export default {
             that.addIconMarkers(that.map, that.mapInfos[i]);
           }
         }
-        that.showAllFence().then(() => {
-          that.recreateFences();
-        });
+        // that.showAllFence().then(() => {
+        //   that.recreateFences();
+        // });
       }, 0);
     },
     recreateFences() {

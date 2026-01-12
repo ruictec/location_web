@@ -51,7 +51,7 @@
               }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V1.14</span>
+          <span @click="showVer()" class="show_ver">V1.15</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
@@ -360,6 +360,19 @@ export default {
             this.i8n == "zh" ? this.$t("versions.content89") : "",
           ],
           timestamp: this.$t("versions.timestamp15"),
+        },
+        {
+          content: [
+            this.$t("versions.content91"),
+            this.$t("versions.content92"),
+            this.$t("versions.content93"),
+            this.$t("versions.content94"),
+            this.$t("versions.content95"),
+            this.$t("versions.content96"),
+            this.$t("versions.content97"),
+            this.$t("versions.content98"),
+          ],
+          timestamp: this.$t("versions.timestamp16"),
         },
       ],
       showVersion: false,
