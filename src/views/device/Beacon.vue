@@ -783,7 +783,7 @@
               ></el-table-column>
 
               <el-table-column
-                property="alarmname"
+                property="tranche"
                 :label="$t('beacon.region')"
                 show-overflow-tooltip
                 min-width="78"
@@ -2594,7 +2594,7 @@ export default {
               obj["type"] = outdata[i][key];
               break;
             case that.$t("beacon.region"):
-              obj["alarmname"] = outdata[i][key];
+              obj["tranche"] = outdata[i][key];
               break;
             case that.$t("floormanagement.AlarmareaID"):
               obj["alarmid"] = outdata[i][key];
@@ -2829,7 +2829,7 @@ export default {
           },
           {
             msg: this.$t("beacon.region"),
-            value: "alarmname",
+            value: "tranche",
           },
           {
             msg: this.$t("floormanagement.AlarmareaID"),
@@ -2960,7 +2960,7 @@ export default {
           "inuse",
           "workstate",
           "type",
-          "alarmname",
+          "tranche",
           "alarmid",
           "tranche",
           "clockin",

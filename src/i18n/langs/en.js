@@ -6,8 +6,8 @@ const en = {
     },
     login: {
         introduce: 'Personnel and asset location management',
-        tet: 'ICP License',
-        tet1: 'All rights reserved',
+        tet: '苏ICP备20047913号-2',
+        tet1: 'RUICTEC Information Technology Co., Ltd. All rights reserved',
         login: 'Login',
         recommendation: "Suggest Chrome or Firefox, macOS13 or above, must have Win10 or above",
         vindo: 'Welcome to login',
@@ -31,7 +31,9 @@ const en = {
         user: 'User：',
         language: '中文',
         return: 'Return',
-        pleasecheck: "Please check the 'User Agreement and Privacy Statement'"
+        pleasecheck: "Please check the 'User Agreement and Privacy Statement'",
+        cancel: 'Cancel',
+        confirm: 'Confirm',
     },
     Change: {
         email: "Please enter the correct email address",
@@ -1766,7 +1768,30 @@ const en = {
         title8: 'Select 0,indicating that the alarm sounds only once',
         Redraw: 'Redraw',
         Preview: 'Preview',
-        electronicFence: 'Electronic Fence'
+        electronicFence: 'Electronic Fence',
+        selectFenceType: 'Select Fence Type',
+        selectFenceTypeMessage: 'Please select the type of fence to add',
+        outdoorFence: 'Outdoor Electronic Fence',
+        indoorFence: 'Indoor Electronic Fence',
+        indoorFenceDataPrinted: 'Indoor electronic fence data has been printed to the console',
+        // Electronic Fence related
+        CreateFence: 'Create Electronic Fence',
+        End: 'End',
+        SetFenceInfo: 'Set Electronic Fence Info',
+        FenceName: 'Fence Name',
+        EnterFenceName: 'Please enter fence name',
+        FenceColor: 'Fence Color',
+        EnableFence: 'Enable Fence',
+        AtLeastThreePoints: 'At least 3 points are required to form a fence',
+        CreateSuccess: 'Create Success',
+        EditFenceInfo: 'Edit Electronic Fence Info',
+        EndEdit: 'End Edit',
+        EditSuccess: 'Edit Success',
+        triggerMethod: 'Trigger Method',
+        selectTriggerMethod: 'Please select the trigger method for crossing alarm',
+        pleaseSelectTriggerMethod: 'Please select trigger method',
+        enter: 'Enter',
+        leave: 'Leave',
     },
 
 
@@ -2220,7 +2245,6 @@ const en = {
         EquipmentQuantity: 'Device QTY',
         EquipmentQuantity1: 'Device QTY：',
         Numberofpunchpoints: 'Checkin QTY',
-        Numberofalarmdevices: 'Alarm QTY',
         Remark: 'Remark',
         Remark1: 'Remark：',
         operate: 'Operate',
@@ -3278,6 +3302,15 @@ const en = {
         content89: '4.Add：The fence and the number of people inside the fence are displayed on the large-screen map.',
         content90: '1.Optimization: When adding personnel alarms and adding vehicle alarms, select "Trigger Mode", and change "Positioning Type" to "Outdoor GPS" and "Indoor BLE". When "Outdoor GPS" is selected, the option in the "Area" below is the created fence area.',
         timestamp15: '2024-11-20',
+        content91: 'V1.15',
+        content92: '1.Optimize electronic fence page, add indoor fences linked to building/floor.',
+        content93: '2.Hide electronic fences on the homepage and dashboard.',
+        content94: '3.Remove alarm areas in the current project.',
+        content95: '4.Optimize registration page to disallow Chinese input.',
+        content96: '5.Optimize terminal management: alias cannot be edited; add prev/next query buttons.',
+        content97: '6.Optimize personnel and vehicle alarms: use electronic fence areas (indoor/outdoor).',
+        content98: '7.Upgrade LNS version from 3.0 to 4.0.',
+        timestamp16: '2026-01-07',
     },
     warningVoice: {
 
@@ -3307,6 +3340,7 @@ const en = {
         voice7: 'Sound effect 7',
         voice8: 'Sound effect 8',
         voice9: 'Sound effect 9',
+        cannotMixFence: 'Cannot select both outdoor and indoor electronic fences, automatically kept {type} fence',
     },
     ...enLocale
 }

@@ -488,17 +488,6 @@ export default {
       case "/config":
         this.isActiveClass = "project";
         break;
-      case "/locations/locationdeveui":
-        if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "project";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "position";
-        }
-        break;
-
       case "/test":
         this.isActiveClass = "data";
         break;
@@ -541,9 +530,6 @@ export default {
         break;
 
       case "/indoor/locationindoor":
-        this.isActiveClass = "position";
-        break;
-      case "/indoor3d/locationindoor3d":
         this.isActiveClass = "position";
         break;
       case "/logmanagement":

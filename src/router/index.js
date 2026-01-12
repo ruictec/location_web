@@ -26,15 +26,8 @@ const LocationOutdoor = () => import('../views/locate/LocationOutdoor')
 const Outdoor = () => import('../views/locate/Outdoor')
 const Historical = () => import('../views/locate/LocationHistorical')
 const Indoor = () => import('../views/locate/Indoor')
-const Indoor3D = () => import('../views/locate/Indoor3D')
 const LocationIndoor = () => import('../views/locate/LocationIndoor')
-const LocationIndoor3D = () => import('../views/locate/LocationIndoor3D')
 const LocationIndoorHis = () => import('../views/locate/LocationIndoorHis')
-const LocationIndoorHis3D = () => import('../views/locate/LocationIndoorHis3D')
-
-const Locations = () => import('../views/location/Locations')
-const LocationDeveui = () => import('../views/location/LocationDeveui')
-const LocationHistorical = () => import('../views/location/LocationHistorical')
 
 
 const StaffManagement = () => import('../views/staff/staffManagement')
@@ -45,10 +38,8 @@ const Test = () => import('../views/data/Test')
 const TestData = () => import('../views/data/TestData')
 const ProjectManagement = () => import('../views/project/ProjectManagement')
 const BuildingManagement = () => import('../views/project/BuildingManagement')
-const Building3D = () => import('../views/project/Building3D')
 const TerritoryManagement = () => import('../views/territory/TerritoryManagement')
 const UserCenter = () => import('../views/user/UserCenter')
-const UserSet = () => import('../views/user/UserSet')
 const Message = () => import('../views/message/Message')
 const AssetManagement = () => import('../views/asset/assetManagement')
 const TBoxManagement = () => import('../views/asset/TBoxManagement')
@@ -202,25 +193,6 @@ export const adminRoutes = [
     },
 
     {
-      path: '/locations',
-      name: 'Locations',
-      component: Locations,
-      meta: { requireAuth: true },
-      children: [
-        {
-          path: 'locationdeveui',
-          component: LocationDeveui,
-          meta: { requireAuth: true }
-        },
-        {
-          path: 'locationhistorical',
-          component: LocationHistorical,
-          meta: { requireAuth: true }
-        },
-      ]
-    },
-
-    {
       path: '/outdoor',
       name: 'Outdoor',
       component: Outdoor,
@@ -253,24 +225,6 @@ export const adminRoutes = [
         {
           path: 'historical',
           component: LocationIndoorHis,
-          meta: { requireAuth: true }
-        },
-      ]
-    },
-    {
-      path: '/indoor3d',
-      name: 'Indoor3D',
-      component: Indoor3D,
-      meta: { requireAuth: true },
-      children: [
-        {
-          path: 'locationindoor3d',
-          component: LocationIndoor3D,
-          meta: { requireAuth: true }
-        },
-        {
-          path: 'historical3d',
-          component: LocationIndoorHis3D,
           meta: { requireAuth: true }
         },
       ]
@@ -344,12 +298,6 @@ export const adminRoutes = [
     },
 
     {
-      path: '/userset',
-      name: 'UserSet',
-      component: UserSet,
-      meta: { requireAuth: true }
-    },
-    {
       path: '/message',
       name: 'Message',
       component: Message,
@@ -403,12 +351,6 @@ export const adminRoutes = [
       path: '/inspection',
       name: 'Inspection',
       component: inspection,
-      meta: { requireAuth: true }
-    },
-    {
-      path: '/building3d',
-      name: 'Building3D',
-      component: Building3D,
       meta: { requireAuth: true }
     },
 ]

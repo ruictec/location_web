@@ -66,9 +66,6 @@
                     <el-dropdown-item command="4">{{
                       $t("change.showPosition")
                     }}</el-dropdown-item>
-                    <el-dropdown-item command="5">{{
-                      $t("change.showAlarm")
-                    }}</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </div>
@@ -169,9 +166,6 @@
                     }}</el-dropdown-item>
                     <el-dropdown-item command="4">{{
                       $t("change.showPosition")
-                    }}</el-dropdown-item>
-                    <el-dropdown-item command="5">{{
-                      $t("change.showAlarm")
                     }}</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -287,9 +281,6 @@ export default {
         case 4:
           this.showOptionName = this.$t("change.showPosition");
           break;
-        case 5:
-          this.showOptionName = this.$t("change.showAlarm");
-          break;
         default:
           break;
       }
@@ -401,8 +392,6 @@ export default {
           major: info.mode,
           minor: info.scheme,
           tranche: info.tranche || "",
-          alarmid: info.alarmid || "",
-          alarmname: info.alarmname || "",
           geometry: new OlGeomPoint([info.lastx, info.lasty]),
         });
       } else {
@@ -417,8 +406,6 @@ export default {
             minor: info.minor,
             type: info.type,
             clockin: info.clockin,
-            alarmid: info.alarmid || "",
-            alarmname: info.alarmname || "",
             tranche: info.tranche || "",
             geometry: new OlGeomPoint([info.longi, info.lati]),
           });
@@ -434,8 +421,6 @@ export default {
             minor: info.minor,
             type: "",
             clockin: "",
-            alarmid: info.alarmid || "",
-            alarmname: info.alarmname || "",
             tranche: info.tranche || "",
             geometry: new OlGeomPoint([info.lastx, info.lasty]),
           });
@@ -446,7 +431,7 @@ export default {
         features: [startMarker],
       });
       var style;
-      var names = info.alarmname ? "/" + info.alarmname : "";
+      var names = "";
       if (that.showOption == 4) {
         names = info.tranche ? "/" + info.tranche : "";
       }
@@ -544,25 +529,7 @@ export default {
             });
           }
         } else if (this.intoProjectType == 2) {
-          if (info.warning == 2) {
-            // 告警信标用另一种图标表示
-            style = new OlStyleStyle({
-              image: new OlStyleIcon({
-                anchor: [0.5, 1],
-                src: selectB ? selectBsrc : "../../../static/gateway_sos.png",
-                scale: 1,
-              }),
-              //设置图片下面显示的字体样式和内容
-              text: new Text({
-                text: alias + names,
-                font: "14px font-size",
-                fill: new Fill({
-                  color: "blue",
-                }),
-                offsetY: 10, //文字偏移量
-              }),
-            });
-          } else if (info.warning == 1 && info.clockin == 1) {
+          if (info.clockin == 1) {
             // 打卡点用另一种图标表示
             style = new OlStyleStyle({
               image: new OlStyleIcon({
@@ -969,7 +936,7 @@ export default {
         default:
           break;
       }
-      var names = mapinfo.alarmname ? "/" + mapinfo.alarmname : "";
+      var names = "";
       if (mapinfo.devtype) {
         // 第三方
         alias = mapinfo.alias;
@@ -988,8 +955,6 @@ export default {
           minor: mapinfo.minor,
           devtype: mapinfo.devtype,
           tranche: mapinfo.tranche,
-          alarmid: mapinfo.alarmid,
-          alarmname: mapinfo.alarmname,
         };
 
         let src;
@@ -1049,9 +1014,6 @@ export default {
         if (that.intoProjectType == 1 && mapinfo.type == 2) {
           // 告警信标
           imagerMarkerSrc = "../../../static/beacon_sos.png";
-        } else if (that.intoProjectType == 2 && mapinfo.warning == 2) {
-          // 告警信标
-          imagerMarkerSrc = "../../../static/gateway_sos.png";
         } else if (mapinfo.type == 1 && mapinfo.clockin == 1) {
           // 打卡点
           imagerMarkerSrc = "../../../static/clock.png";
@@ -1074,8 +1036,6 @@ export default {
             type: mapinfo.type,
             clockin: mapinfo.clockin,
             tranche: mapinfo.tranche,
-            alarmid: mapinfo.alarmid,
-            alarmname: mapinfo.alarmname,
           };
           that.layer = new fengmap.FMCompositeMarker({
             layout: {
@@ -1126,8 +1086,6 @@ export default {
             minor: mapinfo.minor,
             type: "",
             clockin: mapinfo.clockin,
-            alarmid: mapinfo.alarmid,
-            alarmname: mapinfo.alarmname,
             tranche: mapinfo.tranche,
           };
           that.layer = new fengmap.FMCompositeMarker({

@@ -76,30 +76,12 @@
                       >{{ $t("floormanagement.reset") }}</el-button
                     >
 
-                    <el-popover placement="top">
-                      <div style="display: flex">
-                        <el-button
-                          size="mini"
-                          type="primary"
-                          @click="editTranche('alarm')"
-                          >{{ $t("floormanagement.Alarmarea") }}</el-button
-                        >
-                        <el-button
-                          type="primary"
-                          size="mini"
-                          @click="editTranche('position')"
-                          >{{
-                            $t("floormanagement.Positioningarea")
-                          }}</el-button
-                        >
-                      </div>
-                      <el-button
-                        type="primary"
-                        class="reset"
-                        slot="reference"
-                        >{{ $t("floormanagement.Regionalsettings") }}</el-button
-                      >
-                    </el-popover>
+                    <el-button
+                      type="primary"
+                      class="reset"
+                      @click="editTranche('position')"
+                      >{{ $t("floormanagement.Positioningarea") }}</el-button
+                    >
 
                     <el-button
                       type="primary"
@@ -548,9 +530,6 @@
                       <el-dropdown-item command="4">{{
                         $t("change.showPosition")
                       }}</el-dropdown-item>
-                      <el-dropdown-item command="5">{{
-                        $t("change.showAlarm")
-                      }}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </div>
@@ -752,21 +731,6 @@
                       :key="item.id"
                       :label="item.name"
                       :value="item.name"
-                    ></el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('floormanagement.Alarmarea1')">
-                  <el-select
-                    v-model="TrancheDatas.alarmid"
-                    clearable
-                    filterable
-                    :placeholder="$t('terminal.choose')"
-                  >
-                    <el-option
-                      v-for="item in setAlarmTrancheList"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id"
                     ></el-option>
                   </el-select>
                 </el-form-item>
@@ -990,111 +954,6 @@
             </div>
           </el-dialog>
 
-          <!-- 设置告警区域 -->
-          <el-dialog
-            :title="$t('floormanagement.Alarmarea')"
-            :visible.sync="addTrancheAlarm"
-            class="edit"
-            width="40%"
-            style="text-align: center"
-            :close-on-click-modal="false"
-            :close-on-press-escape="false"
-            :modal-append-to-body="false"
-            :append-to-body="true"
-            @close="addTrancheRowCancelAlarm"
-          >
-            <div slot="title" class="dialog-title">
-              <span class="title-text"
-                >{{ $t("floormanagement.Alarmarea") }}
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style=""
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("floormanagement.title6") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </span>
-            </div>
-
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addTrancheRowAlarm"
-                >{{ $t("floormanagement.add") }}</el-button
-              >
-            </el-radio-group>
-
-            <el-form
-              label-width="0px"
-              v-for="(item, index) in alarmTrancheList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline addTranche"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <p>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    style="margin-left: 20px"
-                    class="del"
-                    @click="deleTrancheRowAlarm(index, item.name, item.id)"
-                    >{{ $t("floormanagement.delete") }}</el-button
-                  >
-                </p>
-              </el-form-item>
-            </el-form>
-
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('floormanagement.Import')"
-              >
-                <el-select
-                  v-model="currentProjectid.groundid"
-                  clearable
-                  filterable
-                  @change="importTrancheAlarm"
-                  :placeholder="$t('floormanagement.Importbuilding')"
-                >
-                  <el-option
-                    v-for="item in projectList()"
-                    :key="item.id"
-                    :label="item.ground"
-                    :value="item.id"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addTrancheRowCancelAlarm()">{{
-                $t("change.cancle")
-              }}</el-button>
-              <el-button type="primary" @click="addTrancheRowTrueAlarm()">{{
-                $t("change.sure")
-              }}</el-button>
-            </div>
-          </el-dialog>
-
           <!-- 显示距离 -->
           <el-dialog
             width="30%"
@@ -1239,7 +1098,6 @@ export default {
         beaconids: "",
         tranche: "",
         alias: "",
-        alarmid: "",
       },
       currentPage2: 1,
       // total: 0,
@@ -1331,11 +1189,8 @@ export default {
       adjoinBeaconInfo: "",
       adjoinBeaconDataList: "",
       positionTrancheList: [],
-      alarmTrancheList: [],
       setTrancheList: [],
-      setAlarmTrancheList: [],
       addTranchePosition: false,
-      addTrancheAlarm: false,
       projectTable: [],
       imageWidth: "",
       imageHeight: "", //记录2D地图的宽高，用作判断移动图标有没有超出地图
@@ -1353,11 +1208,11 @@ export default {
       changeMinor: true,
 
       // 图标显示相关
-      showOption: this.$store.state.intoProjectType == 1 ? 1 : 5,
+      showOption: this.$store.state.intoProjectType == 1 ? 1 : 4,
       showOptionName:
         this.$store.state.intoProjectType == 1
           ? this.$t("change.showAliases")
-          : this.$t("change.showAlarm"),
+          : this.$t("change.showPosition"),
       showOptions: false, //是否显示
       isShowLines: false, //是否显示连接线
 
@@ -1419,9 +1274,6 @@ export default {
           break;
         case 4:
           this.showOptionName = this.$t("change.showPosition");
-          break;
-        case 5:
-          this.showOptionName = this.$t("change.showAlarm");
           break;
         default:
           break;
@@ -1944,35 +1796,10 @@ export default {
             }
           }
         );
-      } else if (val == "alarm") {
-        let data = {
-          site: false,
-          groundid: this.groundid,
-          projectid:
-            that.contrForPrionum == 5
-              ? that.$store.state.projectid
-              : that.$store.state.intoProjectid,
-        };
-        getTranche(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
-          (res) => {
-            if (res.code == 1001) {
-              that.alarmTrancheList = res.data;
-              that.addTrancheAlarm = true;
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          }
-        );
       }
     },
     addTrancheRowPosition() {
       this.positionTrancheList.push({});
-    },
-    addTrancheRowAlarm() {
-      this.alarmTrancheList.push({});
     },
     //导入区域
     importTranchePosition(val) {
@@ -2020,51 +1847,6 @@ export default {
         }
       );
     },
-    importTrancheAlarm(val) {
-      if (!val) return;
-      var that = this;
-      let data = {
-        site: false,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-        groundid: this.currentProjectid.groundid,
-      };
-
-      getTranche(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
-        (res) => {
-          if (res.code == 1001) {
-            if (res.data.length > 0) {
-              // //导入后自动去重
-              let arr = res.data;
-              that.alarmTrancheList.forEach((i) => {
-                arr.forEach((j, index) => {
-                  if (j.name == i.name) {
-                    arr.splice(index, 1);
-                  }
-                });
-              });
-              arr.forEach((item) => {
-                that.alarmTrancheList.push({ name: item.name, id: "" });
-              });
-              // for (let i = 0; i < that.alarmTrancheList.length; i++) {
-              //   if (that.alarmTrancheList[i].fremove == 1) {
-              //     that.alarmTrancheList[i].fremove = true;
-              //   } else {
-              //     that.alarmTrancheList[i].fremove = false;
-              //   }
-              // }
-            }
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-          }
-        }
-      );
-    },
     //删除区域
     deleTrancheRowPosition(index, name, id) {
       var that = this;
@@ -2098,47 +1880,6 @@ export default {
         ).then((res) => {
           if (res.code == 1001) {
             that.positionTrancheList.splice(index, 1);
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-          }
-        });
-      }
-    },
-    deleTrancheRowAlarm(index, name, id) {
-      var that = this;
-      if (
-        (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
-        (this.$store.state.userInfo.prionum == 4 && this.delprio == 2)
-      ) {
-        that.$message({
-          message: that.$t("warning.permissiondelete"),
-          type: "warning",
-        });
-        return;
-      }
-      if (!id) {
-        this.alarmTrancheList.splice(index, 1);
-      } else {
-        let data = {
-          site: false,
-          id: id,
-          name: name,
-          projectid:
-            this.contrForPrionum == 5
-              ? this.$store.state.projectid
-              : this.$store.state.intoProjectid,
-        };
-        delTranche(
-          JSON.stringify(data),
-          this.tenantkey_A,
-          this.tenantid_A,
-          this.userName
-        ).then((res) => {
-          if (res.code == 1001) {
-            that.alarmTrancheList.splice(index, 1);
           } else {
             that.$message({
               message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -2219,76 +1960,9 @@ export default {
         }
       );
     },
-    addTrancheRowTrueAlarm() {
-      var that = this;
-      let flag = false;
-      let flag1 = false;
-      let hash = {};
-      $.each(this.alarmTrancheList, function (i, n) {
-        if (n.id === undefined) {
-          n.id = "";
-        }
-        if (!n.name) {
-          flag = true;
-        }
-        if (hash[n.name]) {
-          flag1 = true;
-        }
-        hash[n.name] = true;
-      });
-      if (flag) {
-        that.$message({
-          message: that.$t("floormanagement.tippp4"),
-          type: "error",
-        });
-        return;
-      }
-      if (flag1) {
-        that.$message({
-          message: that.$t("floormanagement.tippp5"),
-          type: "error",
-        });
-        return;
-      }
-      let data = {
-        site: false,
-        tranches: JSON.parse(JSON.stringify(this.alarmTrancheList)),
-        groundid: that.groundid,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-      };
-      for (let i = 0; i < data.tranches.length; i++) {
-        data.tranches[i].fremove = 2;
-      }
-      data.tranches = JSON.stringify(data.tranches);
-      addTranche(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
-        (res) => {
-          if (res.code == 1001) {
-            that.$message({
-              message: that.$t("Building.Setsuccessfully"),
-              type: "success",
-            });
-            that.addTrancheAlarm = false;
-            flag = false;
-          } else {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-            flag = false;
-          }
-        }
-      );
-    },
     addTrancheRowCancelPosition() {
       this.addTranchePosition = false;
       this.positionTrancheList = [];
-    },
-    addTrancheRowCancelAlarm() {
-      this.addTrancheAlarm = false;
-      this.alarmTrancheList = [];
     },
 
     //初始化地图
@@ -2857,8 +2531,6 @@ export default {
               minor: that.selectArrangeData.minor,
               devtype: that.selectArrangeData.devtype,
               tranche: that.selectArrangeData.tranche,
-              alarmid: that.selectArrangeData.alarmid,
-              alarmname: that.selectArrangeData.alarmname,
             };
             if (that.activeMenu == "5") {
               info.major = that.selectArrangeData.mode;
@@ -2876,10 +2548,7 @@ export default {
                 minor: that.selectArrangeData.minor,
                 type: that.selectArrangeData.type,
                 tranche: that.selectArrangeData.tranche,
-                alarmid: that.selectArrangeData.alarmid,
-                alarmname: that.selectArrangeData.alarmname,
                 clockin: that.selectArrangeData.clockin,
-                warning: "",
                 anglimit: that.selectArrangeData.anglimit,
                 nearbeacons: "",
               };
@@ -2893,10 +2562,7 @@ export default {
                 minor: that.selectArrangeData.minor,
                 type: "",
                 tranche: that.selectArrangeData.tranche,
-                alarmid: that.selectArrangeData.alarmid,
-                alarmname: that.selectArrangeData.alarmname,
                 clockin: that.selectArrangeData.clockin,
-                warning: that.selectArrangeData.warning,
                 anglimit: that.selectArrangeData.anglimit,
                 nearbeacons: "",
               };
@@ -2937,8 +2603,6 @@ export default {
           major: info.mode,
           minor: info.scheme,
           tranche: info.tranche || "",
-          alarmid: info.alarmid || "",
-          alarmname: info.alarmname || "",
           geometry: new OlGeomPoint([info.lastx, info.lasty]),
         });
       } else {
@@ -2956,10 +2620,7 @@ export default {
             clockin: info.clockin,
             anglimit: info.anglimit,
             tranche: info.tranche || "",
-            warning: "",
             nearbeacons: "",
-            alarmid: info.alarmid || "",
-            alarmname: info.alarmname || "",
             geometry: new OlGeomPoint([info.longi, info.lati]),
           });
         } else if (this.$store.state.intoProjectType == 2) {
@@ -2977,10 +2638,7 @@ export default {
             clockin: info.clockin,
             anglimit: info.anglimit,
             tranche: info.tranche || "",
-            warning: info.warning,
             nearbeacons: "",
-            alarmid: info.alarmid || "",
-            alarmname: info.alarmname || "",
             geometry: new OlGeomPoint([info.lastx, info.lasty]),
           });
         }
@@ -2990,7 +2648,7 @@ export default {
         features: [startMarker],
       });
       var style;
-      var names = info.alarmname ? "/" + info.alarmname : "";
+      var names = "";
       if (that.showOption == 4) {
         names = info.tranche ? "/" + info.tranche : "";
       }
@@ -3088,26 +2746,9 @@ export default {
               }),
             });
           }
-        } else if (this.$store.state.intoProjectType == 2) {
-          if (info.warning == 2) {
-            // 告警 另一种图标表示
-            style = new OlStyleStyle({
-              image: new OlStyleIcon({
-                anchor: [0.5, 1],
-                src: "../../../static/gateway_sos.png",
-                scale: 1,
-              }),
-              //设置图片下面显示的字体样式和内容
-              text: new Text({
-                text: alias + names,
-                font: "14px font-size",
-                fill: new Fill({
-                  color: "blue",
-                }),
-                offsetY: 10, //文字偏移量
-              }),
-            });
-          } else if (info.clockin == 1) {
+        }
+        if (this.$store.state.intoProjectType == 2) {
+          if (info.clockin == 1) {
             // 打卡点用另一种图标表示
             style = new OlStyleStyle({
               image: new OlStyleIcon({
@@ -3271,7 +2912,7 @@ export default {
         });
       } else {
         let alias = info.alias;
-        var names = info.alarmname ? "/" + info.alarmname : "";
+        var names = "";
         if (that.showOption == 4) {
           names = info.tranche ? "/" + info.tranche : "";
         }
@@ -3304,10 +2945,6 @@ export default {
           devtype: info.devtype || "",
           clockin: info.clockin || "",
           tranche: info.tranche || "",
-
-          alarmid: info.alarmid || "",
-          alarmname: info.alarmname || "",
-          warning: info.warning || "",
           nearbeacons: "",
           geometry: new OlGeomPoint([info.x, info.y]),
         });
@@ -4038,14 +3675,12 @@ export default {
           }
           if (feature.values_.x && feature.values_.alias) {
             if (
-              (feature.values_.type == 1 && feature.values_.clockin == 2) ||
-              (feature.values_.warning == 1 && feature.values_.clockin == 2)
+              feature.values_.type == 1 && feature.values_.clockin == 2
             ) {
               that.clock = true;
               that.caecelClock = false;
             } else if (
-              (feature.values_.type == 1 && feature.values_.clockin == 1) ||
-              (feature.values_.warning == 1 && feature.values_.clockin == 1)
+              feature.values_.type == 1 && feature.values_.clockin == 1
             ) {
               that.caecelClock = true;
               that.clock = false;
@@ -4172,7 +3807,6 @@ export default {
       if (that.TrancheDatas.devtype) {
         let data = {
           tranche: that.TrancheDatas.tranche,
-          alarmid: that.TrancheDatas.alarmid,
           deveui: that.TrancheDatas.beaconids,
         };
         updateDevOtherTranche(
@@ -4200,9 +3834,7 @@ export default {
                 break;
             }
             e.values_.tranche = that.TrancheDatas.tranche;
-            e.values_.alarmid = that.TrancheDatas.alarmid;
             var found = "";
-            var foundAlarm = "";
             if (e.values_.tranche) {
               found = that.setTrancheList.find(function (item) {
                 return item.name == that.TrancheDatas.tranche;
@@ -4211,16 +3843,8 @@ export default {
                 e.values_.tranche = found.name;
               }
             }
-            if (e.values_.alarmid) {
-              foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                return item.id == that.TrancheDatas.alarmid;
-              });
-              if (foundAlarm) {
-                e.values_.alarmname = foundAlarm.name;
-              }
-            }
 
-            var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+            var names = "";
             if (that.showOption == 4) {
               names = found.name ? "/" + found.name : "";
             }
@@ -4256,7 +3880,6 @@ export default {
         let trancheDatas1 = {
           groundid: that.groundid,
           tranche: that.TrancheDatas.tranche,
-          alarmid: that.TrancheDatas.alarmid,
           deveui: that.TrancheDatas.beaconids,
         };
         if (that.$store.state.intoProjectType == 1) {
@@ -4268,9 +3891,7 @@ export default {
           ).then((res) => {
             if (res.code == 1001) {
               e.values_.tranche = that.TrancheDatas.tranche;
-              e.values_.alarmid = that.TrancheDatas.alarmid;
               var found = "";
-              var foundAlarm = "";
               if (e.values_.tranche) {
                 found = that.setTrancheList.find(function (item) {
                   return item.name == that.TrancheDatas.tranche;
@@ -4279,15 +3900,7 @@ export default {
                   e.values_.tranche = found.name;
                 }
               }
-              if (e.values_.alarmid) {
-                foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                  return item.id == that.TrancheDatas.alarmid;
-                });
-                if (foundAlarm) {
-                  e.values_.alarmname = foundAlarm.name;
-                }
-              }
-              var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+              var names = "";
               if (that.showOption == 4) {
                 names = found.name ? "/" + found.name : "";
               }
@@ -4326,8 +3939,6 @@ export default {
                       src:
                         e.values_.clockin == 1
                           ? "../../../static/clock.png"
-                          : e.values_.warning == 2
-                          ? "../../../static/gateway_sos.png"
                           : "../../../static/gateway.png",
                       scale: 1,
                     }),
@@ -4372,9 +3983,7 @@ export default {
           ).then((res) => {
             if (res.code == 1001) {
               e.values_.tranche = that.TrancheDatas.tranche;
-              e.values_.alarmid = that.TrancheDatas.alarmid;
               var found = "";
-              var foundAlarm = "";
               if (e.values_.tranche) {
                 found = that.setTrancheList.find(function (item) {
                   return item.name == that.TrancheDatas.tranche;
@@ -4383,15 +3992,7 @@ export default {
                   e.values_.tranche = found.name;
                 }
               }
-              if (e.values_.alarmid) {
-                foundAlarm = that.setAlarmTrancheList.find(function (item) {
-                  return item.id == that.TrancheDatas.alarmid;
-                });
-                if (foundAlarm) {
-                  e.values_.alarmname = foundAlarm.name;
-                }
-              }
-              var names = foundAlarm.name ? "/" + foundAlarm.name : "";
+              var names = "";
               if (that.showOption == 4) {
                 names = found.name ? "/" + found.name : "";
               }
@@ -4472,7 +4073,6 @@ export default {
             let data = {
               deveui: e.values_.deveui,
               tranchid: "",
-              alarmid: "",
             };
             updateDevOtherTranche(
               data,
@@ -4500,8 +4100,6 @@ export default {
                 }
                 e.values_.tranche = "";
                 e.values_.tranchid = "";
-                e.values_.alarmid = "";
-                e.values_.alarmname = "";
                 e.setStyle(
                   new OlStyleStyle({
                     image: new OlStyleIcon({
@@ -4649,16 +4247,10 @@ export default {
       this.menu_overlay = menu_overlay;
       let that = this;
       this.setTrancheList = [];
-      this.setAlarmTrancheList = [];
       if (e.values_.tranche) {
         this.TrancheDatas.tranche = e.values_.tranche;
       } else {
         this.TrancheDatas.tranche = "";
-      }
-      if (e.values_.alarmid) {
-        this.TrancheDatas.alarmid = e.values_.alarmid;
-      } else {
-        this.TrancheDatas.alarmid = "";
       }
       this.TrancheDatas.alias = e.values_.alias;
       this.temE = e;
@@ -4666,14 +4258,6 @@ export default {
       this.TrancheDatas.devtype = e.values_.devtype;
       let dataPosition = {
         site: true,
-        groundid: this.groundid,
-        projectid:
-          this.contrForPrionum == 5
-            ? this.$store.state.projectid
-            : this.$store.state.intoProjectid,
-      };
-      let dataAlarm = {
-        site: false,
         groundid: this.groundid,
         projectid:
           this.contrForPrionum == 5
@@ -4688,22 +4272,6 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.setTrancheList = res.data;
-          that.trancheShow = true;
-        } else {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-            type: "error",
-          });
-        }
-      });
-      getTranche(
-        dataAlarm,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.userName
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.setAlarmTrancheList = res.data;
           that.trancheShow = true;
         } else {
           that.$message({
@@ -4733,7 +4301,7 @@ export default {
             clockin: 1,
           };
           let alias = e.values_.alias;
-          var names = e.values_.alarmname ? "/" + e.values_.alarmname : "";
+          var names = "";
           if (that.showOption == 4) {
             names = e.values_.tranche ? "/" + e.values_.tranche : "";
           }
@@ -4922,7 +4490,7 @@ export default {
             clockin: 2,
           };
           let alias = e.values_.alias;
-          var names = e.values_.alarmname ? "/" + e.values_.alarmname : "";
+          var names = "";
           if (that.showOption == 4) {
             names = e.values_.tranche ? "/" + e.values_.tranche : "";
           }
@@ -5527,7 +5095,6 @@ export default {
       this.editFeatureData.major = e.values_.major;
       this.editFeatureData.minor = e.values_.minor;
       this.editFeatureData.devtype = e.values_.devtype;
-      this.editFeatureData.alarmname = e.values_.alarmname;
 
       this.editFeatureInfo = e;
       this.editFeatures = true;
@@ -5567,9 +5134,7 @@ export default {
         default:
           break;
       }
-      var names = this.editFeatureData.alarmname
-        ? "/" + this.editFeatureData.alarmname
-        : "";
+      var names = "";
       if (that.showOption == 4) {
         names = this.editFeatureData.tranche
           ? "/" + this.editFeatureData.tranche
@@ -5729,27 +5294,7 @@ export default {
             }
           });
         } else if (this.intoProjectType == 2) {
-          if (that.editFeatureInfo.values_.warning == 2) {
-            that.editFeatureInfo.setStyle(
-              new OlStyleStyle({
-                image: new OlStyleIcon({
-                  anchor: [0.5, 1],
-                  src: "../../../static/gateway_sos.png",
-                  scale: 1,
-                }),
-                // 设置图片下面显示字体的样式和内容
-                text: new Text({
-                  text: alias + names, // 添加文字描述 // 添加文字描述
-                  font: "12px font-size", // 设置字体大小
-                  fill: new Fill({
-                    // 设置字体颜色
-                    color: "red",
-                  }),
-                  offsetY: 10, // 设置文字偏移量
-                }),
-              })
-            );
-          } else if (that.editFeatureInfo.values_.clockin == 1) {
+          if (that.editFeatureInfo.values_.clockin == 1) {
             that.editFeatureInfo.setStyle(
               new OlStyleStyle({
                 image: new OlStyleIcon({
@@ -5774,7 +5319,7 @@ export default {
               new OlStyleStyle({
                 image: new OlStyleIcon({
                   anchor: [0.5, 1],
-                  src: that.iconSrc,
+                  src: "../../../static/gateway.png",
                   scale: 1,
                 }),
                 // 设置图片下面显示字体的样式和内容

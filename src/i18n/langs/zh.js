@@ -3,8 +3,8 @@ import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 const zh = {
     login: {
         introduce: '欢迎进入位置管理系统',
-        tet: 'ICP备案号',
-        tet1: '版权所有',
+        tet: '苏ICP备20047913号-2',
+        tet1: '南京锐创特信息科技有限公司版权所有',
         recommendation: "建议Chrome或Firefox，macOS13及以上， 必须Win10以上",
         login: '登录',
         vindo: '欢迎登录',
@@ -28,7 +28,9 @@ const zh = {
         user: '当前用户：',
         language: 'English',
         return: '返回',
-        pleasecheck: "请勾选《用户协议及隐私声明》"
+        pleasecheck: "请勾选《用户协议及隐私声明》",
+        cancel: '取消',
+        confirm: '确认',
     },
     // 大屏
     // LargeScreen:{
@@ -1756,7 +1758,30 @@ const zh = {
         title8: '选择0，表示告警声音只会响一次',
         Redraw: '重新绘制',
         Preview: '预览',
-        electronicFence: '电子围栏'
+        electronicFence: '电子围栏',
+        selectFenceType: '选择围栏类型',
+        selectFenceTypeMessage: '请选择要添加的围栏类型',
+        outdoorFence: '室外电子围栏',
+        indoorFence: '室内电子围栏',
+        indoorFenceDataPrinted: '室内电子围栏数据已打印到控制台',
+        // 电子围栏相关
+        CreateFence: '创建电子围栏',
+        End: '结束',
+        SetFenceInfo: '设置电子围栏信息',
+        FenceName: '围栏名称',
+        EnterFenceName: '请输入围栏名称',
+        FenceColor: '围栏颜色',
+        EnableFence: '启用围栏',
+        AtLeastThreePoints: '至少需要3个点才能形成围栏',
+        CreateSuccess: '创建成功',
+        EditFenceInfo: '编辑电子围栏信息',
+        EndEdit: '结束编辑',
+        EditSuccess: '编辑成功',
+        triggerMethod: '触发方式',
+        selectTriggerMethod: '请选择越界告警的触发方式',
+        pleaseSelectTriggerMethod: '请选择触发方式',
+        enter: '进入',
+        leave: '离开',
     },
 
     //人员页面
@@ -2207,7 +2232,6 @@ const zh = {
         EquipmentQuantity: '设备数量',
         EquipmentQuantity1: '设备数量：',
         Numberofpunchpoints: '打卡点数量',
-        Numberofalarmdevices: '告警设备数量',
         Remark: '备注',
         Remark1: '备注：',
         operate: '操作',
@@ -3264,6 +3288,15 @@ const zh = {
         content89: '4.新增：大屏地图中显示围栏及围栏内人数。',
         content90: '1.优化：添加人员告警和添加车辆告警中选择越界告警后，需要选择“触发方式”，“定位类型”中改为“室外GPS”和“室内BLE”，当选择为“室外GPS”时，下方的“区域”中的选项就是创建的围栏区域',
         timestamp15: '2024-11-20',
+        content91: 'V1.15',
+        content92: '1.优化电子围栏页面，支持室内电子围栏，并与楼栋楼层关联；',
+        content93: '2.首页及大屏不显示电子围栏；',
+        content94: '3.去除当前项目中的告警区域；',
+        content95: '4.优化注册页面，不允许输入中文；',
+        content96: '5.优化终端管理页面，不允许修改别名，新增上一个、下一个查询按钮；',
+        content97: '6.优化人员告警和车辆告警逻辑，区域改为电子围栏区域（室内/室外）；',
+        content98: '7.LNS版本升级，从3.0升级到4.0；',
+        timestamp16: '2026-01-07',
     },
     warningVoice: {
         selectColor:"选择颜色：",
@@ -3292,6 +3325,7 @@ const zh = {
         voice7: '音效7',
         voice8: '音效8',
         voice9: '音效9',
+        cannotMixFence: '不能同时选择室外和室内电子围栏，已自动保留{type}围栏',
 
     },
     ...zhLocale
