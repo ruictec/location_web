@@ -4303,6 +4303,39 @@
                       </el-option>
                     </el-select>
                   </el-form-item>
+                  <el-form-item :label="$t('terminal.repeater')">
+                    <el-select
+                      v-model="configData.repeater"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in repeaterList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.repeaterTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
                 </div>
                 <div class="configBeacon">
                   <el-form-item :label="$t('terminal.Currentworkingmode')">
@@ -4534,6 +4567,39 @@
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
+                  <el-form-item :label="$t('terminal.staticInt')">
+                    <el-select
+                      v-model="configData.staticInt"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in staticIntList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.staticIntTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
 
                   <el-form-item :label="$t('terminal.Bluetoothconfirmation')">
                     <el-select
@@ -4639,6 +4705,39 @@
                       >
                       </el-option>
                     </el-select>
+                  </el-form-item>
+                  <el-form-item :label="$t('terminal.channel')">
+                    <el-select
+                      v-model="configData.channel"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in channelList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.channelTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
                   </el-form-item>
                 </div>
               </div>
@@ -4982,6 +5081,39 @@
                       </el-option>
                     </el-select>
                   </el-form-item>
+                  <el-form-item :label="$t('terminal.repeater')">
+                    <el-select
+                      v-model="configDatas.repeater"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in repeaterList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.repeaterTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
                 </div>
                 <div class="configBeacon">
                   <el-form-item :label="$t('terminal.Transmitpower')">
@@ -5163,6 +5295,39 @@
                       </el-option>
                     </el-select>
                   </el-form-item>
+                  <el-form-item :label="$t('terminal.staticInt')">
+                    <el-select
+                      v-model="configDatas.staticInt"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in staticIntList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.staticIntTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
                   <el-form-item :label="$t('terminal.Bluetoothconfirmation')">
                     <el-select
                       v-model="configDatas.bleack"
@@ -5267,6 +5432,39 @@
                       >
                       </el-option>
                     </el-select>
+                  </el-form-item>
+                  <el-form-item :label="$t('terminal.channel')">
+                    <el-select
+                      v-model="configDatas.channel"
+                      clearable
+                      filterable
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in channelList"
+                        :key="item.index"
+                        :label="item.value"
+                        :value="item.index"
+                      >
+                      </el-option>
+                    </el-select>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>{{ $t('terminal.channelTip') }}</p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
                   </el-form-item>
                 </div>
               </div>
@@ -7741,13 +7939,16 @@ export default {
         bleoff: "",
         buzzer: "",
         vibrator: "",
+        repeater: "",
         distance: "",
         proximity: "",
         gps: "",
         hb: "",
+        staticInt: "",
         degree: "",
         sleepstart: "",
         sleepend: "",
+        channel: "",
         thres: "",
         bleack: "",
       },
@@ -8193,6 +8394,44 @@ export default {
         {
           index: 2,
           value: "enabled",
+        },
+      ],
+      repeaterList: [
+        {
+          index: 0,
+          value: "disabled",
+        },
+        {
+          index: 1,
+          value: "enabled",
+        },
+      ],
+      staticIntList: [
+        {
+          index: 0,
+          value: "0",
+        },
+        {
+          index: 1,
+          value: "1",
+        },
+        {
+          index: 2,
+          value: "2",
+        },
+        {
+          index: 3,
+          value: "3",
+        },
+      ],
+      channelList: [
+        {
+          index: 0,
+          value: "8",
+        },
+        {
+          index: 1,
+          value: "16",
         },
       ],
       bleackList: [
@@ -10935,13 +11174,16 @@ export default {
         bleoff: "",
         buzzer: "",
         vibrator: "",
+        repeater: "",
         distance: "",
         proximity: "",
         gps: "",
         hb: "",
+        staticInt: "",
         degree: "",
         sleepstart: "",
         sleepend: "",
+        channel: "",
         thres: "",
         bleack: "",
       };
