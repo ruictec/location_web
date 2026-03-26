@@ -349,7 +349,7 @@
                         ><el-button
                           size="mini"
                           class="edits"
-                          @click="staffEdit(scope.$index, tableData)"
+                          @click="staffEdit(scope.row)"
                           >{{ $t("asset.edit") }}</el-button
                         ></el-dropdown-item
                       >
@@ -361,7 +361,7 @@
                         ><el-button
                           size="mini"
                           class="dels"
-                          @click="staffDele(scope.$index)"
+                          @click="staffDele(scope.row)"
                           >{{ $t("asset.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -377,7 +377,7 @@
                       type="primary"
                       size="mini"
                       class="edits icon_button"
-                      @click="goLocation(scope.$index, tableData)"
+                      @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
                     /></el-button>
                   </el-tooltip>
@@ -1972,13 +1972,13 @@ export default {
     },
 
     // 编辑
-    staffEdit(index) {
+    staffEdit(row) {
       this.haveImage = false;
       this.delImage = false;
-      if (this.tableData[index].filename) {
+      if (row.filename) {
         this.fileListEdit = [
           {
-            url: host.host + "profile/" + this.tableData[index].filename,
+            url: host.host + "profile/" + row.filename,
           },
         ];
       } else {
@@ -1989,19 +1989,19 @@ export default {
       this.beaconidList = []; //标签号下拉框
       this.beaconidLists = [];
       this.bleList = [];
-      this.editData.id = this.tableData[index].id;
-      this.editData.name = this.tableData[index].name;
-      this.editData.type = this.tableData[index].type;
-      this.editData.model = this.tableData[index].model;
-      this.editData.username = this.tableData[index].username;
-      this.editData.tenantid = this.tableData[index].tenantid;
-      this.editData.depart = this.tableData[index].depart;
-      this.editData.projectid = this.tableData[index].projectid;
-      this.editData.beaconid = this.tableData[index].beaconid;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.filename = this.tableData[index].filename;
-      this.editData.warning = this.tableData[index].warning;
-      this.editData.flag = this.tableData[index].flag;
+      this.editData.id = row.id;
+      this.editData.name = row.name;
+      this.editData.type = row.type;
+      this.editData.model = row.model;
+      this.editData.username = row.username;
+      this.editData.tenantid = row.tenantid;
+      this.editData.depart = row.depart;
+      this.editData.projectid = row.projectid;
+      this.editData.beaconid = row.beaconid;
+      this.editData.memo = row.memo;
+      this.editData.filename = row.filename;
+      this.editData.warning = row.warning;
+      this.editData.flag = row.flag;
       Promise.all([
         this.getMemberLists(),
         this.getBeaconids(this.$store.state.projectid),
@@ -2075,7 +2075,7 @@ export default {
     },
 
     // 删除资产
-    staffDele(index) {
+    staffDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -2090,7 +2090,7 @@ export default {
       }
       this.$confirm(
         this.$t("beacon.deletemsg1") +
-          this.tableData[index].name +
+          row.name +
           this.$t("beacon.deletemsg31"),
         this.$t("beacon.prompt"),
         {
@@ -2099,8 +2099,8 @@ export default {
           type: "warning",
         }
       ).then(() => {
-        this.deleStaff = this.tableData[index].name;
-        this.deleId = this.tableData[index].id;
+        this.deleStaff = row.name;
+        this.deleId = row.id;
         this.deleTrue();
       });
     },
@@ -2283,11 +2283,8 @@ export default {
       });
     },
     //点击跳转到定位页面
-    goLocation(index) {
-      if (
-        this.tableData[index].beaconid == "" ||
-        this.tableData[index].beaconid == null
-      ) {
+    goLocation(row) {
+      if (row.beaconid == "" || row.beaconid == null) {
         this.$message({
           message: this.$t("asset.Pleasebinding"),
           type: "warning",
@@ -2296,7 +2293,7 @@ export default {
       }
       this.$router.push({
         path: "/location/indoor/locationindoor",
-        query: { assetDeveui: this.tableData[index].beaconid },
+        query: { assetDeveui: row.beaconid },
       });
     },
   },

@@ -175,7 +175,7 @@
                         <el-button
                           size="mini"
                           class="edits"
-                          @click="nsEdit(scope.$index, tableData)"
+                          @click="nsEdit(scope.row)"
                           v-if="contrForPrionum == 1"
                           >{{ $t("ns.edit") }}</el-button
                         ></el-dropdown-item
@@ -189,7 +189,7 @@
                         <el-button
                           size="mini"
                           class="dels1"
-                          @click="nsDele(scope.$index)"
+                          @click="nsDele(scope.row)"
                           v-if="contrForPrionum == 1"
                           >{{ $t("ns.delete") }}</el-button
                         ></el-dropdown-item
@@ -692,17 +692,17 @@ export default {
     },
 
     //编辑Ns信息
-    nsEdit(index) {
-      this.editData.dom = this.tableData[index].dom;
-      this.editData.port = this.tableData[index].port;
-      this.editData.usrname = this.tableData[index].usrname;
-      this.editData.token = this.tableData[index].token;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.id = this.tableData[index].id;
-      this.editData.ip = this.tableData[index].ip;
-      this.editData.name = this.tableData[index].name;
-      this.editData.emails = this.tableData[index].emails;
-      this.editData.cert = this.tableData[index].cert;
+    nsEdit(row) {
+      this.editData.dom = row.dom;
+      this.editData.port = row.port;
+      this.editData.usrname = row.usrname;
+      this.editData.token = row.token;
+      this.editData.memo = row.memo;
+      this.editData.id = row.id;
+      this.editData.ip = row.ip;
+      this.editData.name = row.name;
+      this.editData.emails = row.emails;
+      this.editData.cert = row.cert;
       this.edit = true;
     },
     editCancel(editData) {
@@ -745,7 +745,7 @@ export default {
     },
 
     //删除Ns信息
-    nsDele(index) {
+    nsDele(row) {
       var that = this;
       this.$confirm(this.$t("ns.deletemsg"), this.$t("Building.tips"), {
         confirmButtonText: this.$t("terminal.confirm"),
@@ -753,8 +753,8 @@ export default {
         type: "warning",
       }).then(() => {
         let data = {
-          id: that.tableData[index].id,
-          dom: that.tableData[index].dom,
+          id: row.id,
+          dom: row.dom,
         };
         delNs(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
           (res) => {

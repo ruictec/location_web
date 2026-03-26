@@ -347,7 +347,7 @@
                         ><el-button
                           size="mini"
                           class="edits"
-                          @click="projectEdit(scope.$index, tableData)"
+                          @click="projectEdit(scope.row)"
                           >{{ $t("project.edit") }}</el-button
                         ></el-dropdown-item
                       >
@@ -359,7 +359,7 @@
                         ><el-button
                           size="mini"
                           class="dels1"
-                          @click="projectDele(scope.$index)"
+                          @click="projectDele(scope.row)"
                           v-if="delprio == 1"
                           >{{ $t("project.delete") }}</el-button
                         ></el-dropdown-item
@@ -399,7 +399,7 @@
                     <el-button
                       type="primary"
                       class="dels"
-                      @click="projectInto(scope.$index)"
+                      @click="projectInto(scope.row)"
                       ><img src="../../../static/intoproject.png"
                     /></el-button>
                   </el-tooltip>
@@ -2740,39 +2740,35 @@ export default {
       this.showNet = false;
     },
     // 编辑项目信息
-    projectEdit(index) {
+    projectEdit(row) {
       this.firstMQTT = false;
       this.firstHTTP = false;
       this.firstNS = false;
       this.firstTTN = false;
-      this.editData.offtime = this.tableData[index].offtime / 60;
-      this.editData.name = this.tableData[index].name;
-      this.editData.forward = this.tableData[index].forward;
-      this.editData.projectid = this.tableData[index].projectid;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.net = this.tableData[index].net;
-      this.editData.ttnbroker = this.tableData[index].ttnbroker;
-      this.editData.ttname = this.tableData[index].ttname;
-      this.editData.ttnpwd = this.tableData[index].ttnpwd;
-      this.editData.downtopic = this.tableData[index].downtopic;
-      this.editData.uptopic = this.tableData[index].uptopic;
-      this.editData.scheme = this.tableData[index].scheme;
-      this.editData.url = this.tableData[index].url;
+      this.editData.offtime = row.offtime / 60;
+      this.editData.name = row.name;
+      this.editData.forward = row.forward;
+      this.editData.projectid = row.projectid;
+      this.editData.memo = row.memo;
+      this.editData.net = row.net;
+      this.editData.ttnbroker = row.ttnbroker;
+      this.editData.ttname = row.ttname;
+      this.editData.ttnpwd = row.ttnpwd;
+      this.editData.downtopic = row.downtopic;
+      this.editData.uptopic = row.uptopic;
+      this.editData.scheme = row.scheme;
+      this.editData.url = row.url;
       if (this.editData.forward === 2) {
         this.showHttpUrl = true;
       } else {
         this.showHttpUrl = false;
       }
-      this.ttnbrokers = JSON.parse(
-        JSON.stringify(this.tableData[index].ttnbroker)
-      );
-      this.ttnames = JSON.parse(JSON.stringify(this.tableData[index].ttname));
-      this.ttnpwds = JSON.parse(JSON.stringify(this.tableData[index].ttnpwd));
-      this.downtopics = JSON.parse(
-        JSON.stringify(this.tableData[index].downtopic)
-      );
-      this.uptopics = JSON.parse(JSON.stringify(this.tableData[index].uptopic));
-      this.editData.timeZone = this.tableData[index].timezone / 3600;
+      this.ttnbrokers = JSON.parse(JSON.stringify(row.ttnbroker));
+      this.ttnames = JSON.parse(JSON.stringify(row.ttname));
+      this.ttnpwds = JSON.parse(JSON.stringify(row.ttnpwd));
+      this.downtopics = JSON.parse(JSON.stringify(row.downtopic));
+      this.uptopics = JSON.parse(JSON.stringify(row.uptopic));
+      this.editData.timeZone = row.timezone / 3600;
       if (this.editData.net == 1) {
         this.showNS = true;
         this.firstNS = true;
@@ -2849,7 +2845,7 @@ export default {
     },
 
     //删除项目信息
-    projectDele(index) {
+    projectDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -2865,7 +2861,7 @@ export default {
       var that = this;
       this.$confirm(
         this.$t("project.confirmdel1") +
-          this.tableData[index].name +
+          row.name +
           this.$t("project.confirmdel3"),
         this.$t("project.tip"),
         {
@@ -2875,8 +2871,8 @@ export default {
         }
       ).then(() => {
         let data = {
-          projectid: that.tableData[index].projectid,
-          name: that.tableData[index].name,
+          projectid: row.projectid,
+          name: row.name,
         };
 
         delProject(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
@@ -2900,24 +2896,24 @@ export default {
     },
 
     //选择进入项目
-    projectInto(index) {
-      this.intoProjectid = this.tableData[index].projectid;
-      this.intoProjectName = this.tableData[index].name;
+    projectInto(row) {
+      this.intoProjectid = row.projectid;
+      this.intoProjectName = row.name;
       this.$store.commit("selectProjectid", this.intoProjectid);
 
-      this.$store.commit("selectProjectSuperid", this.tableData[index].superid);
+      this.$store.commit("selectProjectSuperid", row.superid);
       this.$store.commit(
         "selectProjectTenantid",
-        this.tableData[index].tenantid
+        row.tenantid
       );
       this.$store.commit("selectProjectName", this.intoProjectName);
-      this.$store.commit("changeMapZoom", this.tableData[index].zoom);
-      this.$store.commit("changeMapLongi", this.tableData[index].longi);
-      this.$store.commit("changeMapLati", this.tableData[index].lati);
-      this.$store.commit("selectProjectType", this.tableData[index].type);
+      this.$store.commit("changeMapZoom", row.zoom);
+      this.$store.commit("changeMapLongi", row.longi);
+      this.$store.commit("changeMapLati", row.lati);
+      this.$store.commit("selectProjectType", row.type);
       this.$store.commit(
         "selectProjectprojectType",
-        this.tableData[index].projectype
+        row.projectype
       );
       this.$router.push("/mapmanagement");
     },

@@ -297,7 +297,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="userEdit(scope.$index, tableData)"
+                          @click="userEdit(scope.row)"
                           class="edits"
                           >{{ $t("usermanagement.edit") }}</el-button
                         ></el-dropdown-item
@@ -310,7 +310,7 @@
                         ><el-button
                           size="mini"
                           class="dels1"
-                          @click="userDele(scope.$index)"
+                          @click="userDele(scope.row)"
                           >{{ $t("usermanagement.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -321,7 +321,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="handleLogin(scope.$index, tableData)"
+                          @click="handleLogin(scope.row)"
                           class="edits"
                           >{{ $t("usermanagement.Login") }}</el-button
                         ></el-dropdown-item
@@ -341,7 +341,7 @@
                           <el-button
                             size="mini"
                             class="dels"
-                            @click="resetUserkeys(scope.$index)"
+                            @click="resetUserkeys(scope.row)"
                             >{{ $t("usermanagement.repassword") }}</el-button
                           >
                         </el-tooltip>
@@ -1520,9 +1520,9 @@ export default {
     },
 
     //修改用户信息
-    userEdit(index) {
+    userEdit(row) {
       let that = this;
-      if (this.contrForPrioNum == 1 && this.tableData[index].prionum != 2) {
+      if (this.contrForPrioNum == 1 && row.prionum != 2) {
         this.$message({
           message: that.$t("usermanagement.noprio"),
           type: "warning",
@@ -1535,20 +1535,20 @@ export default {
         });
         return;
       }
-      this.editData.username = this.tableData[index].username;
-      this.editData.cusname = this.tableData[index].cusname;
-      this.editData.record = this.tableData[index].record;
-      this.editData.usertel = this.tableData[index].usertel;
-      this.editData.usermail = this.tableData[index].usermail;
-      this.editData.prio = this.tableData[index].prio;
-      this.editData.country = this.tableData[index].country;
-      this.editData.logintime = this.tableData[index].logintime;
-      this.editData.delprio = this.tableData[index].delprio;
-      this.editData.customername = this.tableData[index].customername;
-      this.editData.projectid = this.tableData[index].projectid;
-      this.editData.accprio = this.tableData[index].accprio;
-      this.editData.logoprio = this.tableData[index].logoprio;
-      this.editData.realname = this.tableData[index].realname;
+      this.editData.username = row.username;
+      this.editData.cusname = row.cusname;
+      this.editData.record = row.record;
+      this.editData.usertel = row.usertel;
+      this.editData.usermail = row.usermail;
+      this.editData.prio = row.prio;
+      this.editData.country = row.country;
+      this.editData.logintime = row.logintime;
+      this.editData.delprio = row.delprio;
+      this.editData.customername = row.customername;
+      this.editData.projectid = row.projectid;
+      this.editData.accprio = row.accprio;
+      this.editData.logoprio = row.logoprio;
+      this.editData.realname = row.realname;
       this.edit = true;
     },
 
@@ -1618,13 +1618,13 @@ export default {
     },
 
     //重置密码
-    resetUserkeys(index) {
+    resetUserkeys(row) {
       var that = this;
       if (
         (this.contrForPrioNum == 1 &&
-          this.tableData[index].prionum != 3 &&
-          this.tableData[index].prionum != 2) ||
-        (this.contrForPrioNum == 2 && this.tableData[index].prionum != 3)
+          row.prionum != 3 &&
+          row.prionum != 2) ||
+        (this.contrForPrioNum == 2 && row.prionum != 3)
       ) {
         that.$message({
           message: that.$t("usermanagement.noprio"),
@@ -1632,7 +1632,7 @@ export default {
         });
         return;
       } else {
-        this.resetKeysUser = this.tableData[index].username;
+        this.resetKeysUser = row.username;
         this.passwordData = {
           managerkey: "",
           passwordNew: "",
@@ -1703,7 +1703,7 @@ export default {
     },
 
     //点击删除
-    userDele(index) {
+    userDele(row) {
       let that = this;
       if (
         (this.$store.state.userInfo.prionum == 5 &&
@@ -1718,7 +1718,7 @@ export default {
         return;
       }
       // contrForPrioNum;
-      if (this.contrForPrioNum == 1 && this.tableData[index].prionum != 2) {
+      if (this.contrForPrioNum == 1 && row.prionum != 2) {
         that.$message({
           message: that.$t("usermanagement.noprio"),
           type: "warning",
@@ -1732,7 +1732,7 @@ export default {
         return;
       } else if (
         this.contrForPrioNum == 4 &&
-        this.tableData[index].delprio == 2
+        row.delprio == 2
       ) {
         that.$message({
           message: that.$t("usermanagement.noprio"),
@@ -1741,7 +1741,7 @@ export default {
         return;
       }
       //删除用户信息
-      this.deleUser = this.tableData[index].username;
+      this.deleUser = row.username;
       this.deleTpl = true;
     },
     deleTrue() {
@@ -1804,11 +1804,11 @@ export default {
     },
 
     //登录其他账号
-    handleLogin(index) {
+    handleLogin(row) {
       var that = this;
       this.$confirm(
         that.$t("usermanagement.tt") +
-          that.tableData[index].username +
+          row.username +
           that.$t("usermanagement.ttt"),
         that.$t("terminal.tips"),
 
@@ -1819,7 +1819,7 @@ export default {
         }
       ).then(() => {
         let data = {
-          username: that.tableData[index].username,
+          username: row.username,
           supername: that.$store.state.userInfo.username,
         };
         superLogin(data, that.tenantkey_A, that.tenantid_A, that.userName).then(

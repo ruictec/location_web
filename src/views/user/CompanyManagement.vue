@@ -234,7 +234,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="userEdit(scope.$index, tableData)"
+                          @click="userEdit(scope.row)"
                           class="edits"
                         >
                           {{ $t("usermanagement.edit") }}</el-button
@@ -248,7 +248,7 @@
                         ><el-button
                           size="mini"
                           class="dels1"
-                          @click="userDele(scope.$index)"
+                          @click="userDele(scope.row)"
                           >{{ $t("usermanagement.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -278,7 +278,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="userSync(scope.$index, tableData)"
+                          @click="userSync(scope.row)"
                           class="edits"
                           >{{ $t("companymanagement.lns") }}</el-button
                         ></el-dropdown-item
@@ -290,7 +290,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="userSyncSQL(scope.$index, tableData)"
+                          @click="userSyncSQL(scope.row)"
                           class="edits"
                         >
                           {{ $t("companymanagement.mysql") }}</el-button
@@ -1770,9 +1770,9 @@ export default {
       });
     },
     // 同步LSN
-    userSync(index) {
+    userSync(row) {
       let that = this;
-      console.log(this.tableData[index]);
+      console.log(row);
       const loading = this.$loading({
         lock: true,
         text: "Loading",
@@ -1780,11 +1780,11 @@ export default {
         background: "rgba(0, 0, 0, 0.7)",
       });
       let data = {
-        username: this.tableData[index].username,
-        tenantid: this.tableData[index].tenantid,
-        schemes: this.tableData[index].schemes,
-        nsid: this.tableData[index].nsid,
-        level: this.tableData[index].level,
+        username: row.username,
+        tenantid: row.tenantid,
+        schemes: row.schemes,
+        nsid: row.nsid,
+        level: row.level,
       };
       addTenantOperateNs(
         data,
@@ -1810,7 +1810,7 @@ export default {
     },
 
     // 同步MySQL
-    userSyncSQL(index) {
+    userSyncSQL(row) {
       const loading = this.$loading({
         lock: true,
         text: "Loading",
@@ -1819,7 +1819,7 @@ export default {
       });
       let that = this;
       addCustomerToMysql(
-        { tenantid: this.tableData[index].tenantid },
+        { tenantid: row.tenantid },
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
@@ -1840,24 +1840,24 @@ export default {
     },
 
     //修改用户信息
-    userEdit(index) {
-      this.editSchemes = this.tableData[index].schemes.split(",");
-      this.editData.devnum = this.tableData[index].devnum;
-      this.editData.username = this.tableData[index].username;
-      this.editData.tel = this.tableData[index].tel;
-      this.editData.email = this.tableData[index].email;
-      this.editData.country = this.tableData[index].country;
-      this.editData.address = this.tableData[index].address;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.record = this.tableData[index].record;
-      this.editData.nsid = this.tableData[index].nsid;
-      this.editData.organizationID = this.tableData[index].organizationID;
-      this.editData.tenantid = this.tableData[index].tenantid;
-      this.editData.logoprio = this.tableData[index].logoprio;
-      this.editData.accprio = this.tableData[index].accprio;
-      this.editData.validtime = this.tableData[index].validtime;
-      this.editData.mapnum = this.tableData[index].mapnum;
-      this.editData.projectnum = this.tableData[index].projectnum;
+    userEdit(row) {
+      this.editSchemes = row.schemes.split(",");
+      this.editData.devnum = row.devnum;
+      this.editData.username = row.username;
+      this.editData.tel = row.tel;
+      this.editData.email = row.email;
+      this.editData.country = row.country;
+      this.editData.address = row.address;
+      this.editData.memo = row.memo;
+      this.editData.record = row.record;
+      this.editData.nsid = row.nsid;
+      this.editData.organizationID = row.organizationID;
+      this.editData.tenantid = row.tenantid;
+      this.editData.logoprio = row.logoprio;
+      this.editData.accprio = row.accprio;
+      this.editData.validtime = row.validtime;
+      this.editData.mapnum = row.mapnum;
+      this.editData.projectnum = row.projectnum;
       this.editData.schemes = "";
       this.edit = true;
     },
@@ -1918,7 +1918,7 @@ export default {
     },
 
     //点击删除
-    userDele(index) {
+    userDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -1932,8 +1932,8 @@ export default {
         return;
       }
       //删除用户信息
-      this.deleUser = this.tableData[index].username;
-      this.deleTenantid = this.tableData[index].tenantid;
+      this.deleUser = row.username;
+      this.deleTenantid = row.tenantid;
       this.deleTpl = true;
     },
     deleTrue() {
