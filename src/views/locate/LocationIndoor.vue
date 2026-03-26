@@ -4459,21 +4459,22 @@ export default {
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          let mapInfo = res.data;
-          for (let i = 0; i < mapInfo.length; i++) {
-            if (mapInfo[i].devtype === 4) {
-              // that.addIconTBox(that.map, mapInfo[i]);
-              that.addOrUpdateFeature("tbox", mapInfo[i]);
+          this.mapInfo = res.data;
+          for (let i = 0; i < this.mapInfo.length; i++) {
+            if (this.mapInfo[i].devtype === 4) {
+              // that.addIconTBox(that.map, this.mapInfo[i]);
+              that.addOrUpdateFeature("tbox", this.mapInfo[i]);
             }
-            if (mapInfo[i].devtype === 2) {
-              // that.addIconMarkers(that.map, mapInfo[i]);
-              that.addOrUpdateFeature("person", that.mapInfo[i]);
+            if (this.mapInfo[i].devtype === 2) {
+              // that.addIconMarkers(that.map, this.mapInfo[i]);
+              that.addOrUpdateFeature("person", this.mapInfo[i]);
             }
-            if (mapInfo[i].devtype === 3) {
-              // that.addIconAssets(that.map, mapInfo[i]);
-              that.addOrUpdateFeature("asset", mapInfo[i]);
+            if (this.mapInfo[i].devtype === 3) {
+              // that.addIconAssets(that.map, this.mapInfo[i]);
+              that.addOrUpdateFeature("asset", this.mapInfo[i]);
             }
           }
+          that.hideLayers();
         }
       });
     },
