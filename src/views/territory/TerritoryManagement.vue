@@ -99,7 +99,7 @@
                   >
                     <el-button
                       type="primary"
-                      @click="teeritoryEdit(scope.$index, tableData)"
+                      @click="teeritoryEdit(scope.row)"
                       class="edits"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -312,11 +312,11 @@ export default {
     },
 
     //编辑
-    teeritoryEdit(index) {
-      this.editData.username = this.tableData[index].username;
-      this.editData.gwnumber = this.tableData[index].gwnumber;
-      this.editData.nodenumber = this.tableData[index].nodenumber;
-      this.editData.memo = this.tableData[index].memo;
+    teeritoryEdit(row) {
+      this.editData.username = row.username;
+      this.editData.gwnumber = row.gwnumber;
+      this.editData.nodenumber = row.nodenumber;
+      this.editData.memo = row.memo;
       this.edit = true;
     },
 

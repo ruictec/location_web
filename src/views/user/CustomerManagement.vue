@@ -258,7 +258,7 @@
                         "
                         ><el-button
                           size="mini"
-                          @click="userEdit(scope.$index, tableData)"
+                          @click="userEdit(scope.row)"
                           class="edits"
                           >{{ $t("companymanagement.edit") }}</el-button
                         ></el-dropdown-item
@@ -271,7 +271,7 @@
                         ><el-button
                           size="mini"
                           class="dels1"
-                          @click="userDele(scope.$index)"
+                          @click="userDele(scope.row)"
                           >{{ $t("companymanagement.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -1416,19 +1416,19 @@ export default {
     },
 
     //修改用户信息
-    userEdit(index) {
-      this.editData.username = this.tableData[index].username;
-      this.editData.tel = this.tableData[index].tel;
-      this.editData.email = this.tableData[index].email;
-      this.editData.address = this.tableData[index].address;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.record = this.tableData[index].record;
-      this.editData.nsid = this.tableData[index].nsid;
-      this.editData.organizationID = this.tableData[index].organizationID;
-      this.editData.tenantid = this.tableData[index].tenantid;
-      this.editData.logoprio = this.tableData[index].logoprio;
-      this.editData.accprio = this.tableData[index].accprio;
-      this.editData.maprio = this.tableData[index].maprio;
+    userEdit(row) {
+      this.editData.username = row.username;
+      this.editData.tel = row.tel;
+      this.editData.email = row.email;
+      this.editData.address = row.address;
+      this.editData.memo = row.memo;
+      this.editData.record = row.record;
+      this.editData.nsid = row.nsid;
+      this.editData.organizationID = row.organizationID;
+      this.editData.tenantid = row.tenantid;
+      this.editData.logoprio = row.logoprio;
+      this.editData.accprio = row.accprio;
+      this.editData.maprio = row.maprio;
       this.edit = true;
     },
     editCancel(editData) {
@@ -1472,7 +1472,7 @@ export default {
       });
     },
     //点击删除
-    userDele(index) {
+    userDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -1486,8 +1486,8 @@ export default {
         return;
       }
       //删除用户信息
-      this.deleUser = this.tableData[index].username;
-      this.deleTenantid = this.tableData[index].tenantid;
+      this.deleUser = row.username;
+      this.deleTenantid = row.tenantid;
       this.deleTpl = true;
     },
     deleTrue() {

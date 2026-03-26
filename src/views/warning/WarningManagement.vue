@@ -288,7 +288,7 @@
                       type="primary"
                       size="mini"
                       class="icon_button"
-                      @click="goLocation(scope.$index, tableData)"
+                      @click="goLocation(scope.row)"
                       v-if="contrForPrionum == 5"
                     >
                       <img src="../../../static/location.png"
@@ -304,7 +304,7 @@
                       type="danger"
                       size="mini"
                       class="edits"
-                      @click="DelWarningCommand(scope.$index)"
+                      @click="DelWarningCommand(scope.row)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
                   </el-tooltip>
@@ -825,7 +825,7 @@ export default {
     },
 
     //删除
-    DelWarningCommand(index) {
+    DelWarningCommand(row) {
       var that = this;
       if (
         (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
@@ -837,8 +837,8 @@ export default {
         });
         return;
       } else if (
-        this.tableData[index].status == 1 &&
-        this.tableData[index].type == 1
+        row.status == 1 &&
+        row.type == 1
       ) {
         this.$message({
           message: this.$t("tet.tet7"),
@@ -848,7 +848,7 @@ export default {
       }
       this.$confirm(
         this.$t("beacon.deletemsg1") +
-          this.tableData[index].deveui +
+          row.deveui +
           this.$t("beacon.deletemsg3"),
         this.$t("beacon.prompt"),
         {
@@ -862,12 +862,12 @@ export default {
           if (this.contrForPrionum == 5) {
             data = {
               tenantid: this.$store.state.userInfo.superid,
-              ids: [this.tableData[index].id],
+              ids: [row.id],
             };
           } else if (this.contrForPrionum == 3 || this.contrForPrionum == 4) {
             data = {
               tenantid: this.$store.state.userInfo.tenantid,
-              ids: [this.tableData[index].id],
+              ids: [row.id],
             };
           }
 
@@ -1009,13 +1009,12 @@ export default {
     },
 
     // 点击跳转到定位页面
-    goLocation(index) {
+    goLocation(row) {
       var that = this;
       if (
-        (this.tableData[index].x == "" || this.tableData[index].x == null) &&
-        (this.tableData[index].y == "" || this.tableData[index].y == null) &&
-        (this.tableData[index].tranche == "" ||
-          this.tableData[index].tranche == null)
+        (row.x == "" || row.x == null) &&
+        (row.y == "" || row.y == null) &&
+        (row.tranche == "" || row.tranche == null)
       ) {
         this.$message({
           message: this.$t("tet.tet8"),
@@ -1024,22 +1023,22 @@ export default {
         return;
       }
 
-      if (this.tableData[index].type == 2) {
+      if (row.type == 2) {
         that.$router.push({
           path: "/location/indoor/locationindoor",
           query: {
-            buildid: that.tableData[index].buildid,
-            ground: that.tableData[index].ground,
+            buildid: row.buildid,
+            ground: row.ground,
           },
         });
       } else {
-        let data = this.tableData[index];
+        let data = row;
         that.$store.commit("changesosData", data);
 
         //室内
         if (data.postype == 1) {
-          if (that.tableData[index].status == 1) {
-            if (that.tableData[index].devtype == 4) {
+          if (row.status == 1) {
+            if (row.devtype == 4) {
               //车辆告警
               that.$router.push({
                 path: "/location/indoor/locationindoor",
@@ -1049,7 +1048,7 @@ export default {
                   warning: true,
                 },
               });
-            } else if (that.tableData[index].devtype == 3) {
+            } else if (row.devtype == 3) {
               //资产告警
               that.$router.push({
                 path: "/location/indoor/locationindoor",
@@ -1071,7 +1070,7 @@ export default {
               });
             }
           } else {
-            if (that.tableData[index].devtype == 4) {
+            if (row.devtype == 4) {
               //车辆告警
               that.$router.push({
                 path: "/location/indoor/locationindoor",
@@ -1090,8 +1089,8 @@ export default {
           }
         } else if (data.postype == 2) {
           //室外
-          if (that.tableData[index].status == 1) {
-            if (that.tableData[index].devtype == 4) {
+          if (row.status == 1) {
+            if (row.devtype == 4) {
               //车辆告警
               that.$router.push({
                 path: "/location/outdoor/locationoutdoor",
@@ -1113,7 +1112,7 @@ export default {
               });
             }
           } else {
-            if (that.tableData[index].devtype == 4) {
+            if (row.devtype == 4) {
               //车辆告警
               that.$router.push({
                 path: "/location/outdoor/locationoutdoor",

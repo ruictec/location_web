@@ -192,7 +192,7 @@
                         ><el-button
                           size="mini"
                           class="edits"
-                          @click="staffEdit(scope.$index, tableData)"
+                          @click="staffEdit(scope.row)"
                           >{{ $t("car.edit") }}</el-button
                         ></el-dropdown-item
                       >
@@ -204,7 +204,7 @@
                         ><el-button
                           size="mini"
                           class="dels"
-                          @click="TBoxDele(scope.$index)"
+                          @click="TBoxDele(scope.row)"
                           >{{ $t("car.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -220,7 +220,7 @@
                       type="primary"
                       size="mini"
                       class="edits icon_button"
-                      @click="goLocation(scope.$index, tableData)"
+                      @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
                     /></el-button>
                   </el-tooltip>
@@ -235,7 +235,7 @@
                       size="mini"
                       class="edits icon_button"
                       style="margin-left: 0"
-                      @click="staffAction(scope.$index, tableData)"
+                      @click="staffAction(scope.row)"
                       ><img src="../../../static/trajectory2.png"
                     /></el-button>
                   </el-tooltip>
@@ -1233,15 +1233,12 @@ export default {
       this.trajectory = false;
     },
     //行为分析
-    staffAction(index) {
+    staffAction(row) {
       var that = this;
-      this.actionData.projectid = this.tableData[index].projectid;
-      this.actionData.maplabel = this.tableData[index].maplabel;
-      this.actionData.sn = this.tableData[index].sn;
-      if (
-        this.tableData[index].maplabel == "" ||
-        this.tableData[index].maplabel == null
-      ) {
+      this.actionData.projectid = row.projectid;
+      this.actionData.maplabel = row.maplabel;
+      this.actionData.sn = row.sn;
+      if (row.maplabel == "" || row.maplabel == null) {
         this.$message({
           message: this.$t("asset.vehiclebindlabel"),
           type: "warning",
@@ -1921,14 +1918,14 @@ export default {
     },
 
     // 编辑
-    staffEdit(index) {
+    staffEdit(row) {
       this.haveImage = false;
       this.delImage = false;
       this.getDepart();
-      if (this.tableData[index].filename) {
+      if (row.filename) {
         this.fileListEdit = [
           {
-            url: host.host + "profile/" + this.tableData[index].filename,
+            url: host.host + "profile/" + row.filename,
           },
         ];
       } else {
@@ -1937,15 +1934,15 @@ export default {
       var that = this;
       this.assetUsername = []; //所属用户下拉框
       this.maplabelList = []; //标签号下拉框
-      this.editData.id = this.tableData[index].id;
-      this.editData.sn = this.tableData[index].sn;
-      this.editData.type = this.tableData[index].type;
-      this.editData.tenantid = this.tableData[index].tenantid;
-      this.editData.projectid = this.tableData[index].projectid;
-      this.editData.maplabel = this.tableData[index].maplabel;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.filename = this.tableData[index].filename;
-      this.editData.depart = this.tableData[index].depart;
+      this.editData.id = row.id;
+      this.editData.sn = row.sn;
+      this.editData.type = row.type;
+      this.editData.tenantid = row.tenantid;
+      this.editData.projectid = row.projectid;
+      this.editData.maplabel = row.maplabel;
+      this.editData.memo = row.memo;
+      this.editData.filename = row.filename;
+      this.editData.depart = row.depart;
       Promise.all([
         this.getMemberLists(),
         this.getDevDeveuis(this.$store.state.projectid),
@@ -2004,7 +2001,7 @@ export default {
     },
 
     // 删除车辆
-    TBoxDele(index) {
+    TBoxDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -2019,7 +2016,7 @@ export default {
       }
       this.$confirm(
         this.$t("test.confirmdel1") +
-          this.tableData[index].sn +
+          row.sn +
           this.$t("terminal.carmsg2"),
         this.$t("terminal.tips"),
         {
@@ -2028,7 +2025,7 @@ export default {
           type: "warning",
         }
       ).then(() => {
-        this.deleId = this.tableData[index].id;
+        this.deleId = row.id;
         this.deleTrue();
       });
     },
@@ -2229,12 +2226,9 @@ export default {
       });
     },
     //点击跳转到定位页面
-    goLocation(index) {
+    goLocation(row) {
       var that = this;
-      if (
-        this.tableData[index].maplabel == "" ||
-        this.tableData[index].maplabel == null
-      ) {
+      if (row.maplabel == "" || row.maplabel == null) {
         this.$message({
           message: this.$t("asset.vehiclebindlabel"),
           type: "warning",
@@ -2242,8 +2236,8 @@ export default {
         return;
       }
       let data = {
-        deveui: this.tableData[index].maplabel,
-        projectid: this.tableData[index].projectid,
+        deveui: row.maplabel,
+        projectid: row.projectid,
         devtype: 4,
       };
       getDevGpsOne(data, this.tenantkey_A, this.tenantid_A, this.userName).then(

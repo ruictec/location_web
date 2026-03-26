@@ -381,7 +381,7 @@
                         ><el-button
                           size="mini"
                           class="editss"
-                          @click="projectEdit(scope.$index, tableData)"
+                          @click="projectEdit(scope.row)"
                           >{{ $t("floormanagement.edit") }}</el-button
                         ></el-dropdown-item
                       >
@@ -393,7 +393,7 @@
                         ><el-button
                           size="mini"
                           class="delss"
-                          @click="projectDele(scope.$index)"
+                          @click="projectDele(scope.row)"
                           >{{ $t("floormanagement.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -2056,17 +2056,14 @@ export default {
     },
 
     // 编辑建筑信息
-    projectEdit(index) {
-      this.checkMapTypeEdit(
-        this.tableData[index].buildid,
-        this.tableData[index]
-      );
-      this.editData.id = this.tableData[index].id;
-      this.editData.ground = this.tableData[index].ground;
-      this.editData.mapid = this.tableData[index].mapid;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.buildid = this.tableData[index].buildid;
-      this.editData.name = this.tableData[index].name;
+    projectEdit(row) {
+      this.checkMapTypeEdit(row.buildid, row);
+      this.editData.id = row.id;
+      this.editData.ground = row.ground;
+      this.editData.mapid = row.mapid;
+      this.editData.memo = row.memo;
+      this.editData.buildid = row.buildid;
+      this.editData.name = row.name;
 
       this.edit = true;
     },
@@ -2171,7 +2168,7 @@ export default {
     },
 
     //删除建筑信息
-    projectDele(index) {
+    projectDele(row) {
       let that = this;
       if (
         (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
@@ -2183,7 +2180,7 @@ export default {
         });
         return;
       }
-      this.deleteData = this.tableData[index];
+      this.deleteData = row;
       this.deletes = true;
     },
 

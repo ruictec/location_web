@@ -284,7 +284,7 @@
                         <el-button
                           size="mini"
                           class="edits"
-                          @click="gatewayEdit(scope.$index, tableData)"
+                          @click="gatewayEdit(scope.row)"
                           v-if="
                             contrForPrionum == 1 ||
                             contrForPrionum == 2 ||
@@ -298,7 +298,7 @@
                         ><el-button
                           size="mini"
                           class="edits"
-                          @click="gatewayBack(scope.$index)"
+                          @click="gatewayBack(scope.row)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
                           >{{ $t('terminal.recovery') }}</el-button
                         ></el-dropdown-item
@@ -307,7 +307,7 @@
                         ><el-button
                           size="mini"
                           class="dels1"
-                          @click="gatewayDele(scope.$index)"
+                          @click="gatewayDele(scope.row)"
                           v-if="contrForPrionum == 1 || contrForPrionum == 3 || delprio == 1"
                           >{{ $t('gateway.delete') }}</el-button
                         ></el-dropdown-item
@@ -1580,10 +1580,10 @@ export default {
     },
 
     //修改gateway
-    gatewayEdit(index) {
+    gatewayEdit(row) {
       this.show4G = false
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
-        if (this.tableData[index].custom == 2) {
+        if (row.custom == 2) {
           this.$message({
             message: this.$t('gateway.editgatewayrules'),
             type: 'warning',
@@ -1591,18 +1591,18 @@ export default {
           return
         }
       }
-      this.editData.deveui = this.tableData[index].deveui
-      this.editData.tenantid = this.tableData[index].tenantid
-      this.editData.country = this.tableData[index].country
-      this.editData.memo = this.tableData[index].memo
-      this.editData.sysmemo = this.tableData[index].sysmemo
-      this.editData.alias = this.tableData[index].alias
-      this.editData.schemestr = this.tableData[index].schemestr
-      this.editData.projectid = this.tableData[index].projectid
-      this.editData.cardid = this.tableData[index].cardid
-      this.editData.network = this.tableData[index].network
-      this.totalbytes1 = this.tableData[index].totalbytes
-        ? this.tableData[index].totalbytes.substr(0, this.tableData[index].totalbytes.length - 1)
+      this.editData.deveui = row.deveui
+      this.editData.tenantid = row.tenantid
+      this.editData.country = row.country
+      this.editData.memo = row.memo
+      this.editData.sysmemo = row.sysmemo
+      this.editData.alias = row.alias
+      this.editData.schemestr = row.schemestr
+      this.editData.projectid = row.projectid
+      this.editData.cardid = row.cardid
+      this.editData.network = row.network
+      this.totalbytes1 = row.totalbytes
+        ? row.totalbytes.substr(0, row.totalbytes.length - 1)
         : ''
 
       this.selectScheme(this.editData.tenantid)
@@ -1658,7 +1658,7 @@ export default {
     },
 
     //删除gateway
-    gatewayDele(index) {
+    gatewayDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 && this.$store.state.userInfo.delprio == 2) ||
         (this.$store.state.userInfo.prionum == 4 && this.$store.state.userInfo.delprio == 2)
@@ -1672,15 +1672,15 @@ export default {
       var that = this
       //系统分配的设备无法删除
       if (
-        (this.contrForPrionum == 3 && this.tableData[index].custom == 1) ||
-        (this.contrForPrionum == 4 && this.tableData[index].custom == 1)
+        (this.contrForPrionum == 3 && row.custom == 1) ||
+        (this.contrForPrionum == 4 && row.custom == 1)
       ) {
         this.$message({
           message: this.$t('gateway.deletegatewayrules'),
           type: 'warning',
         })
         return
-      } else if (this.contrForPrionum == 1 && this.tableData[index].custom == 2) {
+      } else if (this.contrForPrionum == 1 && row.custom == 2) {
         this.$message({
           message: this.$t('gateway.deletegatewayrules1'),
           type: 'warning',
@@ -1688,7 +1688,7 @@ export default {
         return
       }
       this.$confirm(
-        this.$t('gateway.deletemsg') + this.tableData[index].deveui + this.$t('gateway.deletemsg1'),
+        this.$t('gateway.deletemsg') + row.deveui + this.$t('gateway.deletemsg1'),
         this.$t('Building.tips'),
 
         {
@@ -1698,7 +1698,7 @@ export default {
         }
       ).then(() => {
         let data = {
-          deveui: that.tableData[index].deveui,
+          deveui: row.deveui,
         }
         delGateway(data, that.tenantkey_A, that.tenantid_A, that.userName).then(res => {
           if (res.code == 1001) {
@@ -1720,10 +1720,10 @@ export default {
     },
 
     //回收
-    gatewayBack(index) {
+    gatewayBack(row) {
       var that = this
       this.$confirm(
-        this.$t('beacon.tet13') + this.tableData[index].deveui + this.$t('gateway.deletemsg1'),
+        this.$t('beacon.tet13') + row.deveui + this.$t('gateway.deletemsg1'),
         this.$t('Building.tips'),
         {
           confirmButtonText: this.$t('terminal.confirm'),
@@ -1732,7 +1732,7 @@ export default {
         }
       ).then(() => {
         let data = {
-          deveui: this.tableData[index].deveui,
+          deveui: row.deveui,
         }
         updateGatewayRemoveProject(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
           res => {

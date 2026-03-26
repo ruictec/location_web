@@ -328,7 +328,7 @@
                         ><el-button
                           size="mini"
                           class="edits"
-                          @click="staffEdit(scope.$index, tableData)"
+                          @click="staffEdit(scope.row)"
                           >{{ $t("staff.edit") }}</el-button
                         ></el-dropdown-item
                       >
@@ -340,7 +340,7 @@
                         ><el-button
                           size="mini"
                           class="dels"
-                          @click="staffDele(scope.$index)"
+                          @click="staffDele(scope.row)"
                           >{{ $t("staff.delete") }}</el-button
                         ></el-dropdown-item
                       >
@@ -355,7 +355,7 @@
                     <el-button
                       type="primary"
                       class="edits icon_button"
-                      @click="goLocation(scope.$index, tableData)"
+                      @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
                     /></el-button>
                   </el-tooltip>
@@ -370,7 +370,7 @@
                       type="primary"
                       class="edits icon_button"
                       style="margin-left: 0"
-                      @click="staffAction(scope.$index, tableData)"
+                      @click="staffAction(scope.row)"
                       ><img src="../../../static/trajectory2.png"
                     /></el-button>
                   </el-tooltip>
@@ -2910,39 +2910,35 @@ export default {
     },
 
     // 编辑
-    staffEdit(index) {
+    staffEdit(row) {
       this.haveImage = false;
       this.delImage = false;
-      if (this.tableData[index].filename) {
+      if (row.filename) {
         this.fileListEdit = [
           {
-            url: host.host + "profile/" + this.tableData[index].filename,
+            url: host.host + "profile/" + row.filename,
           },
         ];
       } else {
         this.fileListEdit = [];
       }
 
-      this.editData.username = this.tableData[index].username;
+      this.editData.username = row.username;
       this.editData.birthday =
-        this.tableData[index].birthday == null
-          ? ""
-          : this.tableData[index].birthday;
-      this.editData.sex = this.tableData[index].sex;
-      this.editData.cardno = this.tableData[index].cardno;
-      this.editData.tenantid = this.tableData[index].tenantid;
-      this.editData.depart = this.tableData[index].depart;
-      this.editData.projectid = this.tableData[index].projectid;
-      this.editData.type = this.tableData[index].type;
-      this.editData.maplabel = this.tableData[index].maplabel;
-      this.editData.memo = this.tableData[index].memo;
-      this.editData.tel = this.tableData[index].tel;
-      this.editData.id = this.tableData[index].id;
+        row.birthday == null ? "" : row.birthday;
+      this.editData.sex = row.sex;
+      this.editData.cardno = row.cardno;
+      this.editData.tenantid = row.tenantid;
+      this.editData.depart = row.depart;
+      this.editData.projectid = row.projectid;
+      this.editData.type = row.type;
+      this.editData.maplabel = row.maplabel;
+      this.editData.memo = row.memo;
+      this.editData.tel = row.tel;
+      this.editData.id = row.id;
       this.editData.worktype =
-        this.tableData[index].worktype == null
-          ? ""
-          : this.tableData[index].worktype;
-      this.editData.filename = this.tableData[index].filename;
+        row.worktype == null ? "" : row.worktype;
+      this.editData.filename = row.filename;
 
       this.projectChanged(this.editData.projectid);
       this.getWorktyper();
@@ -3011,15 +3007,12 @@ export default {
     },
 
     //行为分析
-    staffAction(index) {
+    staffAction(row) {
       var that = this;
-      this.actionData.projectid = this.tableData[index].projectid;
-      this.actionData.maplabel = this.tableData[index].maplabel;
-      this.actionData.username = this.tableData[index].username;
-      if (
-        this.tableData[index].maplabel == "" ||
-        this.tableData[index].maplabel == null
-      ) {
+      this.actionData.projectid = row.projectid;
+      this.actionData.maplabel = row.maplabel;
+      this.actionData.username = row.username;
+      if (row.maplabel == "" || row.maplabel == null) {
         this.$message({
           message: this.$t("staffmanagement.Pleasecard"),
           type: "warning",
@@ -3252,7 +3245,7 @@ export default {
     },
 
     // 删除员工
-    staffDele(index) {
+    staffDele(row) {
       if (
         (this.$store.state.userInfo.prionum == 5 &&
           this.$store.state.userInfo.delprio == 2) ||
@@ -3265,9 +3258,9 @@ export default {
         });
         return;
       }
-      this.deleStaff = this.tableData[index].username;
-      this.deleId = this.tableData[index].id;
-      this.delFileName = this.tableData[index].filename;
+      this.deleStaff = row.username;
+      this.deleId = row.id;
+      this.delFileName = row.filename;
       this.deleTpl = true;
     },
     deleTrue() {
@@ -3530,12 +3523,9 @@ export default {
       });
     },
     // 点击跳转到定位页面
-    goLocation(index) {
+    goLocation(row) {
       var that = this;
-      if (
-        this.tableData[index].maplabel == "" ||
-        this.tableData[index].maplabel == null
-      ) {
+      if (row.maplabel == "" || row.maplabel == null) {
         this.$message({
           message: this.$t("staffmanagement.Pleasecard"),
           type: "warning",
@@ -3543,8 +3533,8 @@ export default {
         return;
       }
       let data = {
-        deveui: this.tableData[index].maplabel,
-        projectid: this.tableData[index].projectid,
+        deveui: row.maplabel,
+        projectid: row.projectid,
         devtype: 1,
       };
       getDevGpsOne(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
