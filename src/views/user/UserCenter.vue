@@ -7,6 +7,17 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><System /></el-aside>
         <el-main>
+          <!-- 隐藏原生文件控件，由 updateCode() 程序化触发；勿用 display:none，否则 .click() 可能无法打开选择框 -->
+          <div class="usercenter-hidden-file-input">
+            <input
+              id="articleImageFile"
+              name="excelFile"
+              type="file"
+              class="x_file"
+              accept=".txt"
+              @change="importTxt($event)"
+            />
+          </div>
           <!-- <el-breadcrumb separator="/">
             <el-breadcrumb-item>系统管理</el-breadcrumb-item>
             <el-breadcrumb-item>个人中心</el-breadcrumb-item>
@@ -219,6 +230,11 @@
                 <el-button type="primary" class="edit" @click="editUser()">{{
                   $t("usercenter.editinfor")
                 }}</el-button>
+                   <el-button type="primary" class="edit" @click="updateCode()"
+                  >{{
+                  $t("usercenter.Updatelicensekey")
+                }}</el-button
+                >
                 <el-button
                   type="primary"
                   class="edit"
@@ -247,7 +263,7 @@
             :visible.sync="edit"
             class="edit"
             width="30%"
-            style="test-align: center"
+            style="text-align: center"
             @close="editCancel('editData')"
           >
             <el-form
@@ -523,6 +539,52 @@ export default {
     };
   },
   methods: {
+    // 更新注册码
+    updateCode() {
+      document.getElementById("articleImageFile").click(); //触发importExcels
+    },
+    importTxt(e) {
+      const input = e.target;
+      const file = input.files && input.files[0];
+      if (!file) {
+        return;
+      }
+      var that = this;
+      let formData = new FormData();
+      formData.append("file", file);
+      this.$axios
+        .post("user/updateRegisterFile", formData)
+        .then((response) => {
+          if (response.data.code === 1001) {
+            that.$message({
+              message: that.$t("usercenter.updateSuccess"),
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message:
+                that.$store.state.i18n == "zh"
+                  ? response.data.msg
+                  : response.data.enMsg,
+              type: "error",
+            });
+          }
+        })
+        .catch((error) => {
+          that.$message({
+            message:
+              that.$store.state.i18n == "zh"
+                ? error.data.msg
+                : error.data.enMsg,
+            type: "error",
+          });
+        })
+        .finally(() => {
+          // 清空以便下次可再选同一文件并触发 change（否则 value 不变浏览器不派发 change）
+          input.value = "";
+        });
+      // updateRegisterMapFile
+    },
     // changeSwitch(e) { // 定制访问功能暂时隐藏
     //   var that = this;
     //   let data = {
@@ -847,6 +909,18 @@ export default {
 </script>
 
 <style scoped>
+.usercenter-hidden-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);

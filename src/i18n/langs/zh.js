@@ -1185,6 +1185,7 @@ const zh = {
 
     // 个人中心页面
     usercenter: {
+        updateSuccess: '更新成功',
         Customizedaccess: '定制访问',
         key: '密钥',
         Pagesembedded: '页面可嵌入',
@@ -1201,6 +1202,7 @@ const zh = {
         prio: '权限：',
         editinfor: '修改信息',
         editpwd: '修改密码',
+        Updatelicensekey:'更新注册码',
         cancel: '注销账户',
         signout: '退出登录',
         Authoritymanagement: '权限管理',
