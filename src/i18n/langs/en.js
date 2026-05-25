@@ -1191,6 +1191,7 @@ const en = {
 
     // 个人中心页面
     usercenter: {
+        updateSuccess: 'Update Success!',
         Customizedaccess: 'Customized access',
         key: 'key',
         Pagesembedded: 'Pages embedded',
@@ -1207,6 +1208,7 @@ const en = {
         prio: 'Role：',
         editinfor: 'Edit Information',
         editpwd: 'Edit Password',
+        Updatelicensekey:'Update license key',
         cancel: 'Cancel',
         signout: 'Sign Out',
         Authoritymanagement: 'My permission',
