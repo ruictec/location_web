@@ -135,6 +135,26 @@
         </el-tooltip>
         <span slot="title" v-show="show">{{ $t("index.Logmanagement") }}</span>
       </el-menu-item>
+      <el-menu-item
+        index="/otamanagement"
+        v-if="
+          contrForPrioNum == 1 ||
+            contrForPrioNum == 2 ||
+            contrForPrioNum == 3 ||
+            contrForPrioNum == 4
+        "
+      >
+        <el-tooltip
+          class="item"
+          effect="dark"
+          :content="$t('index.Otamanagement')"
+          placement="right"
+          :disabled="open"
+        >
+          <i class="icon ota"></i>
+        </el-tooltip>
+        <span slot="title" v-show="show">{{ $t("index.Otamanagement") }}</span>
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -240,6 +260,10 @@ export default {
 }
 .icon.log {
   mask: url("../../assets/log.svg");
+  mask-size: contain;
+}
+.icon.ota {
+  mask: url("../../assets/downdata.svg");
   mask-size: contain;
 }
 .icon.usercenter {

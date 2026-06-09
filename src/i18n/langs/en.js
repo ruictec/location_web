@@ -525,6 +525,7 @@ const en = {
         floornumber1: 'The number of the floor where the device is currently located.',
         Locationupdatetime: 'Location update',
         Locationupdatetime1: 'Location update：',
+        direction:'direction：',
         addtime: 'Addtime',
         context: 'Command：',
         context1: 'Remote search: Trigger the device buzzer to sound, mainly used to find the device.',
@@ -1517,6 +1518,33 @@ const en = {
         delfail: 'Delete fail！',
         tet: 'Are you sure you want to delete this log message?',
 
+    },
+
+    // OTA management
+    otamanagement: {
+        devtype: 'Device type：',
+        devtype1: 'Device type',
+        devtypeplaceholder: 'Please select device type',
+        devtype_lora: 'LoRa gateway',
+        devtype_mk3: 'MK3 cap card',
+        devtype_card: 'Positioning card',
+        devtype_vehicle: 'Vehicle locator',
+        devtyperule: 'Please select device type',
+        id: 'ID',
+        version1: 'Version',
+        description: 'Description',
+        time: 'Upload time',
+        control: 'Operate',
+        upload: 'Upload OTA',
+        uploadtitle: 'Upload OTA file',
+        file: 'OTA file',
+        selectfile: 'Select file',
+        filetip: 'Only one OTA file can be uploaded',
+        filelimit: 'Only one file is allowed',
+        versionrule: 'Please enter version',
+        filerule: 'Please select OTA file',
+        uploadsuccess: 'Upload successful!',
+        deletetip: 'Are you sure to delete this OTA record?',
     },
 
     // 员工管理
@@ -2645,6 +2673,7 @@ const en = {
         sendingobject: 'Please enter the sending object',
         contentsend: 'Please enter the content to send',
         Logmanagement: 'Log',
+        Otamanagement: 'OTA',
         tet10: 'The enterprise that procures equipment, the end user of the system.',
     },
     //管理员界面 首页

@@ -1,5 +1,7 @@
 //api.js
 import service from './request'
+import axios from 'axios'
+import { API_BASE } from '@/config'
 // import qs from "qs";
 
 function getTime() {
@@ -2756,6 +2758,42 @@ export const delFile = (datas, tenantkey_A, tenantid_A, username) => { //删除�
         data: datas
     }).then(res => res)
 };
+
+export const addDevOtaMapFile = (formData) => { //上传OTA文件
+    const baseURL = API_BASE.endsWith('/') ? API_BASE : (API_BASE + '/')
+    return axios({
+        baseURL,
+        url: "user/addDevOtaMapFile",
+        method: 'post',
+        data: formData,
+        timeout: 50000
+    }).then(res => res.data)
+};
+
+export const delDevOta = (datas, tenantkey_A, tenantid_A, username) => { //删除OTA文件
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/user/delDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "user/delDevOta",
+        method: 'delete',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
+export const getDevOtaMapFileList = (query) => { //分页查询OTA文件
+    return service({
+        url: "user/getDevOtaMapFileList",
+        method: 'get',
+        params: query
+    }).then(res => res)
+};
+
 export const insertNoticeList = (datas, tenantkey_A, tenantid_A, username) => { //批量添加通知消息
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/user/insertNoticeList" + JSON.stringify(datas) + tenantkey_A + time_A)

@@ -535,6 +535,9 @@ export default {
       case "/logmanagement":
         this.isActiveClass = "system";
         break;
+      case "/otamanagement":
+        this.isActiveClass = "system";
+        break;
 
       case "/myorder":
         this.isActiveClass = "system";
