@@ -32,6 +32,7 @@ const LocationIndoorHis = () => import('../views/locate/LocationIndoorHis')
 
 const StaffManagement = () => import('../views/staff/staffManagement')
 const LogManagement = () => import('../views/log/LogManagement')
+const OtaManagement = () => import('../views/system/OtaManagement')
 const WarningManagement = () => import('../views/warning/WarningManagement')
 const HeartBeat = () => import('../views/data/HeartBeat')
 const Test = () => import('../views/data/Test')
@@ -246,6 +247,12 @@ export const adminRoutes = [
       path: '/logmanagement',
       name: 'LogManagement',
       component: LogManagement,
+      meta: { requireAuth: true }
+    },
+    {
+      path: '/otamanagement',
+      name: 'OtaManagement',
+      component: OtaManagement,
       meta: { requireAuth: true }
     },
     {

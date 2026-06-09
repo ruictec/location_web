@@ -780,6 +780,8 @@
               </li>
               <el-divider class="divider"></el-divider>
               <li>{{ $t("terminal.Locationupdatetime1") }}{{ gpstime }}</li>
+              <el-divider v-if="objectValue" class="divider"></el-divider>
+              <li v-if="objectValue">{{ $t("terminal.direction") }}{{ objectValue }}</li>
             </div>
           </ul>
 
@@ -960,6 +962,7 @@ export default {
       imageAsset: "",
       imageTBox: "",
       gpstime: "",
+      objectValue:"",
       assetName: "",
       assetType: "",
       assetModel: "",
@@ -3237,6 +3240,12 @@ export default {
                     that.showBracelet = true;
                   }
 
+                  if (res.data.devGps) {
+                  that.objectValue = res.data.devGps.object || '';
+                  } else {
+                    that.objectValue=''
+                  }
+
                   that.devPer = true;
                   that.devAsset = false;
                   that.devTBox = false;
@@ -4140,6 +4149,11 @@ export default {
 
               that.showBracelet = true;
             }
+            if (res.data.devGps) {
+                  that.objectValue = res.data.devGps.object || '';
+                  } else {
+                    that.objectValue=''
+                  }
             that.devPer = true;
             that.devAsset = false;
             that.devTBox = false;
