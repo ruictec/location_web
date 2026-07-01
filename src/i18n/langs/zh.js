@@ -1519,6 +1519,7 @@ const zh = {
         devtype_mk3: 'MK3帽卡',
         devtype_card: '定位工卡',
         devtype_vehicle: '车载定位器',
+        devtype_helmet: '头盔',
         devtyperule: '请选择设备类型',
         id: 'ID',
         version1: '版本号',

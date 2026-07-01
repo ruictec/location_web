@@ -1529,6 +1529,7 @@ const en = {
         devtype_mk3: 'MK3 cap card',
         devtype_card: 'Positioning card',
         devtype_vehicle: 'Vehicle locator',
+        devtype_helmet: 'Helmet',
         devtyperule: 'Please select device type',
         id: 'ID',
         version1: 'Version',

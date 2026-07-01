@@ -202,7 +202,7 @@ export default {
           // 线的样式
           stroke: new Stroke({
             width: 6,
-            color: [0, 0, 0, 0.8],
+            color: [255, 255, 0, 0.8],
           }),
         }),
         icon: new Style({
