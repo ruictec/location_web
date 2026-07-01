@@ -148,7 +148,7 @@
               label-width="100px"
               :rules="uploadRules"
             >
-              <el-form-item :label="$t('otamanagement.devtype1')" prop="devtype">
+              <!-- <el-form-item :label="$t('otamanagement.devtype1')" prop="devtype">
                 <el-select
                   v-model="uploadForm.devtype"
                   filterable
@@ -162,7 +162,7 @@
                     :value="item.index"
                   ></el-option>
                 </el-select>
-              </el-form-item>
+              </el-form-item> -->
               <el-form-item :label="$t('otamanagement.description')">
                 <el-input
                   v-model="uploadForm.description"
@@ -266,6 +266,7 @@ export default {
         { index: 2, value: this.$t("otamanagement.devtype_mk3") },
         { index: 3, value: this.$t("otamanagement.devtype_card") },
         { index: 4, value: this.$t("otamanagement.devtype_vehicle") },
+        { index: 5, value: this.$t("otamanagement.devtype_helmet") },
       ];
     },
   },
@@ -405,7 +406,7 @@ export default {
         }
         const formData = new FormData();
         formData.append("file", that.uploadForm.file);
-        formData.append("devtype", that.uploadForm.devtype);
+        // formData.append("devtype", that.uploadForm.devtype);
         formData.append("description", that.uploadForm.description || "");
         addDevOtaMapFile(formData).then((res) => {
           if (res.code == 1001) {
