@@ -235,7 +235,7 @@ import {
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 import OlFeature from "ol/Feature";
 import OlGeomPoint from "ol/geom/Point";
 import OlSourceVector from "ol/source/Vector";
@@ -313,7 +313,7 @@ export default {
       view: "",
       clusterSource: "", //用户地图聚合标注源
       layerVetor: "", //用户地图矢量图层
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       mapInfos: "",
       floor: [],
       largest: [], // 人数最多的楼栋
@@ -349,15 +349,9 @@ export default {
   },
   mounted() {
     this.getTime();
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
 
     this.$nextTick(() => {
       this.getReport(); //警告类型
@@ -503,10 +497,7 @@ export default {
 
       that.vectorSource = new VectorSource();
       this.seeLayer = [
-        new TileLayer({
-          className: "baseLayerClass",
-          source: that.openlayersSource,
-        }),
+        ...that.outdoorBaseLayers,
         new VectorLayer({
           source: that.vectorSource,
         }),

@@ -447,7 +447,7 @@ import "ol/ol.css";
 import Map from "ol/Map";
 import View from "ol/View";
 import TileLayer from "ol/layer/Tile";
-import { OSM } from "ol/source";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 import VectorLayer from "ol/layer/Vector";
 import VectorSource from "ol/source/Vector";
 import { Draw, Modify, Select } from "ol/interaction";
@@ -645,25 +645,14 @@ export default {
       var that = this;
     
       setTimeout(() => {
-        let openlayersSource;
-      if (that.$store.state.i18n == "zh") {
-        // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-        openlayersSource = new OSM({
-          url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-          crossOrigin: "",
-        });
-      } else {
-        openlayersSource = new OSM();
-      }
         that.vectorSource = new VectorSource();
         that.map = new Map({
           target: that.$refs.map,
           layers: [
-            new TileLayer({
-              source: openlayersSource,
-            }),
+            ...createOutdoorBaseLayers(that.$store.state.i18n == "zh"),
             new VectorLayer({
               source: that.vectorSource,
+              renderMode: "vector",
             }),
           ],
           view: new View({

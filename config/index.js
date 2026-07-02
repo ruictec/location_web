@@ -3,6 +3,9 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+// 尽早加载 .env.local，供下方 proxyTable 读取 API_PROXY_TARGET
+require('dotenv').config({ path: path.resolve(__dirname, '../.env.local') })
+
 module.exports = {
   dev: {
     env: require('./dev.env'),
@@ -34,9 +37,9 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    // host: '192.168.2.135', // can be overwritten by process.env.HOST
-    host: '192.168.50.235', // can be overwritten by process.env.HOST
-    // host: 'localhost', // can be overwritten by process.env.HOST
+    // host: '192.168.2.145', // can be overwritten by process.env.HOST
+    // host: '192.168.50.235', // can be overwritten by process.env.HOST
+    host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

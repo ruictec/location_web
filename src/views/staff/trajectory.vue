@@ -49,7 +49,7 @@ import {
 import Graphs from "./trajectory2.js";
 
 import "ol/ol.css";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers, refreshBaseTiles } from "../../utils/mapSource";
 import ImageLayer from "ol/layer/Image";
 import Map from "ol/Map";
 import Projection from "ol/proj/Projection";
@@ -77,7 +77,7 @@ export default {
   name: "trajectory",
   data() {
     return {
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       intoProjectid: this.$store.state.intoProjectid,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -778,16 +778,12 @@ export default {
       // if (this.vectorLayer) {
       // 第二次以后渲染轨迹的时候把上次的图层先删除
       that.removeVectorLayer(that.vectorLayer);
-      // }
-      let list = this.map.getLayers().getArray();
-      for (let i = list.length - 1; i > 0; i--) {
-        if (
-          list[i].getSource().getFeatures()[0].style_ &&
-          list[i].getSource().getFeatures()[0].style_.text_
-        ) {
-          that.map.removeLayer(list[i]);
-        }
+      if (that.vectorLayers && that.vectorLayers.length) {
+        that.vectorLayers.forEach((layer) => {
+          that.map.removeLayer(layer);
+        });
       }
+      that.vectorLayers = [];
       if (that.routeCoords.length > 0) {
         that.routeLength = that.routeCoords.length;
         that.route = new LineString(that.routeCoords);
@@ -838,8 +834,7 @@ export default {
             source: new VectorSource({
               features: [featureItem],
             }),
-
-            zIndex: 9999,
+            renderMode: "vector",
           });
           this.vectorLayers.push(vectorLayer);
           // if (this.showLine) {
@@ -873,6 +868,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
+          renderMode: "vector",
           style: function (feature) {
             // 如果动画处于活动状态，则隐藏标记
             if (!that.showLine && feature.get("type") === "route") {
@@ -892,7 +888,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
-
+          renderMode: "vector",
           style: new Style({
             // 设置标记样式
             image: new Icon({
@@ -907,11 +903,11 @@ export default {
               rotateWithView: true,
             }),
           }),
-          zIndex: 10000,
         });
         // return
         this.map.addLayer(that.vectorLayer);
         this.map.addLayer(that.vectorLayer2);
+        refreshBaseTiles(this.map);
         this.start();
       }
     },
@@ -1293,12 +1289,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "allmap",
-          layers: [
-            new TileLayer({
-              className: "baseLayerClass",
-              source: that.openlayersSource,
-            }),
-          ],
+          layers: [...that.outdoorBaseLayers],
           view: new View({
             projection: "EPSG:4326",
             center: that.center,
@@ -1375,6 +1366,7 @@ export default {
       var flightsLayer = new VectorLayer({
         source: source,
         style: style,
+        renderMode: "vector",
       });
       map.addLayer(flightsLayer);
       // map.addLayer(newVector)
@@ -1388,15 +1380,9 @@ export default {
     },
   },
   beforeMount() {
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
   },
   destroyed() {
     this.stop(true);
@@ -1453,9 +1439,6 @@ export default {
   background-color: white;
 }
 
-#allmap >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
-}
 .block {
   width: 35%;
   display: flex;

@@ -1296,7 +1296,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 import OlFeature from "ol/Feature";
 import OlGeomPoint from "ol/geom/Point";
 import OlSourceVector from "ol/source/Vector";
@@ -1341,7 +1341,7 @@ export default {
     return {
       i8n: this.$store.state.i18n,
       mqttBrokerUrl: MQTT_BROKER_URL,
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       projectName: "",
       groundNum: "",
       contrForPrionum: this.$store.state.userInfo.prionum,
@@ -2274,10 +2274,7 @@ export default {
     },
     //初始化地图
     initMap() {
-      this.seeLayer = new TileLayer({
-        className: "baseLayerClass",
-        source: this.openlayersSource,
-      });
+      this.seeLayer = this.outdoorBaseLayers;
 
       this.view = new View({
         projection: "EPSG:4326",
@@ -2287,7 +2284,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "projectMap",
-          layers: [this.seeLayer],
+          layers: [...this.seeLayer],
           view: this.view,
         });
 
@@ -2972,14 +2969,9 @@ export default {
     } else {
       this.mapCenter = [0.1, 51.3];
     }
-    if (this.$store.state.i18n == "zh") {
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     if (this.$route.query.type) {
       this.searchList.type = Number(this.$route.query.type);
     } else if (this.$route.query.projectype) {
@@ -3130,9 +3122,6 @@ export default {
   /* position: relative; */
   height: 560px;
   width: 100%;
-}
-#projectMap >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 #popup {
   /* height: 300px; */

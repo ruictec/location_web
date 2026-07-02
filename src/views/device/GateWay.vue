@@ -754,7 +754,7 @@ import Devicemanagement from '../../components/devicemanagement/devicemanagement
 import 'ol/ol.css'
 import { Map, View } from 'ol'
 import TileLayer from 'ol/layer/Tile'
-import OSM from 'ol/source/OSM'
+import { createOutdoorBaseLayers } from '../../utils/mapSource'
 import OlFeature from 'ol/Feature'
 import OlGeomPoint from 'ol/geom/Point'
 import OlSourceVector from 'ol/source/Vector'
@@ -801,7 +801,7 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      openlayersSource: '',
+      outdoorBaseLayers: [],
       deveuiNum: '',
       startAt: '',
       lastAt: '',
@@ -1219,9 +1219,7 @@ export default {
     },
     //初始化地图
     initMap() {
-      this.seeLayer = new TileLayer({
-        source: this.openlayersSource,
-      })
+      this.seeLayer = this.outdoorBaseLayers
 
       this.view = new View({
         projection: 'EPSG:4326',
@@ -1231,7 +1229,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: 'gatewayMap',
-          layers: [this.seeLayer],
+          layers: [...this.seeLayer],
           view: this.view,
           interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         })
@@ -1884,15 +1882,9 @@ export default {
     },
   },
   beforeMount() {
-    if (this.$store.state.i18n == 'zh') {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: '',
-      })
-    } else {
-      this.openlayersSource = new OSM()
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == 'zh'
+    )
     if (this.$store.state.userInfo.prionum == 1 || this.$store.state.userInfo.prionum == 2) {
       this.searchList = {
         deveui: '',

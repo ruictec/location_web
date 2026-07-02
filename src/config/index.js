@@ -4,6 +4,8 @@ export const WS_BASE = process.env.VUE_APP_WS_BASE
 export const ASSET_BASE = process.env.VUE_APP_ASSET_BASE
 export const DOC_BASE = process.env.VUE_APP_DOC_BASE
 export const HELP_BASE = process.env.VUE_APP_HELP_BASE
+export const MAP_PROVIDER = process.env.VUE_APP_MAP_PROVIDER
+export const TIANDITU_KEY = process.env.VUE_APP_TIANDITU_KEY
 export const TILE_URL_TEMPLATE = process.env.VUE_APP_TILE_URL_TEMPLATE
 export const FENGMAP_IMG_BASE = process.env.VUE_APP_FENGMAP_IMG_BASE
 export const ENABLE_BAIDU_ANALYTICS = process.env.VUE_APP_ENABLE_BAIDU_ANALYTICS === 'true'

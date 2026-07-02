@@ -101,13 +101,14 @@ import util from "../../common/util";
 
 import { getMemberNameId, getTboxSnId, getDevGpsList } from "../../axios/api";
 
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers, refreshBaseTiles } from "../../utils/mapSource";
+import { boundingExtent, buffer as extentBuffer } from "ol/extent";
 import "ol/ol.css";
 import Feature from "ol/Feature";
 import Map from "ol/Map";
 import View from "ol/View";
 import { Point, LineString } from "ol/geom";
-import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { Vector as VectorLayer } from "ol/layer";
 import VectorSource from "ol/source/Vector";
 
 //地图控件
@@ -128,7 +129,7 @@ export default {
   name: "LocationHistorical",
   data() {
     return {
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -316,13 +317,17 @@ export default {
               });
 
               let TrackData = res.data.list.reverse();
-              this.center = [TrackData[0].x, TrackData[0].y];
-              this.map.getView().setCenter(this.center);
+              this.center = [
+                parseFloat(TrackData[0].x),
+                parseFloat(TrackData[0].y),
+              ];
               TrackData.forEach((e) => {
                 that.routeCoords.push([parseFloat(e.x), parseFloat(e.y)]);
               });
               that.TrackData = TrackData;
+              that.map.getView().setCenter(that.center);
               that.addLayers();
+              that.fitMapToRoute();
             } else {
               that.$message({
                 message: that.$t("buildingmanagement.nodata"),
@@ -364,6 +369,29 @@ export default {
       this.addLayers();
       this.getMemberNames();
     },
+    fitMapToRoute() {
+      if (!this.map || this.routeCoords.length === 0) return;
+      this.map.updateSize();
+      const view = this.map.getView();
+      const size = this.map.getSize();
+      if (!size) return;
+
+      if (this.routeCoords.length === 1) {
+        view.setCenter(this.routeCoords[0]);
+        view.setZoom(16);
+      } else {
+        let extent = boundingExtent(this.routeCoords);
+        extent = extentBuffer(extent, 0.005);
+        view.fit(extent, {
+          size,
+          padding: [60, 60, 60, 60],
+          maxZoom: 17,
+          minZoom: 4,
+          duration: 0,
+        });
+      }
+      refreshBaseTiles(this.map);
+    },
     //初始化地图
 
     initMaps() {
@@ -371,15 +399,10 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "map",
-          layers: [
-            new TileLayer({
-              className: "baseLayerClass",
-              source: that.openlayersSource,
-            }),
-          ],
+          layers: [...that.outdoorBaseLayers],
           view: new View({
             projection: "EPSG:4326",
-            center: this.center,
+            center: that.center,
             zoom: 15,
           }),
         });
@@ -388,6 +411,9 @@ export default {
         this.mapClick();
         this.addLayers();
         this.addLine(this.map);
+        this.$nextTick(() => {
+          if (this.map) this.map.updateSize();
+        });
       }, 0);
     },
     /**
@@ -438,15 +464,6 @@ export default {
       // 第二次以后渲染轨迹的时候把上次的图层先删除
       this.removeVectorLayer(this.vectorLayer);
       this.removeVectorLayer(this.vectorLayer2);
-      let list = this.map.getLayers().getArray();
-      for (let i = list.length - 1; i > 0; i--) {
-        if (
-          list[i].getSource().getFeatures()[0].style_ &&
-          list[i].getSource().getFeatures()[0].style_.text_
-        ) {
-          that.map.removeLayer(list[i]);
-        }
-      }
       that.textLayers.forEach((layer) => {
         that.map.removeLayer(layer);
       });
@@ -485,8 +502,7 @@ export default {
             source: new VectorSource({
               features: [featureItem],
             }),
-
-            zIndex: 9999,
+            renderMode: "vector",
             style: null,
           });
           if (this.showTime) {
@@ -523,6 +539,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
+          renderMode: "vector",
           style: function (feature) {
             // 如果动画处于活动状态，则隐藏标记
             if (!that.showLine && feature.get("type") === "route") {
@@ -542,7 +559,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
-
+          renderMode: "vector",
           style: new Style({
             // 设置标记样式
             image: new Icon({
@@ -553,10 +570,10 @@ export default {
               rotateWithView: true,
             }),
           }),
-          zIndex: 10000,
         });
         this.map.addLayer(that.vectorLayer);
         this.map.addLayer(that.vectorLayer2);
+        refreshBaseTiles(this.map);
       }
     },
     // 地图绑定事件
@@ -584,6 +601,7 @@ export default {
 
     // 轨迹移动
     moveFeature(event) {
+      const that = this;
       let frameState = event.frameState;
       if (this.animating) {
         let elapsedTime = frameState.time - this.now;
@@ -598,12 +616,11 @@ export default {
           return;
         }
 
-        let currentPoint = new Point(this.routeCoords[index]);
+        let currentPoint = new Point(that.routeCoords[index]);
         let currentPoint1;
         if (index > 0) {
-          currentPoint1 = new Point(this.routeCoords[index - 1]);
+          currentPoint1 = new Point(that.routeCoords[index - 1]);
         }
-        let that = this;
 
         //改变位置
         that.geoMarker.setGeometry(new Point(currentPoint.flatCoordinates));
@@ -645,7 +662,7 @@ export default {
       let coord = ended
         ? this.routeCoords[this.routeLength - 1]
         : this.routeCoords[0];
-      let geometry = this.geoMarker.getGeometry().setCoordinates(coord);
+      this.geoMarker.getGeometry().setCoordinates(coord);
       this.vectorLayer.un("postrender", this.moveFeature); // 删除侦听器
     },
 
@@ -659,7 +676,7 @@ export default {
       });
 
       //直线数据，手动添加
-      var line = new LineString([
+      const lineCoords = [
         [122.9272781486751, 23.848426854398152],
         [122.40150850225844, 22.133416341086654],
         [121.78811058143899, 21.35728019637634],
@@ -678,7 +695,8 @@ export default {
         [110.90017584295029, 13.225035065615302],
         [109.69841665114078, 15.428260250599415],
         [107.99592446274401, 17.531338836266087],
-      ]);
+      ];
+      var line = new LineString(lineCoords);
       var source = new VectorSource({
         wrapX: false,
       });
@@ -714,6 +732,7 @@ export default {
       var flightsLayer = new VectorLayer({
         source: source,
         style: style,
+        renderMode: "vector",
       });
       map.addLayer(flightsLayer);
       // map.addLayer(newVector)
@@ -838,11 +857,10 @@ export default {
     },
   },
   watch: {
-    show1(val) {
+    show1() {
       setTimeout(() => {
-        this.msg = 2;
-        this.getMsgSum();
-      }, 1000);
+        if (this.map) this.map.updateSize();
+      }, 200);
     },
     "$i18n.locale"() {
       Object.assign(
@@ -862,18 +880,17 @@ export default {
         that.center = [0.1, 51.3];
       }
     }
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     this.getMemberNames();
     this.initMaps();
     this.getMemberNames();
+  },
+  mounted() {
+    setTimeout(() => {
+      if (this.map) this.map.updateSize();
+    }, 200);
   },
 };
 </script>
@@ -965,9 +982,6 @@ export default {
   height: 100%;
   width: 100%;
   z-index: 1;
-}
-#map >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 .assignMapContent {
   display: flex;

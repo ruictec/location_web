@@ -157,7 +157,7 @@ import { getFristPageAdmin, getGatewayList } from "../../axios/api";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 import OlFeature from "ol/Feature";
 import OlGeomPoint from "ol/geom/Point";
 import OlSourceVector from "ol/source/Vector";
@@ -188,7 +188,7 @@ export default {
   data() {
     return {
       allGwData: [],
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -239,10 +239,7 @@ export default {
 
     //初始化地图
     initGatewayMap() {
-      this.seeLayer = new TileLayer({
-        className: "baseLayerClass",
-        source: this.openlayersSource,
-      });
+      this.seeLayer = this.outdoorBaseLayers;
 
       this.view = new View({
         projection: "EPSG:4326",
@@ -252,7 +249,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "gatewayMap",
-          layers: [this.seeLayer],
+          layers: [...this.seeLayer],
           view: this.view,
         });
 
@@ -1536,15 +1533,12 @@ export default {
   beforeMount() {
     if (this.$store.state.i18n == "zh") {
       this.mapCenter = [118, 32];
-      // 说明：瓦片地址改为读取环境变量
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
     } else {
       this.mapCenter = [0.1, 51.3];
-      this.openlayersSource = new OSM();
     }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
   },
   mounted() {
     if (
@@ -1652,9 +1646,6 @@ export default {
   position: relative;
   height: 100%;
   width: 100%;
-}
-#gatewayMap >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 #popup {
   /* height: 300px; */
