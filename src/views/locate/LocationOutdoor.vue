@@ -328,7 +328,7 @@ import {
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 
 import OlFeature from "ol/Feature";
 import OlGeomPoint from "ol/geom/Point";
@@ -361,7 +361,7 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -904,13 +904,11 @@ export default {
       var that = this;
       that.vectorSource = new VectorSource();
       that.seeLayer = [
-        new TileLayer({
-          className: "baseLayerClass",
-          source: that.openlayersSource,
-        }),
+        ...that.outdoorBaseLayers,
 
         new VectorLayer({
           source: that.vectorSource,
+          renderMode: "vector",
         }),
       ];
 
@@ -1611,6 +1609,7 @@ export default {
       var flightsLayer = new VectorLayer({
         source: source,
         style: style,
+        renderMode: "vector",
       });
       map.addLayer(flightsLayer);
       // map.addLayer(newVector)
@@ -1952,15 +1951,9 @@ export default {
         that.mapCenter = [0.1, 51.3];
       }
     }
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     if (this.$route.query.deveui) {
       if (this.$route.query.sostype == "true") {
         this.sostype = true;
@@ -2171,9 +2164,6 @@ export default {
   height: 100%;
   width: 100%;
   z-index: 1;
-}
-#map >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 .assignMapContent {
   display: flex;

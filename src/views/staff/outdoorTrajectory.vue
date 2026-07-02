@@ -85,7 +85,7 @@ import Project from "../../components/project/project";
 
 import { getMemberNameId, getDevGpsList } from "../../axios/api";
 
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers, refreshBaseTiles } from "../../utils/mapSource";
 import "ol/ol.css";
 import Feature from "ol/Feature";
 import Map from "ol/Map";
@@ -113,7 +113,7 @@ export default {
   name: "LocationHistorical",
   data() {
     return {
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -385,13 +385,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "map",
-          layers: [
-            new TileLayer({
-              source: that.openlayersSource,
-              // projection: "EPSG:3857",
-            }),
-            // that.vectorLayer,
-          ],
+          layers: [...that.outdoorBaseLayers],
           view: new View({
             projection: "EPSG:4326",
             center: this.center,
@@ -403,6 +397,12 @@ export default {
         // this.mapClick();
         this.addLayers();
         this.addLine(this.map);
+        this.$nextTick(() => {
+          if (this.map) {
+            this.map.updateSize();
+            refreshBaseTiles(this.map);
+          }
+        });
       }, 0);
     },
     /**
@@ -553,9 +553,7 @@ export default {
             source: new VectorSource({
               features: [featureItem],
             }),
-
-            zIndex: 9999,
-            // style: null
+            renderMode: "vector",
           });
           this.vectorLayers.push(vectorLayer);
           this.map.addLayer(vectorLayer);
@@ -586,6 +584,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
+          renderMode: "vector",
           style: function (feature) {
             // 如果动画处于活动状态，则隐藏标记
             // if (that.animating && feature.get("type") === "geoMarker") {
@@ -604,7 +603,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
-
+          renderMode: "vector",
           style: function (feature) {
             // 如果动画处于活动状态，则隐藏标记
             if (that.animating && feature.get("type") === "geoMarker") {
@@ -612,7 +611,6 @@ export default {
             }
             return that.styles[feature.get("type")];
           },
-          zIndex: 10000,
         });
         if (that.vectorLayer2) {
           this.map.removeLayer(that.vectorLayer2);
@@ -625,7 +623,7 @@ export default {
             ],
             // 线、标记、开始标记、结束标记
           }),
-
+          renderMode: "vector",
           style: new Style({
             // 设置标记样式
             image: new Icon({
@@ -638,11 +636,11 @@ export default {
               rotateWithView: true,
             }),
           }),
-          zIndex: 10000,
         });
         this.map.addLayer(that.vectorLayer);
         this.map.addLayer(that.vectorLayer1);
         this.map.addLayer(that.vectorLayer2);
+        refreshBaseTiles(this.map);
       }
     },
     // 地图绑定事件
@@ -808,6 +806,7 @@ export default {
       var flightsLayer = new VectorLayer({
         source: source,
         style: style,
+        renderMode: "vector",
       });
       map.addLayer(flightsLayer);
       // map.addLayer(newVector)
@@ -872,15 +871,9 @@ export default {
         that.center = [0.1, 51.3];
       }
     }
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     // this.getMemberNames();
     this.initMaps();
   },

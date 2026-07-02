@@ -1907,6 +1907,17 @@
                 key="5"
               ></el-table-column>
               <el-table-column
+                :label="$t('terminal.nettype')"
+                show-overflow-tooltip
+                align="center"
+                min-width="90"
+                key="nettype"
+              >
+                <template slot-scope="scope">
+                  {{ formatNettype(scope.row) }}
+                </template>
+              </el-table-column>
+              <el-table-column
                 v-if="contrForPrionum != 5"
                 key="6"
                 property="customstr"
@@ -2979,6 +2990,21 @@
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
+              <el-form-item :label="$t('terminal.nettype')" prop="nettype">
+                <el-select
+                  v-model="addData.nettype"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in nettypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item
                 :label="$t('beacon.company')"
                 prop="tenantid"
@@ -3330,6 +3356,21 @@
                   </div>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.nettype')" prop="nettype">
+                <el-select
+                  v-model="addData.nettype"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in nettypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
               </el-form-item>
               <el-form-item :label="$t('terminal.scheme')" prop="scheme">
                 <el-select
@@ -7373,6 +7414,7 @@ export default {
       pageCount: 20,
       addData: {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         devtype: "",
@@ -7761,6 +7803,13 @@ export default {
             trigger: "change",
           },
         ],
+        nettype: [
+          {
+            required: true,
+            message: this.$t("terminal.nettyperules"),
+            trigger: "change",
+          },
+        ],
         scheme: [
           {
             required: true,
@@ -8059,6 +8108,16 @@ export default {
         {
           index: 3,
           value: "Others",
+        },
+      ],
+      nettypeList: [
+        {
+          index: 0,
+          value: this.$t("terminal.nettypeLora"),
+        },
+        {
+          index: 1,
+          value: this.$t("terminal.nettypeWifi"),
         },
       ],
       selectschemeList: [],
@@ -9320,6 +9379,18 @@ export default {
     formatJson(filterVal, jsonData) {
       return jsonData.map((v) => filterVal.map((j) => v[j]));
     },
+    formatNettype(row) {
+      if (row.nettypestr) {
+        return row.nettypestr;
+      }
+      if (row.nettype === 0) {
+        return this.$t("terminal.nettypeLora");
+      }
+      if (row.nettype === 1) {
+        return this.$t("terminal.nettypeWifi");
+      }
+      return "";
+    },
 
     //当选择了项目的时候，就会禁止输入开始设备号以及结束设备号
     changeEui(eui) {
@@ -9712,6 +9783,7 @@ export default {
     addTer() {
       this.addData = {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         devtype: "",
@@ -9791,25 +9863,12 @@ export default {
         this.addData.warning = "";
       }
 
-      var Devtypes = that.addData.deveui.slice(9, 10);
-
-      if (that.addData.devtype == 1) {
-        if (
-          Devtypes != "a" &&
-          Devtypes != "b" &&
-          Devtypes != "A" &&
-          Devtypes != "B"
-        ) {
-          this.$nextTick(() => {
-            this.$refs.getFocus.focus();
-          });
-          that.$message({
-            message: this.$t("terminal.addmsgerror"),
-            type: "warning",
-          });
-          that.addAgain = false;
-          return;
-        }
+      if (
+        (that.addData.devtype == 1 || that.addData.devtype == 2) &&
+        !that.validateDeveuiDevtypeMatch(that.addData.deveui, that.addData.devtype)
+      ) {
+        that.addAgain = false;
+        return;
       }
       this.$refs[addData].validate((valid) => {
         if (valid) {
@@ -10523,45 +10582,46 @@ export default {
       });
     },
 
+    // 校验设备号第10位字符与硬件设备类型是否匹配
+    isValidDeveuiDevtype(deveui, devtype) {
+      const typeChar = deveui.slice(9, 10);
+      if (devtype == 1) {
+        return /^[abefABEF]$/.test(typeChar);
+      }
+      if (devtype == 2) {
+        return /^[cdCD]$/.test(typeChar);
+      }
+      return true;
+    },
+    showDeveuiDevtypeError() {
+      this.$nextTick(() => {
+        if (this.$refs.getFocus) {
+          this.$refs.getFocus.focus();
+        }
+      });
+      this.$message({
+        message: this.$t("terminal.addmsgerror"),
+        type: "warning",
+      });
+    },
+    validateDeveuiDevtypeMatch(deveui, devtype) {
+      if (this.isValidDeveuiDevtype(deveui, devtype)) {
+        return true;
+      }
+      this.showDeveuiDevtypeError();
+      return false;
+    },
+
     //devtype硬件设备类型发生改变(系统管理员)
     changeDevtype(event) {
-      let Devtype = this.addData.deveui.slice(9, 10);
       if (event == 2) {
         this.addDataGateway = true;
-        if (
-          Devtype != "c" &&
-          Devtype != "d" &&
-          Devtype != "C" &&
-          Devtype != "D"
-        ) {
-          this.$nextTick(() => {
-            this.$refs.getFocus.focus();
-          });
-
-          this.$message({
-            message: this.$t("terminal.addmsgerror"),
-            type: "warning",
-          });
-          return;
-        }
       } else if (event == 1) {
         this.addDataGateway = false;
         this.addData.warning = "";
-        if (
-          Devtype != "a" &&
-          Devtype != "b" &&
-          Devtype != "A" &&
-          Devtype != "B"
-        ) {
-          this.$nextTick(() => {
-            this.$refs.getFocus.focus();
-          });
-          this.$message({
-            message: this.$t("terminal.addmsgerror"),
-            type: "warning",
-          });
-          return;
-        }
+      }
+      if (event == 1 || event == 2) {
+        this.validateDeveuiDevtypeMatch(this.addData.deveui, event);
       }
     },
 
@@ -13025,6 +13085,10 @@ export default {
       Object.assign(
         this.$data.postypeList,
         this.$options.data.call(this).postypeList
+      );
+      Object.assign(
+        this.$data.nettypeList,
+        this.$options.data.call(this).nettypeList
       );
       Object.assign(
         this.$data.workstateList,

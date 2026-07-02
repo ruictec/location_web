@@ -200,7 +200,7 @@ import {
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 
 import { getCenter } from "ol/extent";
 
@@ -240,7 +240,7 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       rightMenu: false,
       vedio: false,
       contrForPrionum: this.$store.state.userInfo.prionum,
@@ -699,10 +699,7 @@ export default {
         this.map.setTarget("sss");
         this.map = null;
       }
-      this.seeLayer = new TileLayer({
-        className: "baseLayerClass",
-        source: that.openlayersSource,
-      });
+      this.seeLayer = this.outdoorBaseLayers;
       if (this.mapInfo.length > 0) {
         this.view = new View({
           projection: "EPSG:4326",
@@ -719,7 +716,7 @@ export default {
       setTimeout(() => {
         this.map = new Map({
           target: "map",
-          layers: [this.seeLayer],
+          layers: [...this.seeLayer],
           view: this.view,
         });
 
@@ -1768,15 +1765,9 @@ export default {
         that.mapCenter = [0.1, 51.3];
       }
     }
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，默认保持当前地址
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     switch (Number(this.$store.state.intoProjectprojectType)) {
       case 1:
         this.imgBtnInfo = this.schoolImgInfo;
@@ -1950,9 +1941,6 @@ export default {
   height: 700px;
   width: 100%;
   z-index: 1;
-}
-#map >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 #map img {
   max-width: none;

@@ -664,7 +664,7 @@ import {
 import "ol/ol.css";
 import { Map, View } from "ol";
 import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
+import { createOutdoorBaseLayers } from "../../utils/mapSource";
 import OlFeature from "ol/Feature";
 import OlGeomPoint from "ol/geom/Point";
 import OlSourceVector from "ol/source/Vector";
@@ -721,7 +721,7 @@ export default {
       intoProjectType: this.$store.state.intoProjectType,
       tableKey: 1,
       i8n: this.$store.state.i18n,
-      openlayersSource: "",
+      outdoorBaseLayers: [],
       beaconData: {},
       attendanceNum: [],
       warnNumList: [],
@@ -1631,10 +1631,7 @@ export default {
       // });
 
       that.seeLayer = [
-        new TileLayer({
-          className: "baseLayerClass",
-          source: that.openlayersSource,
-        }),
+        ...that.outdoorBaseLayers,
         new VectorLayer({
           source: that.vectorSource,
         }),
@@ -3238,15 +3235,9 @@ export default {
         that.mapCenter = [0.1, 51.3];
       }
     }
-    if (this.$store.state.i18n == "zh") {
-      // 说明：瓦片地址改为读取环境变量，
-      this.openlayersSource = new OSM({
-        url: process.env.VUE_APP_TILE_URL_TEMPLATE,
-        crossOrigin: "",
-      });
-    } else {
-      this.openlayersSource = new OSM();
-    }
+    this.outdoorBaseLayers = createOutdoorBaseLayers(
+      this.$store.state.i18n == "zh"
+    );
     var count = document.getElementById("count");
 
     if (
@@ -3517,9 +3508,6 @@ a {
   position: relative;
   height: 100%;
   width: 100%;
-}
-#userMap >>> .baseLayerClass {
-  filter: grayscale(100%) sepia(51%) invert(100%) saturate(350%);
 }
 
 #userBeacon,
