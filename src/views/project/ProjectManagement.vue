@@ -423,7 +423,8 @@
             </div>
           </div>
 
-          <div class="mapConent">
+          <div class="mapConent" style="position: relative">
+            <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
             <div id="projectMap"></div>
             <!-- 左键显示内容的 -->
             <div id="popup" class="ol-popup">
@@ -1330,11 +1331,15 @@ import {
   importProject,
   updateProjectUnbind,
 } from "../../axios/api";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
+  mixins: [mapStyleMixin],
   components: {
     Menu,
     Project,
     basecard,
+    MapLayerSwitcher,
   },
   name: "ProjectManagement",
   data() {

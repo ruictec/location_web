@@ -74,7 +74,8 @@
     </div>
 
     <!-- 地图 -->
-    <div class="mapConent">
+    <div class="mapConent" style="position: relative">
+      <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="map"></div>
       <div id="popup-num" class="ol-popup-num">
         <a
@@ -356,8 +357,14 @@ import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import { fromLonLat } from "ol/proj";
 
 import host from "../../host";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
   name: "LocationOutdoor",
+  components: {
+    MapLayerSwitcher,
+  },
+  mixins: [mapStyleMixin],
   data() {
     return {
       i8n: this.$store.state.i18n,

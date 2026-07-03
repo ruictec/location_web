@@ -260,7 +260,8 @@
                   >
                 </el-form-item>
               </el-form>
-              <div class="mapConent">
+              <div class="mapConent" style="position: relative">
+                <MapLayerSwitcher :map="map" />
                 <div id="map" ref="map"></div>
               </div>
               <div slot="footer" class="dialog-footer" v-if="add">
@@ -482,10 +483,12 @@ import {
   updateFenceManage,
 } from "../../axios/api";
 import { fromLonLat, toLonLat } from "ol/proj";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 export default {
   components: {
     Menu,
     Data,
+    MapLayerSwitcher,
   },
   name: "ElectronicFence",
   data() {

@@ -332,7 +332,8 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent">
+          <div class="mapConent" style="position: relative">
+            <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
             <div id="gatewayMap">
               <span class="tips">
                 {{ $t('gateway.tet') }}
@@ -791,11 +792,15 @@ import {
   updateGatewayRemoveProject,
   getGatewayFlow,
 } from '../../axios/api'
+import MapLayerSwitcher from '../../components/map/MapLayerSwitcher'
+import mapStyleMixin from '../../mixins/mapStyleMixin'
 export default {
+  mixins: [mapStyleMixin],
   components: {
     Menu,
     Devicemanagement,
     basecard,
+    MapLayerSwitcher,
   },
   name: 'GateWay',
   data() {

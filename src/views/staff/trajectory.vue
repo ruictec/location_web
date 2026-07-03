@@ -29,7 +29,8 @@
       </div>
     </div>
 
-    <div class="mapContent">
+    <div class="mapContent" style="position: relative">
+      <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="allmap" ref="map" class="allmap">
         <span class="progresstime"
           >{{ progressTime }}<br />
@@ -73,8 +74,14 @@ import {
   Text,
 } from "ol/style";
 // 用来添加相关文字描述的
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
   name: "trajectory",
+  components: {
+    MapLayerSwitcher,
+  },
+  mixins: [mapStyleMixin],
   data() {
     return {
       outdoorBaseLayers: [],
@@ -1286,6 +1293,9 @@ export default {
       if (this.map) {
         this.map.setTarget("sss");
       }
+      this.outdoorBaseLayers = createOutdoorBaseLayers(
+        this.$store.state.i18n == "zh"
+      );
       setTimeout(() => {
         this.map = new Map({
           target: "allmap",

@@ -236,7 +236,8 @@
         </el-row>
         <el-row :gutter="25" style="margin-left: -4px; maring-right: -4px">
           <el-col :xs="24" :sm="24" :lg="15">
-            <div class="maps">
+            <div class="maps" style="position: relative">
+              <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
               <!-- 放性能监测的容器 -->
               <div
                 id="userMap"
@@ -686,12 +687,16 @@ import { Vector as VectorLayer } from "ol/layer";
 import Feature from "ol/Feature";
 //地图控件
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 
 export default {
+  mixins: [mapStyleMixin],
   components: {
     Menu,
     basecard,
     CountTo,
+    MapLayerSwitcher,
   },
   name: "Home",
   data() {

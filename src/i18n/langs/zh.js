@@ -2862,6 +2862,12 @@ const zh = {
         messageCenter: '消息中心',
         user: '用户',
     },
+    mapLayer: {
+        label: '底图',
+        vec: '标准',
+        img: '卫星',
+        ter: '地形',
+    },
     build: {
         Building: '楼栋',
         AcademicBuilding: '教学楼',

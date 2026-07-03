@@ -79,7 +79,8 @@
                 <div id="gateway" style="width: 100%"></div>
               </el-card>
               <!-- 地图 -->
-              <div class="mapConent">
+              <div class="mapConent" style="position: relative">
+                <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
                 <div id="gatewayMap" ref="map"></div>
                 <div class="tips">
                   <span style="color: #fff; font-size: 18px">
@@ -179,10 +180,14 @@ import Feature from "ol/Feature";
 
 //地图控件
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
+  mixins: [mapStyleMixin],
   components: {
     Menu,
     basecard,
+    MapLayerSwitcher,
   },
   name: "Home",
   data() {
