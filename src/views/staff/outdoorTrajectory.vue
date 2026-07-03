@@ -72,7 +72,10 @@
           <el-progress :text-inside="true" :stroke-width="10" :percentage="progress"></el-progress>
         </div>
       </div> -->
-      <div id="map"></div>
+      <div style="position: relative">
+        <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
+        <div id="map"></div>
+      </div>
     </div>
 
     <!-- </el-main> -->
@@ -105,11 +108,15 @@ import {
   Text,
 } from "ol/style";
 import { getVectorContext } from "ol/render";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
   components: {
     Menu,
     Project,
+    MapLayerSwitcher,
   },
+  mixins: [mapStyleMixin],
   name: "LocationHistorical",
   data() {
     return {
@@ -382,6 +389,9 @@ export default {
 
     initMaps() {
       let that = this;
+      this.outdoorBaseLayers = createOutdoorBaseLayers(
+        this.$store.state.i18n == "zh"
+      );
       setTimeout(() => {
         this.map = new Map({
           target: "map",

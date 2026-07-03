@@ -88,7 +88,8 @@
         </el-form-item>
       </el-form>
     </div>
-    <div class="mapConent">
+    <div class="mapConent" style="position: relative">
+      <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="map"></div>
     </div>
   </div>
@@ -121,11 +122,15 @@ import {
   Style,
   Text,
 } from "ol/style";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
   components: {
     Menu,
     Project,
+    MapLayerSwitcher,
   },
+  mixins: [mapStyleMixin],
   name: "LocationHistorical",
   data() {
     return {
@@ -396,6 +401,9 @@ export default {
 
     initMaps() {
       let that = this;
+      this.outdoorBaseLayers = createOutdoorBaseLayers(
+        this.$store.state.i18n == "zh"
+      );
       setTimeout(() => {
         this.map = new Map({
           target: "map",

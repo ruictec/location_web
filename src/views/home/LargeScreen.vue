@@ -8,6 +8,12 @@
       <div class="return" @click="brk">返回</div>
     </div>
     <div id="mapback"></div>
+    <MapLayerSwitcher
+      :map="map"
+      top="96px"
+      right="16px"
+      @change="onMapStyleChange"
+    />
     <div class="frameBox">
       <div class="bottom">
         <div class="frame1">
@@ -258,9 +264,15 @@ import Feature from "ol/Feature";
 //地图控件
 import { defaults as defaultControls } from "ol/control";
 import { fromLonLat } from "ol/proj";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 
 export default {
   name: "largescreen",
+  components: {
+    MapLayerSwitcher,
+  },
+  mixins: [mapStyleMixin],
   data() {
     return {
       windowWidth: document.documentElement.clientWidth, //实时屏幕宽度

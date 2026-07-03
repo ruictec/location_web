@@ -38,6 +38,7 @@
           </div>
           <div class="mapConent">
             <div style="width: 100%; position: relative; z-index: 1">
+              <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
               <div id="map" style="width: 100%"></div>
               <p style="position: absolute; bottom: -4%; left: 0">
                 {{ $t("Building.title") }}
@@ -231,10 +232,14 @@ import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import Projection from "ol/proj/Projection";
+import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
+import mapStyleMixin from "../../mixins/mapStyleMixin";
 export default {
+  mixins: [mapStyleMixin],
   components: {
     Menu,
     Project,
+    MapLayerSwitcher,
   },
   name: "buildingManagement",
   data() {

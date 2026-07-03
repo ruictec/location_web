@@ -2874,6 +2874,12 @@ const en = {
         messageCenter: 'Message Center',
         user: 'User',
     },
+    mapLayer: {
+        label: 'Base map',
+        vec: 'Vector',
+        img: 'Satellite',
+        ter: 'Terrain',
+    },
     build: {
         Building: 'Building',
         AcademicBuilding: 'Academic Building',
