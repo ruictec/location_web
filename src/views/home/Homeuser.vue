@@ -237,7 +237,12 @@
         <el-row :gutter="25" style="margin-left: -4px; maring-right: -4px">
           <el-col :xs="24" :sm="24" :lg="15">
             <div class="maps" style="position: relative">
-              <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
+              <MapLayerSwitcher
+                :map="map"
+                bottom="10px"
+                right="10px"
+                @change="onMapStyleChange"
+              />
               <!-- 放性能监测的容器 -->
               <div
                 id="userMap"

@@ -332,12 +332,19 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent" style="position: relative">
-            <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
-            <div id="gatewayMap">
-              <span class="tips">
-                {{ $t('gateway.tet') }}
-              </span>
+          <div class="mapConent">
+            <div class="gateway-map-wrap">
+              <MapLayerSwitcher
+                :map="map"
+                top="30px"
+                right="10px"
+                @change="onMapStyleChange"
+              />
+              <div id="gatewayMap">
+                <span class="tips">
+                  {{ $t('gateway.tet') }}
+                </span>
+              </div>
             </div>
 
             <div id="lineChart">
@@ -2018,6 +2025,11 @@ export default {
   display: flex;
 }
 
+.gateway-map-wrap {
+  position: relative;
+  width: 47%;
+}
+
 .tips {
   float: left;
   text-align: left;
@@ -2025,7 +2037,7 @@ export default {
 #gatewayMap {
   position: relative;
   height: 550px;
-  width: 47%;
+  width: 100%;
 }
 #lineChart {
   width: 50%;
