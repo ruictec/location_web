@@ -30,7 +30,12 @@
     </div>
 
     <div class="mapContent" style="position: relative">
-      <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
+      <MapLayerSwitcher
+        :map="map"
+        bottom="10px"
+        right="10px"
+        @change="onMapStyleChange"
+      />
       <div id="allmap" ref="map" class="allmap">
         <span class="progresstime"
           >{{ progressTime }}<br />

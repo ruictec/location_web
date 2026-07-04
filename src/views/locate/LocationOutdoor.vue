@@ -2045,10 +2045,14 @@ export default {
 <style scoped>
 .Info_dialog >>> .el-dialog {
   border-radius: 20px !important;
-  background: rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 .Info_dialog >>> .el-dialog__body {
-  color: white !important;
+  color: #303133 !important;
+  background: #fff;
+  border-radius: 20px;
 }
 .container {
   display: flex;
@@ -2181,6 +2185,11 @@ export default {
 }
 #popup {
   display: block;
+  background: #fff;
+}
+
+#popup-content {
+  background: #fff;
 }
 
 .divider {

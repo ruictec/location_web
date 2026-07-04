@@ -80,7 +80,12 @@
               </el-card>
               <!-- 地图 -->
               <div class="mapConent" style="position: relative">
-                <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
+                <MapLayerSwitcher
+                  :map="map"
+                  bottom="10px"
+                  right="10px"
+                  @change="onMapStyleChange"
+                />
                 <div id="gatewayMap" ref="map"></div>
                 <div class="tips">
                   <span style="color: #fff; font-size: 18px">

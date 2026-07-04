@@ -2,7 +2,7 @@
   <div
     v-if="visible"
     class="map-layer-switcher"
-    :style="{ top: top, right: right }"
+    :style="positionStyle"
   >
     <span class="map-layer-switcher__label">{{ $t("mapLayer.label") }}</span>
     <el-select
@@ -41,11 +41,19 @@ export default {
     },
     top: {
       type: String,
-      default: "10px",
+      default: "",
     },
     right: {
       type: String,
       default: "10px",
+    },
+    bottom: {
+      type: String,
+      default: "",
+    },
+    left: {
+      type: String,
+      default: "",
     },
   },
   data() {
@@ -65,6 +73,15 @@ export default {
         value,
         label: this.$t(`mapLayer.${value}`),
       }));
+    },
+    positionStyle() {
+      const style = {};
+      if (this.top) style.top = this.top;
+      if (this.right) style.right = this.right;
+      if (this.bottom) style.bottom = this.bottom;
+      if (this.left) style.left = this.left;
+      if (!this.top && !this.bottom) style.top = "10px";
+      return style;
     },
   },
   methods: {
