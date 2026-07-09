@@ -1833,6 +1833,7 @@ const en = {
         pleaseSelectTriggerMethod: 'Please select trigger method',
         enter: 'Enter',
         leave: 'Leave',
+        alertTypeWithTrigger: '{type} ({meth})',
     },
 
 

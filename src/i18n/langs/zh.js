@@ -1823,6 +1823,7 @@ const zh = {
         pleaseSelectTriggerMethod: '请选择触发方式',
         enter: '进入',
         leave: '离开',
+        alertTypeWithTrigger: '{type}（{meth}）',
     },
 
     //人员页面
