@@ -73,11 +73,13 @@
               >
               </el-table-column>
               <el-table-column
-                :property="i8n == 'zh' ? 'typestr' : 'entype'"
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
                 align="center"
               >
+                <template slot-scope="scope">
+                  {{ formatAlertType(scope.row) }}
+                </template>
               </el-table-column>
               <el-table-column
                 property="worktypes"
@@ -426,6 +428,12 @@
                     :value="item.index"
                   ></el-option>
                 </el-select>
+              </el-form-item>
+              <el-form-item
+                :label="$t('warning.triggerMethod')"
+                v-if="showWarnum == false"
+              >
+                <span>{{ formatMeth(editData.meth) }}</span>
               </el-form-item>
               <el-form-item :label="$t('warning.Typeofwork1')">
                 <el-select
@@ -789,6 +797,27 @@ export default {
         this.editData.postype = value;
       }
     },
+    formatMeth(meth) {
+      if (!meth && meth !== 0) {
+        return "-";
+      }
+      const item = this.methList.find((m) => m.index == meth);
+      return item ? item.value : "-";
+    },
+    formatAlertType(row) {
+      const typeName =
+        this.i8n == "zh" ? row.typestr : row.entype;
+      if (row.type == 4 && (row.meth || row.meth === 0)) {
+        const methLabel = this.formatMeth(row.meth);
+        if (methLabel !== "-") {
+          return this.$t("warning.alertTypeWithTrigger", {
+            type: typeName,
+            meth: methLabel,
+          });
+        }
+      }
+      return typeName || "-";
+    },
     handleAddTrancheChange(val) {
       this.handleTrancheChange(val, "addTranches");
     },
@@ -1085,6 +1114,8 @@ export default {
       } else {
         this.showWarnum = true;
       }
+      const meth = this.tableData[index].meth;
+      this.editData.meth = meth || meth === 0 ? Number(meth) : "";
 
       this.editData.endtime = this.tableData[index].endtime;
       this.editData.begintime = this.tableData[index].begintime;
