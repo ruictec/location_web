@@ -77,6 +77,7 @@
     <div class="mapConent" style="position: relative">
       <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="map"></div>
+      <!-- 围栏人数已直接在地图上显示，白名单弹窗已废弃
       <div id="popup-num" class="ol-popup-num">
         <a
           href="#"
@@ -86,6 +87,7 @@
         ></a>
         <div id="popup-content-num"></div>
       </div>
+      -->
     </div>
 
     <!-- 鼠标左键显示内容 -->
@@ -274,6 +276,7 @@
         }}</el-button>
       </div>
     </el-dialog>
+    <!-- 围栏白名单人员列表弹窗已废弃，后端已删除相关接口
     <el-dialog
       :title="nameNum"
       :visible.sync="showNameNum"
@@ -308,6 +311,7 @@
         ></el-table-column>
       </el-table>
     </el-dialog>
+    -->
   </div>
 </template>
 
@@ -322,8 +326,8 @@ import {
   getAssetOne,
   getDevGpsList,
   getFenceManageAndPointList,
-  getFenceManageWhiteList,
-  getFenceManageWhiteNum,
+  // getFenceManageWhiteList,
+  // getFenceManageWhiteNum,
 } from "../../axios/api";
 
 import "ol/ol.css";
@@ -339,7 +343,7 @@ import OlStyleStyle from "ol/style/Style";
 import OlStyleIcon from "ol/style/Icon";
 
 import ImageLayer from "ol/layer/Image";
-import Overlay from "ol/Overlay";
+// import Overlay from "ol/Overlay";
 
 // 用来添加相关文字描述的
 import Text from "ol/style/Text";
@@ -466,16 +470,16 @@ export default {
       AllFences: [],
       vectorSource: null,
       fences: [], // 存储围栏和数字的数组
-      popupOverlay: null,
-      popupCloser: null,
-      nameNum: "",
-      showNameNum: false,
-      numData: [],
-      whiteType: "",
-      whiteNum: 0,
-      blackNum: 0,
-      whiteNotNum: 0,
-      fenceId: "",
+      // popupOverlay: null,
+      // popupCloser: null,
+      // nameNum: "",
+      // showNameNum: false,
+      // numData: [],
+      // whiteType: "",
+      // whiteNum: 0,
+      // blackNum: 0,
+      // whiteNotNum: 0,
+      // fenceId: "",
       battery: "", //工卡电量
     };
   },
@@ -739,36 +743,21 @@ export default {
         LayerArrays = that.map.getLayers().getArray();
       }
 
-      // for (let i = 1; i < LayerArrays.length; i++) {
-      //   LayerArrays[i]
-      //     .getSource()
-      //     .getFeatures()
-      //     .forEach(function (feature) {
-      //       LayerArrays[i].getSource().removeFeature(feature);
-      //     });
-      //   this.map.removeLayer(LayerArrays[i]);
-      //   i--;
-      // }
+      //删除所有人员/车辆/资产标记，保留围栏与底图图层
+      const layersToRemove = [];
       LayerArrays.forEach((layer) => {
         if (layer instanceof VectorLayer) {
-          if (layer.getSource().getFeatures().length > 0) {
-            if (e.deveui == layer.getSource().getFeatures()[0].values_.deveui) {
-              layer
-                .getSource()
-                .getFeatures()
-                .forEach(function (feature) {
-                  layer.getSource().removeFeature(feature);
-                });
-              this.map.removeLayer(layer);
-            }
+          if (layer.getSource() === that.vectorSource) {
+            return;
           }
-        } else if (layer instanceof ImageLayer) {
-          console.log("This layer is an ImageLayer.");
-        } else if (layer instanceof TileLayer) {
-          console.log("This layer is a TileLayer.");
-        } else {
-          console.log("This layer type is unknown.");
+          const features = layer.getSource().getFeatures();
+          if (features.length > 0 && features[0].values_.deveui) {
+            layersToRemove.push(layer);
+          }
         }
+      });
+      layersToRemove.forEach((layer) => {
+        that.map.removeLayer(layer);
       });
       let data = {
         projectid: this.$store.state.projectid,
@@ -834,32 +823,43 @@ export default {
       const b = (rgb >> 0) & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    formatFenceNumberText(num) {
+      const count = Number(num) || 0;
+      if (count <= 0) {
+        return "";
+      }
+      return String(count) + this.$t("warning.people");
+    },
     recreateFences() {
       this.vectorSource.clear();
+      this.fences = [];
       this.AllFences.forEach((fenceData) => {
         const gpsCoords = fenceData.coordinates;
         const color = fenceData.color;
         const mercatorCoords = gpsCoords.map((coord) => fromLonLat(coord));
         const polygon = new Polygon([mercatorCoords]);
+        const fenceNum =
+          fenceData.num === null || fenceData.num === undefined
+            ? 0
+            : fenceData.num;
 
         const fenceFeature = new Feature({
           geometry: polygon,
           type: "fence",
           id: fenceData.id,
-          number: fenceData.num,
+          number: fenceNum,
         });
-        // const numberFeature = new Feature({
-        //   geometry: polygon.getInteriorPoint(),
-        //   number: fenceData.num,
-        //   type: "number",
-        //   id: fenceData.id,
-        // });
-        // const feature = new Feature(polygon);
-        // // 设置样式
+        const numberFeature = new Feature({
+          geometry: polygon.getInteriorPoint(),
+          number: fenceNum,
+          type: "number",
+          id: fenceData.id,
+        });
+
         fenceFeature.setStyle(
           new Style({
             fill: new Fill({
-              color: this.hexToRgba(color, 0.5), // 使用当前选择的颜色
+              color: this.hexToRgba(color, 0.5),
             }),
             stroke: new Stroke({
               color: color,
@@ -867,44 +867,40 @@ export default {
             }),
           })
         );
-        // 设置数字样式
-        // numberFeature.setStyle(
-        //   new Style({
-        //     text: new Text({
-        //       text: String(fenceData.num) + this.$t("warning.people"),
-        //       font: "24px Calibri,sans-serif",
-        //       fill: new Fill({ color: "black" }),
-        //       stroke: new Stroke({
-        //         color: "white",
-        //         width: 2,
-        //       }),
-        //     }),
-        //   })
-        // );
+        numberFeature.setStyle(
+          new Style({
+            text: new Text({
+              text: this.formatFenceNumberText(fenceNum),
+              font: "24px Calibri,sans-serif",
+              fill: new Fill({ color: "black" }),
+              stroke: new Stroke({
+                color: "white",
+                width: 2,
+              }),
+            }),
+          })
+        );
 
         this.vectorSource.addFeature(fenceFeature);
-        // this.vectorSource.addFeature(numberFeature);
-        // this.fences.push({ fenceFeature, numberFeature });
-        this.fences.push({ fenceFeature });
+        this.vectorSource.addFeature(numberFeature);
+        this.fences.push({ fenceFeature, numberFeature });
       });
     },
     updateNumber(fenceIndex, newNumber) {
       if (!this.fences || !this.fences[fenceIndex]) return;
-      if (newNumber === null || newNumber === undefined) {
-        newNumber = 0; // 设置默认值为空字符串或其他默认值
+      const count = Number(newNumber) || 0;
+      const { numberFeature, fenceFeature } = this.fences[fenceIndex];
+      if (!numberFeature || !fenceFeature) return;
+
+      numberFeature.set("number", count);
+      fenceFeature.set("number", count);
+
+      const textStyle = numberFeature.getStyle().getText();
+      if (textStyle) {
+        textStyle.setText(this.formatFenceNumberText(count));
       }
-      const { numberFeature } = this.fences[fenceIndex];
-      const { fenceFeature } = this.fences[fenceIndex];
-      numberFeature.set("number", newNumber);
-      fenceFeature.set("number", newNumber);
 
-      // 确保 setText 方法接收到的是字符串
-      numberFeature
-        .getStyle()
-        .getText()
-        .setText(String(newNumber) + this.$t("warning.people"));
-
-      this.vectorSource.changed(); // 通知源更新
+      this.vectorSource.changed();
     },
     //初始化地图
     initMap() {
@@ -945,7 +941,7 @@ export default {
         }
         that.mapClick();
         that.addLine(that.map);
-        that.initializePopup(that.map);
+        // that.initializePopup(that.map);
         that.showAllFence().then(() => {
           that.recreateFences();
         });
@@ -1388,169 +1384,165 @@ export default {
               }
             });
           }
-          if (
-            feature.get("type") === "fence" ||
-            feature.get("type") === "number"
-          ) {
-            that.fenceId = feature.get("id"); //获取围栏id
-            const totalNum = feature.get("number"); //获取围栏人数
-            if (totalNum > 0) {
-              that.showPopup(evt.coordinate, that.fenceId, totalNum);
-            } else {
-              that.$message({
-                message: that.$t("terminal.nodata"),
-                type: "info",
-              });
-            }
-          }
+          // 围栏人数已在地图上直接显示，不再弹出白名单分类弹窗
+          // if (
+          //   feature.get("type") === "fence" ||
+          //   feature.get("type") === "number"
+          // ) {
+          //   that.fenceId = feature.get("id");
+          //   const totalNum = feature.get("number");
+          //   if (totalNum > 0) {
+          //     that.showPopup(evt.coordinate, that.fenceId, totalNum);
+          //   } else {
+          //     that.$message({
+          //       message: that.$t("terminal.nodata"),
+          //       type: "info",
+          //     });
+          //   }
+          // }
         }
       });
     },
-    // 初始化Popup
-    initializePopup(map) {
-      const container = document.getElementById("popup-num");
-      const closer = document.getElementById("popup-closer-num");
-      this.popupCloser = closer;
-      this.popupOverlay = new Overlay({
-        element: container,
-        autoPan: {
-          animation: {
-            duration: 250,
-          },
-        },
-      });
-      map.addOverlay(this.popupOverlay);
-    },
-    // 显示围栏中的人员分类数量
-    showPopup(coordinate, fenceId, totalNum) {
-      var that = this;
-      // 获取时区（秒）
-      const offsetMinutes = new Date().getTimezoneOffset();
-      const currentTimeZone = -offsetMinutes * 60;
-      let data = {
-        projectid: this.$store.state.projectid,
-        id: fenceId,
-        timezone: currentTimeZone,
-      };
-      getFenceManageWhiteNum(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.userName
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.whiteNum = res.data.whiteNum;
-          that.whiteNotNum = res.data.totalNum - res.data.whiteNum;
-          that.blackNum = totalNum - res.data.whiteNum;
-          that.whiteType = res.data.whiteType;
-          const content = `
-          <table class="popup-table">
-            <tr>
-              <td class="popup-cell" data-category="1"> ${this.$t(
-                "locationoutdoor.Whitelist"
-              )}</td>
-              <td class="popup-cell" data-category="2">${this.$t(
-                "locationoutdoor.Nonwhitelist"
-              )}</td>
-              <td class="popup-cell" data-category="3">${this.$t(
-                "locationoutdoor.Whitelistnotin"
-              )}</td>
-            </tr>
-            <tr>
-              <td class="popup-cell" data-category="1">${that.whiteNum}</td>
-              <td class="popup-cell" data-category="2">${that.blackNum}</td>
-              <td class="popup-cell" data-category="3">${that.whiteNotNum}</td>
-            </tr>
-          </table>
-        `;
-          that.$nextTick(() => {
-            const cells = document.querySelectorAll(".popup-cell");
-            cells.forEach((cell) => {
-              cell.addEventListener("click", that.handleClick);
-            });
-          });
-          // 显示Popup
-          this.popupOverlay.setPosition(coordinate);
-          document.getElementById("popup-content-num").innerHTML = content;
-        } else {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-            type: "error",
-          });
-        }
-      });
-    },
-    // 表格点击事件
-    handleClick(event) {
-      var that = this;
-      const index = event.target.dataset.category;
-      let data = {
-        id: that.fenceId,
-        projectid: that.$store.state.projectid,
-        whiteType: that.whiteType,
-        dataType: "",
-      };
-      switch (index) {
-        case "1":
-          if (that.whiteNum == 0) {
-            that.$message({
-              message: that.$t("terminal.nodata"),
-              type: "info",
-            });
-            return;
-          } else {
-            data.dataType = 1;
-            that.nameNum = that.$t("locationoutdoor.Whitelist");
-          }
-          break;
-        case "2":
-          if (that.blackNum == 0) {
-            that.$message({
-              message: that.$t("terminal.nodata"),
-              type: "info",
-            });
-            return;
-          } else {
-            data.dataType = 2;
-            that.nameNum = that.$t("locationoutdoor.Nonwhitelist");
-          }
-          break;
-        case "3":
-          if (that.whiteNotNum == 0) {
-            that.$message({
-              message: that.$t("terminal.nodata"),
-              type: "info",
-            });
-            return;
-          } else {
-            data.dataType = 3;
-            that.nameNum = that.$t("locationoutdoor.Whitelistnotin");
-          }
-          break;
-      }
-      getFenceManageWhiteList(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.userName
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.showNameNum = true;
-          that.numData = res.data;
-        } else {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-            type: "error",
-          });
-        }
-      });
-    },
-    // 关闭Popup
-    closePopup(event) {
-      event.preventDefault();
-      this.popupOverlay.setPosition(undefined);
-      this.popupCloser.blur();
-    },
+    // 围栏白名单弹窗相关逻辑已废弃，后端已删除 getFenceManageWhiteNum 接口
+    // initializePopup(map) {
+    //   const container = document.getElementById("popup-num");
+    //   const closer = document.getElementById("popup-closer-num");
+    //   this.popupCloser = closer;
+    //   this.popupOverlay = new Overlay({
+    //     element: container,
+    //     autoPan: {
+    //       animation: {
+    //         duration: 250,
+    //       },
+    //     },
+    //   });
+    //   map.addOverlay(this.popupOverlay);
+    // },
+    // showPopup(coordinate, fenceId, totalNum) {
+    //   var that = this;
+    //   const offsetMinutes = new Date().getTimezoneOffset();
+    //   const currentTimeZone = -offsetMinutes * 60;
+    //   let data = {
+    //     projectid: this.$store.state.projectid,
+    //     id: fenceId,
+    //     timezone: currentTimeZone,
+    //   };
+    //   getFenceManageWhiteNum(
+    //     data,
+    //     this.tenantkey_A,
+    //     this.tenantid_A,
+    //     this.userName
+    //   ).then((res) => {
+    //     if (res.code == 1001) {
+    //       that.whiteNum = res.data.whiteNum;
+    //       that.whiteNotNum = res.data.totalNum - res.data.whiteNum;
+    //       that.blackNum = totalNum - res.data.whiteNum;
+    //       that.whiteType = res.data.whiteType;
+    //       const content = `
+    //       <table class="popup-table">
+    //         <tr>
+    //           <td class="popup-cell" data-category="1"> ${this.$t(
+    //             "locationoutdoor.Whitelist"
+    //           )}</td>
+    //           <td class="popup-cell" data-category="2">${this.$t(
+    //             "locationoutdoor.Nonwhitelist"
+    //           )}</td>
+    //           <td class="popup-cell" data-category="3">${this.$t(
+    //             "locationoutdoor.Whitelistnotin"
+    //           )}</td>
+    //         </tr>
+    //         <tr>
+    //           <td class="popup-cell" data-category="1">${that.whiteNum}</td>
+    //           <td class="popup-cell" data-category="2">${that.blackNum}</td>
+    //           <td class="popup-cell" data-category="3">${that.whiteNotNum}</td>
+    //         </tr>
+    //       </table>
+    //     `;
+    //       that.$nextTick(() => {
+    //         const cells = document.querySelectorAll(".popup-cell");
+    //         cells.forEach((cell) => {
+    //           cell.addEventListener("click", that.handleClick);
+    //         });
+    //       });
+    //       this.popupOverlay.setPosition(coordinate);
+    //       document.getElementById("popup-content-num").innerHTML = content;
+    //     } else {
+    //       that.$message({
+    //         message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+    //         type: "error",
+    //       });
+    //     }
+    //   });
+    // },
+    // handleClick(event) {
+    //   var that = this;
+    //   const index = event.target.dataset.category;
+    //   let data = {
+    //     id: that.fenceId,
+    //     projectid: that.$store.state.projectid,
+    //     whiteType: that.whiteType,
+    //     dataType: "",
+    //   };
+    //   switch (index) {
+    //     case "1":
+    //       if (that.whiteNum == 0) {
+    //         that.$message({
+    //           message: that.$t("terminal.nodata"),
+    //           type: "info",
+    //         });
+    //         return;
+    //       } else {
+    //         data.dataType = 1;
+    //         that.nameNum = that.$t("locationoutdoor.Whitelist");
+    //       }
+    //       break;
+    //     case "2":
+    //       if (that.blackNum == 0) {
+    //         that.$message({
+    //           message: that.$t("terminal.nodata"),
+    //           type: "info",
+    //         });
+    //         return;
+    //       } else {
+    //         data.dataType = 2;
+    //         that.nameNum = that.$t("locationoutdoor.Nonwhitelist");
+    //       }
+    //       break;
+    //     case "3":
+    //       if (that.whiteNotNum == 0) {
+    //         that.$message({
+    //           message: that.$t("terminal.nodata"),
+    //           type: "info",
+    //         });
+    //         return;
+    //       } else {
+    //         data.dataType = 3;
+    //         that.nameNum = that.$t("locationoutdoor.Whitelistnotin");
+    //       }
+    //       break;
+    //   }
+    //   getFenceManageWhiteList(
+    //     data,
+    //     this.tenantkey_A,
+    //     this.tenantid_A,
+    //     this.userName
+    //   ).then((res) => {
+    //     if (res.code == 1001) {
+    //       that.showNameNum = true;
+    //       that.numData = res.data;
+    //     } else {
+    //       that.$message({
+    //         message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+    //         type: "error",
+    //       });
+    //     }
+    //   });
+    // },
+    // closePopup(event) {
+    //   event.preventDefault();
+    //   this.popupOverlay.setPosition(undefined);
+    //   this.popupCloser.blur();
+    // },
     // 描线（南海）
     addLine(map) {
       var style = new Style({
@@ -1697,6 +1689,9 @@ export default {
       }
       LayerArrays.forEach((layer) => {
         if (layer instanceof VectorLayer) {
+          if (layer.getSource() === that.vectorSource) {
+            return;
+          }
           if (layer.getSource().getFeatures().length > 0) {
             if (e.deveui == layer.getSource().getFeatures()[0].values_.deveui) {
               layer
@@ -1906,13 +1901,16 @@ export default {
         var data = JSON.parse(res.data);
         if (data.deveui) {
           that.delFeature(data);
-          if (data.fenceObj.length > 0) {
+          if (data.fenceObj && data.fenceObj.length > 0) {
             data.fenceObj.forEach((item) => {
-              if (item.num > 0) {
-                const index = that.AllFences.findIndex(
-                  (items) => items.id === item.id
+              const index = that.AllFences.findIndex(
+                (items) => items.id === item.id
+              );
+              if (index !== -1) {
+                that.updateNumber(
+                  index,
+                  item.num === null || item.num === undefined ? 0 : item.num
                 );
-                that.updateNumber(index, item.num);
               }
             });
           }
