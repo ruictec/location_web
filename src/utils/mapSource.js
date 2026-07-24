@@ -1,10 +1,8 @@
 import OSM from 'ol/source/OSM'
 import XYZ from 'ol/source/XYZ'
 import TileLayer from 'ol/layer/Tile'
+import { MAP_PROVIDER, TIANDITU_KEY, TILE_URL_TEMPLATE } from '../config'
 
-const MAP_PROVIDER = process.env.VUE_APP_MAP_PROVIDER || 'osm'
-const TIANDITU_KEY = process.env.VUE_APP_TIANDITU_KEY || ''
-const TILE_URL_TEMPLATE = process.env.VUE_APP_TILE_URL_TEMPLATE
 const STORAGE_KEY = 'location_web_tianditu_style'
 
 export const TIANDITU_STYLE_OPTIONS = ['vec', 'img', 'ter']
