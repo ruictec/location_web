@@ -187,6 +187,22 @@
                 align="center"
               ></el-table-column>
               <el-table-column
+                :label="$t('project.DatatimeColumn')"
+                show-overflow-tooltip
+                align="center"
+                min-width="120"
+              >
+                <template slot-scope="scope">
+                  {{
+                    scope.row.type === 2 &&
+                    scope.row.datatime !== "" &&
+                    scope.row.datatime != null
+                      ? scope.row.datatime / 1000 + $t("project.DatatimeUnit")
+                      : "/"
+                  }}
+                </template>
+              </el-table-column>
+              <el-table-column
                 :property="i8n == 'zh' ? 'projectypestr' : 'enprojectype'"
                 :label="$t('project.Projectype')"
                 show-overflow-tooltip
@@ -725,6 +741,7 @@
                   clearable
                   filterable
                   :placeholder="$t('project.Pleasetype')"
+                  @change="changeLocationType"
                 >
                   <el-option
                     v-for="item in typeList"
@@ -751,6 +768,35 @@
                     </p>
                     <p>
                       {{ $t("project.tet10") }}
+                    </p>
+                  </div>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                :label="$t('project.Datatime')"
+                prop="datatime"
+                v-if="addData.type === 2"
+              >
+                <el-input
+                  v-model="addData.datatime"
+                  :placeholder="$t('project.DatatimeRule')"
+                ></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <div slot="content">
+                    <p>
+                      {{ $t("project.DatatimeTip") }}
                     </p>
                   </div>
                   <i class="el-icon-question" />
@@ -1015,6 +1061,35 @@
                   <div slot="content">
                     <p>
                       {{ $t("project.OfftimeTip") }}
+                    </p>
+                  </div>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                :label="$t('project.Datatime')"
+                prop="datatime"
+                v-if="showEditDatatime"
+              >
+                <el-input
+                  v-model="editData.datatime"
+                  :placeholder="$t('project.DatatimeRule')"
+                ></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <div slot="content">
+                    <p>
+                      {{ $t("project.DatatimeTip") }}
                     </p>
                   </div>
                   <i class="el-icon-question" />
@@ -1393,6 +1468,7 @@ export default {
         scheme: "",
         url: "",
         offtime: "",
+        datatime: "",
       },
 
       tenantidData: [],
@@ -1401,6 +1477,27 @@ export default {
           {
             pattern: /^[1-9]\d*/,
             message: this.$t("project.OfftimeRule"),
+            trigger: "blur",
+          },
+        ],
+        datatime: [
+          {
+            validator: (rule, value, callback) => {
+              if (value === "" || value === null || value === undefined) {
+                callback();
+                return;
+              }
+              const num = Number(value);
+              if (
+                !/^\d+$/.test(String(value)) ||
+                num < 0 ||
+                num > 600
+              ) {
+                callback(new Error(this.$t("project.DatatimeRule")));
+              } else {
+                callback();
+              }
+            },
             trigger: "blur",
           },
         ],
@@ -1501,9 +1598,11 @@ export default {
         scheme: "",
         url: "",
         offtime: "",
+        datatime: "",
       },
 
       edit: false,
+      showEditDatatime: false,
       searchProjectList: [],
       typeList: [
         {
@@ -2636,6 +2735,7 @@ export default {
         scheme: "",
         url: "",
         offtime: "",
+        datatime: "",
       };
       this.selectScheme();
       this.showNS = false;
@@ -2645,6 +2745,11 @@ export default {
       this.showHttpUrl = false;
       this.add = true;
     },
+    changeLocationType(val) {
+      if (val !== 2) {
+        this.addData.datatime = "";
+      }
+    },
     addCancel(addData) {
       this.add = false;
       this.loading = false;
@@ -2653,11 +2758,19 @@ export default {
     },
     addTrue(addData) {
       var that = this;
-      that.addData.timezone = that.addData.timeZone * 3600;
-      this.addData.offtime = this.addData.offtime * 60;
       this.$refs[addData].validate((valid) => {
         if (valid) {
+          that.addData.timezone = that.addData.timeZone * 3600;
+          that.addData.offtime = that.addData.offtime * 60;
           delete that.addData.timeZone;
+          if (that.addData.type === 2) {
+            that.addData.datatime =
+              that.addData.datatime === "" || that.addData.datatime == null
+                ? ""
+                : that.addData.datatime * 1000;
+          } else {
+            delete that.addData.datatime;
+          }
           that.loading = true;
           addProject(
             that.addData,
@@ -2683,7 +2796,11 @@ export default {
                 type: "error",
               });
               that.loading = false;
-              that.addData.timezone = that.addData.timeZone / 3600;
+              that.addData.timeZone = that.addData.timezone / 3600;
+              that.addData.offtime = that.addData.offtime / 60;
+              if (that.addData.type === 2 && that.addData.datatime !== "") {
+                that.addData.datatime = that.addData.datatime / 1000;
+              }
             }
           });
         } else {
@@ -2760,6 +2877,11 @@ export default {
       this.editData.uptopic = row.uptopic;
       this.editData.scheme = row.scheme;
       this.editData.url = row.url;
+      this.showEditDatatime = row.type === 2;
+      this.editData.datatime =
+        row.type === 2 && row.datatime !== "" && row.datatime != null
+          ? row.datatime / 1000
+          : "";
       if (this.editData.forward === 2) {
         this.showHttpUrl = true;
       } else {
@@ -2801,14 +2923,23 @@ export default {
     editCancel(editData) {
       this.edit = false;
       this.loading = false;
+      this.showEditDatatime = false;
       this.$refs[editData].resetFields();
     },
     editTrue(editData) {
       var that = this;
-      that.editData.timezone = that.editData.timeZone * 3600;
-      this.editData.offtime = this.editData.offtime * 60;
       this.$refs[editData].validate((valid) => {
         if (valid) {
+          that.editData.timezone = that.editData.timeZone * 3600;
+          that.editData.offtime = that.editData.offtime * 60;
+          if (that.showEditDatatime) {
+            that.editData.datatime =
+              that.editData.datatime === "" || that.editData.datatime == null
+                ? ""
+                : that.editData.datatime * 1000;
+          } else {
+            delete that.editData.datatime;
+          }
           this.loading = true;
           updateProjectByProjectid(
             this.editData,
@@ -2818,6 +2949,7 @@ export default {
           ).then((res) => {
             if (res.code == 1001) {
               that.edit = false;
+              that.showEditDatatime = false;
               that.getProjectLists();
               that.getSearchProjectList(that.tenantid_A);
               that.$message({
@@ -2837,7 +2969,11 @@ export default {
                 type: "error",
               });
               that.loading = false;
-              that.editData.timezone = that.editData.timeZone / 3600;
+              that.editData.offtime = that.editData.offtime / 60;
+              that.editData.timeZone = that.editData.timezone / 3600;
+              if (that.showEditDatatime && that.editData.datatime !== "") {
+                that.editData.datatime = that.editData.datatime / 1000;
+              }
             }
           });
         } else {
