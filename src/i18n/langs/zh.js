@@ -1853,6 +1853,8 @@ const zh = {
         Typeofwork: '角色',
         Workcardnumber: '工卡号',
         Jobnumber1: '工号',
+        steps: '步数',
+        stepdate: '步数日期',
         Remark: '备注',
         operate: '操作',
         position: '定位',

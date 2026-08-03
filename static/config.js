@@ -4,7 +4,7 @@
  */
 window.__RUNTIME_CONFIG__ = {
   // tianditu | osm
-  VUE_APP_MAP_PROVIDER: '',
+  VUE_APP_MAP_PROVIDER: 'tianditu',
   // 天地图 API Key：https://www.tianditu.gov.cn/
   VUE_APP_TIANDITU_KEY: '',
 }

@@ -1864,6 +1864,8 @@ const en = {
         Typeofwork: 'Role',
         Workcardnumber: 'Card no.',
         Jobnumber1: 'Employee no.',
+        steps: 'Steps',
+        stepdate: 'Step date',
         Remark: 'Remark',
         operate: 'Operate',
         position: 'Locate',

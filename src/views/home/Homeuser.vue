@@ -82,7 +82,7 @@
                       {{ $t("homepage.card3") }}
                     </p>
                     <h4 class="mb-0" style="color: #676767">
-                      {{ attendanceMaxStepName }}
+                      {{ memberMaxStepName }}
                     </h4>
                   </div>
                   <div class="text-primary">
@@ -98,7 +98,7 @@
                   <span class="badge badge-soft-success font-size-11"
                     ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span
                   ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.step") }}{{ attendanceMaxStepNum }}</span
+                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span
                   ><span style="float: right"
                     ><a @click="ranking(3)">{{ $t("homepage.Stepranking") }}</a>
                   </span>
@@ -736,9 +736,9 @@ export default {
       attendanceNum: [],
       warnNumList: [],
       devBatTimeNum: {},
-      attendanceMaxStep: [],
-      attendanceMaxStepName: "",
-      attendanceMaxStepNum: "",
+      memberMaxStep: [],
+      memberMaxStepName: "",
+      memberMaxStepNum: "",
       max_num_tranche: "",
       max_num_ground: [],
       max_num_groundName: "",
@@ -1010,10 +1010,10 @@ export default {
           });
         }
       } else if (type == 3) {
-        if (that.attendanceMaxStep.length > 0) {
-          if (!that.attendanceMaxStep[0].steps) return;
+        if (that.memberMaxStep.length > 0) {
+          if (!that.memberMaxStep[0].steps) return;
           let data = {
-            deveui: that.attendanceMaxStep[0].maplabel,
+            deveui: that.memberMaxStep[0].maplabel,
             projectid: that.intoProjectid,
             devtype: that.intoProjectType,
           };
@@ -1034,7 +1034,7 @@ export default {
                     that.$router.push({
                       path: "/location/indoor/locationindoor",
                       query: {
-                        deveui: that.attendanceMaxStep[0].maplabel,
+                        deveui: that.memberMaxStep[0].maplabel,
                       },
                     });
                   } else {
@@ -1074,7 +1074,7 @@ export default {
           break;
         case 3:
           that.rankingName = this.$t("homepage.Stepranking1");
-          that.rankingData = that.attendanceMaxStep;
+          that.rankingData = that.memberMaxStep;
           that.rankingBuild = false;
           that.rankingGround = false;
           that.rankingPer = true;
@@ -3007,13 +3007,13 @@ export default {
           }
 
           that.max_num_tranche = res.data.max_num_tranche;
-          that.attendanceMaxStep = res.data.attendanceMaxStep;
-          if (that.attendanceMaxStep.length > 0) {
-            that.attendanceMaxStepName = that.attendanceMaxStep[0].username;
-            that.attendanceMaxStepNum = that.attendanceMaxStep[0].steps;
+          that.memberMaxStep = res.data.memberMaxStep;
+          if (that.memberMaxStep.length > 0) {
+            that.memberMaxStepName = that.memberMaxStep[0].username;
+            that.memberMaxStepNum = that.memberMaxStep[0].steps;
           } else {
-            that.attendanceMaxStepName = this.$t("tet.nodata");
-            that.attendanceMaxStepNum = "";
+            that.memberMaxStepName = this.$t("tet.nodata");
+            that.memberMaxStepNum = "";
           }
 
           that.member_indoor_num = res.data.memberIndoorNum;

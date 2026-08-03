@@ -289,6 +289,23 @@
                 sortable
                 show-overflow-tooltip
               ></el-table-column>
+              <el-table-column
+                property="steps"
+                :label="$t('staff.steps')"
+                align="center"
+                show-overflow-tooltip
+              >
+                <template slot-scope="scope">
+                  {{ scope.row.steps ? scope.row.steps : "/" }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                property="stepdate"
+                :label="$t('staff.stepdate')"
+                align="center"
+                min-width="110"
+                show-overflow-tooltip
+              ></el-table-column>
 
               <el-table-column
                 property="memo"
