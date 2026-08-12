@@ -267,6 +267,7 @@ export default {
         { index: 3, value: this.$t("otamanagement.devtype_card") },
         { index: 4, value: this.$t("otamanagement.devtype_vehicle") },
         { index: 5, value: this.$t("otamanagement.devtype_helmet") },
+        { index: 6, value: this.$t("otamanagement.devtype_vehicle_4G") },
       ];
     },
   },

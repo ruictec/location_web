@@ -1534,6 +1534,7 @@ const en = {
         devtype_card: 'Positioning card',
         devtype_vehicle: 'Vehicle locator',
         devtype_helmet: 'Helmet',
+        devtype_vehicle_4G: 'Wi‑Fi / 4G Vehicle GPS Tracker',
         devtyperule: 'Please select device type',
         id: 'ID',
         version1: 'Version',
