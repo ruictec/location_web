@@ -1524,6 +1524,7 @@ const zh = {
         devtype_card: '定位工卡',
         devtype_vehicle: '车载定位器',
         devtype_helmet: '头盔',
+        devtype_vehicle_4G: 'WIFI/4G 版车载定位器',
         devtyperule: '请选择设备类型',
         id: 'ID',
         version1: '版本号',
