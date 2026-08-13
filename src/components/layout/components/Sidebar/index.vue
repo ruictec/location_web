@@ -37,6 +37,9 @@
             v-if="assetgw || aoagw || smoke || alertor || blesensor || camera"
             >{{ $t("list.Securitymanagement") }}</el-menu-item
           >
+          <el-menu-item index="/device/gateway">{{
+            $t("list.Basestationmanagement")
+          }}</el-menu-item>
         </el-submenu>
 
         <el-submenu ref="subMenu" index="/warning" popper-append-to-body>
