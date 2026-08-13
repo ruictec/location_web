@@ -18,7 +18,7 @@ const store = new Vuex.Store({
             64: "TEXT_MARKER",
             8: "IMAGE_MARKER",
         },
-        userInfo: JSON.parse(localStorage.getItem("userInfo")) || {},
+        userInfo: {},
         userInfoCopy: {},
         i18n: '',
         projectid: '',
@@ -101,8 +101,17 @@ const store = new Vuex.Store({
         },
         //数据处理方法
         setuserInfo(state, v) {
-            localStorage.setItem('userInfo', JSON.stringify(v));//将传递的数据先保存到localStorage中
-            state.userInfo = v;// 之后才是修改state中的状态
+            state.userInfo = v
+            try {
+                const raw = sessionStorage.getItem('state')
+                const saved = raw ? JSON.parse(raw) : Object.assign({}, state, { addRoutes: [] })
+                saved.userInfo = v
+                saved.addRoutes = []
+                sessionStorage.setItem('state', JSON.stringify(saved))
+                if (v && v.prionum) {
+                    sessionStorage.setItem('hasActiveSession', 'true')
+                }
+            } catch (e) {}
         },
         setWarningInfo(state, warningInfo) {
             state.warningInfo = warningInfo

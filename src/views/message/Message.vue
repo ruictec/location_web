@@ -20,7 +20,7 @@
       <el-table
         ref="multipleTable"
         :data="tableData"
-        style="width: 70%"
+        style="width: 100%"
         class="xc"
         :cell-style="{ background: 'rgb(243, 241, 241)' }"
         :empty-text="$t('tet.Nomessage')"
@@ -308,12 +308,15 @@ export default {
 }
 .anniu {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .anniu1 {
   position: absolute;
-  right: 26%;
-  top: 20%;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .home {
@@ -328,6 +331,8 @@ export default {
   width: 100%;
   height: 60%;
   position: absolute;
+  padding: 0 20px;
+  box-sizing: border-box;
   /* top: 70px; */
 }
 .admin {
@@ -335,7 +340,6 @@ export default {
 }
 .xc {
   border: 1px solid rgb(243, 241, 241);
-  width: 80px;
   text-align: center;
   border-radius: 10px;
 }

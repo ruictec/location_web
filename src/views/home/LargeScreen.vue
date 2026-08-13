@@ -8,12 +8,6 @@
       <div class="return" @click="brk">返回</div>
     </div>
     <div id="mapback"></div>
-    <MapLayerSwitcher
-      :map="map"
-      top="96px"
-      right="16px"
-      @change="onMapStyleChange"
-    />
     <div class="frameBox">
       <div class="bottom">
         <div class="frame1">
@@ -29,14 +23,19 @@
               <div class="ultitle">
                 <el-table
                   :data="tableData"
-                  style="width: 100%"
-                  :row-class-name="tableRowClassName"
+                  row-key="rowKey"
+                  default-expand-all
+                  :fit="true"
+                  :tree-props="{ children: 'children' }"
+                  style="width: 100%; background: transparent"
+                  :cell-style="tableCellStyle"
+                  :header-cell-style="tableHeaderStyle"
                 >
                   <el-table-column
                     prop="name"
                     label="楼栋/楼层"
-                    width="120"
-                    align="center"
+                    align="left"
+                    show-overflow-tooltip
                   >
                   </el-table-column>
                   <el-table-column
@@ -125,12 +124,10 @@
             <div class="most2">
               <p class="most_title">人数最多的楼层</p>
               <p class="most_floor">
-                {{ maxbuild ? maxbuild.building : "暂无数据" }}/{{
-                  maxground ? maxground.groundname : "暂无数据"
-                }}
+                {{ maxground ? maxground.building + "/" + maxground.groundname : "暂无数据" }}
               </p>
               <p class="realTime">
-                实时数据&nbsp;人数：{{ maxground ? maxbuild.num : "暂无数据" }}
+                实时数据&nbsp;人数：{{ maxground ? maxground.num : "暂无数据" }}
               </p>
               <div class="imgBox">
                 <img src="../../../public/image/screen/png/楼层.png" alt="" />
@@ -264,15 +261,9 @@ import Feature from "ol/Feature";
 //地图控件
 import { defaults as defaultControls } from "ol/control";
 import { fromLonLat } from "ol/proj";
-import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
-import mapStyleMixin from "../../mixins/mapStyleMixin";
 
 export default {
   name: "largescreen",
-  components: {
-    MapLayerSwitcher,
-  },
-  mixins: [mapStyleMixin],
   data() {
     return {
       windowWidth: document.documentElement.clientWidth, //实时屏幕宽度
@@ -309,8 +300,8 @@ export default {
       alarmData: [], //警告类型data
       stateData: [], //信标状态data
       memberNum: {}, //占比
-      maxbuild: {}, //人数最多的楼栋
-      maxground: {}, //人数最多的楼层
+      maxbuild: null, //人数最多的楼栋
+      maxground: null, //人数最多的楼层
       totalpeople: "", // 楼栋楼层总人数
       totalalarm: "", // 总告警数
       total: {
@@ -417,12 +408,26 @@ export default {
         }
       });
     },
-    tableRowClassName({ row, rowIndex }) {
-      if (row.type == "building") {
-        return "threeD-row";
-      } else {
-        return "";
-      }
+    tableCellStyle() {
+      return {
+        background: "transparent",
+        color: "#f1f1f1",
+        border: "none",
+      };
+    },
+    tableHeaderStyle() {
+      return {
+        background: "transparent",
+        color: "#f1f1f1",
+        border: "none",
+      };
+    },
+    formatFloorName(floor) {
+      const name = (floor.groundname || floor.name || "").toString();
+      if (!name) return "";
+      if (/层$/.test(name)) return name;
+      if (/^\d+$/.test(name)) return name + "层";
+      return name;
     },
     getTime() {
       //获取当前时间
@@ -820,8 +825,7 @@ export default {
               (this.memberNum.asset_online_num / this.memberNum.asset_sum_num) *
               100
             ).toFixed(2);
-      this.total.asset =
-        this.memberNum.asset_offline_num + this.memberNum.asset_online_num;
+      this.total.asset = this.memberNum.asset_sum_num || 0;
 
       let assets = [Number(P)];
       var ColumnOption1 = {
@@ -954,8 +958,7 @@ export default {
               100
             ).toFixed(2);
       let vehicle = [Number(P)];
-      this.total.vehicle =
-        this.memberNum.tbox_offline_num + this.memberNum.tbox_online_num;
+      this.total.vehicle = this.memberNum.tbox_sum_num || 0;
 
       var ColumnOption2 = {
         tooltip: {
@@ -1088,9 +1091,7 @@ export default {
                 this.memberNum.member_sum_num) *
               100
             ).toFixed(2);
-      this.total.people =
-        this.memberNum.member_offline_num + this.memberNum.member_online_num;
-      var offLineNum = this.tbox ? this.memberNum.tbox_offline_num : 0;
+      this.total.people = this.memberNum.member_sum_num || 0;
       let Onlinezb = [Number(P)];
 
       var ColumnOption3 = {
@@ -1751,10 +1752,12 @@ export default {
         that.userName
       ).then((res) => {
         if (res.code == 1001) {
-          res.data.fenceList.forEach((item) => {
-            const index = that.AllFences.findIndex((items) => items.id === item.id);
-            that.updateNumber(index, item.num);
-          });
+          if (res.data.fenceList && res.data.fenceList.length > 0) {
+            res.data.fenceList.forEach((item) => {
+              const index = that.AllFences.findIndex((items) => items.id === item.id);
+              that.updateNumber(index, item.num);
+            });
+          }
           that.member_indoor_num = res.data.memberIndoorNum;
           that.member_outdoor_num = res.data.memberOutdoorNum;
           that.tbox_indoor_num = res.data.tboxIndoorNum;
@@ -1813,7 +1816,7 @@ export default {
               warn_status2_num: 0,
             },
           ];
-          if (res.data.warnNumList.length > 0) {
+          if (res.data.warnNumList && res.data.warnNumList.length > 0) {
             that.alarmData.forEach((item) => {
               res.data.warnNumList.forEach((value) => {
                 if (
@@ -1833,31 +1836,41 @@ export default {
           that.setColumn1();
           that.setColumn2();
           that.setColumn3();
-          this.maxbuild = res.data.max_num_build[0];
-          this.maxground = res.data.max_num_ground[0];
+          this.maxbuild =
+            res.data.max_num_build && res.data.max_num_build.length > 0
+              ? res.data.max_num_build[0]
+              : null;
+          this.maxground =
+            res.data.max_num_ground && res.data.max_num_ground.length > 0
+              ? res.data.max_num_ground[0]
+              : null;
           let sum = []; // 楼栋楼层总人数
           let sum2 = []; // 总告警数
           let dataList = [];
-          res.data.buildList.forEach((i) => {
+          (res.data.buildList || []).forEach((i, buildIndex) => {
+            const floors = (i.list || []).map((t, floorIndex) => {
+              sum.push(t.devnum || 0);
+              sum2.push(t.alarmnum || 0);
+              return {
+                rowKey: "ground-" + buildIndex + "-" + floorIndex,
+                name: that.formatFloorName(t),
+                devnum: t.devnum,
+                assetnum: t.assetnum,
+                alarmnum: t.alarmnum,
+                type: "ground",
+              };
+            }).filter((t) => t.devnum || t.assetnum || t.alarmnum);
+            if (!i.devnum && !i.assetnum && !i.alarmnum && !floors.length) {
+              return;
+            }
             dataList.push({
+              rowKey: "build-" + buildIndex,
               name: i.building,
               devnum: i.devnum,
               assetnum: i.assetnum,
               alarmnum: i.alarmnum,
               type: "building",
-            });
-            i.list.forEach((t) => {
-              if (t.devnum || t.assetnum || t.alarmnum) {
-                dataList.push({
-                  name: t.name,
-                  devnum: t.devnum,
-                  assetnum: t.assetnum,
-                  alarmnum: t.alarmnum,
-                  type: "ground",
-                });
-              }
-              sum.push(t.devnum);
-              sum2.push(t.alarmnum);
+              children: floors,
             });
           });
           that.tableData = dataList;
@@ -1888,7 +1901,7 @@ export default {
       if (row.alarmnum == 0) {
         return "0";
       } else {
-        return row.assetnum;
+        return row.alarmnum;
       }
     },
     getTimeTable() {
@@ -2164,7 +2177,8 @@ $border: 1px solid red;
               padding: 10px 20px;
               margin: 0px auto 0 auto;
               box-sizing: border-box;
-              overflow-y: scroll;
+              overflow-x: hidden;
+              overflow-y: auto;
 
               &::-webkit-scrollbar {
                 width: 10px;
@@ -2190,36 +2204,50 @@ $border: 1px solid red;
               .el-table >>> body .el-table th {
                 display: none !important;
               }
+              .el-table,
+              .el-table >>> .el-table__header-wrapper,
+              .el-table >>> .el-table__body-wrapper,
+              .el-table >>> .el-table__body,
+              .el-table >>> tr {
+                background: transparent !important;
+                width: 100% !important;
+              }
+
+              .el-table >>> .el-table__header-wrapper,
+              .el-table >>> .el-table__body-wrapper {
+                overflow-x: hidden !important;
+              }
+
+              .el-table >>> .el-table__header,
+              .el-table >>> .el-table__body {
+                width: 100% !important;
+              }
+
               .el-table >>> td {
                 border: none;
               }
 
               & >>> .el-table .cell {
-                color: white;
+                color: #f1f1f1;
               }
 
-              .el-table >>> .el-table__row {
-                background: rgb(56, 151, 234, 1) !important;
-              }
-
-              .el-table >>> .el-table__row:hover {
-                background: rgba(56, 151, 234, 1) !important;
-              }
-
+              .el-table >>> .el-table__body tr > td,
+              .el-table >>> .el-table__body tr:hover > td,
+              .el-table >>> .el-table__body tr.hover-row > td,
+              .el-table >>> .el-table__body tr.current-row > td,
+              .el-table >>> .el-table__row,
+              .el-table >>> .el-table__row:hover,
               .el-table >>> .el-table__row:hover td {
-                background: rgba(56, 151, 234, 1) !important;
+                background: transparent !important;
+                color: #f1f1f1 !important;
               }
 
-              .el-table >>> .threeD-row {
-                background: rgba(2, 70, 122, 1) !important;
+              .el-table >>> .el-table__expand-icon {
+                color: #8ec8ff;
               }
 
-              .el-table >>> .threeD-row:hover {
-                background: rgba(2, 70, 122, 1) !important;
-              }
-
-              .el-table >>> .threeD-row:hover td {
-                background: rgba(2, 70, 122, 1) !important;
+              .el-table >>> .el-table__placeholder {
+                width: 16px;
               }
             }
 

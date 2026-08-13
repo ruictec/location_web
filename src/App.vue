@@ -160,6 +160,11 @@
 <script>
 import host from "./host";
 import i18n from "./i18n/i18n";
+import {
+  getTabId,
+  getAuthChannel,
+  closeAuthChannel,
+} from "./utils/authSession";
 // import { WS_BASE } from "./config/index.js"; // 使用 host.ws 保持原有逻辑
 import {
   updateSosWarn,
@@ -682,6 +687,7 @@ export default {
       this.showFooter = true;
     }
     window.addEventListener("beforeunload", (e) => this.beforeunloadHandler(e));
+    this.bindAuthChannel();
     document.title = i18n.t("title.title");
     window.GoMap = this.GoMap;
     window.hideNotify = this.hideNotify;
@@ -802,9 +808,54 @@ export default {
 
     //保存vuex里面的state到session storage中
     saveState() {
+      const tabId = sessionStorage.getItem("authTabId");
       sessionStorage.clear();
+      if (tabId) {
+        sessionStorage.setItem("authTabId", tabId);
+      }
       this.$store.state.addRoutes = [];
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
+      sessionStorage.setItem("hasActiveSession", "true");
+    },
+    bindAuthChannel() {
+      const ch = getAuthChannel();
+      if (!ch || this.authChannelHandler) return;
+      this.authChannelHandler = (event) => {
+        const data = event && event.data;
+        if (!data || data.tabId === getTabId()) return;
+        const currentName =
+          this.$store.state.userInfo && this.$store.state.userInfo.username;
+        if (data.type === "login") {
+          if (currentName && data.username && data.username !== currentName) {
+            this.$message({
+              message: this.$t("tips.otherTabLogin", { name: data.username }),
+              type: "warning",
+            });
+          }
+          return;
+        }
+        if (data.type === "logout") {
+          if (currentName && data.username && data.username === currentName) {
+            this.$message({
+              message: this.$t("tips.otherTabLogoutSame"),
+              type: "warning",
+            });
+            this.$store.commit("setuserInfo", "");
+            this.$store.commit("resetRoutes");
+            sessionStorage.removeItem("state");
+            sessionStorage.removeItem("hasActiveSession");
+            this.$router.push("/login");
+            return;
+          }
+          if (currentName) {
+            this.$message({
+              message: this.$t("tips.otherTabLogout"),
+              type: "info",
+            });
+          }
+        }
+      };
+      ch.addEventListener("message", this.authChannelHandler);
     },
     //获取SOS信息
     getWarnSoss(tenantid, tenantkey, username, superid, intoProjectid) {
@@ -1481,6 +1532,14 @@ export default {
     window.removeEventListener("beforeunload", (e) =>
       this.beforeunloadHandler(e)
     );
+    if (this.authChannelHandler) {
+      const ch = getAuthChannel();
+      if (ch) {
+        ch.removeEventListener("message", this.authChannelHandler);
+      }
+      this.authChannelHandler = null;
+    }
+    closeAuthChannel();
   },
 };
 </script>

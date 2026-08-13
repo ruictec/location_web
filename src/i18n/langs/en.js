@@ -126,7 +126,10 @@ const en = {
         error: 'Project not created, please contact your administrator',
         errors: 'Login failed！！ Please contact the administrator！',
         registerUser: 'login was successful',
-        registerUsers: 'Registration failed！！ Please contact the administrator！'
+        registerUsers: 'Registration failed！！ Please contact the administrator！',
+        otherTabLogin: 'Another tab signed in as {name}. This tab still uses the original account',
+        otherTabLogout: 'Another tab has signed out. This tab is not affected',
+        otherTabLogoutSame: 'This account was signed out in another tab. Please sign in again'
     },
     message: {
         login: 'Login',

@@ -7,6 +7,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 
 import service from '../axios/request'
+import { hasTabSession, getSessionUserInfo, persistTabSession, notifyAuthEvent } from '../utils/authSession'
 // import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -35,34 +36,20 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
   
-  // 处理登录页
+  // 处理登录页：只认当前标签的 sessionStorage，不读写 localStorage，避免多标签互相覆盖
   if (to.path === '/login') {
-    // 检查会话状态，如果是新打开的页面，清除会话
-    const hasSessionFlag = window.sessionStorage.getItem('hasActiveSession');
-    if (!hasSessionFlag) {
-      try {
-        window.sessionStorage.removeItem('state');
-        store.commit('setuserInfo', '');
-        store.commit('resetRoutes');
-        window.sessionStorage.setItem('hasActiveSession', 'true');
-      } catch (e) {
-        // 忽略错误
+    const sessionUser = getSessionUserInfo()
+    if (sessionUser && sessionUser.prionum) {
+      if (!store.state.userInfo || !store.state.userInfo.prionum) {
+        store.commit('setuserInfo', sessionUser)
       }
-    }
-    
-    // 若已登录（store 中已有用户信息），直接按角色注入并跳转到 dashboard
-    if (store.state.userInfo && store.state.userInfo.prionum) {
       const hasRoles = store.state.addRoutes && store.state.addRoutes.length > 0
       if (!hasRoles) {
-        try { injectRoutesByRole(store.state.userInfo.prionum) } catch (e) {}
+        try { injectRoutesByRole(sessionUser.prionum) } catch (e) {}
       }
       NProgress.done()
       return next({ path: '/dashboard', replace: true })
     }
-    // 未登录：清空本地缓存与 store，避免残留
-    try { window.localStorage.removeItem('userInfo') } catch (e) {}
-    try { window.sessionStorage.removeItem('state') } catch (e) {}
-    try { store.commit('setuserInfo', '') } catch (e) {}
     
     if (to.query && to.query.username && to.query.password) {
       service({
@@ -75,8 +62,8 @@ router.beforeEach((to, from, next) => {
           if (data.code == 1001) {
             const userInfo = data.data
             store.commit('setuserInfo', userInfo)
-            try { window.sessionStorage.setItem('state', JSON.stringify(store.state)) } catch (e) {}
-            try { window.localStorage.setItem('userInfo', JSON.stringify(userInfo)) } catch (e) {}
+            persistTabSession(store.state)
+            notifyAuthEvent('login', { username: userInfo.username, prionum: userInfo.prionum })
             try { injectRoutesByRole(userInfo.prionum) } catch (e) {}
             const target = to.query && to.query.redirect && to.query.redirect !== '/login' ? to.query.redirect : '/dashboard'
             NProgress.done()
@@ -104,23 +91,15 @@ router.beforeEach((to, from, next) => {
   }
   
   // 检查是否需要认证
-  const hasToken = window.sessionStorage.getItem('state')
+  const hasToken = hasTabSession()
   
   if (hasToken) {
-    // 有token，检查用户信息
+    // 只从当前标签 session 恢复用户，不用 localStorage（会串到其他标签的账号）
     if (!store.state.userInfo || !store.state.userInfo.prionum) {
-      try {
-        const cached = JSON.parse(window.localStorage.getItem('userInfo') || '{}')
-        if (cached && cached.prionum) {
-          store.commit('setuserInfo', cached)
-        } else {
-          // 没有有效的用户信息，清除token并跳转到登录页
-          window.sessionStorage.removeItem('state')
-          NProgress.done()
-          return next(`/login?redirect=${to.path}`)
-        }
-      } catch (e) {
-        // 解析失败，清除token并跳转到登录页
+      const sessionUser = getSessionUserInfo()
+      if (sessionUser && sessionUser.prionum) {
+        store.commit('setuserInfo', sessionUser)
+      } else {
         window.sessionStorage.removeItem('state')
         NProgress.done()
         return next(`/login?redirect=${to.path}`)

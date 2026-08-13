@@ -134,7 +134,10 @@ const zh = {
         error: '未创建项目，与管理员联系',
         errors: '登录失败!!请联系管理员！',
         registerUser: '注册成功',
-        registerUsers: '注册失败!!请联系管理员！'
+        registerUsers: '注册失败!!请联系管理员！',
+        otherTabLogin: '其他标签页登录了账号 {name}，当前标签仍使用原账号',
+        otherTabLogout: '其他标签页已退出登录，当前标签不受影响',
+        otherTabLogoutSame: '当前账号已在其他标签页退出，请重新登录'
     },
     message: {
         login: '登录',
