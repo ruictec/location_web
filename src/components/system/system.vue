@@ -139,9 +139,7 @@
         index="/otamanagement"
         v-if="
           contrForPrioNum == 1 ||
-            contrForPrioNum == 2 ||
-            contrForPrioNum == 3 ||
-            contrForPrioNum == 4
+            contrForPrioNum == 2 
         "
       >
         <el-tooltip
