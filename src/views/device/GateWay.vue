@@ -1,12 +1,12 @@
 <template>
   <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
-    <div class="menu_header">
+    <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
 
     <div class="content">
-      <el-container class="asi">
-        <el-aside><Devicemanagement /></el-aside>
+      <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
+        <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
           <div class="gateway_input">
             <el-form
@@ -130,7 +130,7 @@
               @current-change="selectGateway"
               @selection-change="handleSelectionChange"
               style="width: 98%; text-align: center; margin-left: 2%"
-              max-height="300"
+              :max-height="contrForPrionum == 5 ? 660 : 300"
               border
               highlight-current-row
             >
@@ -332,7 +332,7 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent">
+          <div class="mapConent" v-if="contrForPrionum != 5">
             <div class="gateway-map-wrap">
               <MapLayerSwitcher
                 :map="map"
@@ -842,6 +842,7 @@ export default {
         count: 10,
         hbstatus: '',
         network: '',
+        projectid: '',
       },
       pageCount: 10,
       currentPage1: 1,
@@ -1000,6 +1001,7 @@ export default {
   methods: {
     //批量同步
     GwToNs() {
+      if (this.contrForPrionum == 5) return
       var that = this
       if (this.multipleSelection.length == 0) {
         this.$message({
@@ -1091,21 +1093,26 @@ export default {
     },
     //选中表格事件
     selectGateway(val) {
+      if (!val || this.contrForPrionum == 5) return
       if (this.show4G) {
         var that = this
         if (this.echarts1 && this.echarts2 && this.clickTrue) {
           let LayerArrays = this.map.getLayers().getArray()
-          for (let i = 1; i < LayerArrays.length; i++) {
-            if (LayerArrays[i].getSource().getFeatures()[0].values_.deveui) {
-              LayerArrays[i]
-                .getSource()
-                .getFeatures()
-                .forEach(function (feature) {
-                  LayerArrays[i].getSource().removeFeature(feature)
-                })
-              this.map.removeLayer(LayerArrays[i])
+          const layersToRemove = []
+          for (let i = 0; i < LayerArrays.length; i++) {
+            const source = LayerArrays[i].getSource && LayerArrays[i].getSource()
+            if (!source || typeof source.getFeatures !== 'function') continue
+            const features = source.getFeatures()
+            if (features.length > 0 && features[0].values_ && features[0].values_.deveui) {
+              features.forEach(function (feature) {
+                source.removeFeature(feature)
+              })
+              layersToRemove.push(LayerArrays[i])
             }
           }
+          layersToRemove.forEach(layer => {
+            this.map.removeLayer(layer)
+          })
 
           that.timestamp1 = []
           that.timestamp2 = []
@@ -1143,8 +1150,15 @@ export default {
             })
           }
 
-          that.map.getView().setCenter([val.lastx, val.lasty], 'EPSG:4326')
-          that.addIconMarker(that.map, val)
+          if (Number(val.lastx) === 0 && Number(val.lasty) === 0) {
+            that.$message({
+              message: that.$t('gateway.noGps'),
+              type: 'warning',
+            })
+          } else {
+            that.map.getView().setCenter([val.lastx, val.lasty], 'EPSG:4326')
+            that.addIconMarker(that.map, val)
+          }
           that.clickTrue = true
         }
       }
@@ -1330,7 +1344,9 @@ export default {
         style: style,
       })
 
-      this.modifyFeature(map, vectorLayer.getSource())
+      if (this.contrForPrionum != 5) {
+        this.modifyFeature(map, vectorLayer.getSource())
+      }
       map.addLayer(vectorLayer)
     },
 
@@ -1498,6 +1514,7 @@ export default {
 
     //添加基站
     addGateways() {
+      if (this.contrForPrionum == 5) return
       this.totalbytes = ''
       this.addData = {
         deveui: '',
@@ -1524,6 +1541,7 @@ export default {
       this.$refs[addData].resetFields()
     },
     addTrue(addData) {
+      if (this.contrForPrionum == 5) return
       var that = this
       this.$refs[addData].validate(valid => {
         if (valid) {
@@ -1577,11 +1595,15 @@ export default {
           if (res.code == 1001) {
             that.tableData = res.data.list
             that.total = res.data.size
-            for (let i = 0; i < that.tableData.length; i++) {
-              if (that.tableData[i].custom == 1) {
-                console.log('页面初始化，自动选择第一个 custom=1 的网关:', that.tableData[i])
-                that.selectGateway(that.tableData[i])
-                return
+            if (that.contrForPrionum != 5) {
+              const currentRow =
+                that.tableData.find(item => item.custom == 1) || that.tableData[0]
+              if (currentRow) {
+                that.$nextTick(() => {
+                  if (that.$refs.multipleTable) {
+                    that.$refs.multipleTable.setCurrentRow(currentRow)
+                  }
+                })
               }
             }
           }
@@ -1591,6 +1613,7 @@ export default {
 
     //修改gateway
     gatewayEdit(row) {
+      if (this.contrForPrionum == 5) return
       this.show4G = false
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
         if (row.custom == 2) {
@@ -1625,6 +1648,7 @@ export default {
       this.$refs[editData].resetFields()
     },
     editTrue(editData) {
+      if (this.contrForPrionum == 5) return
       var that = this
       this.$refs[editData].validate(valid => {
         if (valid) {
@@ -1669,6 +1693,7 @@ export default {
 
     //删除gateway
     gatewayDele(row) {
+      if (this.contrForPrionum == 5) return
       if (
         (this.$store.state.userInfo.prionum == 5 && this.$store.state.userInfo.delprio == 2) ||
         (this.$store.state.userInfo.prionum == 4 && this.$store.state.userInfo.delprio == 2)
@@ -1731,6 +1756,7 @@ export default {
 
     //回收
     gatewayBack(row) {
+      if (this.contrForPrionum == 5) return
       var that = this
       this.$confirm(
         this.$t('beacon.tet13') + row.deveui + this.$t('gateway.deletemsg1'),
@@ -1809,6 +1835,17 @@ export default {
           page: 1,
           count: this.pageCount,
           hbstatus: '',
+          projectid: '',
+        }
+      } else if (this.$store.state.userInfo.prionum == 5) {
+        this.searchList = {
+          deveui: '',
+          scheme: '',
+          tenantid: this.$store.state.intoProjectSuperid,
+          page: 1,
+          count: this.pageCount,
+          hbstatus: '',
+          projectid: this.$store.state.projectid,
         }
       } else {
         this.searchList = {
@@ -1818,6 +1855,7 @@ export default {
           page: 1,
           count: this.pageCount,
           hbstatus: '',
+          projectid: '',
         }
       }
 
@@ -1844,6 +1882,11 @@ export default {
       if (this.$store.state.userInfo.prionum == 1 || this.$store.state.userInfo.prionum == 2) {
         data = {
           tenantid: event,
+        }
+      } else if (this.$store.state.userInfo.prionum == 5) {
+        data = {
+          tenantid: this.$store.state.intoProjectSuperid,
+          projectid: this.$store.state.projectid,
         }
       } else {
         data = {
@@ -1905,6 +1948,18 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        projectid: '',
+      }
+    }
+    if (this.$store.state.userInfo.prionum == 5) {
+      this.searchList = {
+        deveui: '',
+        scheme: '',
+        tenantid: this.$store.state.intoProjectSuperid,
+        page: 1,
+        count: 10,
+        hbstatus: '',
+        projectid: this.$store.state.projectid,
       }
     }
     if (this.$store.state.userInfo.prionum == 3 || this.$store.state.userInfo.prionum == 4) {
@@ -1913,12 +1968,16 @@ export default {
 
     this.getCustomerNames()
     this.getSearchGatewayList()
-    this.initMap()
+    if (this.contrForPrionum != 5) {
+      this.initMap()
+    }
     this.getGatewayLists()
   },
   mounted() {
-    this.drawLine1()
-    this.drawLine2()
+    if (this.contrForPrionum != 5) {
+      this.drawLine1()
+      this.drawLine2()
+    }
   },
   watch: {
     totalbytes(v) {
@@ -1941,8 +2000,10 @@ export default {
       Object.assign(this.$data.editRules, this.$options.data.call(this).editRules)
       Object.assign(this.$data.typeList, this.$options.data.call(this).typeList)
 
-      this.drawLine1()
-      this.drawLine2()
+      if (this.contrForPrionum != 5) {
+        this.drawLine1()
+        this.drawLine2()
+      }
     },
   },
 }
@@ -1961,6 +2022,9 @@ export default {
   position: absolute;
   top: 70px;
   width: 99%;
+}
+.user {
+  height: 100%;
 }
 .el-aside {
   margin-top: 50px;
@@ -1994,7 +2058,8 @@ export default {
 .el-table >>> .el-table__row td {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table >>> .hover-row td,
+.el-table >>> .current-row td {
   background-color: #d9eafa !important;
 }
 .query,

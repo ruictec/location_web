@@ -391,6 +391,12 @@ export const userRoutes = [
           component: Security,
           name: 'security',
           meta: { title: 'router.securityManagement', noCache: true }
+        },
+        {
+          path: 'gateway',
+          component: GateWay,
+          name: 'gateway',
+          meta: { title: 'router.gatewayManagement', noCache: true }
         }
       ]
     },
