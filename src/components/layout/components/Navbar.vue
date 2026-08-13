@@ -403,6 +403,7 @@ import {
   getCustomerName,
   insertNoticeList,
 } from "../../../axios/api";
+import { notifyAuthEvent } from "../../../utils/authSession";
 export default {
   data() {
     return {
@@ -851,9 +852,8 @@ export default {
                 }
               }
 
-              // that.$store.commit("changeGoNext", false);
+              notifyAuthEvent("logout", { username: that.userName });
               sessionStorage.clear();
-              window.localStorage.clear();
               window.location.reload();
             } else {
               that.$message({

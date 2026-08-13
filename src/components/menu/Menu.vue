@@ -337,6 +337,7 @@ import {
   getCustomerName,
   insertNoticeList,
 } from "../../axios/api";
+import { notifyAuthEvent } from "../../utils/authSession";
 export default {
   name: "Menu",
   data() {
@@ -781,9 +782,8 @@ export default {
                   sosList[i].value.close();
                 }
               }
-              // that.$store.commit("changeGoNext", false);
+              notifyAuthEvent("logout", { username: that.userName });
               sessionStorage.clear();
-              window.localStorage.clear();
               window.location.reload();
             } else {
               that.$message({

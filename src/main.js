@@ -105,8 +105,6 @@ new Vue({
       window.__APP_STORE__ = store
     }
     
-    // 设置会话管理
-    this.setupSessionManagement();
   },
   // 移除created钩子，改为在路由守卫中处理
   methods: {
@@ -123,17 +121,6 @@ new Vue({
       window.addEventListener("popstate", function (e) {
         history.forward();
       }, false);
-    },
-    setupSessionManagement() {
-      // 监听页面卸载事件，清除会话标记
-      window.addEventListener('beforeunload', () => {
-        try {
-          window.sessionStorage.removeItem('state');
-          window.sessionStorage.removeItem('hasActiveSession');
-        } catch (e) {
-          // 忽略错误
-        }
-      });
     }
   }
 })

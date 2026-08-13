@@ -82,6 +82,7 @@ import {
   registerSendMail,
   registerUserPwd,
 } from "../../axios/api";
+import { persistTabSession, notifyAuthEvent } from "../../utils/authSession";
 // 路由注入由permission.js处理，不再需要导入
 export default {
   components: {
@@ -586,12 +587,11 @@ export default {
               that.tenantid_A = data.data.data.tenantid;
               that.userInfo = data.data.data;
               that.$store.commit("setuserInfo", that.userInfo);
-              sessionStorage.setItem(
-                "state",
-                JSON.stringify(that.$store.state)
-              );
-              // that.$store.commit("changeGoNext", true);
-              try { localStorage.setItem('userInfo', JSON.stringify(that.userInfo)) } catch (e) {}
+              persistTabSession(that.$store.state);
+              notifyAuthEvent("login", {
+                username: that.userInfo.username,
+                prionum: that.userInfo.prionum,
+              });
               // 登录成功后直接跳转，路由注入由permission.js处理
               if (that.$store.state.userInfo.prionum == 5) {
                 that.$router.push("/dashboard").catch(() => {});

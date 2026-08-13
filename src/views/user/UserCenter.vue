@@ -408,6 +408,7 @@ import {
   getUserCustomerOne,
   // updateProjectMosaic, // 定制访问功能暂时隐藏
 } from "../../axios/api";
+import { notifyAuthEvent } from "../../utils/authSession";
 export default {
   components: {
     Menu,
@@ -832,8 +833,8 @@ export default {
                 for (let i in sosList) {
                   sosList[i].value.close();
                 }
+                notifyAuthEvent("logout", { username: that.userName });
                 sessionStorage.clear();
-                window.localStorage.clear();
                 window.location.reload();
                 // that.$store.commit("changeGoNext", false);
               } else {
