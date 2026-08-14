@@ -167,7 +167,8 @@
                 <img src="../../../public/image/screen/png/信标.png" alt="" />
                 <span>信标状态</span>
               </p>
-              <div id="Column"></div>
+              <div id="Column" v-show="beaconHasData"></div>
+              <div v-show="!beaconHasData" class="beacon-empty">暂无数据</div>
             </div>
           </div>
         </div>
@@ -299,6 +300,7 @@ export default {
       asset_outdoor_num: 0,
       alarmData: [], //警告类型data
       stateData: [], //信标状态data
+      beaconHasData: false,
       memberNum: {}, //占比
       maxbuild: null, //人数最多的楼栋
       maxground: null, //人数最多的楼层
@@ -1281,7 +1283,8 @@ export default {
     // 信标状态
     setCylinder() {
       var that = this;
-      var linderEcharts = this.$echarts.init(document.getElementById("Column"));
+      var columnEl = document.getElementById("Column");
+      if (!columnEl) return;
       var yList = that.stateData
         ? [
             that.stateData.beacon_low_3day,
@@ -1290,11 +1293,19 @@ export default {
             that.stateData.bat_60_100,
             that.stateData.bat_20_60,
             that.stateData.bat_0_20,
-          ]
-        : "";
+          ].map((v) => Number(v) || 0)
+        : [0, 0, 0, 0, 0, 0];
       let Max = Math.max(...yList);
-      let upward = Math.ceil(Max / 100) * (Max < 50 ? 50 : 100); //向上取整
-      console.log("upward", upward);
+      // 全部为 0 / 无数据时展示暂无数据
+      if (Max <= 0) {
+        that.beaconHasData = false;
+        var emptyChart = this.$echarts.getInstanceByDom(columnEl);
+        if (emptyChart) emptyChart.clear();
+        return;
+      }
+      that.beaconHasData = true;
+      let upward = Max;
+      var linderEcharts = this.$echarts.init(columnEl);
 
       var xList = [
         "三天内被扫描",
@@ -1733,8 +1744,10 @@ export default {
         ],
       };
 
-      linderEcharts.setOption(linderOption);
-      linderEcharts.resize();
+      that.$nextTick(() => {
+        linderEcharts.setOption(linderOption, true);
+        linderEcharts.resize();
+      });
     },
     // 警告类型
     async getReport() {
@@ -2079,9 +2092,10 @@ $border: 1px solid red;
   position: relative;
 
   #mapback {
-    @include wh();
+    width: 100%;
+    height: calc(100% - 92px);
     position: absolute;
-    top: 0;
+    top: 92px;
     left: 0;
     z-index: 1;
     color: rgba(0, 156, 253, 0.5);
@@ -2096,8 +2110,10 @@ $border: 1px solid red;
     top: 0;
     left: 0;
     z-index: 10;
-    background: url(../../../public/image/screen/png/标题背景.png) no-repeat -30px
-      0px;
+    background-color: #000;
+    background-image: url(../../../public/image/screen/png/标题背景.png);
+    background-repeat: no-repeat;
+    background-position: -30px 0;
     background-size: 100% 100%;
 
     span {
@@ -2272,6 +2288,7 @@ $border: 1px solid red;
           .all_num {
             margin-left: 32px;
             display: flex;
+            align-items: flex-start;
 
             .title {
               font-size: 16px;
@@ -2283,6 +2300,7 @@ $border: 1px solid red;
               p {
                 line-height: 20px;
                 font-size: 10px;
+                margin: 0;
               }
 
               .num {
@@ -2290,29 +2308,39 @@ $border: 1px solid red;
               }
             }
 
-            .indoor {
-              background: url("../../../static/室内背景框.png");
+            .indoor,
+            .outdoor {
+              display: flex;
+              flex-direction: column;
+              justify-content: space-around;
+              box-sizing: border-box;
               width: 115px;
-              height: 135px;
+              min-height: 135px;
+              height: auto;
+              padding: 4px 0;
+              background: url("../../../static/室内背景框.png") no-repeat center;
+              background-size: 100% 100%;
 
-              div {
+              > div {
                 display: flex;
                 align-items: center;
                 justify-content: space-around;
+                flex-shrink: 0;
+              }
+
+              > div:first-child img {
+                width: 28px;
+                height: auto;
+              }
+
+              .num_box img {
+                width: 20px;
+                height: 20px;
               }
             }
 
             .outdoor {
               margin-left: 12px;
-              background: url("../../../static/室内背景框.png");
-              width: 115px;
-              height: 135px;
-
-              div {
-                display: flex;
-                align-items: center;
-                justify-content: space-around;
-              }
             }
           }
         }
@@ -2541,6 +2569,16 @@ $border: 1px solid red;
             #Column {
               width: 100%;
               height: 240px;
+            }
+
+            .beacon-empty {
+              width: 100%;
+              height: 240px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: rgba(255, 255, 255, 0.65);
+              font-size: 16px;
             }
           }
         }
