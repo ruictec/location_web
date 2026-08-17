@@ -41,7 +41,7 @@
           <el-date-picker
             v-model="tasktime"
             type="datetimerange"
-            :picker-options="pickerOptions"
+            :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
             :range-separator="$t('locationoutdoorh.to')"
             :start-placeholder="$t('locationoutdoorh.starttime')"
             :end-placeholder="$t('locationoutdoorh.endtime')"
@@ -70,20 +70,17 @@
               class="start"
               plain
               @click="handlerPlay"
-              >{{ textContent }}</el-button
-            ><el-checkbox
+              >{{ textContent }}</el-button><el-checkbox
               v-model="showLine"
               @change="changeShow()"
               :disabled="showTime"
               class="showline"
-              >{{ $t("locationoutdoorh.showline") }}</el-checkbox
-            >
+              >{{ $t("locationoutdoorh.showline") }}</el-checkbox>
             <el-checkbox
               v-model="showTime"
               @change="changeShow()"
               :disabled="!showLine"
-              >{{ $t("locationoutdoorh.showtime") }}</el-checkbox
-            >
+              >{{ $t("locationoutdoorh.showtime") }}</el-checkbox>
           </div>
         </el-form-item>
       </el-form>
@@ -151,29 +148,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -226,21 +223,21 @@ export default {
           // 设置标记样式
           image: new Icon({
             anchor: [0.5, 1], // 偏移位置
-            src: require("../../../static/user1.png"),
+            src: (process.env.BASE_URL || '/') + 'static/user1.png',
           }),
         }),
         start: new Style({
           // 设置开始标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/start.png"),
+            src: (process.env.BASE_URL || '/') + 'static/start.png',
           }),
         }),
         end: new Style({
           // 设置结束标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/end.png"),
+            src: (process.env.BASE_URL || '/') + 'static/end.png',
           }),
         }),
       },
@@ -574,7 +571,7 @@ export default {
               anchor: [0.5, 0.5], // 偏移位置
               // 控制大小
               scale: 0.5,
-              src: require("../../../static/user2.png"),
+              src: (process.env.BASE_URL || '/') + 'static/user2.png',
               rotateWithView: true,
             }),
           }),
@@ -932,7 +929,7 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
@@ -947,26 +944,26 @@ export default {
 .showline {
   margin-left: 20px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.demo-form-inline >>> .el-form-item:nth-of-type(1) .el-input__inner {
+.demo-form-inline :deep(.el-form-item:nth-of-type(1) .el-input__inner) {
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -1014,11 +1011,11 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 .bar-box {

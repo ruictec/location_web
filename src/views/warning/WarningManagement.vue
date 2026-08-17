@@ -84,8 +84,7 @@
                   type="primary"
                   class="querry"
                   @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button
-                >
+                  >{{ $t("beacon.search") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("beacon.reset")
                 }}</el-button>
@@ -93,8 +92,7 @@
                   type="primary"
                   class="reset"
                   @click="delWarningList()"
-                  >{{ $t("warning.batchdeletion") }}</el-button
-                >
+                  >{{ $t("warning.batchdeletion") }}</el-button>
               </el-form-item>
               <el-form-item
                 v-if="show"
@@ -162,7 +160,7 @@
                 <el-date-picker
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('beacon.to')"
                   :start-placeholder="$t('beacon.starttime')"
                   :end-placeholder="$t('beacon.endtime')"
@@ -180,8 +178,7 @@
                   type="primary"
                   class="querry"
                   @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button
-                >
+                  >{{ $t("beacon.search") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("beacon.reset")
                 }}</el-button>
@@ -189,8 +186,7 @@
                   type="primary"
                   class="reset"
                   @click="delWarningList()"
-                  >{{ $t("warning.batchdeletion") }}</el-button
-                >
+                  >{{ $t("warning.batchdeletion") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -277,7 +273,7 @@
                 align="center"
                 min-width="90"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -286,7 +282,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       @click="goLocation(scope.row)"
                       v-if="contrForPrionum == 5"
@@ -302,7 +298,7 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="DelWarningCommand(scope.row)"
                       ><img src="../../../static/delete.png"
@@ -318,7 +314,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -329,7 +325,7 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('warning.title')" :visible.sync="del">
+          <el-dialog :title="$t('warning.title')" v-model="del">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -363,7 +359,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -371,9 +367,8 @@
                 type="primary"
                 :loading="loading"
                 @click="deleteTrue()"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -410,33 +405,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -1279,10 +1274,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
@@ -1290,23 +1285,23 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }

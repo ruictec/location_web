@@ -1,4 +1,4 @@
-import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
+import zhLocale from 'element-plus/es/locale/lang/zh-cn'
 //Login.vue页面
 const zh = {
     login: {
@@ -2255,6 +2255,10 @@ const zh = {
         Cancelsetting: '取消设置',
         Layoutsuccessful: '布置成功！',
         buildingfirst: '请先删除该楼栋下所有的楼层信息！',
+    },
+    //定位管理 楼层详情
+    floordetails: {
+        noFloorInfo: '该楼栋暂无楼层信息',
     },
     //定位管理 楼层管理
     floormanagement: {

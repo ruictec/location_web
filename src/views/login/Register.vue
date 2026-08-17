@@ -70,9 +70,9 @@
             effect="light"
             placement="right-start"
           >
-            <div slot="content">
+            <template #content><div>
               {{ $t("register.emailPrompt") }}
-            </div>
+            </div></template>
             <i class="illustrate" />
           </el-tooltip>
         </div>
@@ -98,7 +98,7 @@
             effect="light"
             placement="right-start"
           >
-            <div slot="content">
+            <template #content><div>
               {{ $t("register.tenantidPrompt") }}
               <a
                 href="https://www.rctiot.com/html/product/index.html?number=0"
@@ -114,7 +114,7 @@
               >
                 {{ $t("register.tenantidPrompts") }}
               </a>
-            </div>
+            </div></template>
             <i class="illustrate" />
           </el-tooltip>
         </div>
@@ -131,16 +131,16 @@
           }}</span>
         </div>
         <!-- 阅读协议 -->
-        <el-dialog :visible.sync="centerDialogVisible" width="30%" center>
+        <el-dialog v-model="centerDialogVisible" width="30%" center>
           <agreement></agreement>
-          <span slot="footer" class="dialog-footer">
+          <template #footer><span class="dialog-footer">
             <el-button @click="centerDialogVisible = false">{{
               $t("retrieve.cancel")
             }}</el-button>
             <el-button type="primary" @click="centerDialogVisible = false">{{
               $t("retrieve.confirm")
             }}</el-button>
-          </span>
+          </span></template>
         </el-dialog>
       </div>
     </div>

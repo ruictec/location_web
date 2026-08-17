@@ -68,8 +68,7 @@
                     v-model="staffmanagement"
                     :label="false"
                     :disabled="staffNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
               <div class="list_options">
@@ -82,8 +81,7 @@
                     v-model="assetManagement"
                     :label="false"
                     :disabled="assetNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
               <div class="list_options">
@@ -96,8 +94,7 @@
                     v-model="tboxManagement"
                     :label="false"
                     :disabled="tboxNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
               <div class="list_options">
@@ -160,8 +157,7 @@
                     v-model="devgw"
                     :disabled="devgwNum != 0"
                     :label="false"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
               <div class="list_options">
@@ -174,8 +170,7 @@
                     v-model="scanbeacon"
                     :disabled="scanbeaconNum != 0"
                     :label="false"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
             </el-collapse-item>
@@ -191,8 +186,7 @@
                     v-model="assetgw"
                     :label="false"
                     :disabled="assetgwNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -206,8 +200,7 @@
                     v-model="aoagw"
                     :label="false"
                     :disabled="aoagwNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -221,8 +214,7 @@
                     v-model="smoke"
                     :label="false"
                     :disabled="smokeNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -236,8 +228,7 @@
                     v-model="alertor"
                     :label="false"
                     :disabled="alertorNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -251,8 +242,7 @@
                     v-model="blesensor"
                     :label="false"
                     :disabled="blesensorNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -266,8 +256,7 @@
                     v-model="camera"
                     :label="false"
                     :disabled="cameraNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -275,8 +264,7 @@
                 type="primary"
                 class="buttons"
                 @click="confirmTrue()"
-                >{{ $t("index.Confirm") }}</el-button
-              >
+                >{{ $t("index.Confirm") }}</el-button>
             </el-collapse-item>
           </el-collapse>
         </el-main>
@@ -539,25 +527,25 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

@@ -66,22 +66,22 @@
                   </a>
                 </li>
                 <li>
-                  <el-button id="del" size="mini">{{
+                  <el-button id="del" size="small">{{
                     $t("beacon.delete")
                   }}</el-button>
                 </li>
                 <li>
-                  <el-button id="edit" size="mini">{{
+                  <el-button id="edit" size="small">{{
                     $t("beacon.edit")
                   }}</el-button>
                 </li>
                 <li v-show="mapType2">
-                  <el-button id="maptype2" size="mini">{{
+                  <el-button id="maptype2" size="small">{{
                     $t("build.Set2D")
                   }}</el-button>
                 </li>
                 <li v-show="mapType3">
-                  <el-button id="maptype3" size="mini">{{
+                  <el-button id="maptype3" size="small">{{
                     $t("build.Set3D")
                   }}</el-button>
                 </li>
@@ -101,21 +101,19 @@
                 class="reset"
                 style="margin-left: 0%"
                 @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
+                >{{ $t("terminal.import") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
+                >{{ $t("terminal.exportAll") }}</el-button>
             </div>
           </div>
           <!-- 修改 -->
           <el-dialog
             :title="$t('Building.Editinformation')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="50%"
             style="text-align: center"
@@ -152,16 +150,16 @@
                 /></el-radio>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel()">{{
                 $t("change.cancle")
               }}</el-button>
               <el-button type="primary" @click="editTrue()">{{
                 $t("change.sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
-          <el-dialog :visible.sync="vedio" @close="closeVedio">
+          <el-dialog v-model="vedio" @close="closeVedio">
             <video width="100%" controls autoplay id="video">
               <!-- <source src="../../../static/楼层管理——布置~1.mp4" type="video/mp4"/> -->
               <source
@@ -1591,6 +1589,50 @@ export default {
         }
       });
     },
+    getLayerVectorFeatures(layer) {
+      if (!layer || typeof layer.getSource !== "function") {
+        return null;
+      }
+      const source = layer.getSource();
+      if (!source || typeof source.getFeatures !== "function") {
+        return null;
+      }
+      const features = source.getFeatures();
+      return features && features.length ? features : null;
+    },
+    removeBuildingMapLayer(featureValues, menu_overlay) {
+      if (!this.map) {
+        return;
+      }
+      const layers = this.map.getLayers().getArray();
+      for (let i = layers.length - 1; i >= 0; i--) {
+        const features = this.getLayerVectorFeatures(layers[i]);
+        if (!features) {
+          continue;
+        }
+        const values = features[0].values_;
+        if (!values || !values.building) {
+          continue;
+        }
+        const matched =
+          (featureValues.id && values.id == featureValues.id) ||
+          (featureValues.longi == values.longi &&
+            featureValues.lati == values.lati);
+        if (!matched) {
+          continue;
+        }
+        const source = layers[i].getSource();
+        features.forEach(function (feature) {
+          source.removeFeature(feature);
+        });
+        if (menu_overlay) {
+          menu_overlay.setPosition(undefined);
+        }
+        this.removeClick();
+        this.map.removeLayer(layers[i]);
+        return;
+      }
+    },
     //删除
     delFeature(e, menu_overlay) {
       var that = this;
@@ -1628,33 +1670,12 @@ export default {
                 that.userName
               ).then((res) => {
                 if (res.code == 1001) {
-                  let LayerArrays = that.map.getLayers().getArray();
-                  for (let i = 1; i < LayerArrays.length; i++) {
-                    if (
-                      e.values_.longi ==
-                        LayerArrays[i].getSource().getFeatures()[0].values_
-                          .longi &&
-                      e.values_.lati ==
-                        LayerArrays[i].getSource().getFeatures()[0].values_.lati
-                    ) {
-                      that.buildingNameList = that.buildingNameList.filter(
-                        function (item) {
-                          return item != e.values_.building;
-                        }
-                      );
-                      LayerArrays[i]
-                        .getSource()
-                        .getFeatures()
-                        .forEach(function (feature) {
-                          LayerArrays[i].getSource().removeFeature(feature);
-                        });
-                      if (menu_overlay) {
-                        menu_overlay.setPosition(undefined);
-                      }
-                      that.removeClick();
-                      that.map.removeLayer(LayerArrays[i]);
+                  that.buildingNameList = that.buildingNameList.filter(
+                    function (item) {
+                      return item != e.values_.building;
                     }
-                  }
+                  );
+                  that.removeBuildingMapLayer(e.values_, menu_overlay);
                   that.buildingIdList.forEach((item, index) => {
                     if (item == e.values_.id) {
                       that.buildingIdList.splice(index, 1);
@@ -1686,32 +1707,10 @@ export default {
           }
         });
       } else {
-        let LayerArrays = that.map.getLayers().getArray();
-        for (let i = 1; i < LayerArrays.length; i++) {
-          if (
-            e.values_.longi ==
-              LayerArrays[i].getSource().getFeatures()[0].values_.longi &&
-            e.values_.lati ==
-              LayerArrays[i].getSource().getFeatures()[0].values_.lati
-          ) {
-            that.buildingNameList = that.buildingNameList.filter(function (
-              item
-            ) {
-              return item != e.values_.building;
-            });
-            LayerArrays[i]
-              .getSource()
-              .getFeatures()
-              .forEach(function (feature) {
-                LayerArrays[i].getSource().removeFeature(feature);
-              });
-            if (menu_overlay) {
-              menu_overlay.setPosition(undefined);
-            }
-            that.removeClick();
-            that.map.removeLayer(LayerArrays[i]);
-          }
-        }
+        that.buildingNameList = that.buildingNameList.filter(function (item) {
+          return item != e.values_.building;
+        });
+        that.removeBuildingMapLayer(e.values_, menu_overlay);
       }
     },
 
@@ -1721,16 +1720,20 @@ export default {
       let LayerArrays = this.map.getLayers().getArray();
       this.arrs = [];
       let info;
-      for (let i = 1; i < LayerArrays.length; i++) {
-        if (LayerArrays[i].getSource().getFeatures()[0].values_.building) {
+      for (let i = 0; i < LayerArrays.length; i++) {
+        const features = this.getLayerVectorFeatures(LayerArrays[i]);
+        if (!features) {
+          continue;
+        }
+        const values = features[0].values_;
+        if (values && values.building) {
           //因为画了南海那边的虚线，导致会多获取一个，判断
           info = {
-            building: LayerArrays[i].getSource().getFeatures()[0].values_
-              .building,
-            longi: LayerArrays[i].getSource().getFeatures()[0].values_.longi,
-            lati: LayerArrays[i].getSource().getFeatures()[0].values_.lati,
-            src: LayerArrays[i].getSource().getFeatures()[0].values_.src,
-            id: LayerArrays[i].getSource().getFeatures()[0].values_.id,
+            building: values.building,
+            longi: values.longi,
+            lati: values.lati,
+            src: values.src,
+            id: values.id,
           };
           that.arrs.push(info);
         }
@@ -1815,7 +1818,7 @@ export default {
     }
     this.getBuildingByProjectids();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     var that = this;
     let data = {
       projectid: this.intoProjectid,
@@ -1914,26 +1917,26 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .reset {
   padding: 8px 12px !important;
   margin-top: 5px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -2010,11 +2013,11 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 .main {

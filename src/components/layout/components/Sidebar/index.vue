@@ -5,21 +5,18 @@
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
-        background-color="#252b3b"
-        text-color="#8c97aa"
         :unique-opened="false"
-        active-text-color="#458bff"
         :collapse-transition="false"
         mode="vertical"
         :router="true"
-        style="text-align: left"
+        style="text-align: left; --el-menu-bg-color: #252b3b; --el-menu-text-color: #8c97aa; --el-menu-active-color: #458bff;"
       >
         <el-menu-item index="/dashboard">
           <i class="icon home"></i>
           <span style="font-weight: 600">{{ $t("list.homepage") }}</span>
         </el-menu-item>
-        <el-submenu ref="subMenu" index="/device" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/device">
+          <template #title>
             <i class="icon terminal"></i>
             <span style="font-weight: 600">{{
               $t("list.devicemanagement")
@@ -35,15 +32,14 @@
           <el-menu-item
             index="/device/security"
             v-if="assetgw || aoagw || smoke || alertor || blesensor || camera"
-            >{{ $t("list.Securitymanagement") }}</el-menu-item
-          >
+            >{{ $t("list.Securitymanagement") }}</el-menu-item>
           <el-menu-item index="/device/gateway">{{
             $t("list.Basestationmanagement")
           }}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
 
-        <el-submenu ref="subMenu" index="/warning" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/warning">
+          <template #title>
             <i class="icon sos"></i>
             <span style="font-weight: 600">{{
               $t("list.alarmmanagement")
@@ -59,8 +55,7 @@
               class="warningbox"
               v-show="warningNum > 0"
             >
-            </el-badge
-          ></el-menu-item>
+            </el-badge></el-menu-item>
           <el-menu-item index="/warning/warningconfigper" v-if="alarmConfig">{{
             $t("list.Personwarning")
           }}</el-menu-item>
@@ -68,15 +63,14 @@
           <el-menu-item
             index="/warning/warningconfigtbox"
             v-show="intoProjectType == 1 && tboxConfig"
-            >{{ $t("list.Vehiclewarning") }}</el-menu-item
-          >
+            >{{ $t("list.Vehiclewarning") }}</el-menu-item>
           <el-menu-item index="/warning/warningconfig">{{
             $t("list.Alarmconfiguration")
           }}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
 
-        <el-submenu ref="subMenu" index="/staff" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/staff">
+          <template #title>
             <i class="icon staff"></i>
             <span style="font-weight: 600">{{
               $t("list.Personnelmanagement")
@@ -92,17 +86,16 @@
           <el-menu-item
             index="/staff/tboxManagement"
             v-show="intoProjectType == 1 && tbox"
-            >{{ $t("list.Vehiclemanagement") }}</el-menu-item
-          >
+            >{{ $t("list.Vehiclemanagement") }}</el-menu-item>
           <el-menu-item index="/staff/checkwork" v-if="attendance">{{
             $t("list.Attendancemanagement")
           }}</el-menu-item>
           <el-menu-item index="/staff/inspection" v-if="task">{{
             $t("list.Patrolmanagement")
           }}</el-menu-item>
-        </el-submenu>
-        <el-submenu ref="subMenu" index="/location" popper-append-to-body>
-          <template slot="title">
+        </el-sub-menu>
+        <el-sub-menu ref="subMenu" index="/location">
+          <template #title>
             <i class="icon location"></i>
             <span style="font-weight: 600">{{
               $t("list.Locationmanagement")
@@ -115,16 +108,15 @@
           <el-menu-item
             index="/location/buildingmanagement"
             v-if="maprio == 1"
-            >{{ $t("list.Buildingmanagement") }}</el-menu-item
-          >
+            >{{ $t("list.Buildingmanagement") }}</el-menu-item>
           <el-menu-item index="/location/floormanagement" v-if="maprio == 1">{{
             $t("list.Floormanagement")
           }}</el-menu-item>
           <el-menu-item index="/location/buildingdetails">{{
             $t("list.Floordetails")
           }}</el-menu-item>
-          <el-submenu index="outdoor" class="el-submenu2" v-if="outDoor">
-            <template slot="title">{{
+          <el-sub-menu index="outdoor" class="el-submenu2" v-if="outDoor">
+            <template #title>{{
               $t("list.Outdoorpositioning")
             }}</template>
             <el-menu-item index="/location/outdoor/locationoutdoor">{{
@@ -133,9 +125,9 @@
             <el-menu-item index="/location/outdoor/historical">{{
               $t("list.Historicaltrack")
             }}</el-menu-item>
-          </el-submenu>
-          <el-submenu index="indoor" class="el-submenu2" v-if="inDoor">
-            <template slot="title">{{ $t("list.Indoorpositioning") }}</template>
+          </el-sub-menu>
+          <el-sub-menu index="indoor" class="el-submenu2" v-if="inDoor">
+            <template #title>{{ $t("list.Indoorpositioning") }}</template>
             <el-menu-item index="/location/indoor/locationindoor">{{
               $t("list.Locationquery")
             }}</el-menu-item>
@@ -145,11 +137,11 @@
             <el-menu-item index="/location/indoor/historical">
               {{ $t("list.Dataanalysis") }}
             </el-menu-item>
-          </el-submenu>
+          </el-sub-menu>
           <!-- <el-menu-item index="indoor3d">indoor3d</el-menu-item> -->
-        </el-submenu>
-        <el-submenu ref="subMenu" index="/user" popper-append-to-body>
-          <template slot="title">
+        </el-sub-menu>
+        <el-sub-menu ref="subMenu" index="/user">
+          <template #title>
             <i class="icon user"></i>
             <span style="font-weight: 600">{{
               $t("list.systemmanagement")
@@ -162,7 +154,7 @@
           <el-menu-item index="/user/myorder">{{
             $t("list.Myworkorder")
           }}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
       </el-menu>
     </el-scrollbar>
   </div>
@@ -254,7 +246,7 @@ export default {
 @import "../../style/sidebar.scss";
 
 @media screen and (max-width: 1400px) {
-  >>> .el-submenu .el-submenu__title {
+  :deep(.el-sub-menu .el-sub-menu__title) {
     padding-left: 20px !important ;
   }
 }
@@ -263,19 +255,19 @@ export default {
   padding-left: 20px !important;
   padding-right: 20px !important;
 }
-.el-submenu .el-menu-item {
+.el-sub-menu .el-menu-item {
   padding-left: 46px !important;
 }
-.el-submenu2 >>> .el-submenu__title {
+.el-submenu2 :deep(.el-sub-menu__title) {
   padding-left: 46px !important;
 }
-.el-menu--popup-right-start .el-submenu2 >>> .el-submenu__title {
+.el-menu--popup-right-start .el-submenu2 :deep(.el-sub-menu__title) {
   padding-left: 20px !important;
 }
 .el-submenu2 .el-menu-item {
   padding-left: 60px !important;
 }
-// .el-submenu >>> .el-menu--popup-right-start{
+// .el-sub-menu :deep(.el-menu--popup-right-start) {
 //   margin-left: 0 !important;
 // }
 .el-menu--popup-right-start .el-submenu2 .el-menu-item {
@@ -294,7 +286,7 @@ export default {
   transition: all 0.2s;
 }
 
-.el-submenu .el-menu-item.is-active {
+.el-sub-menu .el-menu-item.is-active {
   border-left: 4px #458bff solid;
   padding-left: 42px !important;
   background-color: $menuHover !important;
@@ -312,26 +304,26 @@ export default {
     background-color: $menuHover !important;
   }
 }
->>> .el-submenu .el-submenu__title:hover {
+:deep(.el-sub-menu .el-sub-menu__title:hover) {
   background-color: $menuHover !important;
 }
->>> .is-active > .el-submenu__title {
+:deep(.is-active > .el-sub-menu__title) {
   color: $subMenuActiveText !important;
 }
->>> .el-submenu.is-active .el-submenu__title .icon {
+:deep(.el-sub-menu.is-active .el-sub-menu__title .icon) {
   background-color: $subMenuActiveText;
 }
-#app .sidebar-container .el-submenu .el-menu-item.is-active {
+#app .sidebar-container .el-sub-menu .el-menu-item.is-active {
   background-color: $menuHover !important;
 }
->>> .el-menu-item,
-.el-submenu {
+:deep(.el-menu-item),
+.el-sub-menu {
   text-align: left !important;
 }
->>> .el-scrollbar__wrap {
+:deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
 }
->>> .el-scrollbar__wrap ::-webkit-scrollbar {
+:deep(.el-scrollbar__wrap ::-webkit-scrollbar) {
   display: none !important;
 }
 .icon {
@@ -374,7 +366,7 @@ export default {
 .el-badge.warningbox {
   margin-left: 60px;
 }
->>> sup {
+:deep(sup) {
   transform: translateY(5px);
   border: 0;
 }

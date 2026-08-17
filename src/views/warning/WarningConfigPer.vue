@@ -40,8 +40,7 @@
                   type="primary"
                   class="querry"
                   @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button
-                >
+                  >{{ $t("beacon.search") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("beacon.reset")
                 }}</el-button>
@@ -77,7 +76,7 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ formatAlertType(scope.row) }}
                 </template>
               </el-table-column>
@@ -93,21 +92,19 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-popover
                     trigger="hover"
                     placement="bottom"
                   >
                     <p>{{ $t("tet.tet2") }}</p>
-                    <div slot="reference" class="name-wrapper">
-                      <el-button
+                    <template #reference><div class="name-wrapper">
+                      <el-button text
                         @click="ShowTranches(scope.$index)"
-                        type="text"
                         size="small"
                         style="width: 60%"
-                        >{{ scope.row.tranches }}</el-button
-                      >
-                    </div>
+                        >{{ scope.row.tranches }}</el-button>
+                    </div></template>
                   </el-popover>
                 </template>
               </el-table-column>
@@ -145,7 +142,7 @@
                 align="center"
                 min-width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -154,7 +151,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="editss"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
@@ -168,7 +165,7 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
@@ -184,7 +181,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -197,7 +194,7 @@
           <!-- 添加告警设置 -->
           <el-dialog
             :title="$t('warning.title1')"
-            :visible.sync="add"
+            v-model="add"
             width="30%"
             style="text-align: center"
             @close="addCancel(addData)"
@@ -265,11 +262,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title3") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -302,11 +299,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title4") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -330,11 +327,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title5") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -369,11 +366,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title2") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -386,7 +383,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel(addData)">
                 {{ $t("warning.Cancel") }}
               </el-button>
@@ -395,15 +392,14 @@
                 :loading="loading"
                 @click="addTrue(addData)"
               >
-                {{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                {{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑告警设置 -->
           <el-dialog
             :title="$t('warning.title6')"
-            :visible.sync="edit"
+            v-model="edit"
             width="30%"
             style="text-align: center"
             @close="editCancel(editData)"
@@ -504,11 +500,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title2") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -521,7 +517,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel(editData)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -529,14 +525,13 @@
                 type="primary"
                 :loading="loading"
                 @click="editTrue(editData)"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <el-dialog
             :title="$t('tet.Regionaldetails')"
-            :visible.sync="showTranchesDetails"
+            v-model="showTranchesDetails"
             width="40%"
             style="text-align: center"
             @close="closeAction"
@@ -564,7 +559,7 @@
                   min-width="100"
                   align="center"
                 >
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <span v-if="scope.row.groundid === 0 || scope.row.groundid == 0">
                       {{ $t("warningVoice.outdoorGps") }}
                     </span>
@@ -1459,10 +1454,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
@@ -1470,23 +1465,23 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }

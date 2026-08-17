@@ -3,15 +3,16 @@
     <el-button
       :class="btnChange ? 'changeBtn1' : 'changeBtn'"
       @click="changeIcon()"
-      v-bind:icon="iconData"
-    ></el-button>
+    >
+      <i :class="iconData"></i>
+    </el-button>
     <el-menu
       class="el-menu-vertical-demo"
-      :default-active="this.$route.path"
-      mode=""
+      :default-active="$route.path"
+      mode="vertical"
       :router="true"
     >
-      <el-menu-item index="/test">
+      <el-menu-item index="/test" :class="{ left: show }">
         <el-tooltip
           class="item"
           effect="dark"
@@ -23,28 +24,20 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.realtimedata") }}</span>
         <el-tooltip
-          class="item  "
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-                        position: absolute;
-                        font-size: 130%;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        margin-left: 2%;
-                        
-                      "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("list.tet1") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
-      <el-menu-item index="/heartbeat">
+      <el-menu-item index="/heartbeat" :class="{ left: show }">
         <el-tooltip
           class="item"
           effect="dark"
@@ -56,29 +49,22 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.Heartbeatdata") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-                        position: absolute;
-                        font-size: 130%;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        margin-left: 2%;
-                        
-                      "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("list.tet2") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
       <el-menu-item
         index="/downlink"
+        :class="{ left: show }"
         v-if="
           contrForPrioNum == 1 ||
             contrForPrioNum == 2 ||
@@ -97,30 +83,23 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.Downlinkdata") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-                        position: absolute;
-                        font-size: 130%;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        margin-left: 2%;
-                        
-                      "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("list.tet3") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
 
       <el-menu-item
         index="/warningmanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
       >
         <el-tooltip
@@ -134,29 +113,21 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.Alarmdata") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-                        position: absolute;
-                        font-size: 130%;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        margin-left: 2%;
-                        
-                      "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("list.tet4") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
 
-      <el-menu-item index="/testdata">
+      <el-menu-item index="/testdata" :class="{ left: show }">
         <el-tooltip
           class="item"
           effect="dark"
@@ -167,7 +138,6 @@
           <i class="icon realtime"></i>
         </el-tooltip>
         <span v-show="show">{{ $t("list.Testdata") }}</span>
-  
       </el-menu-item>
     </el-menu>
   </div>
@@ -223,9 +193,6 @@ export default {
 </script>
 
 <style scoped>
-.el-menu-item {
-  text-align: left;
-}
 .changeBtn {
   width: 30px;
   height: 50px;
@@ -239,11 +206,11 @@ export default {
   border: none;
 }
 .box {
-  width: 150px;
+  width: auto;
   overflow: hidden;
 }
 .box1 {
-  width: 50px;
+  width: auto;
   overflow: hidden;
 }
 .icon {
@@ -271,9 +238,8 @@ export default {
 .is-active .icon {
   background-color: #409eff;
 }
-@media screen and (max-width: 1400px) {
-  .item1 {
-    margin-left: 55% !important;
-  }
+.left {
+  text-align: start !important;
+  padding-left: 40px !important;
 }
 </style>

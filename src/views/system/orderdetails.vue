@@ -12,23 +12,19 @@
               <el-breadcrumb-item
                 :to="{ path: '/user/myorder' }"
                 v-if="myorder"
-                >{{ $t("Breadcrumb.Myworkorder") }}</el-breadcrumb-item
-              >
+                >{{ $t("Breadcrumb.Myworkorder") }}</el-breadcrumb-item>
               <el-breadcrumb-item
                 :to="{ path: '/userorder' }"
                 v-if="userorder"
-                >{{ $t("list.Userworkorder") }}</el-breadcrumb-item
-              >
+                >{{ $t("list.Userworkorder") }}</el-breadcrumb-item>
               <el-breadcrumb-item
                 :to="{ path: '/companyorder' }"
                 v-if="companyorder"
-                >{{ $t("list.Enterpriseworkorder") }}</el-breadcrumb-item
-              >
+                >{{ $t("list.Enterpriseworkorder") }}</el-breadcrumb-item>
               <el-breadcrumb-item
                 ><a>{{
                   $t("Breadcrumb.Workorderdetails")
-                }}</a></el-breadcrumb-item
-              >
+                }}</a></el-breadcrumb-item>
             </el-breadcrumb>
             <!-- <h2>工单详情</h2> -->
             <el-divider class="divider"></el-divider>
@@ -86,10 +82,10 @@
                     :on-success="editFileSuccess"
                     :disabled="orderStatus == 5"
                   >
-                    <a slot="trigger">{{ $t("myorder.Addattachments") }}</a>
-                    <div slot="tip" class="el-upload__tip">
+                    <template #trigger><a>{{ $t("myorder.Addattachments") }}</a></template>
+                    <template #tip><div class="el-upload__tip">
                       {{ $t("myorder.text1") }}
-                    </div>
+                    </div></template>
                   </el-upload>
                 </p>
                 <p class="uploadTime">
@@ -124,8 +120,7 @@
                           font-weight: 600;
                           margin-right: 1.5%;
                         "
-                        >{{ item.username }}</span
-                      >
+                        >{{ item.username }}</span>
                       <span style="color: #6f6f6f">{{ item.time }}</span>
                     </p>
                     <p>
@@ -158,8 +153,7 @@
                     upgradeUserOrder &&
                     userOrders
                   "
-                  >{{ $t("myorderde.Liftingworkorder") }}</el-button
-                >
+                  >{{ $t("myorderde.Liftingworkorder") }}</el-button>
                 <el-button
                   type="primary"
                   class="sendMsg"
@@ -169,8 +163,7 @@
                     !upgradeUserOrder &&
                     userOrders
                   "
-                  >{{ $t("myorderde.Withdrawpromotion") }}</el-button
-                >
+                  >{{ $t("myorderde.Withdrawpromotion") }}</el-button>
               </div>
             </div>
           </div>
@@ -623,26 +616,26 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -711,7 +704,7 @@ h2 {
   flex-direction: column;
   margin-top: 5px;
 }
-.order_detail2 >>> .el-textarea__inner {
+.order_detail2 :deep(.el-textarea__inner) {
   margin-top: 20px;
   min-height: 150px !important;
 }
@@ -720,27 +713,27 @@ h2 {
   margin-left: 0 !important;
   display: flex;
 }
-.upload-demo >>> .el-upload--text {
+.upload-demo :deep(.el-upload--text) {
   margin-left: 0 !important;
   white-space: nowrap;
 }
-.upload-demo >>> .el-upload__tip {
+.upload-demo :deep(.el-upload__tip) {
   margin-top: 2px !important;
   white-space: nowrap;
   margin-left: 2%;
 }
-.upload-demo >>> .el-upload-list {
+.upload-demo :deep(.el-upload-list) {
   display: flex !important;
   flex-wrap: wrap;
   margin-left: 2%;
 }
-.upload-demo >>> .el-upload-list__item {
+.upload-demo :deep(.el-upload-list__item) {
   margin-top: 0 !important;
   text-align: left;
   width: auto;
   margin-left: 0;
 }
-.upload-demo >>> .el-icon-close-tip {
+.upload-demo :deep(.el-icon-close-tip) {
   display: none !important;
 }
 

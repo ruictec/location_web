@@ -92,7 +92,7 @@
 
     <!-- 鼠标左键显示内容 -->
     <el-dialog
-      :visible.sync="visible"
+      v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
       @close="clearInfo()"
       class="Info_dialog"
@@ -136,11 +136,9 @@
               <li class="goDev bracelet_dev">
                 <span
                   >{{ $t("terminal.deveui") }}
-                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span
-                >
+                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span>
                 <span v-if="battery"
-                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span
-                >
+                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("terminal.Locationupdatetime1") }}{{ gpstime }}</li>
@@ -154,21 +152,17 @@
                 <span>{{ $t("terminal.deveui") }} {{ bracelet_eui }}</span>
                 <span
                   >{{ $t("locationoutdoor.electricity")
-                  }}{{ bracelet_soc }}%</span
-                >
+                  }}{{ bracelet_soc }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li class="bracelet_dev">
                 <span
-                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span
-                >
+                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span>
                 <span
                   >{{ $t("LocationIndoor.temperature")
-                  }}{{ bracelet_tem }} °C</span
-                >
+                  }}{{ bracelet_tem }} °C</span>
                 <span
-                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span
-                >
+                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("home.Dataupdatetime") }}{{ bracelet_time }}</li>
@@ -251,7 +245,7 @@
     <!-- 修改 -->
     <el-dialog
       :title="$t('locationoutdoor.text')"
-      :visible.sync="edit"
+      v-model="edit"
       class="edit"
       width="50%"
       style="text-align: center"
@@ -269,17 +263,17 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="editCancel()">{{ $t("warning.Cancel") }}</el-button>
         <el-button type="primary" @click="editTrue()">{{
           $t("warning.Sure")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <!-- 围栏白名单人员列表弹窗已废弃，后端已删除相关接口
     <el-dialog
       :title="nameNum"
-      :visible.sync="showNameNum"
+      v-model="showNameNum"
       class="edit"
       width="50%"
       style="text-align: center"
@@ -2034,20 +2028,20 @@ export default {
       },
     },
   },
-  destroyed() {
+  unmounted() {
     this.websock.close();
   },
 };
 </script>
 
 <style scoped>
-.Info_dialog >>> .el-dialog {
+.Info_dialog :deep(.el-dialog) {
   border-radius: 20px !important;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
-.Info_dialog >>> .el-dialog__body {
+.Info_dialog :deep(.el-dialog__body) {
   color: #303133 !important;
   background: #fff;
   border-radius: 20px;
@@ -2125,31 +2119,31 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
 .reset {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -2222,11 +2216,11 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 .el-form-item .el-button {

@@ -37,6 +37,7 @@
   </div>
 </template>
 <script>
+import { resolveElTab } from '../../utils/elementTab'
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Devicemanagement from "../../components/devicemanagement/devicemanagement";
@@ -75,7 +76,7 @@ export default {
   methods: {
     changeTab(tab) {
       var that = this;
-      switch (tab.name) {
+      switch (resolveElTab(tab).name) {
         case "0":
           that.$refs.aoa.search();
           break;
@@ -109,7 +110,6 @@ export default {
 <style scoped>
 .homes {
   height: 100%;
-  margin-right: calc(102% - 100vw);
 }
 .menu_header {
   position: relative;
@@ -117,14 +117,41 @@ export default {
 .asi {
   position: absolute;
   top: 70px;
-  width: 99%;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  width: 100%;
 }
 .el-aside {
   margin-top: 50px;
   width: auto !important;
+  flex-shrink: 0;
 }
 .el-main {
-  width: 98%;
+  width: auto !important;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 16px 16px;
+  overflow: auto;
+}
+.el-tabs {
+  width: 100%;
+  min-width: 0;
+}
+.el-main :deep(.el-tabs__header),
+.el-main :deep(.el-tabs__content),
+.el-main :deep(.el-tab-pane),
+.el-main :deep(.content),
+.el-main :deep(.el-container),
+.el-main :deep(.el-main),
+.el-main :deep(.el-table) {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.el-main :deep(.el-main) {
+  padding: 0 !important;
 }
 .no-device-message {
   display: flex;

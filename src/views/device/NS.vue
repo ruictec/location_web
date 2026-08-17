@@ -40,17 +40,14 @@
          
               <el-form-item style="margin-left: 2%">
                 <el-button type="primary" class="query" @click="searchInfo()">
-                  {{ $t("nsconfig.search") }}</el-button
-                ><el-button type="primary" class="reset" @click="clearBtn()">
-                  {{ $t("nsconfig.reset") }}</el-button
-                >
+                  {{ $t("nsconfig.search") }}</el-button><el-button type="primary" class="reset" @click="clearBtn()">
+                  {{ $t("nsconfig.reset") }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="addNS()"
                   v-if="contrForPrionum == 1"
-                  >{{ $t("ns.addns") }}</el-button
-                >
+                  >{{ $t("ns.addns") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -149,8 +146,9 @@
                 align="center"
                 v-if="contrForPrionum == 1"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -161,8 +159,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -173,13 +172,11 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="nsEdit(scope.row)"
                           v-if="contrForPrionum == 1"
-                          >{{ $t("ns.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("ns.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -187,14 +184,12 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="nsDele(scope.row)"
                           v-if="contrForPrionum == 1"
-                          >{{ $t("ns.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("ns.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -207,7 +202,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -221,7 +216,7 @@
           <el-dialog
             :title="$t('ns.addns1')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -298,7 +293,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -309,13 +304,13 @@
               >
                 {{ $t("terminal.confirm") }}
               </el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑Ns -->
           <el-dialog
             :title="$t('ns.editns')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -395,7 +390,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -404,9 +399,8 @@
                 @click="editTrue('editData')"
                 :loading="loading"
               >
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -838,10 +832,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .add,

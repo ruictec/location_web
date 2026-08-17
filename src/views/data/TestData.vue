@@ -76,49 +76,42 @@
                 </el-select>
               </el-form-item>
          
-              <el-form-item style="margin-left: 0">
+              <el-form-item class="search-actions">
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchInfo()"
-                  >{{ $t("test.search") }}</el-button
-                >
+                  >{{ $t("test.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchPrevious()"
-                  >{{ $t("test.previous") }}</el-button
-                >
+                  >{{ $t("test.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchNext()"
-                  >{{ $t("test.next") }}</el-button
-                >
+                  >{{ $t("test.next") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("test.reset")
-                }}</el-button
-                ><el-button
+                }}</el-button><el-button
                   type="primary"
                   class="reset"
                   @click="startRefresh()"
                   v-if="start"
-                  >{{ $t("test.start") }}</el-button
-                >
+                  >{{ $t("test.start") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="stopRefresh()"
                   v-if="stop"
-                  >{{ $t("test.stop") }}</el-button
-                >
+                  >{{ $t("test.stop") }}</el-button>
 
                 <el-button
                   type="primary"
                   class="reset"
                   @click="delTestList()"
-                  >{{ $t("test.Batchdelete") }}</el-button
-                >
+                  >{{ $t("test.Batchdelete") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -160,7 +153,7 @@
                 min-width="55"
                 align="center"
               >
-              <template slot-scope="scope">
+              <template #default="scope">
                 <p v-if="scope.row.flag" style="border:2px solid green;background:green;color:white">{{ $t("downlink.Passed") }}</p>
                 <p v-else style="border:2px solid red;background:red;color:white">{{ $t("downlink.Failure") }}</p>
               </template>
@@ -204,7 +197,7 @@
                 align="center"
                 min-width="60"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -228,7 +221,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -238,7 +231,7 @@
             </div>
           </div>
           <!-- 批量删除 -->
-          <el-dialog :title="$t('test.tet5')" :visible.sync="del">
+          <el-dialog :title="$t('test.tet5')" v-model="del">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -268,7 +261,7 @@
                 min-width="55"
                 align="center"
               >
-              <template slot-scope="scope">
+              <template #default="scope">
                 <p v-if="scope.row.flag" style="border:2px solid green;background:green;color:white">{{ $t("downlink.Passed") }}</p>
                 <p v-else style="border:2px solid red;background:red;color:white">{{ $t("downlink.Failure") }}</p>
               </template>
@@ -307,7 +300,7 @@
                 align="center"
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -315,9 +308,8 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -705,7 +697,7 @@ export default {
       this.getDevRssiLists();
     }, 10000);
   },
-  destroyed() {
+  unmounted() {
     clearInterval(this.timer);
   },
 };
@@ -748,10 +740,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .search,
@@ -759,23 +751,20 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
-}
-.el-form-item .el-button {
-  margin-left: 4px !important;
 }
 </style>

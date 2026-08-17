@@ -41,7 +41,7 @@
                   style="width: 95%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('heartbeat.to')"
                   :start-placeholder="$t('heartbeat.startdate')"
                   :end-placeholder="$t('heartbeat.enddate')"
@@ -49,48 +49,41 @@
                 >
                 </el-date-picker>
               </el-form-item>
-              <el-form-item style="margin-left: 0">
+              <el-form-item class="search-actions">
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchInfo()"
-                  >{{ $t("heartbeat.search") }}</el-button
-                >
+                  >{{ $t("heartbeat.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchPrevious()"
-                  >{{ $t("test.previous") }}</el-button
-                >
+                  >{{ $t("test.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchNext()"
-                  >{{ $t("test.next") }}</el-button
-                >
+                  >{{ $t("test.next") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("heartbeat.reset")
-                }}</el-button
-                ><el-button
+                }}</el-button><el-button
                   type="primary"
                   class="reset"
                   @click="startRefresh()"
                   v-if="start"
-                  >{{ $t("test.start") }}</el-button
-                >
+                  >{{ $t("test.start") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="stopRefresh()"
                   v-if="stop"
-                  >{{ $t("heartbeat.stop") }}</el-button
-                >
+                  >{{ $t("heartbeat.stop") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="delHeartBeatList()"
-                  >{{ $t("test.Batchdelete") }}</el-button
-                >
+                  >{{ $t("test.Batchdelete") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -216,7 +209,7 @@
                 min-width="60"
                 fixed="right"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -240,7 +233,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -251,7 +244,7 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('downlink.msgdelete')" :visible.sync="del">
+          <el-dialog :title="$t('downlink.msgdelete')" v-model="del">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -351,7 +344,7 @@
                 align="center"
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -359,9 +352,8 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -401,33 +393,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -771,7 +763,7 @@ export default {
       this.getStatusRecordLists();
     }, 10000);
   },
-  destroyed() {
+  unmounted() {
     clearInterval(this.timer);
   },
   watch: {
@@ -820,10 +812,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .search,
@@ -831,23 +823,20 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
-}
-.el-form-item .el-button {
-  margin-left: 2px !important;
 }
 </style>

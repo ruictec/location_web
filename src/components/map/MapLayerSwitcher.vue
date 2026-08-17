@@ -4,10 +4,11 @@
     class="map-layer-switcher"
     :style="positionStyle"
   >
-    <span class="map-layer-switcher__label">{{ $t("mapLayer.label") }}</span>
+    <span class="map-layer-switcher__label">{{ $t("mapLayer.label") }}：{{ currentLabel }}</span>
     <el-select
       v-model="currentStyle"
-      size="mini"
+      size="small"
+      style="width: 110px"
       :placeholder="$t('mapLayer.label')"
       @change="handleChange"
     >
@@ -74,6 +75,10 @@ export default {
         label: this.$t(`mapLayer.${value}`),
       }));
     },
+    currentLabel() {
+      const matched = this.styleOptions.find((item) => item.value === this.currentStyle)
+      return matched ? matched.label : this.$t(`mapLayer.${this.currentStyle}`)
+    },
     positionStyle() {
       const style = {};
       if (this.top) style.top = this.top;
@@ -112,7 +117,25 @@ export default {
   white-space: nowrap;
 }
 
-.map-layer-switcher >>> .el-input__inner {
+.map-layer-switcher :deep(.el-select) {
   width: 110px;
+  min-width: 110px;
+  flex-shrink: 0;
+}
+
+.map-layer-switcher :deep(.el-input),
+.map-layer-switcher :deep(.el-input__wrapper),
+.map-layer-switcher :deep(.el-input__inner),
+.map-layer-switcher :deep(.el-select__wrapper) {
+  width: 110px;
+}
+
+.map-layer-switcher :deep(.el-select__placeholder),
+.map-layer-switcher :deep(.el-select__selected-item),
+.map-layer-switcher :deep(.el-input__inner) {
+  color: #303133;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

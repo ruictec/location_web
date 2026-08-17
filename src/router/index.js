@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 // 说明：改为路由懒加载，降低首屏体积；不改变页面逻辑与路径
 const Login1 = () => import('../views/login/Login1')
 const Register = () => import('../views/login/Register')
@@ -30,7 +29,7 @@ const LocationIndoor = () => import('../views/locate/LocationIndoor')
 const LocationIndoorHis = () => import('../views/locate/LocationIndoorHis')
 
 
-const StaffManagement = () => import('../views/staff/staffManagement')
+const StaffManagement = () => import('../views/staff/StaffManagement')
 const LogManagement = () => import('../views/log/LogManagement')
 const OtaManagement = () => import('../views/system/OtaManagement')
 const WarningManagement = () => import('../views/warning/WarningManagement')
@@ -42,7 +41,7 @@ const BuildingManagement = () => import('../views/project/BuildingManagement')
 const TerritoryManagement = () => import('../views/territory/TerritoryManagement')
 const UserCenter = () => import('../views/user/UserCenter')
 const Message = () => import('../views/message/Message')
-const AssetManagement = () => import('../views/asset/assetManagement')
+const AssetManagement = () => import('../views/asset/AssetManagement')
 const TBoxManagement = () => import('../views/asset/TBoxManagement')
 const MyOrder = () => import('../views/system/myorder')
 const UserOrder = () => import('../views/system/userorder')
@@ -51,15 +50,6 @@ const CompanyOrder = () => import('../views/system/companyorder')
 const CheckWork = () => import('../views/staff/checkwork')
 const inspection = () => import('../views/staff/inspection')
 import Layout from '../components/layout'
-
-const originalPush = Router.prototype.push
-//修改原型对象中的push方法 重复路由报错
-Router.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err)
-}
-
-
-Vue.use(Router)
 
 // 说明：基础路由（无需鉴权），其余按角色在运行时动态注入
 export const constantRoutes = [
@@ -622,18 +612,33 @@ export const userRoutes = [
 
 // 说明：恢复 oldCode 的“基础路由 + 动态注入”方案
 // 仅用基础路由创建 Router，其余按权限在运行时注入
-const createRouter = () => new Router({
-  // mode: 'history',
-  scrollBehavior: () => ({ y: 0 }),
+const createRouterInstance = () => createRouter({
+  history: createWebHashHistory(),
+  scrollBehavior: () => ({ top: 0 }),
   routes: constantRoutes
 })
 
-const router = createRouter()
+const router = createRouterInstance()
 
-// 重置 matcher，用于在切换角色/首次登录后清空已注册的动态路由
+function collectRouteNames(routes, names = []) {
+  routes.forEach((route) => {
+    if (route.name) names.push(route.name)
+    if (route.children && route.children.length) {
+      collectRouteNames(route.children, names)
+    }
+  })
+  return names
+}
+
+const constantRouteNames = collectRouteNames(constantRoutes)
+
+// 重置动态路由，用于在切换角色/首次登录后清空已注册的动态路由
 export function resetRouter () {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher
+  router.getRoutes().forEach((route) => {
+    if (route.name && !constantRouteNames.includes(route.name)) {
+      router.removeRoute(route.name)
+    }
+  })
 }
 
 export default router

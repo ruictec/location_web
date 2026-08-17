@@ -1,0 +1,1383 @@
+/* Element Plus 视觉/结构兼容层：尽量贴近原 Element UI 2 的表格、表单、菜单表现 */
+
+:root {
+  --el-font-size-base: 14px;
+  --el-component-size: 32px;
+  --el-component-size-small: 32px;
+  --el-border-radius-base: 4px;
+}
+
+/* ---------- 表格 ---------- */
+.el-table {
+  font-size: 14px;
+  color: #606266;
+  --el-table-header-bg-color: #f5f7fa;
+  --el-table-header-text-color: #909399;
+  --el-table-row-hover-bg-color: #f5f7fa;
+  --el-table-border-color: #ebeef5;
+  --el-table-text-color: #606266;
+}
+
+.el-table th.el-table__cell,
+body .el-table th,
+.el-table thead th {
+  display: table-cell !important;
+  background-color: #f5f7fa;
+  color: #909399;
+  font-weight: 500;
+}
+
+.el-table td.el-table__cell,
+.el-table th.el-table__cell {
+  padding: 8px 0;
+  vertical-align: middle;
+}
+
+.el-table .cell {
+  line-height: 23px;
+  padding-left: 10px;
+  padding-right: 10px;
+  box-sizing: border-box;
+}
+
+.el-table .cell .el-dropdown,
+.el-table .cell .el-dropdown-link {
+  overflow: visible;
+}
+
+.el-table td.operation .cell {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  line-height: 1 !important;
+}
+
+.el-table td.operation .cell > * {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+/* 表格操作栏：覆盖各页 padding:0，给图标按钮留出上下间距 */
+.el-table td.el-table__cell:has(.icon_button),
+.el-table td.operation.el-table__cell {
+  padding: 6px 0 !important;
+  vertical-align: middle !important;
+}
+
+.el-table .cell:has(.icon_button) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  line-height: 1 !important;
+  overflow: visible !important;
+}
+
+.el-table .cell:has(.icon_button) > * {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.el-table .icon_button.el-button,
+.el-table .el-button.icon_button,
+.el-table .el-button.icon_button.icon-control {
+  padding: 5px 12px !important;
+  height: auto !important;
+  min-height: 28px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.el-table .icon_button img,
+.el-table .icon-control img {
+  width: 16px;
+  height: 16px;
+  display: block;
+  object-fit: contain;
+}
+
+/* 操作栏导入/导出等字体图标（el-icon-download / el-icon-upload2） */
+.el-table .icon_button .download,
+.el-table .icon_button .upload,
+.el-table .icon-control .download,
+.el-table .icon-control .upload,
+.el-table .icon_button [class*="el-icon"],
+.el-table .icon-control [class*="el-icon"] {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  width: 16px;
+  height: 16px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-table .cell:has(.el-dropdown) {
+  overflow: visible;
+}
+
+.el-table__inner-wrapper::before,
+.el-table::before {
+  z-index: 1;
+}
+
+.el-table--border .el-table__inner-wrapper::after,
+.el-table--border::after,
+.el-table--border::before {
+  background-color: #ebeef5;
+}
+
+.el-table .el-table__cell.gutter {
+  display: table-cell !important;
+}
+
+/* ---------- 下拉 ---------- */
+.el-dropdown-link {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
+}
+
+.el-dropdown-menu.el-popper {
+  z-index: 4000 !important;
+}
+
+.el-dropdown-menu.el-popper.el-dropdown-menu--mini,
+.el-dropdown-menu.el-popper.el-dropdown-menu--small {
+  transform: translateX(-30px);
+}
+
+.el-popper.is-pure,
+.el-dropdown__popper {
+  z-index: 4000 !important;
+}
+
+/* ---------- 输入框 / 选择器（Element Plus 边框在 wrapper 上） ---------- */
+.el-input__wrapper {
+  padding: 1px 11px;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+}
+
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px #c0c4cc inset;
+}
+
+.el-input__wrapper.is-focus,
+.el-input.is-focus .el-input__wrapper {
+  box-shadow: 0 0 0 1px #409eff inset !important;
+}
+
+.el-input__inner {
+  height: 32px;
+  line-height: 32px;
+}
+
+.el-input.is-disabled .el-input__wrapper {
+  box-shadow: 0 0 0 1px #e4e7ed inset;
+  background-color: #f5f7fa;
+}
+
+.el-form-item.is-error .el-input__wrapper,
+.el-form-item.is-error .el-select .el-select__wrapper,
+.el-form-item.is-error .el-textarea__inner {
+  box-shadow: 0 0 0 1px #f56c6c inset !important;
+}
+
+.el-input--small .el-input__inner,
+.el-form-item--small .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+}
+
+.el-select .el-select__wrapper {
+  min-height: 32px;
+  font-size: 14px;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+}
+
+.el-select .el-select__wrapper:hover {
+  box-shadow: 0 0 0 1px #c0c4cc inset;
+}
+
+.el-select .el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px #409eff inset !important;
+}
+
+.el-textarea__inner {
+  padding: 5px 11px;
+  font-size: 14px;
+}
+
+/* ---------- 表单 ---------- */
+.el-form-item__label {
+  color: #606266;
+  font-weight: 500;
+}
+
+.el-form-item--small .el-form-item__label,
+.el-form-item--small .el-form-item__content {
+  line-height: 32px;
+}
+
+/* 弹框/块级表单铺满；行内搜索栏（demo-form-inline）不要 width:100%，否则每项独占一行 */
+.el-form:not(.demo-form-inline):not(.el-form--inline) .el-form-item {
+  width: 100%;
+  overflow: visible;
+}
+
+.el-form-item {
+  overflow: visible;
+}
+
+.el-form-item__content {
+  min-width: 0;
+  flex: 1;
+}
+
+.el-form-item__content > .el-input,
+.el-form-item__content > .el-select,
+.el-form-item__content > .el-date-editor,
+.el-form-item__content > .el-cascader,
+.el-form-item__content > .el-input-number,
+.el-form-item__content > .el-textarea,
+.el-form-item__content > .el-switch,
+.el-form-item__content > .el-radio-group,
+.el-form-item__content > .el-checkbox-group {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-form-item__content > .el-select,
+.el-form-item__content > .el-input,
+.el-form-item__content > .el-date-editor,
+.el-form-item__content > .el-cascader,
+.el-form-item__content > .el-input-number,
+.el-form-item__content > .el-textarea {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  flex: 1 1 auto;
+}
+
+.el-form-item__content .el-select__wrapper,
+.el-form-item__content .el-input__wrapper {
+  width: 100%;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+
+.el-form--inline .el-form-item__content > .el-select,
+.el-form--inline .el-form-item__content > .el-input,
+.el-form--inline .el-form-item__content > .el-date-editor {
+  width: auto;
+  max-width: none;
+  display: inline-flex;
+  flex: none;
+}
+
+.el-form--inline .el-form-item__content .el-select__wrapper {
+  width: auto;
+}
+
+.el-select__selected-item,
+.el-select__caret,
+.el-select__suffix,
+.el-select__prefix {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* 问号提示：不参与 flex，避免把输入框挤窄、也不换行 */
+.el-form-item__content:has(> .el-icon-question) {
+  position: relative;
+}
+
+.el-form-item__content > .el-icon-question {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  margin-left: 5px;
+  display: inline-flex !important;
+  align-items: center;
+  font-size: 16px;
+  line-height: 1;
+  cursor: help;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.el-form-item__label .el-icon-question,
+.el-table th .el-icon-question,
+.el-tabs__item .el-icon-question,
+.span-box .el-icon-question {
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  margin-left: 5px;
+  font-size: 16px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: help;
+  white-space: nowrap;
+}
+
+.el-form-item__label .el-tooltip__trigger,
+.el-table th .el-tooltip__trigger,
+.el-tabs__item .el-tooltip__trigger,
+.span-box .el-tooltip__trigger {
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.el-form-item__label:has(.el-icon-question),
+.el-table th .cell:has(.el-icon-question),
+.el-tabs__item:has(.el-icon-question),
+.span-box {
+  white-space: nowrap;
+}
+
+.span-box {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---------- 按钮 ---------- */
+/* Element Plus 相邻按钮默认间距会被页面内联 margin-left:0 盖掉，这里兜底 */
+.el-button + .el-button {
+  margin-left: 10px;
+}
+
+.el-button + .el-dropdown,
+.el-dropdown + .el-button,
+.el-dropdown + .el-dropdown {
+  margin-left: 10px;
+}
+
+.el-button--small {
+  padding: 7px 15px;
+  font-size: 12px;
+  height: 28px;
+}
+
+.el-button--small.is-circle,
+.el-button.is-circle.el-button--small {
+  padding: 5px;
+}
+
+.icon_button.el-button,
+.el-button.icon_button {
+  padding: 5px 12px;
+  height: auto;
+  min-height: 28px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.el-button.is-text,
+.el-button.is-link {
+  padding: 0 4px;
+  height: auto;
+  border: none;
+  background: transparent;
+  color: #409eff;
+}
+
+.el-button.is-text:hover,
+.el-button.is-link:hover {
+  color: #66b1ff;
+  background: transparent;
+}
+
+.el-picker-panel,
+.el-date-picker,
+.el-date-range-picker {
+  z-index: 4000 !important;
+}
+
+.el-date-range-picker__shortcuts,
+.el-picker-panel__sidebar {
+  padding: 6px 0;
+}
+
+.el-form-item {
+  margin-bottom: 18px;
+}
+
+.el-pagination .el-input__inner {
+  height: 28px;
+  line-height: 28px;
+}
+
+/* Element UI 2 分页是 inline 挤在一起居中；Plus 默认整行 flex，再叠加 * { margin: 0 auto } 会把各块拉开 */
+.el-pagination {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: auto;
+  max-width: 100%;
+  padding: 8px 0;
+  vertical-align: middle;
+}
+
+.el-pagination > * {
+  flex: none !important;
+  margin: 0 4px !important;
+}
+
+.el-pagination .el-pagination__total,
+.el-pagination .el-pagination__sizes,
+.el-pagination .el-pagination__jump,
+.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination .el-pager {
+  margin: 0 4px !important;
+}
+
+.demo-form-inline .el-input__wrapper,
+.demo-form-inline .el-select .el-input__wrapper {
+  min-height: 34px;
+  height: 34px;
+}
+
+.demo-form-inline .el-date-editor.el-input,
+.demo-form-inline .el-date-editor.el-input__wrapper,
+.demo-form-inline .el-date-editor--datetimerange,
+.demo-form-inline .el-date-editor--daterange,
+.demo-form-inline .el-date-editor--timerange {
+  height: 34px;
+  min-height: 34px;
+  box-sizing: border-box;
+}
+
+/* 全局 * { margin: 0 auto } 会把 flex 子项收成内容宽并左右居中 */
+.el-container,
+.el-container > .el-aside,
+.el-container > .el-header,
+.el-container > .el-main,
+.el-container > .el-footer {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.el-container > .el-main {
+  flex: 1 1 auto !important;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* tabs 是 column flex，auto 左右 margin 会让表格按内容宽度居中 */
+.el-tabs,
+.el-tabs__header,
+.el-tabs__nav-wrap,
+.el-tabs__content,
+.el-tab-pane {
+  width: 100% !important;
+  max-width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+}
+
+.el-tabs .el-container,
+.el-tabs .el-main,
+.el-tabs .content {
+  width: 100% !important;
+  max-width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-table,
+.el-table__inner-wrapper,
+.el-table__header-wrapper,
+.el-table__body-wrapper,
+.el-table__footer-wrapper {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  max-width: 100%;
+}
+
+.el-table .el-table__header,
+.el-table .el-table__body,
+.el-table .el-table__footer {
+  width: 100% !important;
+}
+
+/* 楼层详情等地图页：覆盖全局 margin:auto，避免 3D 区域被收成半宽 */
+.ground-details-map > .mapConent,
+.ground-details-map > .mapConentD {
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin-right: 0 !important;
+}
+
+.ground-details-map > .mapConent {
+  margin-left: 2% !important;
+}
+
+.ground-details-map > .mapConentD {
+  width: 100% !important;
+  margin-left: 0 !important;
+}
+
+/* 楼层布置弹窗：撑满视口，去掉 EP 默认 header/body 内边距造成的白边 */
+.el-dialog.arrangeDialog,
+.el-dialog.arrangeDialog.is-fullscreen {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  --el-dialog-padding-primary: 0px;
+  background-color: #f1f5f7 !important;
+}
+
+.el-dialog.arrangeDialog .el-dialog__header {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+}
+
+.el-dialog.arrangeDialog .el-dialog__body {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog .arrange-dialog-inner {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog .searchArrange,
+.el-dialog.arrangeDialog3D .searchArrange,
+.arrange-3d-page .searchArrange {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  width: 100% !important;
+  padding: 8px 12px 4px !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.el-dialog.arrangeDialog .searchArrange .demo-form-inline,
+.el-dialog.arrangeDialog3D .searchArrange .demo-form-inline,
+.arrange-3d-page .searchArrange .demo-form-inline {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog .searchArrange .demo-form-inline > .el-button,
+.el-dialog.arrangeDialog3D .searchArrange .demo-form-inline > .el-button,
+.arrange-3d-page .searchArrange .demo-form-inline > .el-button {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.el-dialog.arrangeDialog .searchArrange .demo-form-inline > .el-form-item,
+.el-dialog.arrangeDialog3D .searchArrange .demo-form-inline > .el-form-item,
+.arrange-3d-page .searchArrange .demo-form-inline > .el-form-item {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog .arrange-map-row {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.arrangeDialog .mapContent,
+.el-dialog.arrangeDialog .arrange-map-wrap {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog .allmap {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog .tableContent {
+  flex: 0 0 148px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 5 !important;
+  align-self: flex-start !important;
+  background: rgba(241, 245, 247, 0.96) !important;
+  box-sizing: border-box !important;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px !important;
+}
+
+.el-dialog.arrangeDialog .tableContent.is-expanded {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  min-width: 320px !important;
+  max-width: 38% !important;
+  overflow: hidden !important;
+  align-self: stretch !important;
+  background: #f1f5f7 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog .mapContent {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.el-dialog.arrangeDialog .chose_table.el-menu,
+.el-dialog.arrangeDialog3D .chose_table.el-menu,
+.arrange-3d-page .chose_table.el-menu {
+  text-align: left !important;
+  --el-menu-base-level-padding: 12px;
+  --el-menu-level-padding: 0px;
+}
+
+.el-dialog.arrangeDialog .chose_table .el-menu-item,
+.el-dialog.arrangeDialog3D .chose_table .el-menu-item {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  text-align: left !important;
+  padding: 0 12px !important;
+  padding-left: 12px !important;
+}
+
+.el-dialog.arrangeDialog .chose_table .el-menu-item > span,
+.el-dialog.arrangeDialog3D .chose_table .el-menu-item > span {
+  text-align: left !important;
+  margin: 0 !important;
+  flex: 0 1 auto !important;
+}
+
+.el-dialog.arrangeDialog .chose_table .el-menu-item .icon,
+.el-dialog.arrangeDialog3D .chose_table .el-menu-item .icon {
+  margin: 0 8px 0 0 !important;
+  flex: 0 0 18px !important;
+}
+
+.el-dialog.arrangeDialog3D .tableContent {
+  flex: 0 0 148px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 5 !important;
+  align-self: flex-start !important;
+  background: rgba(241, 245, 247, 0.96) !important;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px !important;
+}
+
+.el-dialog.arrangeDialog3D .tableContent.is-expanded {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  min-width: 320px !important;
+  max-width: 38% !important;
+  overflow: hidden !important;
+  align-self: stretch !important;
+  background: #f1f5f7 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog .allmap .ol-viewport,
+.el-dialog.arrangeDialog .allmap .ol-overlaycontainer,
+.el-dialog.arrangeDialog .allmap .ol-overlaycontainer-stopevent {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog .allmap canvas,
+.el-dialog.arrangeDialog .ol-viewport canvas {
+  margin: 0 !important;
+  display: block !important;
+}
+
+/* 3D 布置弹窗：去掉动画 transform，避免 WebGL canvas 被初始化成 0x0 */
+.arrange-3d-overlay,
+.arrange-3d-overlay.dialog-fade-enter-active,
+.arrange-3d-overlay.dialog-fade-leave-active {
+  animation: none !important;
+}
+
+.el-dialog.arrangeDialog3D,
+.el-dialog.arrangeDialog3D.is-fullscreen {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  animation: none !important;
+  transform: none !important;
+  --el-dialog-padding-primary: 0px;
+  background-color: #f1f5f7 !important;
+}
+
+.el-dialog.arrangeDialog3D .el-dialog__header {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+}
+
+.el-dialog.arrangeDialog3D .el-dialog__body {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.arrangeDialog3D .arrange-dialog-inner {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog3D .arrange-map-row {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  position: relative !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog3D .mapContent,
+.el-dialog.arrangeDialog3D .arrange-map-wrap {
+  position: relative !important;
+  width: 100% !important;
+  height: calc(100vh - 140px) !important;
+  min-height: 400px !important;
+  margin: 0 !important;
+}
+
+.arrange-3d-page .arrange-map-row {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.arrange-3d-page .mapContent,
+.arrange-3d-page .arrange-map-wrap {
+  position: relative !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.arrange-3d-page .tableContent {
+  flex: 0 0 148px !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  z-index: 5 !important;
+  align-self: flex-start !important;
+  background: rgba(241, 245, 247, 0.96) !important;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px !important;
+}
+
+.arrange-3d-page .tableContent.is-expanded {
+  flex: 0 0 32% !important;
+  width: 32% !important;
+  min-width: 320px !important;
+  max-width: 38% !important;
+  overflow: hidden !important;
+  align-self: stretch !important;
+  background: #f1f5f7 !important;
+  padding: 0 !important;
+}
+
+.el-dialog.arrangeDialog3D .feng-map-container,
+.el-dialog.arrangeDialog3D #fengMap,
+.arrange-3d-page .feng-map-container,
+.arrange-3d-page #fengMap {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: calc(100% - 28px) !important;
+  display: block !important;
+  z-index: 11 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.el-dialog.arrangeDialog3D .arrange-map-tip {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 12 !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog3D .feng-map-container canvas,
+.el-dialog.arrangeDialog3D #fengMap canvas,
+.arrange-3d-page .feng-map-container canvas,
+.arrange-3d-page #fengMap canvas {
+  margin: 0 !important;
+  display: block !important;
+}
+
+.changShowButton {
+  z-index: 12 !important;
+}
+
+/* 各列表页查询行：查询/重置/添加/批量 紧凑排列，间距 10px */
+.demo-form-inline {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.demo-form-inline > .el-form-item {
+  width: auto !important;
+  flex: 0 0 auto;
+  float: none !important;
+  margin-bottom: 12px;
+}
+
+.demo-form-inline > .el-form-item .el-form-item__content {
+  flex: 0 1 auto;
+  width: auto;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-select,
+.demo-form-inline .el-form-item .el-form-item__content > .el-input {
+  width: auto;
+  min-width: 140px;
+  flex: none;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content .el-select__wrapper {
+  min-width: 140px;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-button,
+.demo-form-inline .el-form-item .el-form-item__content > .el-dropdown,
+.demo-form-inline .el-form-item .el-form-item__content > .el-dropdown-link,
+.demo-form-inline .el-form-item .el-form-item__content > span {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-button,
+.demo-form-inline .el-form-item .el-form-item__content > .el-dropdown .el-button,
+.demo-form-inline .el-button.query,
+.demo-form-inline .el-button.reset,
+.demo-form-inline .el-button.export,
+.demo-form-inline .el-button.addTer,
+.demo-form-inline .el-button.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.demo-form-inline .search-actions,
+.demo-form-inline > .el-form-item:has(.query),
+.demo-form-inline > .el-form-item:has(.search) {
+  margin-left: 10px !important;
+}
+
+.el-date-editor.el-input__wrapper {
+  padding: 0 10px;
+}
+
+.el-date-editor .el-range-separator {
+  line-height: 32px;
+  height: 32px;
+  width: 24px;
+  padding: 0 4px;
+  color: #303133;
+}
+
+.el-date-editor .el-range-input {
+  font-size: 13px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.el-form--inline .el-form-item {
+  margin-right: 10px;
+  margin-bottom: 12px;
+  vertical-align: middle;
+}
+
+.el-form-item__content {
+  line-height: 32px;
+}
+
+.el-select-dropdown {
+  z-index: 4000 !important;
+}
+
+.el-popper.is-pure,
+.el-popper.is-light,
+.el-popper.is-dark,
+.el-tooltip.el-popper {
+  z-index: 4000 !important;
+}
+
+/* 地图管理：添加地图 popover 靠右时向左展开，避免 3D 按钮被裁切 */
+.map-add-popover.el-popover.el-popper {
+  width: auto !important;
+  min-width: auto !important;
+  padding: 8px 10px !important;
+  box-sizing: border-box;
+}
+
+.map-add-popover__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.el-table .el-table__empty-text {
+  color: #909399;
+}
+
+.el-tabs__header {
+  margin: 0 0 15px;
+}
+
+.el-radio {
+  margin-right: 20px;
+  height: auto;
+}
+
+.el-checkbox {
+  margin-right: 20px;
+  height: auto;
+}
+
+.el-switch {
+  height: 22px;
+}
+
+.el-upload-list--picture-card .el-upload-list__item,
+.el-upload--picture-card {
+  width: 148px;
+  height: 148px;
+}
+
+.el-message-box {
+  padding-bottom: 10px;
+}
+
+.el-popconfirm__main {
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.el-notification {
+  z-index: 5000 !important;
+}
+
+/* 3D 布置全屏层 z-index:3000，确认框/提示必须叠在它上面，否则右键菜单点了像没反应 */
+.el-overlay.is-message-box,
+.el-overlay-message-box {
+  z-index: 4100 !important;
+}
+.el-message-box {
+  z-index: 4110 !important;
+}
+.el-message {
+  z-index: 4200 !important;
+}
+
+.el-loading-mask {
+  z-index: 3000;
+}
+
+.el-image-viewer__wrapper {
+  z-index: 5000;
+}
+
+/* ---------- 顶栏横向菜单 ---------- */
+.el-menu--horizontal {
+  display: flex;
+  border-bottom: none;
+}
+
+.el-menu--horizontal > .el-menu-item,
+.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
+  height: 60px;
+  line-height: 60px;
+  border-bottom: none;
+}
+
+.el-menu--horizontal .el-menu-item:not(.is-disabled):hover,
+.el-menu--horizontal .el-menu-item:not(.is-disabled):focus {
+  background-color: transparent;
+}
+
+/* ---------- 侧栏菜单 ---------- */
+.el-menu {
+  --el-menu-item-height: 56px;
+  --el-menu-sub-item-height: 50px;
+  --el-menu-horizontal-height: 60px;
+}
+
+.sidebar-container .el-menu {
+  --el-menu-bg-color: #252b3b;
+  --el-menu-text-color: #8c97aa;
+  --el-menu-hover-bg-color: #3e455a;
+  --el-menu-active-color: #409eff;
+}
+
+.sidebar-container .el-sub-menu__title,
+.sidebar-container .el-menu-item {
+  color: #8c97aa;
+}
+
+/* 各模块左侧竖向菜单：抵消 * { margin: 0 auto }，图标+文字左对齐，问号跟在后面 */
+.el-menu-vertical-demo .el-menu-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-menu-vertical-demo .el-menu-item > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+.el-menu-vertical-demo .el-menu-item > span {
+  margin-left: 8px !important;
+  flex: 0 1 auto;
+}
+
+.el-menu-vertical-demo .el-menu-item > .el-tooltip:first-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.el-menu-vertical-demo .el-menu-item.left {
+  padding-left: 40px !important;
+}
+
+.el-menu-vertical-demo .el-menu-item .menu-item-help,
+.el-menu-vertical-demo .el-menu-item > .el-tooltip.menu-item-help {
+  position: static !important;
+  top: auto !important;
+  transform: none !important;
+  margin-left: 6px !important;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.el-menu-vertical-demo .el-menu-item .menu-item-help .el-icon-question,
+.el-menu-vertical-demo .el-menu-item > .el-tooltip.menu-item-help .el-icon {
+  font-size: 14px;
+  color: #909399;
+  vertical-align: middle;
+}
+
+/* 问号 tooltip 在文字后面（兼容旧 inline absolute 写法） */
+.el-menu-vertical-demo .el-menu-item > .el-tooltip:last-child:not(:first-child) {
+  position: static !important;
+  top: auto !important;
+  transform: none !important;
+  margin-left: 6px !important;
+  font-size: 14px !important;
+  line-height: 1;
+}
+
+.navbar {
+  overflow: visible;
+}
+
+/* ---------- 分页 / 对话框 / 卡片 ---------- */
+.el-pagination {
+  --el-pagination-button-height: 28px;
+  font-weight: 400;
+}
+
+.el-pagination .el-select {
+  width: 110px;
+  min-width: 110px;
+}
+
+.el-dialog__header {
+  padding: 20px 20px 10px;
+}
+
+.el-dialog__body {
+  padding: 10px 20px 20px;
+  color: #606266;
+}
+
+.el-dialog__footer {
+  padding: 10px 20px 20px;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center;
+  gap: 10px;
+  text-align: right !important;
+  margin: 0 !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.el-dialog__footer > * {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog__footer .dialog-footer,
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  margin-top: 12px;
+  width: 100%;
+  text-align: right;
+}
+
+.el-dialog__footer .el-button,
+.dialog-footer .el-button {
+  margin: 0 !important;
+}
+
+/* $confirm / MessageBox：标题居中，图标和文案靠拢居中，按钮靠右 */
+.el-message-box {
+  text-align: center;
+  padding: 16px 20px 16px;
+}
+
+.el-message-box__header {
+  text-align: center;
+  padding-bottom: 8px;
+}
+
+.el-message-box__title {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.el-message-box__container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0 8px;
+}
+
+.el-message-box__container > *,
+.el-message-box__status,
+.el-message-box__message {
+  margin: 0 !important;
+}
+
+.el-message-box__status {
+  font-size: 22px !important;
+  position: static !important;
+}
+
+.el-message-box__message {
+  text-align: center;
+}
+
+.el-message-box.msgbox-text-left {
+  text-align: left;
+}
+
+.el-message-box.msgbox-text-left .el-message-box__container {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.el-message-box.msgbox-text-left .el-message-box__message,
+.el-message-box.msgbox-text-left .el-message-box__message p {
+  text-align: left !important;
+}
+
+.el-message-box__btns {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  margin: 0 !important;
+}
+
+.el-message-box__btns > * {
+  margin: 0 !important;
+}
+
+.el-message-box__btns .el-button {
+  margin: 0 !important;
+}
+
+.el-card__header {
+  padding: 18px 20px;
+}
+
+.el-card__body {
+  padding: 20px;
+}
+
+/* 旧版 mini 尺寸选择器兼容 */
+.el-dropdown-menu--mini {
+  padding: 6px 0;
+}
+
+/* 操作/批量下拉里按钮间距：隐藏空项，覆盖内联 margin-top:4% 和 * { margin:0 auto } */
+.el-dropdown-menu.selects {
+  padding: 6px 8px !important;
+}
+
+.el-dropdown-menu.selects .el-dropdown-menu__item {
+  margin: 0 0 6px !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  background-color: transparent !important;
+}
+
+.el-dropdown-menu.selects .el-dropdown-menu__item:last-child {
+  margin-bottom: 0 !important;
+}
+
+.el-dropdown-menu.selects .el-dropdown-menu__item:not(:has(.el-button)) {
+  display: none !important;
+}
+
+.el-dropdown-menu.selects .el-button {
+  margin: 0 !important;
+  width: 100%;
+  height: 28px !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}

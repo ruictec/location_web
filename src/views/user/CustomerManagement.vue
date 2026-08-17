@@ -44,22 +44,19 @@
                   class="reset"
                   style="margin-left: 0%"
                   @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button
-                >
+                  >{{ $t("terminal.exportAll") }}</el-button>
                 <el-button type="primary" class="add" @click="addUsers()">{{
                   $t("companymanagement.addclient")
                 }}</el-button>
@@ -142,7 +139,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("companymanagement.Setlogo")
                   }}</span>
@@ -152,14 +149,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("companymanagement.tet") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="accpriostr"
                 :label="$t('usermanagement.Accessrights')"
@@ -167,22 +163,20 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">
-                    {{ $t("usermanagement.Accessrights") }}</span
-                  >
+                    {{ $t("usermanagement.Accessrights") }}</span>
                   <el-tooltip
                     class="item"
                     effect="light"
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("companymanagement.tet1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="mapriostr"
                 :label="$t('myorderde.projectmanagement')"
@@ -190,7 +184,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("myorderde.projectmanagement")
                   }}</span>
@@ -200,12 +194,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("companymanagement.tet2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="createtime"
                 :label="$t('companymanagement.createtime')"
@@ -234,8 +227,9 @@
                 min-width="80"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -246,8 +240,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -257,25 +252,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userEdit(scope.row)"
                           class="edits"
-                          >{{ $t("companymanagement.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("companymanagement.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="userDele(scope.row)"
-                          >{{ $t("companymanagement.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("companymanagement.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -289,7 +280,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -302,7 +293,7 @@
           <el-dialog
             :title="$t('companymanagement.addclientinfor')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -355,9 +346,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("companymanagement.tet3") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -383,11 +374,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet4") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -443,11 +434,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -478,11 +469,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -509,7 +500,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("companymanagement.cancel")
               }}</el-button>
@@ -517,15 +508,14 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("companymanagement.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("companymanagement.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑模态框 -->
           <el-dialog
             :title="$t('companymanagement.edituser')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -596,11 +586,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -625,11 +615,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet91") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -653,11 +643,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -679,7 +669,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("companymanagement.cancel")
               }}</el-button>
@@ -687,15 +677,14 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("companymanagement.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("companymanagement.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
             :title="$t('companymanagement.deleteclient')"
-            :visible.sync="deleTpl"
+            v-model="deleTpl"
             style="text-align: center"
           >
             <el-form>
@@ -710,14 +699,14 @@
                 {{ $t("companymanagement.deleteclientrules") }}{{ deleUser }}?
               </p>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("companymanagement.cancel")
               }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("companymanagement.confirm")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -1726,14 +1715,14 @@ export default {
   display: -webkit-box !important;
 }
 
-.editInput >>> textarea {
+.editInput :deep(textarea) {
   min-height: 88px !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -1741,19 +1730,19 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

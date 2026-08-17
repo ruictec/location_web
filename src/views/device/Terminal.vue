@@ -221,18 +221,18 @@
                 <el-date-picker
                   style="width: 100%; float: left; z-index: 1"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('terminal.to')"
                   :start-placeholder="$t('terminal.starttime')"
                   :end-placeholder="$t('terminal.endtime')"
-                  align="left"
+                  placement="bottom-start"
                   v-model="tasktime"
                 >
                 </el-date-picker>
               </el-form-item>
 
               <!-- 按钮 更多-->
-              <el-form-item v-if="seen" style="display: flex; margin-left: 0%">
+              <el-form-item v-if="seen" class="search-actions" style="display: flex; margin-left: 10px">
                 <!-- 高级 -->
                 <span class="el-dropdown-link" @click="changeItem()">
                   {{ $t("terminal.more")
@@ -244,29 +244,25 @@
                   class="query"
                   @click="searchInfo()"
                   style="margin-right: 0"
-                  >{{ $t("terminal.search") }}</el-button
-                >
+                  >{{ $t("terminal.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="previousDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button
-                >
+                  >{{ $t("terminal.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="nextDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button
-                >
+                  >{{ $t("terminal.next") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="clearBtn()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.reset") }}</el-button
-                >
+                  >{{ $t("terminal.reset") }}</el-button>
 
                 <el-button
                   type="primary"
@@ -274,8 +270,7 @@
                   @click="importExcel()"
                   v-if="contrForPrionum != 5"
                   style="margin-left: 0%"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="export"
@@ -287,8 +282,7 @@
                     contrForPrionum == 4
                   "
                   style="margin-left: 0%"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
 
                 <el-button
                   type="primary"
@@ -301,8 +295,7 @@
                     contrForPrionum == 4
                   "
                   style="margin-left: 0"
-                  >{{ $t("terminal.addterminal") }}</el-button
-                >
+                  >{{ $t("terminal.addterminal") }}</el-button>
                 <el-dropdown
                   size="small"
                   type="primary"
@@ -314,12 +307,14 @@
                     contrForPrionum == 4
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button type="primary" size="small">
                     {{ $t("terminal.batch")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -338,9 +333,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.edit") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -355,9 +348,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.deploy") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
 
                     <el-dropdown-item
                       style="
@@ -368,16 +359,14 @@
                         class="delTers"
                         @click="devToNs()"
                         v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                        >{{ $t("terminal.synchronization") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="configTers"
                         @click="extendTerminals()"
                         v-if="
@@ -386,9 +375,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.Extend") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -398,9 +385,7 @@
                         class="delTers"
                         @click="assignTers()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.assign") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.assign") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -410,16 +395,14 @@
                         class="delTers"
                         @click="removeTers()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.recovery") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels1"
                         @click="delTers()"
                         v-if="
@@ -428,10 +411,8 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.delete") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
                 <el-dropdown
                   size="small"
@@ -445,12 +426,14 @@
                     contrForPrionum == 5
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button type="primary" size="small">
                     {{ $t("terminal.command")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -464,9 +447,7 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -477,33 +458,27 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -513,9 +488,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -526,9 +499,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -539,9 +510,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -552,9 +521,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -565,10 +532,8 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
 
                 <el-tooltip
@@ -583,7 +548,7 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p v-show="contrForPrionum != 5">
                       {{ $t("terminal.title") }}
                     </p>
@@ -606,7 +571,7 @@
                     <p v-if="contrForPrionum == 3 || contrForPrionum == 4">
                       {{ $t("terminal.title4") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -787,29 +752,25 @@
                   class="query"
                   @click="searchInfo()"
                   style="margin-right: 0"
-                  >{{ $t("terminal.search") }}</el-button
-                >
+                  >{{ $t("terminal.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="previousDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button
-                >
+                  >{{ $t("terminal.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="nextDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button
-                >
+                  >{{ $t("terminal.next") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="clearBtn()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.reset") }}</el-button
-                >
+                  >{{ $t("terminal.reset") }}</el-button>
 
                 <el-dropdown
                   size="small"
@@ -823,12 +784,14 @@
                     contrForPrionum == 5
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button type="primary" size="small">
                     {{ $t("terminal.command")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -842,9 +805,7 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -855,33 +816,27 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -891,9 +846,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -904,9 +857,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -917,9 +868,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -930,9 +879,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button
-                      ></el-dropdown-item
-                    ><el-dropdown-item
+                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item><el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
@@ -942,10 +889,8 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </el-form-item>
 
@@ -1037,12 +982,12 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <el-input
+                  <template #reference><el-input
                     style="width: 95%; float: left"
-                    slot="reference"
+                   
                     v-model="selectMemo"
                     :placeholder="$t('terminal.Pleaseenter')"
-                  ></el-input>
+                  ></el-input></template>
                 </el-popover>
               </el-form-item>
 
@@ -1070,12 +1015,12 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <el-input
+                  <template #reference><el-input
                     style="width: 95%; float: left"
-                    slot="reference"
+                   
                     v-model="selectMemo"
                     :placeholder="$t('terminal.Pleaseenter')"
-                  ></el-input>
+                  ></el-input></template>
                 </el-popover>
               </el-form-item>
               <el-form-item
@@ -1112,11 +1057,11 @@
                   style="width: 100%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('terminal.to')"
                   :start-placeholder="$t('terminal.startdate')"
                   :end-placeholder="$t('terminal.enddate')"
-                  align="left"
+                  placement="bottom-start"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -1140,52 +1085,45 @@
                       class="query"
                       @click="searchInfo()"
                       style="margin-right: 0"
-                      >{{ $t("terminal.search") }}</el-button
-                    >
+                      >{{ $t("terminal.search") }}</el-button>
                     <el-button
                       type="primary"
                       class="query"
                       @click="previousDevice()"
                       style="margin-left: 0"
-                      >{{ $t("terminal.previous") }}</el-button
-                    >
+                      >{{ $t("terminal.previous") }}</el-button>
                     <el-button
                       type="primary"
                       class="query"
                       @click="nextDevice()"
                       style="margin-left: 0"
-                      >{{ $t("terminal.next") }}</el-button
-                    >
+                      >{{ $t("terminal.next") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="clearBtn()"
                       style="margin-left: 0"
-                      >{{ $t("terminal.reset") }}</el-button
-                    >
+                      >{{ $t("terminal.reset") }}</el-button>
                     <el-button
                       type="primary"
                       class="export"
                       @click="importExcel()"
                       v-if="contrForPrionum != 5"
                       style="margin-left: 0%"
-                      >{{ $t("terminal.import") }}</el-button
-                    >
+                      >{{ $t("terminal.import") }}</el-button>
                     <el-button
                       type="primary"
                       class="export"
                       @click="exportExcel()"
                       v-if="contrForPrionum != 5"
                       style="margin-left: 0%"
-                      >{{ $t("terminal.export") }}</el-button
-                    >
+                      >{{ $t("terminal.export") }}</el-button>
                     <el-button
                       type="primary"
                       class="addTer"
                       @click="addTer()"
                       v-if="contrForPrionum != 5"
-                      >{{ $t("terminal.addterminal") }}</el-button
-                    >
+                      >{{ $t("terminal.addterminal") }}</el-button>
                     <!-- 批量操作 -->
                     <el-dropdown
                       size="small"
@@ -1193,12 +1131,14 @@
                       trigger="hover"
                       v-if="contrForPrionum != 5"
                     >
+                      <span class="el-dropdown-link">
                       <el-button type="primary" size="small">
                         {{ $t("terminal.batch")
                         }}<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
-                      <el-dropdown-menu
-                        slot="dropdown"
+                      </span>
+<template #dropdown><el-dropdown-menu
+                       
                         style="background-color: rgb(219, 222, 231)"
                         class="selects"
                       >
@@ -1217,9 +1157,7 @@
                               contrForPrionum == 3 ||
                               contrForPrionum == 4
                             "
-                            >{{ $t("terminal.edit") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1234,9 +1172,7 @@
                               contrForPrionum == 3 ||
                               contrForPrionum == 4
                             "
-                            >{{ $t("terminal.deploy") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
 
                         <el-dropdown-item
                           style="
@@ -1247,16 +1183,14 @@
                             class="delTers"
                             @click="devToNs()"
                             v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                            >{{ $t("terminal.synchronization") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
                             background-color: rgb(219, 222, 231);
                           "
                           ><el-button
-                            size="mini"
+                            size="small"
                             class="configTers"
                             @click="extendTerminals()"
                             v-if="
@@ -1265,9 +1199,7 @@
                               contrForPrionum == 3 ||
                               contrForPrionum == 4
                             "
-                            >{{ $t("terminal.Extend") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
 
                         <el-dropdown-item
                           style="
@@ -1278,9 +1210,7 @@
                             class="delTers"
                             @click="assignTers()"
                             v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                            >{{ $t("beacon.assign") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1290,9 +1220,7 @@
                             class="delTers"
                             @click="removeTers()"
                             v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                            >{{ $t("terminal.recovery") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
 
                         <el-dropdown-item
                           style="
@@ -1300,7 +1228,7 @@
                             background-color: rgb(219, 222, 231);
                           "
                           ><el-button
-                            size="mini"
+                            size="small"
                             class="dels1"
                             @click="delTers()"
                             v-if="
@@ -1309,19 +1237,19 @@
                               contrForPrionum == 3 ||
                               contrForPrionum == 4
                             "
-                            >{{ $t("terminal.delete") }}</el-button
-                          ></el-dropdown-item
-                        >
-                      </el-dropdown-menu>
+                            >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
+                      </el-dropdown-menu></template>
                     </el-dropdown>
                     <!-- 批量命令 -->
                     <el-dropdown size="small" type="primary" trigger="hover">
+                      <span class="el-dropdown-link">
                       <el-button type="primary" size="small">
                         {{ $t("terminal.command")
                         }}<i class="el-icon-arrow-down el-icon--right"></i>
                       </el-button>
-                      <el-dropdown-menu
-                        slot="dropdown"
+                      </span>
+<template #dropdown><el-dropdown-menu
+                       
                         style="background-color: rgb(219, 222, 231)"
                         class="selects"
                       >
@@ -1342,9 +1270,7 @@
                             size="small"
                             class="edits"
                             @click="sendDownLinks(1)"
-                            >{{ $t("terminal.Remotereboot") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1362,9 +1288,7 @@
                             size="small"
                             class="edits"
                             @click="sendDownLinks(2)"
-                            >{{ $t("terminal.Remoteshutdown") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1378,12 +1302,10 @@
                             contrForPrionum == 5
                           "
                           ><el-button
-                            size="mini"
+                            size="small"
                             class="dels"
                             @click="sendDownLinks(3)"
-                            >{{ $t("terminal.Remotesearch") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1397,12 +1319,10 @@
                             contrForPrionum == 5
                           "
                           ><el-button
-                            size="mini"
+                            size="small"
                             class="dels"
                             @click="sendDownLinks(4)"
-                            >{{ $t("terminal.Cancelsearch") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1419,9 +1339,7 @@
                             size="small"
                             class="dels"
                             @click="sendDownLinks(0)"
-                            >{{ $t("terminal.Requestlocation") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1437,9 +1355,7 @@
                             size="small"
                             class="dels"
                             @click="sendDownLinks(5)"
-                            >{{ $t("terminal.Positioningbeacon") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1455,9 +1371,7 @@
                             size="small"
                             class="dels"
                             @click="sendDownLinks(6)"
-                            >{{ $t("terminal.Assetbeacon") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1473,9 +1387,7 @@
                             size="small"
                             class="dels"
                             @click="sendDownLinks(7)"
-                            >{{ $t("terminal.Transparentbeacon") }}</el-button
-                          ></el-dropdown-item
-                        >
+                            >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
                         <el-dropdown-item
                           style="
                             margin-top: 4%;
@@ -1491,10 +1403,8 @@
                             size="small"
                             class="dels"
                             @click="sendDownLinks(8)"
-                            >{{ $t("terminal.Confirmationbeacon") }}</el-button
-                          ></el-dropdown-item
-                        >
-                      </el-dropdown-menu>
+                            >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
+                      </el-dropdown-menu></template>
                     </el-dropdown>
                   </el-form-item>
                 </span>
@@ -1513,51 +1423,44 @@
                   class="query"
                   @click="searchInfo()"
                   style="margin-right: 0%"
-                  >{{ $t("terminal.search") }}</el-button
-                >
+                  >{{ $t("terminal.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="previousDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button
-                >
+                  >{{ $t("terminal.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="nextDevice()"
                   style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button
-                >
+                  >{{ $t("terminal.next") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="clearBtn()"
                   style="margin-left: 0%"
-                  >{{ $t("terminal.reset") }}</el-button
-                >
+                  >{{ $t("terminal.reset") }}</el-button>
                 <el-button
                   type="primary"
                   class="export"
                   @click="importExcel()"
                   style="margin-left: 0%"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="export"
                   @click="exportExcel()"
                   style="margin-left: 0%"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="addTer"
                   @click="addTer()"
                   v-if="contrForPrionum == 1 || contrForPrionum == 2"
                   style="margin-left: 0%"
-                  >{{ $t("terminal.addterminal") }}</el-button
-                >
+                  >{{ $t("terminal.addterminal") }}</el-button>
                 <el-dropdown
                   size="small"
                   type="primary"
@@ -1569,12 +1472,14 @@
                     contrForPrionum == 4
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button type="primary" size="small">
                     {{ $t("terminal.batch")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -1593,9 +1498,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.edit") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1610,9 +1513,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.deploy") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
 
                     <el-dropdown-item
                       style="
@@ -1623,9 +1524,7 @@
                         class="delTers"
                         @click="devToNs()"
                         v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                        >{{ $t("terminal.synchronization") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
 
                     <el-dropdown-item
                       style="
@@ -1633,7 +1532,7 @@
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="configTers"
                         @click="extendTerminals()"
                         v-if="
@@ -1642,9 +1541,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.Extend") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1654,9 +1551,7 @@
                         class="delTers"
                         @click="assignTers()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.assign") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.assign") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1666,16 +1561,14 @@
                         class="delTers"
                         @click="removeTers()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.recovery") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels1"
                         @click="delTers()"
                         v-if="
@@ -1684,10 +1577,8 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("terminal.delete") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
 
                 <el-dropdown
@@ -1702,12 +1593,14 @@
                     contrForPrionum == 5
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button type="primary" size="small">
                     {{ $t("terminal.command")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -1721,9 +1614,7 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1734,33 +1625,27 @@
                         size="small"
                         class="edits"
                         @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
                         background-color: rgb(219, 222, 231);
                       "
                       ><el-button
-                        size="mini"
+                        size="small"
                         class="dels"
                         @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1770,9 +1655,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1783,9 +1666,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1796,9 +1677,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1809,9 +1688,7 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -1822,10 +1699,8 @@
                         size="small"
                         class="dels"
                         @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </el-form-item>
             </el-form>
@@ -1913,7 +1788,7 @@
                 min-width="90"
                 key="nettype"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ formatNettype(scope.row) }}
                 </template>
               </el-table-column>
@@ -1925,7 +1800,7 @@
                 align="center"
                 min-width="120"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("gateway.customstr")
                   }}</span>
@@ -1935,14 +1810,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.title5") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="inallotstr"
                 show-overflow-tooltip
@@ -1951,7 +1825,7 @@
                 v-if="contrForPrionum != 5"
                 key="7"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.assign")
                   }}</span>
@@ -1961,14 +1835,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.title6") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="inusestr"
                 :label="$t('terminal.use')"
@@ -1977,7 +1850,7 @@
                 min-width="86"
                 key="8"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.use")
                   }}</span>
@@ -1987,11 +1860,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.use1") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -2044,7 +1917,7 @@
                 v-if="contrForPrionum != 5"
                 key="13"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.ver")
                   }}</span>
@@ -2054,14 +1927,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.verHelp") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="hbstatusstr"
@@ -2080,7 +1952,7 @@
                 min-width="85"
                 key="15"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.electricity")
                   }}</span>
@@ -2090,14 +1962,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.electricityHelp") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="rssi"
@@ -2126,7 +1997,7 @@
                 v-if="contrForPrionum != 5"
                 key="18"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("test.framecount")
                   }}</span>
@@ -2136,14 +2007,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("test.framecountHelp") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="lastchannel"
                 show-overflow-tooltip
@@ -2152,7 +2022,7 @@
                 v-if="contrForPrionum != 5"
                 key="19"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0"
                     >{{ $t("terminal.FrequencyPoint") }}
                   </span>
@@ -2162,9 +2032,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.FrequencyPoint1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -2192,7 +2062,7 @@
                 "
                 key="21"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0"
                     >{{ $t("beacon.region") }}
                   </span>
@@ -2202,12 +2072,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("beacon.regionHelp") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="clockinstr"
                 :label="$t('beacon.checkpoint')"
@@ -2221,7 +2090,7 @@
                 "
                 key="22"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0"
                     >{{ $t("beacon.checkpoint") }}
                   </span>
@@ -2231,12 +2100,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("beacon.checkpointHelp") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="groundid"
@@ -2246,7 +2114,7 @@
                 min-width="100"
                 key="23"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.floornumber")
                   }}</span>
@@ -2256,9 +2124,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.floornumber1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -2302,22 +2170,20 @@
                 align="center"
                 min-width="110"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">
-                    {{ $t("beacon.warning") }}</span
-                  >
+                    {{ $t("beacon.warning") }}</span>
                   <el-tooltip
                     class="item"
                     effect="light"
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("beacon.warningHelp") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 :property="i8n == 'zh' ? 'postypestr' : 'enpostype'"
@@ -2328,7 +2194,7 @@
                 v-if="contrForPrionum != 5"
                 key="28"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("terminal.postype")
                   }}</span>
@@ -2338,9 +2204,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.title8") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -2375,7 +2241,7 @@
                 v-if="contrForPrionum != 5"
                 key="31"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0"> Nwkskey </span>
                   <el-tooltip
                     class="item"
@@ -2383,12 +2249,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.NwkskeyTip") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="appkey"
@@ -2399,7 +2264,7 @@
                 v-if="contrForPrionum != 5"
                 key="32"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0"> Appkey </span>
                   <el-tooltip
                     class="item"
@@ -2407,13 +2272,12 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.AppkeyTip1") }}</p>
                       <p>{{ $t("terminal.AppkeyTip2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="orignwkskey"
@@ -2424,7 +2288,7 @@
                 v-if="contrForPrionum != 5"
                 key="33"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">
                     Orignwkskey
                   </span>
@@ -2434,12 +2298,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.OrignwkskeyTip") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="origappkey"
@@ -2450,7 +2313,7 @@
                 v-if="contrForPrionum != 5"
                 key="34"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">
                     Origappkey
                   </span>
@@ -2460,13 +2323,12 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("terminal.OrigappkeyTip1") }}</p>
                       <p>{{ $t("terminal.OrigappkeyTip2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="workmodestr"
@@ -2542,9 +2404,9 @@
                 :min-width="contrForPrionum == 5 ? '120' : '166'"
                 class-name="operation"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-dropdown
-                    size="mini"
+                    size="small"
                     type="primary"
                     trigger="click"
                     v-if="
@@ -2555,6 +2417,7 @@
                     "
                     key="42"
                   >
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -2565,8 +2428,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -2577,7 +2441,7 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="editTer(scope.$index, tableData)"
                           v-if="
@@ -2587,16 +2451,14 @@
                             contrForPrionum == 4
                           "
                           key="43"
-                          >{{ $t("beacon.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="configTer(scope.$index)"
                           v-if="
@@ -2607,9 +2469,7 @@
                           "
                           key="44"
                         >
-                          {{ $t("terminal.deploy") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          {{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
 
                       <el-dropdown-item
                         style="
@@ -2617,7 +2477,7 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="extendTerminal(scope.$index)"
                           v-if="
@@ -2627,9 +2487,7 @@
                             contrForPrionum == 4
                           "
                           key="45"
-                          >{{ $t("terminal.Extend") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
 
                       <el-dropdown-item
                         style="
@@ -2638,35 +2496,31 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="assignTer(scope.$index, tableData)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
                           key="46"
-                          >{{ $t("terminal.assign") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.assign") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="removeTerminal(scope.$index)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
                           key="47"
-                          >{{ $t("terminal.recovery") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels11"
                           @click="delTer(scope.$index)"
                           v-if="
@@ -2677,14 +2531,12 @@
                           "
                           key="48"
                           :disabled="showButton(scope.row)"
-                          >{{ $t("terminal.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
 
                   <el-dropdown
-                    size="mini"
+                    size="small"
                     type="primary"
                     trigger="click"
                     v-if="
@@ -2696,6 +2548,7 @@
                     "
                     key="49"
                   >
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -2706,8 +2559,9 @@
                         <img src="../../../static/order.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -2726,12 +2580,10 @@
                         key="50"
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="sendDownLink(1, scope.$index)"
-                          >{{ $t("terminal.Remotereboot") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2747,12 +2599,10 @@
                         key="51"
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="sendDownLink(2, scope.$index)"
-                          >{{ $t("terminal.Remoteshutdown") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2767,12 +2617,10 @@
                         "
                         key="52"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(3, scope.$index)"
-                          >{{ $t("terminal.Remotesearch") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2787,12 +2635,10 @@
                         "
                         key="53"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(4, scope.$index)"
-                          >{{ $t("terminal.Cancelsearch") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2807,12 +2653,10 @@
                         "
                         key="54"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(0, scope.$index)"
-                          >{{ $t("terminal.Requestlocation") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2826,12 +2670,10 @@
                         "
                         key="55"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(5, scope.$index)"
-                          >{{ $t("terminal.Positioningbeacon") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2845,12 +2687,10 @@
                         "
                         key="56"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(6, scope.$index)"
-                          >{{ $t("terminal.Assetbeacon") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2864,12 +2704,10 @@
                         "
                         key="57"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(7, scope.$index)"
-                          >{{ $t("terminal.Transparentbeacon") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -2883,13 +2721,11 @@
                         "
                         key="58"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="sendDownLink(8, scope.$index)"
-                          >{{ $t("terminal.Confirmationbeacon") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
 
                   <el-tooltip
@@ -2900,7 +2736,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       v-if="contrForPrionum == 5 && intoProjectType == 1"
                       @click="goLocation(scope.$index)"
@@ -2920,7 +2756,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -2934,7 +2770,7 @@
           <el-dialog
             :title="$t('terminal.addmsg')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -2982,11 +2818,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("terminal.title9") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3051,9 +2887,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title10") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3087,12 +2923,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title11") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
-                </el-tooltip> </el-form-item
-              ><el-form-item :label="$t('terminal.posttype')" prop="postype">
+                </el-tooltip> </el-form-item><el-form-item :label="$t('terminal.posttype')" prop="postype">
                 <el-select
                   v-model="addData.postype"
                   clearable
@@ -3118,7 +2953,7 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title12") }}</p>
                     <p>
                       {{ $t("terminal.title13") }}
@@ -3132,7 +2967,7 @@
                     <p>
                       {{ $t("terminal.title14gateway") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3184,9 +3019,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title15") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3264,11 +3099,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("terminal.title19") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3290,7 +3125,7 @@
                 </el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -3298,16 +3133,15 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 企业管理员添加设备 -->
           <el-dialog
             :title="$t('terminal.addmsg')"
             width="30%"
-            :visible.sync="cusadd"
+            v-model="cusadd"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -3349,11 +3183,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("terminal.title9") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3398,9 +3232,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title10") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3434,12 +3268,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title11") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
-                </el-tooltip> </el-form-item
-              ><el-form-item :label="$t('terminal.posttype')" prop="postype">
+                </el-tooltip> </el-form-item><el-form-item :label="$t('terminal.posttype')" prop="postype">
                 <el-select
                   v-model="addData.postype"
                   clearable
@@ -3465,7 +3298,7 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title12") }}</p>
                     <p>
                       {{ $t("terminal.title13") }}
@@ -3479,7 +3312,7 @@
                     <p>
                       {{ $t("terminal.title14gateway") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3532,9 +3365,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title15") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3582,11 +3415,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("terminal.title19") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3603,7 +3436,7 @@
                 </el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">
                 {{ $t("terminal.cancel") }}
               </el-button>
@@ -3611,15 +3444,14 @@
                 type="primary"
                 @click="addcusTrue('addData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑设备 -->
           <el-dialog
             :title="$t('terminal.editmsg')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -3700,10 +3532,10 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.title20") }}</p>
                     <p>{{ $t("terminal.title21") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -3771,13 +3603,12 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("terminal.title22") }}
                     </p>
-                  </div>
-                  <i class="el-icon-question" /> </el-tooltip></el-form-item
-              ><el-form-item
+                  </div></template>
+                  <i class="el-icon-question" /> </el-tooltip></el-form-item><el-form-item
                 :label="$t('terminal.title17')"
                 prop="debugmode"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
@@ -3837,7 +3668,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -3845,15 +3676,14 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量编辑 -->
           <el-dialog
             :title="$t('terminal.editmsgs')"
-            :visible.sync="edits"
+            v-model="edits"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -4008,7 +3838,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancels('editDatas')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -4016,15 +3846,14 @@
                 type="primary"
                 @click="editTrues('editDatas')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 配置设备 -->
           <el-dialog
             :title="$t('terminal.Configureinformation')"
-            :visible.sync="config"
+            v-model="config"
             width="70%"
             style="text-align: center"
           >
@@ -4070,9 +3899,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.text") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4104,11 +3933,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text1") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4139,7 +3968,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text2") }}
                         </p>
@@ -4152,7 +3981,7 @@
                         <p>
                           {{ $t("terminal.text5") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4184,11 +4013,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text6") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4220,11 +4049,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text7") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4255,11 +4084,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text9") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4290,9 +4119,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.text11") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4309,8 +4138,7 @@
                         :label="item.value"
                         :value="item.index"
                       >
-                      </el-option> </el-select
-                    ><el-tooltip
+                      </el-option> </el-select><el-tooltip
                       class="item"
                       effect="light"
                       placement="right-start"
@@ -4322,9 +4150,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.Buzzer1") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4371,9 +4199,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.repeaterTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4404,11 +4232,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text12") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4440,11 +4268,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text13") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4475,11 +4303,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text15") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4512,11 +4340,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text17") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4549,11 +4377,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text18") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4602,9 +4430,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.text19") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4635,9 +4463,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.staticIntTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4686,11 +4514,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text20") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4722,11 +4550,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text202") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4774,9 +4602,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.channelTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4784,7 +4612,7 @@
               </div>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(config = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -4792,15 +4620,14 @@
                 type="primary"
                 @click="configTrue('configData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量配置设备 -->
           <el-dialog
             :title="$t('terminal.Configureinformation')"
-            :visible.sync="configs"
+            v-model="configs"
             width="70%"
             style="text-align: center"
           >
@@ -4845,9 +4672,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.text") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4878,11 +4705,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text1") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4914,7 +4741,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text2") }}
                         </p>
@@ -4930,7 +4757,7 @@
                         <p>
                           {{ $t("terminal.text55") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4961,11 +4788,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text6") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -4996,11 +4823,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text7") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5031,9 +4858,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.text11") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5065,11 +4892,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text9") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5100,9 +4927,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t("terminal.Buzzer1") }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5149,9 +4976,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.repeaterTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5184,11 +5011,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text13") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5220,11 +5047,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text15") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5256,11 +5083,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text17") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5293,11 +5120,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text18") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5363,9 +5190,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.staticIntTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5413,11 +5240,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text20") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5449,11 +5276,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("terminal.text202") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5501,9 +5328,9 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>{{ $t('terminal.channelTip') }}</p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -5511,7 +5338,7 @@
               </div>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(configs = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -5519,12 +5346,11 @@
                 type="primary"
                 @click="configTrues('configDatas')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 批量删除设备 -->
-          <el-dialog :title="$t('terminal.deletemsgs')" :visible.sync="deletes">
+          <el-dialog :title="$t('terminal.deletemsgs')" v-model="deletes">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -5865,7 +5691,7 @@
                 v-if="contrForPrionum != 5"
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deletes = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -5873,15 +5699,14 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 分配设备 -->
           <el-dialog
             :title="$t('terminal.dispensingdevice')"
-            :visible.sync="assign"
+            v-model="assign"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -5912,7 +5737,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(assign = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -5920,15 +5745,14 @@
                 type="primary"
                 @click="assignTrue('assignData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量分配 -->
           <el-dialog
             :title="$t('terminal.Batchdistributioneq')"
-            :visible.sync="assigns"
+            v-model="assigns"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -5959,7 +5783,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(assigns = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -5967,15 +5791,14 @@
                 type="primary"
                 @click="assignsTrue('assignDatas')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 解除分配 -->
           <el-dialog
             :title="$t('beacon.deletemsgs1')"
-            :visible.sync="removeTer"
+            v-model="removeTer"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -5997,7 +5820,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeTer = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -6006,15 +5829,14 @@
                 @click="removeTrue()"
                 :loading="loading"
               >
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 导入 -->
           <el-dialog
             :title="$t('terminal.tit1')"
-            :visible.sync="selectCom"
+            v-model="selectCom"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -6041,19 +5863,18 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="selectCom = false">{{
                 $t("terminal.cancel")
               }}</el-button>
               <el-button type="primary" @click="selectComTrue()">
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 导出 表格复选框没有选择-->
           <el-dialog
             :title="$t('terminal.tit2')"
-            :visible.sync="exportBtn"
+            v-model="exportBtn"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -6119,9 +5940,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.tit3") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -6145,9 +5966,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.tit6") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -6192,14 +6013,14 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.tet42") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(exportBtn = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -6207,21 +6028,20 @@
                 type="primary"
                 @click="exportExcelTrue()"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 扩展 -->
           <el-dialog
-            :visible.sync="extendTer"
+            v-model="extendTer"
             width="40%"
             @close="extendCancel('beaconFilterData')"
           >
             <div>
               <el-tabs tab-position="left">
                 <el-tab-pane :label="$t('terminal.tit10')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit10") }}</span>
                       <el-tooltip
@@ -6229,14 +6049,14 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit11") }}<br />
                           {{ $t("terminal.tit12") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="positionUUIDData"
                     label-width="120px"
@@ -6264,21 +6084,19 @@
                       <el-input maxlength="32" v-model="puuid4"></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTer = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="extendPositionTur()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('terminal.tit13')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit13") }}</span>
                       <el-tooltip
@@ -6286,14 +6104,14 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit14") }}<br />
                           {{ $t("terminal.tit12") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="assetUUIDData"
                     label-width="120px"
@@ -6321,21 +6139,19 @@
                       <el-input maxlength="32" v-model="auuid4"></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTer = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="extendAssetTur()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('terminal.tit15')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit15") }}</span>
                       <el-tooltip
@@ -6343,13 +6159,13 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit16") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="beaconFilterData"
                     label-width="148px"
@@ -6394,9 +6210,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit17") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6421,9 +6237,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit18") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6447,9 +6263,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit20") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6470,10 +6286,10 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit22") }}<br />
                           {{ $t("terminal.tit23") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6484,7 +6300,7 @@
                       ></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button @click="extendCancel('beaconFilterData')">{{
                       $t("terminal.cancel")
                     }}</el-button>
@@ -6492,15 +6308,14 @@
                       type="primary"
                       @click="extendFilterTur('beaconFilterData')"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane
                   :label="$t('terminal.Retransmissionlist')"
                   v-if="changeRetransmissionBeacon"
                 >
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.Retransmissionlist") }}</span>
                       <el-tooltip
@@ -6508,11 +6323,11 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">{{ $t("terminal.tit25") }}</div>
+                        <template #content><div>{{ $t("terminal.tit25") }}</div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="retransmissionBeaconList"
                     label-width="120px"
@@ -6720,17 +6535,15 @@
                       ></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTer = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="retransmissionTur()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
               </el-tabs>
@@ -6739,14 +6552,14 @@
 
           <!-- 批量扩展 -->
           <el-dialog
-            :visible.sync="extendTers"
+            v-model="extendTers"
             widtsh="40%"
             @close="extendCancels('beaconFilterDatas')"
           >
             <div>
               <el-tabs tab-position="left">
                 <el-tab-pane :label="$t('terminal.tit10')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit10") }}</span>
                       <el-tooltip
@@ -6754,14 +6567,14 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit11") }}<br />
                           {{ $t("terminal.tit12") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="positionUUIDDatas"
                     label-width="120px"
@@ -6789,21 +6602,19 @@
                       <el-input maxlength="32" v-model="puuid4"></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTers = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="extendPositionTurs()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('terminal.tit13')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit13") }}</span>
                       <el-tooltip
@@ -6811,14 +6622,14 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit14") }}<br />
                           {{ $t("terminal.tit12") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="assetUUIDDatas"
                     label-width="120px"
@@ -6846,21 +6657,19 @@
                       <el-input maxlength="32" v-model="auuid4"></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTers = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="extendAssetTurs()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('terminal.tit15')">
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.tit15") }}</span>
                       <el-tooltip
@@ -6868,13 +6677,13 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit16") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="beaconFilterDatas"
                     label-width="148px"
@@ -6918,9 +6727,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit17") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6945,9 +6754,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit18") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6971,9 +6780,9 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit20") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -6994,11 +6803,11 @@
                           margin-left: 5px;
                         "
                       >
-                        <div slot="content">
+                        <template #content><div>
                           {{ $t("terminal.tit22") }}
                           <br />
                           {{ $t("terminal.tit23") }}
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </el-form-item>
@@ -7009,23 +6818,21 @@
                       ></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button @click="extendCancels('beaconFilterDatas')">
-                      {{ $t("terminal.cancel") }}</el-button
-                    >
+                      {{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="extendFilterTurs('beaconFilterDatas')"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane
                   :label="$t('terminal.Retransmissionlist')"
                   v-if="changeRetransmissionBeacons"
                 >
-                  <span slot="label">
+                  <template #label><span>
                     <span class="span-box">
                       <span>{{ $t("terminal.Retransmissionlist") }}</span>
                       <el-tooltip
@@ -7033,11 +6840,11 @@
                         effect="light"
                         placement="right-start"
                       >
-                        <div slot="content">{{ $t("terminal.tit25") }}</div>
+                        <template #content><div>{{ $t("terminal.tit25") }}</div></template>
                         <i class="el-icon-question"></i>
                       </el-tooltip>
                     </span>
-                  </span>
+                  </span></template>
                   <el-form
                     :model="retransmissionBeaconLists"
                     label-width="120px"
@@ -7245,17 +7052,15 @@
                       ></el-input>
                     </el-form-item>
                   </el-form>
-                  <div>
+                  <div class="dialog-footer">
                     <el-button
                       @click="(extendTers = false), (loading = false)"
-                      >{{ $t("terminal.cancel") }}</el-button
-                    >
+                      >{{ $t("terminal.cancel") }}</el-button>
                     <el-button
                       type="primary"
                       @click="retransmissionTurs()"
                       :loading="loading"
-                      >{{ $t("terminal.confirm") }}</el-button
-                    >
+                      >{{ $t("terminal.confirm") }}</el-button>
                   </div>
                 </el-tab-pane>
               </el-tabs>
@@ -7354,29 +7159,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -13143,30 +12948,48 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .el-table__row .operation .cell {
+.el-table :deep(.el-table__row .operation .cell) {
   white-space: nowrap;
   overflow: inherit;
   text-overflow: clip;
   padding: 0;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
 .query,
 .reset,
 .export,
-.addTer,
+.addTer {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+
 .editTers,
 .configTers,
 .delTers,
 .dels1 {
   padding: 8px 12px !important;
-  margin-left: 10px !important;
+  margin-left: 0 !important;
 }
+
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 .exportContent {
   margin-bottom: 10px;
 }
@@ -13192,23 +13015,41 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
   line-height: 34px !important;
+  white-space: nowrap;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+
+.demo-form-inline :deep(.search-actions) {
+  margin-left: 10px !important;
+}
+
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-button),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown-link),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > span) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px !important;
   line-height: 34px !important;
 }
@@ -13217,6 +13058,11 @@ export default {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  width: 50%;
+  box-sizing: border-box;
+  padding-right: 24px;
 }
 .configBeacon1 {
   display: flex;
@@ -13224,13 +13070,23 @@ export default {
   width: 90%;
   padding-right: 20px;
 }
-.chose >>> button {
+.configBeacon :deep(.el-form-item),
+.configBeacon :deep(.el-form-item__content) {
+  width: 100%;
+}
+.configBeacon :deep(.el-form-item__content > .el-select),
+.configBeacon :deep(.el-form-item__content > .el-input),
+.configBeacon :deep(.el-select__wrapper) {
+  width: 100% !important;
+  margin: 0 !important;
+}
+.chose :deep(button) {
   padding: 0;
   line-height: 34px !important;
   border: 0;
 }
 
-.memo >>> .el-input {
+.memo :deep(.el-input) {
   width: 80%;
 }
 
@@ -13238,7 +13094,7 @@ export default {
   min-width: 110px !important;
 }
 
-.exportForm >>> .el-select {
+.exportForm :deep(.el-select) {
   display: block !important;
 }
 #articleImageFile {
@@ -13255,7 +13111,7 @@ export default {
 .el-table--border th.gutter:last-of-type {
   display: block !important;
 }
-.el-table >>> th {
+.el-table :deep(th) {
   display: table-cell !important;
 }
 .icon_button {

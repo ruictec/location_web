@@ -18,14 +18,12 @@
           v-model="showLine"
           @change="changeShow()"
           class="show_line"
-          >{{ $t("trajectory.Showroute") }}</el-checkbox
-        ><el-button
+          >{{ $t("trajectory.Showroute") }}</el-checkbox><el-button
           type="primary"
           class="restart"
           :disabled="restartLine"
           @click="repeatRoute()"
-          >{{ $t("trajectory.Trackplayback") }}</el-button
-        >
+          >{{ $t("trajectory.Trackplayback") }}</el-button>
       </div>
     </div>
 
@@ -148,21 +146,21 @@ export default {
             anchor: [0.5, 1], // 偏移位置
             // rotation: 0, // 旋转
             // size: [52, 26], // 图标大小
-            src: require("../../../static/user1.png"),
+            src: (process.env.BASE_URL || '/') + 'static/user1.png',
           }),
         }),
         start: new Style({
           // 设置开始标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/start.png"),
+            src: (process.env.BASE_URL || '/') + 'static/start.png',
           }),
         }),
         end: new Style({
           // 设置结束标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/end.png"),
+            src: (process.env.BASE_URL || '/') + 'static/end.png',
           }),
         }),
       },
@@ -910,7 +908,7 @@ export default {
               // rotation: 0, // 旋转
               // size: [52, 26], // 图标大小
               src: that.iconImagSrc,
-              // src: require("../../../static/user2.png"),
+              // src: (process.env.BASE_URL || '/') + 'static/user2.png',
 
               rotateWithView: true,
             }),
@@ -1399,7 +1397,7 @@ export default {
       this.$store.state.i18n == "zh"
     );
   },
-  destroyed() {
+  unmounted() {
     this.stop(true);
   },
 };
@@ -1423,11 +1421,11 @@ export default {
   width: 98% !important;
   margin-left: 2%;
 }
-.progress >>> .el-progress-bar {
+.progress :deep(.el-progress-bar) {
   margin-right: 0%;
   padding-right: 0%;
 }
-.progress >>> .el-progress__text {
+.progress :deep(.el-progress__text) {
   display: none !important;
 }
 .progresstime {

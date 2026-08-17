@@ -4,6 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script>
+    (function () {
+      var width = document.documentElement.getBoundingClientRect().width
+      if (width < 1024) width = 1024
+      if (width > 2560) width = 2560
+      document.documentElement.style.fontSize = width / 10 + 'px'
+    })()
+  </script>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -21,7 +29,10 @@
 <body>
   <!-- 运行时外部配置：可覆盖构建时环境变量（见 static/config.js） -->
   <script src="./static/config.js"></script>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+  <script src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.0.1.52.js"></script>
   <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
 </body>
 
 </html>

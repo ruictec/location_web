@@ -5,15 +5,18 @@
         <el-main>
           <!-- 布置 -->
           <el-dialog
-            :visible.sync="arrange"
+            v-model="arrange"
             class="arrangeDialog"
             :close-on-click-modal="false"
             :show-close="false"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            append-to-body
+            @opened="handleArrangeDialogOpened"
+            @close="unobserveMapResize"
           >
-            <div style="width: 100%; height: 100%">
+            <div class="arrange-dialog-inner">
               <div class="searchArrange">
                 <el-form
                   class="demo-form-inline"
@@ -23,13 +26,12 @@
                     type="primary"
                     @click="arrangcancel()"
                     style="width: 90px; height: 30px; text-align: left"
-                    size="mini"
-                    icon="el-icon-arrow-left"
-                    >{{ $t("login.return") }}</el-button
-                  >
+                    size="small"
+                   
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
                   <el-form-item
                     :label="$t('floormanagement.device')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchDeveui"
@@ -38,7 +40,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.Devicealias')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchAlias"
@@ -47,7 +49,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.status')"
-                    style="display: flex; margin-left: 2%; margin-right: 2%"
+                    style="display: flex"
                   >
                     <el-select
                       v-model="searchInuse"
@@ -67,21 +69,18 @@
                       type="primary"
                       @click="searchArranges()"
                       class="query"
-                      >{{ $t("floormanagement.search") }}</el-button
-                    >
+                      >{{ $t("floormanagement.search") }}</el-button>
                     <el-button
                       type="primary"
                       @click="clearArranges()"
                       class="reset"
-                      >{{ $t("floormanagement.reset") }}</el-button
-                    >
+                      >{{ $t("floormanagement.reset") }}</el-button>
 
                     <el-button
                       type="primary"
                       class="reset"
                       @click="editTranche('position')"
-                      >{{ $t("floormanagement.Positioningarea") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Positioningarea") }}</el-button>
 
                     <el-button
                       type="primary"
@@ -94,8 +93,7 @@
                         intoProjectType == 1
                       "
                       @click="setSub()"
-                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -107,28 +105,24 @@
                         intoProjectType == 1
                       "
                       @click="closeSub()"
-                      >{{ $t("floormanagement.Endsetting") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Endsetting") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines()"
                       class="query"
                       v-if="!isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.showConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.showConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines()"
                       class="query"
                       v-if="isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="removeGroundDevs()"
                       class="query"
-                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button
-                    >
+                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -139,8 +133,7 @@
                         intoProjectType == 1
                       "
                       @click="setAdj()"
-                      >{{ $t("floormanagement.Setadjacency") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Setadjacency") }}</el-button>
                     <el-tooltip
                       class="item"
                       effect="light"
@@ -153,7 +146,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("floormanagement.title") }}<br />
                           {{ $t("floormanagement.title1") }}<br />
@@ -161,20 +154,18 @@
                           {{ $t("floormanagement.title3") }}<br />
                           {{ $t("floormanagement.title4") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
                 </el-form>
               </div>
 
-              <div
-                style="width: 100%; height: 90%; display: flex; margin-top: 2%"
-              >
+              <div class="arrange-map-row">
                 <div class="mapContent" ref="mapContent">
-                  <div style="width: 100%; height: 100%">
-                    <div id="allmap" ref="map" class="allmap"></div>
-                    <p style="width: 100%">
+                  <div class="arrange-map-wrap">
+                    <div id="arrange2d-allmap" ref="map" class="allmap"></div>
+                    <p class="arrange-map-tip">
                       {{ $t("floormanagement.arrangement1") }}
                       <a href="javascript:;" @click="vedio = true">{{
                         $t("floormanagement.Watchdemo")
@@ -199,12 +190,12 @@
                         /></a>
                       </li>
                       <li>
-                        <el-button id="editNear" size="mini" class="dels">{{
+                        <el-button id="editNear" size="small" class="dels">{{
                           $t("floormanagement.Deleteadjacency")
                         }}</el-button>
                       </li>
                       <li>
-                        <el-button id="delPolygon" size="mini" class="dels">{{
+                        <el-button id="delPolygon" size="small" class="dels">{{
                           $t("floormanagement.delete")
                         }}</el-button>
                       </li>
@@ -227,17 +218,17 @@
                       </li>
 
                       <li>
-                        <el-button id="del" size="mini" class="reset">{{
+                        <el-button id="del" size="small" class="reset">{{
                           $t("floormanagement.delete")
                         }}</el-button>
                       </li>
                       <li>
-                        <el-button id="edit" size="mini" class="reset">{{
+                        <el-button id="edit" size="small" class="reset">{{
                           $t("floormanagement.edit")
                         }}</el-button>
                       </li>
                       <li v-show="!showOther">
-                        <el-button id="setArea" class="reset" size="mini">{{
+                        <el-button id="setArea" class="reset" size="small">{{
                           $t("floormanagement.Scanningarea")
                         }}</el-button>
                       </li>
@@ -248,17 +239,17 @@
                           contrForPrionum == 5
                         "
                       >
-                        <el-button id="setTranche" class="reset" size="mini">{{
+                        <el-button id="setTranche" class="reset" size="small">{{
                           $t("floormanagement.Setarea")
                         }}</el-button>
                       </li>
                       <li v-show="clock && !showOther">
-                        <el-button id="setClock" size="mini" class="reset">{{
+                        <el-button id="setClock" size="small" class="reset">{{
                           $t("floormanagement.Setascheckin")
                         }}</el-button>
                       </li>
                       <li v-show="caecelClock && !showOther">
-                        <el-button id="cancelClock" size="mini" class="reset">{{
+                        <el-button id="cancelClock" size="small" class="reset">{{
                           $t("floormanagement.Cancelclockout")
                         }}</el-button>
                       </li>
@@ -274,39 +265,40 @@
                       >
                         <el-button
                           id="setAdjoinBeacon"
-                          size="mini"
+                          size="small"
                           class="reset"
                           >{{
                             $t("floormanagement.Setadjacentbeacon")
-                          }}</el-button
-                        >
+                          }}</el-button>
                       </li>
                       <li v-show="clearBeaconList && !showOther">
                         <el-button
                           id="cancelNearList"
-                          size="mini"
+                          size="small"
                           class="reset dels"
                           >{{
                             $t("floormanagement.Deleteadjacency")
-                          }}</el-button
-                        >
+                          }}</el-button>
                       </li>
 
                       <li>
                         <el-button
                           id="calculatingDistance"
-                          size="mini"
+                          size="small"
                           class="reset"
                           >{{
                             $t("floormanagement.CalculateDistance")
-                          }}</el-button
-                        >
+                          }}</el-button>
                       </li>
                     </ul>
                   </div>
                 </div>
                 <!-- 表格 -->
-                <div class="tableContent" ref="tableContent">
+                <div
+                  class="tableContent"
+                  ref="tableContent"
+                  :class="{ 'is-expanded': showTable }"
+                >
                   <div class="show_table">
                     <svg
                       :class="{ 'is-active': !showTable }"
@@ -324,93 +316,54 @@
                     <el-menu
                       class="chose_table"
                       :default-active="activeMenu"
-                      :collapse="isCollapse"
+                      :collapse="false"
                     >
                       <el-menu-item index="0" @click="menuClick('0', 1)">
+                        <i class="icon beacon"></i>
                         <span>{{ $t("otherDev.beacon") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.beacon')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon beacon"></i>
-                        </el-tooltip>
+                      </el-menu-item>
+
+                      <el-menu-item
+                        index="1"
+                        v-if="aoagw"
+                        @click="menuClick('1', 1)"
+                      >
+                        <i class="icon aoagw"></i>
+                        <span>{{ $t("otherDev.aoaGateway") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="2"
-                        v-if="aoagw"
-                        @click="menuClick('1', 1)"
+                        v-if="smoke"
+                        @click="menuClick('2', 1)"
                       >
-                        <span>{{ $t("otherDev.aoaGateway") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.aoaGateway')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon aoagw"></i>
-                        </el-tooltip>
+                        <i class="icon smoke"></i>
+                        <span>{{ $t("otherDev.smokeSensor") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="3"
-                        v-if="smoke"
-                        @click="menuClick('2', 1)"
-                      >
-                        <span>{{ $t("otherDev.smokeSensor") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.smokeSensor')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon smoke"></i>
-                        </el-tooltip>
-                      </el-menu-item>
-
-                      <el-menu-item
-                        index="4"
                         v-if="alertor"
                         @click="menuClick('3', 1)"
                       >
+                        <i class="icon alarm"></i>
                         <span>{{ $t("otherDev.burglarAlarm") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.burglarAlarm')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon alarm"></i>
-                        </el-tooltip>
                       </el-menu-item>
 
                       <el-menu-item
-                        index="6"
+                        index="5"
                         v-if="camera"
                         @click="menuClick('5', 1)"
                       >
+                        <i class="icon camera"></i>
                         <span>{{ $t("otherDev.camera") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.camera')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon camera"></i>
-                        </el-tooltip>
                       </el-menu-item>
                     </el-menu>
                   </div>
                   <div class="table_data" v-if="showTable">
                     <el-table
                       ref="multipleTable"
+                      :key="'arrange2d-' + activeMenu + '-' + intoProjectType"
                       :data="arrangeData"
                       highlight-current-row
                       @current-change="selectArrange"
@@ -426,7 +379,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -436,7 +388,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="deveui"
@@ -444,7 +395,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 2"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="deveui"
@@ -452,14 +402,12 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu != '0'"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="alias"
                         :label="$t('floormanagement.Devicealias2')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="typestr"
@@ -467,7 +415,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="devtypestr"
@@ -475,14 +422,12 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu != '0'"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="inusestr"
                         :label="$t('floormanagement.status1')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -490,7 +435,6 @@
                         :label="$t('floormanagement.workingcondition')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
                     </el-table>
                     <div class="block" style="text-align: center; width: 100%">
@@ -507,30 +451,29 @@
                 <!-- 修改图标显示的文字 -->
                 <div class="changShowButton" v-if="showOptions">
                   <el-dropdown @command="showOptionsTrue">
+                    <span class="el-dropdown-link">
                     <el-button type="primary">
                       {{ showOptionName
                       }}<i class="el-icon-arrow-up el-icon--right"></i>
                     </el-button>
-                    <el-dropdown-menu slot="dropdown">
+                    </span>
+<template #dropdown><el-dropdown-menu>
                       <el-dropdown-item
                         command="1"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showAliases") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showAliases") }}</el-dropdown-item>
                       <el-dropdown-item
                         command="2"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showMajor16") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showMajor16") }}</el-dropdown-item>
                       <el-dropdown-item
                         command="3"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showMajor10") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showMajor10") }}</el-dropdown-item>
                       <el-dropdown-item command="4">{{
                         $t("change.showPosition")
                       }}</el-dropdown-item>
-                    </el-dropdown-menu>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </div>
               </div>
@@ -541,7 +484,7 @@
               width="30%"
               :title="$t('floormanagement.Editdeviceinformation')"
               class="showHeadr"
-              :visible.sync="editFeatures"
+              v-model="editFeatures"
               :modal="false"
               style="text-align: center"
               @close="closeEdit"
@@ -562,143 +505,130 @@
                   <el-input v-model="editFeatureData.alias"></el-input>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="editFeatureCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="editFeaturesTrue()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
 
             <!-- 设置信标扫描区域 -->
             <el-dialog
               width="40%"
-              :visible.sync="setAreas"
+              v-model="setAreas"
               :modal="false"
               class="showHeadr setAreas"
               style="text-align: center"
               @close="setAreaCancel"
             >
-              <span slot="title"
+              <template #header><span
                 >{{ $t("floormanagement.Setscanarea") }}
                 <el-tooltip class="item" effect="light" placement="right-start">
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("floormanagement.scannedarea") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
-              </span>
+              </span></template>
               <el-radio-group v-model="radio">
                 <el-radio :label="2"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl1"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="1"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl2"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="8"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl4"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="4"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl8"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="6"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl9"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="3"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl3"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="9"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl6"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="12"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl12"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="14"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl13"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="13"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl14"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="7"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl11"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="11"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl7"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="15"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl15"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
               </el-radio-group>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="setAreaCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="setAreaTrue()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
             <!-- 编辑区域 -->
             <!-- 2D 地图鼠标右键设置区域 -->
             <el-dialog
               :title="$t('floormanagement.Setarea')"
-              :visible.sync="trancheShow"
+              v-model="trancheShow"
               class="edit showHeadr"
               width="30%"
               style="text-align: center"
@@ -735,7 +665,7 @@
                   </el-select>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="updateTrancheCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -743,9 +673,8 @@
                   type="primary"
                   @click="updateTrancheTrue()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
 
             <!-- 2D 地图设置相邻信标 -->
@@ -753,7 +682,7 @@
               :title="
                 $t('tet.setup') + adjoinBeaconAlias + $t('tet.Adjacentbeacon')
               "
-              :visible.sync="adjoinBeaconShow"
+              v-model="adjoinBeaconShow"
               class="edit showHeadr setAdjoinBeacon"
               width="30%"
               style="text-align: center; margin-right: 2%"
@@ -798,14 +727,14 @@
                       margin-left: 5px;
                     "
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.title5") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="updateAdjoinBeaconCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -813,12 +742,11 @@
                   type="primary"
                   @click="setAdjoinBeaconTrue()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
           </el-dialog>
-          <el-dialog :visible.sync="vedio" @close="closeVedio('video')">
+          <el-dialog v-model="vedio" @close="closeVedio('video')">
             <video width="100%" controls autoplay id="video">
               <source
                 v-if="i8n == 'zh'"
@@ -832,7 +760,7 @@
               />
             </video>
           </el-dialog>
-          <el-dialog :visible.sync="vedio2" @close="closeVedio('video2')">
+          <el-dialog v-model="vedio2" @close="closeVedio('video2')">
             <video width="100%" controls autoplay id="video2">
               <source src="../../../static/3D~1.mp4" type="video/mp4" />
             </video>
@@ -840,18 +768,16 @@
 
           <!-- 设置定位区域 -->
           <el-dialog
-            :title="$t('floormanagement.Positioningarea')"
-            :visible.sync="addTranchePosition"
+            v-model="addTranchePosition"
             class="edit"
             width="40%"
             style="text-align: center"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
             @close="addTrancheRowCancelPosition"
           >
-            <div slot="title" class="dialog-title">
+            <template #header><div class="dialog-title">
               <span class="title-text"
                 >{{ $t("floormanagement.Positioningarea") }}
                 <el-tooltip
@@ -860,15 +786,15 @@
                   placement="right-start"
                   style=""
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("floormanagement.title6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </span>
-            </div>
+            </div></template>
 
             <el-radio-group size="small">
               <el-button
@@ -876,8 +802,7 @@
                 class="add"
                 style="float: left"
                 @click="addTrancheRowPosition"
-                >{{ $t("floormanagement.add") }}</el-button
-              >
+                >{{ $t("floormanagement.add") }}</el-button>
             </el-radio-group>
 
             <el-form
@@ -901,8 +826,7 @@
                     style="margin-left: 20px"
                     class="del"
                     @click="deleTrancheRowPosition(index, item.name, item.id)"
-                    >{{ $t("floormanagement.delete") }}</el-button
-                  >
+                    >{{ $t("floormanagement.delete") }}</el-button>
                 </p>
 
                 <p class="tranchSwitch">
@@ -912,8 +836,8 @@
                     :value="item.fremove"
                     v-model="item.fremove"
                   >
-                    <span slot="open">{{ $t("floormanagement.open") }}</span>
-                    <span slot="close">{{ $t("floormanagement.close") }}</span>
+                    <template #active>{{ $t("floormanagement.open") }}</template>
+                    <template #inactive>{{ $t("floormanagement.close") }}</template>
                   </i-switch>
                 </p>
               </el-form-item>
@@ -944,21 +868,21 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+            <template #footer><div class="dialog-footer" style="margin-top: -10px">
               <el-button @click="addTrancheRowCancelPosition()">{{
                 $t("change.cancle")
               }}</el-button>
               <el-button type="primary" @click="addTrancheRowTruePosition()">{{
                 $t("change.sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 显示距离 -->
           <el-dialog
             width="30%"
             class="showHeadr"
-            :visible.sync="showDistance"
+            v-model="showDistance"
             :modal="false"
             style="text-align: center"
           >
@@ -1057,7 +981,6 @@ export default {
       alertor: this.$store.state.functionParts.alertor,
       blesensor: this.$store.state.functionParts.blesensor,
       camera: this.$store.state.functionParts.camera,
-      isCollapse: false,
       activeMenu: "0",
       i8n: this.$store.state.i18n,
       currentPoint: [],
@@ -1104,6 +1027,7 @@ export default {
       totalArrange: 0,
       dobuleClick: false, //判断是否连续点击了布置按钮
       arrange: false,
+      pendingMapInit: null,
       // 布置相关
       caecelClock: false,
       clock: false,
@@ -1257,6 +1181,21 @@ export default {
         this.$options.data.call(this).showOptionName
       );
     },
+    arrange(val) {
+      if (!val) {
+        clearTimeout(this._arrangeOpenTimer);
+        this.unobserveMapResize();
+        return;
+      }
+      if (!this.pendingMapInit) {
+        return;
+      }
+      this._arrangeOpenTimer = setTimeout(() => {
+        if (this.pendingMapInit) {
+          this.handleArrangeDialogOpened();
+        }
+      }, 350);
+    },
   },
   methods: {
     // 切换显示图标下标
@@ -1378,22 +1317,11 @@ export default {
     },
     // 显示/隐藏图表
     setTable() {
-      var that = this;
-      that.showTable = !that.showTable;
-      if (that.showTable) {
-        that.$refs.mapContent.style.width = "70%";
-        that.$refs.tableContent.style.width = "30%";
-        that.isCollapse = false;
-      } else {
-        that.$refs.mapContent.style.width = "95%";
-        that.$refs.tableContent.style.width = "5%";
-        that.isCollapse = true;
-      }
-
-      if (that.arrange) {
-        setTimeout(() => {
-          that.map.updateSize();
-        }, 100);
+      this.showTable = !this.showTable;
+      if (this.arrange) {
+        this.$nextTick(() => {
+          this.scheduleMapResize();
+        });
       }
     },
     // 选择表格数据
@@ -1965,20 +1893,44 @@ export default {
       this.positionTrancheList = [];
     },
 
+    fitMapViewToExtent(extent) {
+      if (!this.map) {
+        return;
+      }
+      const size = this.map.getSize();
+      if (!size || size[0] <= 0 || size[1] <= 0) {
+        return;
+      }
+      this.map.getView().fit(extent, {
+        size,
+        padding: [20, 20, 20, 20],
+        constrainResolution: false,
+        maxZoom: 6,
+      });
+    },
+
     //初始化地图
     mapInit(x, y, info) {
       this.imageWidth = x;
       this.imageHeight = y;
       var that = this;
       var extent = [0, 0, x, y];
+      const projectionCode = `arrange-image-${that.groundid || info.id}-${x}-${y}`;
       var projection = new Projection({
-        code: "xkcd-image",
+        code: projectionCode,
         units: "pixels",
         extent: extent,
       });
-      setTimeout(() => {
-        this.$refs.map.style.width = "100%";
-        this.$refs.map.style.height = "90%";
+      const runInit = () => {
+        const mapEl = that.$refs.map;
+        if (!mapEl) {
+          return;
+        }
+        if (that.map) {
+          that.map.setTarget(null);
+          that.map = null;
+        }
+        that.forceMapContainerSize();
 
         that.select = new Select();
         // 单击选中
@@ -2426,6 +2378,7 @@ export default {
                 url: that.imgUrl,
                 projection: projection,
                 imageExtent: extent,
+                imageSize: [x, y],
               }),
             }),
           ],
@@ -2435,19 +2388,11 @@ export default {
             zoom: 1,
           }),
         });
-        let minZoom, zoom, control;
-        if (info.nums > 200) {
-          zoom = 5;
-          minZoom = 4;
-        } else {
-          zoom = 4;
-          minZoom = 3;
-        }
+        let control;
         if (info.reallength > 60 || info.realwidth > 60) {
           control = true;
         } else {
           control = false;
-          minZoom = 1;
         }
         this.map = new Map({
           controls: control
@@ -2460,18 +2405,25 @@ export default {
                 url: that.imgUrl,
                 projection: projection,
                 imageExtent: extent,
+                imageSize: [x, y],
               }),
             }),
           ],
-          target: this.mapName,
+          target: mapEl,
           view: new View({
             projection: projection,
             center: getCenter(extent),
-            zoom: zoom,
+            zoom: 2,
             maxZoom: 6,
-            minZoom: minZoom,
+            minZoom: 1,
           }),
         });
+        this.syncMapSize();
+        this.$nextTick(() => {
+          that.fitMapViewToExtent(extent);
+          that.syncMapSize();
+        });
+        this.observeMapResize();
         this.mapClick();
         this.mapRightClick(that.map);
         this.addSubPolygon();
@@ -2488,7 +2440,8 @@ export default {
           //获取设备位置信息，在地图上显示，获取已布置的设备,需要楼层编号
           that.getArrangeBeaconPos(info.projectid);
         }
-      }, 0);
+      };
+      runInit();
     },
 
     //单击布置
@@ -3647,6 +3600,7 @@ export default {
       map.addOverlay(menu_overlay1);
       $(map.getViewport()).on("contextmenu", function (event) {
         event.preventDefault();
+        that.removeClick();
         // 书写事件触发后的函数
         var pixel = map.getEventPixel(event.originalEvent);
         var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
@@ -3664,11 +3618,11 @@ export default {
               event.preventDefault();
               menu_overlay1.setPosition(undefined);
             }); // 点击关闭的按钮
-            $("#delPolygon").click(function () {
+            $("#delPolygon").on("click", function () {
               that.delPolygon(feature, menu_overlay1);
               // menu_overlay1.setPosition(undefined);
             }); //点击删除
-            $("#editNear").click(function () {
+            $("#editNear").on("click", function () {
               that.delNear(feature, menu_overlay1);
               // menu_overlay1.setPosition(undefined);
             }); //点击删除
@@ -3721,42 +3675,32 @@ export default {
               event.preventDefault();
               menu_overlay.setPosition(undefined);
             }); // 点击关闭的按钮
-            $("#del").click(function () {
+            $("#del").on("click", function () {
               that.delFeature(feature, menu_overlay);
             }); //点击删除
 
-            $("#calculatingDistance").click(function () {
+            $("#calculatingDistance").on("click", function () {
               that.calculatingDistance(feature, menu_overlay);
             }); //点击计算距离
-            $("#edit").click(function () {
+            $("#edit").on("click", function () {
               that.editFeature(feature, menu_overlay);
             }); //点击编辑
-            // $("#cancelNear").click(function () {
-            //   that.cancelNear(feature, menu_overlay);
-            // }); //点击删除相邻信标
-            $("#cancelNearList").click(function () {
+            $("#cancelNearList").on("click", function () {
               that.cancelNearList(feature, menu_overlay);
             }); //点击删除相邻信标
-            $("#setClock").click(function () {
+            $("#setClock").on("click", function () {
               that.setClock(feature, menu_overlay);
             }); //点击设为打卡点
-            $("#cancelClock").click(function () {
+            $("#cancelClock").on("click", function () {
               that.cancelClock(feature, menu_overlay);
             }); //取消打卡点
-            $("#setTranche").click(function () {
+            $("#setTranche").on("click", function () {
               that.updateTranche(feature, menu_overlay);
             }); //点击设置区域
-
-            // $("#removeTranche").click(function () {
-            //   that.removeTranche(feature, menu_overlay);
-            // });//解除区域
-            // 设置相邻信标
-            $("#setAdjoinBeacon").click(function () {
+            $("#setAdjoinBeacon").on("click", function () {
               that.setAdjoinBeacon(feature, menu_overlay);
             });
-
-            // 设置信标扫描的范围
-            $("#setArea").click(function () {
+            $("#setArea").on("click", function () {
               that.setArea(feature, menu_overlay);
             });
           }
@@ -3764,17 +3708,9 @@ export default {
       });
     },
     removeClick() {
-      console.log(111);
-      $("#edit").unbind("click");
-      $("#del").unbind("click");
-      $("#setClock").unbind("click");
-      $("#setArea").unbind("setArea");
-      $("#cancelClock").unbind("click");
-      $("#cancelNearList").unbind("click");
-      $("#setTranche").unbind("click");
-      $("#setAdjoinBeacon").unbind("click");
-      $("#editNear").unbind("click");
-      $("#calculatingDistance").off("calculatingDistance");
+      $(
+        "#edit, #del, #delPolygon, #setClock, #setArea, #cancelClock, #cancelNearList, #setTranche, #setAdjoinBeacon, #editNear, #calculatingDistance, #popup-closer, #polygonMenu-closer"
+      ).off("click");
     },
     updateTrancheCancel() {
       this.trancheShow = false;
@@ -4848,6 +4784,7 @@ export default {
           }
         )
         .then(() => {
+          that.removeClick();
           let LayerArrays = that.map.getLayers().getArray();
           //删除相邻点需要先选中再可以删除
           if (e.values_.id) {
@@ -4943,6 +4880,7 @@ export default {
           }
         )
         .then(() => {
+          that.removeClick();
           let num;
           let LayerArrays = that.map.getLayers().getArray();
           for (let i = 1; i < LayerArrays.length; i++) {
@@ -5384,7 +5322,7 @@ export default {
           alias: that.searchAlias,
           inuse: that.searchInuse,
           devtype: that.activeMenu,
-          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantkey_A,
+          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantid_A,
           page: 1,
           count: 20,
           projectid: that.intoProjectid,
@@ -5666,7 +5604,6 @@ export default {
       if (info.maptype == 1) {
         const base = host.host && host.host.endsWith('/') ? host.host : (host.host + '/');
         this.imgUrl = base + "indoormap/" + info.filetype;
-        this.mapInit(info.length, info.width, info);
         this.reallength = info.reallength;
         this.length = info.length;
         this.realwidth = info.realwidth;
@@ -5676,10 +5613,136 @@ export default {
         } else {
           this.mapLength = null;
         }
+        this.pendingMapInit = {
+          x: info.length,
+          y: info.width,
+          info: info,
+        };
         this.arrange = true;
         // this.showTable = true;
       }
       this.searchInuse = 2;
+    },
+    handleArrangeDialogOpened() {
+      if (!this.pendingMapInit) {
+        return;
+      }
+      clearTimeout(this._arrangeOpenTimer);
+      this.initMapWhenReady(this.pendingMapInit);
+    },
+    initMapWhenReady(pending, retries = 0, lastWidth = 0, stableCount = 0) {
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          const mapEl = this.$refs.map;
+          const currentWidth = mapEl?.offsetWidth || 0;
+          if (
+            !mapEl ||
+            currentWidth === 0 ||
+            mapEl.offsetHeight === 0
+          ) {
+            if (retries < 25) {
+              setTimeout(
+                () => this.initMapWhenReady(pending, retries + 1),
+                50
+              );
+            }
+            return;
+          }
+          if (currentWidth === lastWidth) {
+            stableCount += 1;
+          } else {
+            stableCount = 0;
+          }
+          if (stableCount < 2) {
+            setTimeout(
+              () =>
+                this.initMapWhenReady(
+                  pending,
+                  retries + 1,
+                  currentWidth,
+                  stableCount
+                ),
+              50
+            );
+            return;
+          }
+          this.pendingMapInit = null;
+          this.forceMapContainerSize();
+          this.mapInit(pending.x, pending.y, pending.info);
+          this.scheduleMapResize();
+        });
+      });
+    },
+    getArrangeMapAreaHeight() {
+      const mapEl = this.$refs.map;
+      const dialogBody = mapEl?.closest(".el-dialog__body");
+      const searchBar = dialogBody?.querySelector(".searchArrange");
+      const searchHeight = searchBar?.offsetHeight || 0;
+      const bodyHeight = dialogBody?.clientHeight || window.innerHeight;
+      return Math.max(bodyHeight - searchHeight - 12, 300);
+    },
+    forceMapContainerSize() {
+      const mapEl = this.$refs.map;
+      const wrap = mapEl?.parentElement;
+      const mapContent = this.$refs.mapContent;
+      if (!mapEl || !wrap || !mapContent) {
+        return;
+      }
+      const rowHeight = this.getArrangeMapAreaHeight();
+      const row = mapContent.parentElement;
+      if (row) {
+        row.style.flex = "1 1 0";
+        row.style.minHeight = "0";
+        row.style.height = `${rowHeight}px`;
+      }
+      mapContent.style.height = `${rowHeight}px`;
+      wrap.style.height = `${rowHeight}px`;
+      const tipEl = wrap.querySelector(".arrange-map-tip");
+      const tipHeight = tipEl ? tipEl.offsetHeight : 28;
+      const mapHeight = Math.max(rowHeight - tipHeight, 200);
+      mapEl.style.width = "100%";
+      mapEl.style.height = `${mapHeight}px`;
+    },
+    syncMapSize() {
+      const mapEl = this.$refs.map;
+      if (!this.map || !mapEl) {
+        return;
+      }
+      this.forceMapContainerSize();
+      const width = mapEl.clientWidth;
+      const height = mapEl.clientHeight;
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+      this.map.setSize([width, height]);
+      mapEl.querySelectorAll("canvas").forEach((canvas) => {
+        canvas.style.margin = "0";
+        canvas.style.display = "block";
+      });
+    },
+    observeMapResize() {
+      this._mapResizeObserver?.disconnect();
+      const mapEl = this.$refs.map;
+      const dialogBody = mapEl?.closest(".el-dialog__body");
+      const target = dialogBody || mapEl;
+      if (!target || typeof ResizeObserver === "undefined") {
+        return;
+      }
+      this._mapResizeObserver = new ResizeObserver(() => {
+        this.syncMapSize();
+      });
+      this._mapResizeObserver.observe(target);
+    },
+    unobserveMapResize() {
+      this._mapResizeObserver?.disconnect();
+      this._mapResizeObserver = null;
+    },
+    scheduleMapResize() {
+      [0, 100, 350, 600, 800].forEach((delay) => {
+        setTimeout(() => {
+          this.syncMapSize();
+        }, delay);
+      });
     },
     //布置页面点击返回
     arrangcancel() {
@@ -5718,6 +5781,7 @@ export default {
                   confirmButtonText: that.$t("terminal.confirm"),
                   cancelButtonText: that.$t("terminal.cancel"),
                   type: "warning",
+                  customClass: "msgbox-text-left",
                 }
               )
               .then(() => {
@@ -5864,6 +5928,9 @@ export default {
       }
     },
   },
+  beforeUnmount() {
+    this.unobserveMapResize();
+  },
   beforeMount() {
     // this.getBuildingLists();
   },
@@ -5882,7 +5949,7 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
@@ -5890,87 +5957,219 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 .mapContent {
-  width: 95%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
   height: 100%;
-  margin-right: 0;
+  margin: 0 !important;
+}
+.searchArrange {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  width: 100%;
+}
+.arrange-map-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+}
+.arrange-map-tip {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0 !important;
+}
+.arrange-map-row {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  margin: 0 !important;
+  text-align: left;
 }
 .allmap {
   background-color: white;
-  margin: 0 auto;
+  margin: 0 !important;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .tableContent {
-  width: 5%;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  max-width: 148px;
   display: flex;
-  justify-content: flex-end;
-  margin-right: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: flex-start;
+  margin: 0 !important;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+  background: rgba(241, 245, 247, 0.96);
+  box-sizing: border-box;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px;
+}
+.tableContent.is-expanded {
+  flex: 0 0 32%;
+  width: 32%;
+  min-width: 320px;
+  max-width: 38%;
+  align-self: stretch;
+  overflow: hidden;
+  background: #f1f5f7;
+  padding: 0;
 }
 .show_table {
-  margin-right: 1%;
-  z-index: 999;
-  text-align: right;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  margin-right: 0;
+  z-index: 1;
+  text-align: left;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.hamburger {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: block;
+  margin: 6px 0 8px 12px;
+  flex: 0 0 auto;
+}
+.table_data {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
 }
 
 .chose_table {
-  text-align: right;
-  background-color: #f1f5f7 !important;
+  text-align: left !important;
+  background-color: transparent !important;
   border: 0 !important;
-}
-.chose_table >>> .el-menu-item {
+  width: 100% !important;
+  min-height: 0 !important;
   padding: 0 !important;
+  --el-menu-base-level-padding: 12px;
+  --el-menu-level-padding: 0px;
+}
+.tableContent.is-expanded .chose_table {
+  background-color: #f1f5f7 !important;
+}
+.chose_table :deep(.el-menu-item) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  padding: 0 12px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
   margin: 0 !important;
-  height: 20px;
-  line-height: 20px;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item .icon) {
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 8px 0 0 !important;
+}
+.chose_table :deep(.el-menu-item > span),
+.chose_table :deep(.el-menu-item span) {
+  flex: 0 1 auto !important;
+  display: block !important;
+  width: auto !important;
+  max-width: calc(100% - 26px);
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 18px;
+  color: #606266;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item.is-active) {
+  background: transparent !important;
+}
+.chose_table :deep(.el-menu-item.is-active .icon) {
+  background-color: #458bff;
+}
+.chose_table :deep(.el-menu-item.is-active span) {
+  color: #458bff;
+  font-weight: 500;
 }
 .icon {
   width: 18px;
   height: 18px;
+  flex: 0 0 18px;
   display: inline-block;
   background-color: #9c9c9c;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 .icon.beacon {
-  mask: url("../../assets/beacon.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/beacon.svg");
+  -webkit-mask-image: url("../../assets/beacon.svg");
 }
 .icon.smoke {
-  mask: url("../../assets/smoke.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/smoke.svg");
+  -webkit-mask-image: url("../../assets/smoke.svg");
 }
 .icon.aoagw {
-  mask: url("../../assets/aoagw.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/aoagw.svg");
+  -webkit-mask-image: url("../../assets/aoagw.svg");
 }
 .icon.alarm {
-  mask: url("../../assets/alarm.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/alarm.svg");
+  -webkit-mask-image: url("../../assets/alarm.svg");
 }
 .icon.camera {
-  mask: url("../../assets/camera.svg");
-  mask-size: contain;
-}
-.is-active > .icon {
-  background-color: #458bff;
-}
-.table_data {
-  margin-left: 0;
+  mask-image: url("../../assets/camera.svg");
+  -webkit-mask-image: url("../../assets/camera.svg");
 }
 
 #leftmenu_container {
@@ -6026,10 +6225,10 @@ li {
   list-style: none;
   margin-top: 5px;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
@@ -6066,30 +6265,29 @@ a {
 }
 
 .arrangeDialog {
-  text-align: center;
+  text-align: left;
   background-color: #f1f5f7 !important;
 }
 
-.arrangeDialog >>> .el-dialog {
-  background-color: #f1f5f7 !important;
-}
-
-.arrangeDialog >>> .el-dialog__header {
-  display: none !important;
-}
-
-.arrangeDialog >>> .el-dialog__body {
+.arrange-dialog-inner {
   width: 100%;
   height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+  padding: 0 !important;
 }
-.showHeadr >>> .el-dialog__header {
+
+.showHeadr :deep(.el-dialog__header) {
   display: block !important;
 }
-.setAreas >>> .el-radio-group {
+.setAreas :deep(.el-radio-group) {
   display: flex !important;
   flex-wrap: wrap;
 }
-.setAreas >>> .el-radio {
+.setAreas :deep(.el-radio) {
   width: 20%;
   margin-left: 2%;
   margin-right: 0;
@@ -6103,13 +6301,26 @@ a {
   margin-right: 0;
 }
 
-#allmap >>> .ol-viewport {
-  overflow: unset !important;
+.allmap :deep(.ol-viewport),
+.allmap :deep(.ol-overlaycontainer),
+.allmap :deep(.ol-overlaycontainer-stopevent) {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
 }
-.setAdjoinBeacon >>> .el-dialog {
+
+.allmap :deep(.ol-viewport) {
+  overflow: hidden !important;
+}
+
+.allmap :deep(.ol-viewport canvas) {
+  margin: 0 !important;
+  display: block;
+}
+.setAdjoinBeacon :deep(.el-dialog) {
   margin-right: 2%;
 }
-.addTranche >>> .el-form-item__content {
+.addTranche :deep(.el-form-item__content) {
   display: flex;
 }
 .tranchSwitch {
@@ -6117,7 +6328,7 @@ a {
   line-height: 34px;
   height: 34px;
 }
-.tranchSwitch >>> .ivu-switch {
+.tranchSwitch :deep(.ivu-switch) {
   height: 22px;
   margin-top: 6px;
   margin-bottom: 6px;

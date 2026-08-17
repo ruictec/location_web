@@ -192,7 +192,7 @@
                 align="center"
                 fixed="right"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -201,19 +201,20 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       @click="orderDetail(scope.$index, tableData)"
                       ><img src="../../../static/details.png"
                     /></el-button>
                   </el-tooltip>
                   <el-dropdown
-                    szie="mini"
+                    size="small"
                     type="primary"
                     trigger="click"
                     class="operation"
                     v-if="contrForPrionum == 3 || contrForPrionum == 4"
                   >
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -224,8 +225,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -236,7 +238,7 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           v-if="
                             scope.row.status == 2 ||
@@ -244,9 +246,7 @@
                             scope.row.status == 4
                           "
                           @click="editTer(scope.$index, tableData)"
-                          >{{ $t("companyorder.handle") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("companyorder.handle") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -254,13 +254,11 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="delOrder(scope.$index, tableData)"
-                          >{{ $t("downlink.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("downlink.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -273,7 +271,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -287,7 +285,7 @@
           <el-dialog
             :title="$t('companyorder.Processworkorder')"
             width="30%"
-            :visible.sync="edit"
+            v-model="edit"
             style="text-align: center"
           >
             <el-form
@@ -375,15 +373,13 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="edit = false">{{
                 $t("terminal.cancel")
               }}</el-button>
               <el-button type="primary" @click="editTrue('editData')">
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div></el-dialog
-          >
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template></el-dialog>
         </el-main>
       </el-container>
     </div>
@@ -1079,10 +1075,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -1091,30 +1087,30 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
-.upload-demo >>> .el-upload-list {
+.upload-demo :deep(.el-upload-list) {
   display: flex !important;
   flex-wrap: wrap !important;
 }
-.upload-demo >>> .el-upload-list__item {
+.upload-demo :deep(.el-upload-list__item) {
   width: 30%;
   margin-left: 0;
   margin-right: 0;
@@ -1123,11 +1119,11 @@ export default {
 .order_detail {
   display: flex;
 }
-.order_detail_form >>> .el-textarea__inner {
+.order_detail_form :deep(.el-textarea__inner) {
   min-height: 150px !important;
 }
 
-.order_detail_form >>> .el-upload--text {
+.order_detail_form :deep(.el-upload--text) {
   display: none !important;
 }
 .order_message h2 {
@@ -1186,7 +1182,7 @@ export default {
 .el-divider--horizontal {
   margin: 5px 0 !important;
 }
-.order_message >>> .el-textarea__inner {
+.order_message :deep(.el-textarea__inner) {
   margin-top: 10px;
 }
 .icon_button {

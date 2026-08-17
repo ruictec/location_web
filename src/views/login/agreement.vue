@@ -28,9 +28,7 @@
                 mso-font-kerning: 18px;
                 
               "
-              ><font>{{ $t("Agreement.text1") }}</font></span
-            ></b
-          ><b
+              ><font>{{ $t("Agreement.text1") }}</font></span></b><b
             ><span
               style="
                 mso-spacerun: 'yes';
@@ -41,8 +39,7 @@
                 font-size: 24px;
                 mso-font-kerning: 18px;
               "
-            ></span
-          ></b>
+            ></span></b>
         </p>
         <p
           class="MsoNormal"
@@ -59,9 +56,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text2") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text2") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -91,8 +86,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text3") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text3") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -124,8 +118,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text4") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text4") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -157,8 +150,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text5") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text5") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -190,8 +182,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text6") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text6") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -218,9 +209,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text7") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text7") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -250,8 +239,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text8") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text8") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -278,9 +266,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text9") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text9") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -310,8 +296,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text10") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text10") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -343,8 +328,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text11") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text11") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -371,9 +355,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text12") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text12") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -403,8 +385,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text13") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text13") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -436,8 +417,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text14") }}</span
-          ><span
+            >{{ $t("Agreement.text14") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -469,8 +449,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text15") }}</span
-          ><span
+            >{{ $t("Agreement.text15") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -497,9 +476,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text16") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text16") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -529,8 +506,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text17") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text17") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -557,9 +533,7 @@
                 font-size: 12px;
                 mso-font-kerning: 0px;
               "
-              ><font face="微软雅黑">{{ $t("Agreement.text18") }}</font></span
-            ></b
-          ><span
+              ><font face="微软雅黑">{{ $t("Agreement.text18") }}</font></span></b><span
             style="
               mso-spacerun: 'yes';
               font-family: 宋体;
@@ -589,8 +563,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text24") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text24") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -622,8 +595,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text25") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text25") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -655,8 +627,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text26") }}</span
-          ><span
+            >{{ $t("Agreement.text26") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -688,8 +659,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text27") }}</span
-          ><span
+            >{{ $t("Agreement.text27") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -721,8 +691,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text28") }}</span
-          ><span
+            >{{ $t("Agreement.text28") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -754,8 +723,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text29") }}</span
-          ><span
+            >{{ $t("Agreement.text29") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -787,8 +755,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text30") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text30") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -820,8 +787,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text19") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text19") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -853,8 +819,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text20") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text20") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -886,8 +851,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text21") }}</span
-          ><span
+            >{{ $t("Agreement.text21") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -919,8 +883,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text22") }}</span
-          ><span
+            >{{ $t("Agreement.text22") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -952,8 +915,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            >{{ $t("Agreement.text31") }}</span
-          ><span
+            >{{ $t("Agreement.text31") }}</span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;
@@ -985,8 +947,7 @@
               font-size: 12px;
               mso-font-kerning: 0px;
             "
-            ><font face="微软雅黑">{{ $t("Agreement.text32") }}</font></span
-          ><span
+            ><font face="微软雅黑">{{ $t("Agreement.text32") }}</font></span><span
             style="
               mso-spacerun: 'yes';
               font-family: 微软雅黑;

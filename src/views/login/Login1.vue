@@ -49,8 +49,7 @@
           <el-checkbox v-model="checked"
             ><span class="rememberPassword">{{
               $t("login.rememberPassword")
-            }}</span></el-checkbox
-          >
+            }}</span></el-checkbox>
         </div>
         <div class="register" @click="NewRegister">
           {{ $t("login.register") }}
@@ -64,16 +63,6 @@
     <div class="recommendation">{{ $t("login.recommendation") }}</div>
   </div>
 </template>
-<!-- 微信 JS-SDK 如果不需要兼容小程序，则无需引用此 JS 文件。 -->
-<script
-  type="text/javascript"
-  src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"
-></script>
-<!-- uni 的 SDK，必须引用。 -->
-<script
-  type="text/javascript"
-  src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.0.1.52.js"
-></script>
 <script>
 import $ from "jquery";
 import agreement from "./agreement";
@@ -1246,7 +1235,7 @@ background text
 }
 
 .checkdiv .el-button--text,
-.checkdiv >>> .el-checkbox__label {
+.checkdiv :deep(.el-checkbox__label) {
   color: white !important;
 }
 
@@ -1300,12 +1289,12 @@ a {
   color: white;
 }
 
-.cont_form_sign_up >>> input::-webkit-input-placeholder {
+.cont_form_sign_up :deep(input::-webkit-input-placeholder) {
   /* WebKit, Blink, Edge */
   color: white;
 }
 
-.cont_form_sign_up >>> .el-icon-question {
+.cont_form_sign_up :deep(.el-icon-question) {
   color: white;
 }
 
@@ -1342,7 +1331,7 @@ a {
   margin-right: 20px;
 }
 
-.no-autofill-pwd /deep/ .el-input__inner {
+.no-autofill-pwd :deep(.el-input__inner) {
   -webkit-text-security: disc !important;
 }
 
@@ -1430,12 +1419,12 @@ a {
   width: 280px;
 }
 
-.form >>> .el-input__inner {
+.form :deep(.el-input__inner) {
   color: white;
   background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-.form >>> .el-form-item__error {
+.form :deep(.el-form-item__error) {
   color: white;
 }
 
@@ -1443,19 +1432,19 @@ a {
   right: -25px;
 }
 
-.agree >>> .el-checkbox__label {
+.agree :deep(.el-checkbox__label) {
   font-size: 12px !important;
   color: white;
   /* color: #606266; */
 }
 
-.agree >>> .el-checkbox__label a {
+.agree :deep(.el-checkbox__label a) {
   font-size: 12px !important;
   color: red;
   /* color: #4d80e4; */
 }
 
-.agree >>> .el-checkbox__label a:hover {
+.agree :deep(.el-checkbox__label a:hover) {
   text-decoration: underline;
 }
 
@@ -1463,18 +1452,18 @@ a {
   max-height: 80vh;
 }
 
-.agree-dialog >>> .el-dialog__body {
+.agree-dialog :deep(.el-dialog__body) {
   padding-top: 0;
   padding-left: 24px;
   padding-right: 24px;
   padding-bottom: 20px;
 }
 
-.scrollbar >>> .el-scrollbar__bar {
+.scrollbar :deep(.el-scrollbar__bar) {
   right: 0;
 }
 
-.agree-wrapper >>> .el-form-item__content {
+.agree-wrapper :deep(.el-form-item__content) {
   line-height: 1.5;
 }
 

@@ -11,10 +11,9 @@
         <el-button
           type="primary"
           class="anniu1"
-          size="mini"
+          size="small"
           @click="deleteMsg()"
-          >{{ $t("tet.Batchdelete") }}</el-button
-        >
+          >{{ $t("tet.Batchdelete") }}</el-button>
       </div>
 
       <el-table
@@ -33,14 +32,12 @@
           :prop="i8n == 'zh' ? 'notice' : 'ennotice'"
           min-width="90"
           show-overflow-tooltip
-          type="text"
         >
         </el-table-column>
         <!-- 消息内容 -->
         <el-table-column
           :prop="i8n == 'zh' ? 'msg' : 'enmsg'"
           min-width="700"
-          type="text"
         >
         </el-table-column>
         <!-- 时间statusstr-->
@@ -60,13 +57,12 @@
         >
         </el-table-column> -->
         <el-table-column min-width="100">
-          <template slot-scope="status1">
+          <template #default="status1">
             <span
               v-if="status1.row.status == 1"
               style="color: red; cursor: pointer"
               @click="handelClickCell(status1.row)"
-              >{{ $t("tet.Markasread") }}</span
-            >
+              >{{ $t("tet.Markasread") }}</span>
             <span v-else style="color: green; cursor: pointer">{{
               $t("tet.Read")
             }}</span>
@@ -74,13 +70,11 @@
         </el-table-column>
         <!-- 删除 -->
         <el-table-column min-width="60">
-          <template slot-scope="scope">
-            <el-button
-              type="text"
-              size="mini"
+          <template #default="scope">
+            <el-button text
+              size="small"
               @click="deleteRow(scope.$index)"
-              >{{ $t("tet.delete") }}</el-button
-            >
+              >{{ $t("tet.delete") }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -93,7 +87,7 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage1"
+          v-model:current-page="currentPage1"
           :page-sizes="[10, 20, 30, 40, 50]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"

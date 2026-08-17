@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <div class="header">
+      <el-row>
       <el-col :span="4" class="header_item">
         <img :src="imgSrc" class="logo" />
       </el-col>
@@ -8,21 +9,19 @@
       <el-col :span="16" class="header_item">
         <el-menu
           class="menu"
-          :default-active="this.$route.path"
-          mode=""
+          :default-active="headerMenuActive"
+          mode="horizontal"
           :router="true"
         >
           <el-menu-item
             index="/dashboard"
             :class="isActiveClass == 'dashboard' ? 'selectMenu' : ''"
-            >{{ $t("index.homepage") }}</el-menu-item
-          >
+            >{{ $t("index.homepage") }}</el-menu-item>
           <el-menu-item
             index="/terminal"
             v-if="contrForPrioNum != 6"
             :class="isActiveClass == 'terminal' ? 'selectMenu' : ''"
-            >{{ $t("index.devicemanagement") }}</el-menu-item
-          >
+            >{{ $t("index.devicemanagement") }}</el-menu-item>
           <el-menu-item
             index="/usermanagement"
             v-if="
@@ -31,38 +30,32 @@
               contrForPrioNum == 3
             "
             :class="isActiveClass == 'user' ? 'selectMenu' : ''"
-            >{{ $t("myorderde.usermanagement") }}</el-menu-item
-          >
+            >{{ $t("myorderde.usermanagement") }}</el-menu-item>
           <el-menu-item
             index="/customermanagement"
             v-if="contrForPrioNum == 4"
             :class="isActiveClass == 'user' ? 'selectMenu' : ''"
-            >{{ $t("myorderde.usermanagement") }}</el-menu-item
-          >
+            >{{ $t("myorderde.usermanagement") }}</el-menu-item>
           <el-menu-item
             index="/territorymanagement"
             v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
             :class="isActiveClass == 'territory' ? 'selectMenu' : ''"
-            >{{ $t("index.Territorialmanagement") }}</el-menu-item
-          >
+            >{{ $t("index.Territorialmanagement") }}</el-menu-item>
           <el-menu-item
             index="/mapmanagement"
             v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
             :class="isActiveClass == 'adminMap' ? 'selectMenu' : ''"
-            >{{ $t("index.Mapmanagement") }}</el-menu-item
-          >
+            >{{ $t("index.Mapmanagement") }}</el-menu-item>
           <el-menu-item
             index="/projectmanagement"
             v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
             :class="isActiveClass == 'project' ? 'selectMenu' : ''"
-            >{{ $t("index.projectmanagement") }}</el-menu-item
-          >
+            >{{ $t("index.projectmanagement") }}</el-menu-item>
           <el-menu-item
             index="/test"
             v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
             :class="isActiveClass == 'data' ? 'selectMenu' : ''"
-            >{{ $t("index.datamanagement") }}</el-menu-item
-          >
+            >{{ $t("index.datamanagement") }}</el-menu-item>
           <el-menu-item
             index="/usercenter"
             v-if="
@@ -73,28 +66,26 @@
               contrForPrioNum == 5
             "
             :class="isActiveClass == 'system' ? 'selectMenu' : ''"
-            >{{ $t("index.systemmanagement") }}</el-menu-item
-          >
+            >{{ $t("index.systemmanagement") }}</el-menu-item>
         </el-menu>
       </el-col>
 
       <el-col :span="4" class="header_item perDiv">
         <!-- 个人中心 -->
-        <el-dropdown style="z-index: 999" class="perDropdown">
+        <el-dropdown style="z-index: 999" class="perDropdown header-action">
           <span class="el-dropdown-link perSpan">
             <i class="perIcon">
               <img src="../../../static/menu.png" alt />
             </i>
           </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item @click.native="goCenter">{{
+          <template #dropdown><el-dropdown-menu>
+            <el-dropdown-item @click="goCenter">{{
               $t("index.PersonalCenter")
             }}</el-dropdown-item>
             <el-dropdown-item
               v-if="logoprio == 1 || clogoprio == 1"
-              @click.native="goSetLogo"
-              >{{ $t("index.Logosettings") }}</el-dropdown-item
-            >
+              @click="goSetLogo"
+              >{{ $t("index.Logosettings") }}</el-dropdown-item>
             <el-dropdown-item
               v-if="
                 contrForPrioNum == 1 ||
@@ -102,28 +93,26 @@
                 contrForPrioNum == 3 ||
                 contrForPrioNum == 4
               "
-              @click.native="sendMessage"
-              >{{ $t("index.Sendnotification") }}</el-dropdown-item
-            >
+              @click="sendMessage"
+              >{{ $t("index.Sendnotification") }}</el-dropdown-item>
 
-            <el-dropdown-item @click.native="logout">{{
+            <el-dropdown-item @click="logout">{{
               $t("index.signout")
             }}</el-dropdown-item>
-          </el-dropdown-menu>
+          </el-dropdown-menu></template>
         </el-dropdown>
 
         <!-- 通知消息 -->
         <el-tooltip
-          class="item"
+          class="item header-action"
           effect="dark"
           :content="$t('index.Messagenotification')"
           placement="bottom-end"
           :disabled="msgtable.length > 0"
-          style="margin-right: 4%"
         >
           <el-dropdown
-            style="z-index: 999; margin-left: 4%; margin-right: 0%"
-            @click.native="goMsg()"
+            style="z-index: 999"
+            @click="goMsg()"
             class="perDropdown"
             v-if="msgtable.length > 0"
             :divided="true"
@@ -139,9 +128,8 @@
                 </el-badge>
               </i>
             </span>
-            <el-dropdown-menu
+            <template #dropdown><el-dropdown-menu
               v-if="msgtable.length > 0"
-              slot="dropdown"
               v-bind:class="[isActive ? 'boxcard' : 'hideClass']"
             >
               <div style="max-height: 200px; overflow: auto">
@@ -164,27 +152,20 @@
               </div>
               <el-dropdown-item class="btnMsgHover">
                 <span class="gtMessage"
-                  ><el-button
-                    type="text"
-                    size="mini"
+                  ><el-button text
+                    size="small"
                     @click="redCourentMsg()"
-                    >{{ $t("index.Currentlyread") }}</el-button
-                  ></span
-                >
+                    >{{ $t("index.Currentlyread") }}</el-button></span>
                 <span class="gtMessage1"
-                  ><el-button type="text" size="mini" @click.native="goMsg()">{{
+                  ><el-button text size="small" @click="goMsg()">{{
                     $t("index.Viewall")
-                  }}</el-button></span
-                >
+                  }}</el-button></span>
               </el-dropdown-item>
-            </el-dropdown-menu>
-
-            <el-dropdown-menu style="border: none"></el-dropdown-menu>
+            </el-dropdown-menu></template>
           </el-dropdown>
           <span
             class="el-dropdown-link1 perSpan1"
             v-else
-            style="margin-left: 16px"
             @click="goMsg()"
           >
             <i class="perIcon1">
@@ -200,37 +181,36 @@
         </el-tooltip>
 
         <!-- 帮助菜单 -->
-        <el-dropdown style="z-index: 100; margin-right: 2%;margin-left: 2%" v-if="i8n == 'zh'">
+        <el-dropdown style="z-index: 100" class="header-action" v-if="i8n == 'zh'">
           <span class="el-dropdown-link perSpan">
             <i class="perIcon">
               <img src="../../../static/help.png" alt />
             </i>
           </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item @click.native="Onlinedocumentation">{{
+          <template #dropdown><el-dropdown-menu>
+            <el-dropdown-item @click="Onlinedocumentation">{{
               $t("index.Onlinedocumentation")
             }}</el-dropdown-item>
 
-            <el-dropdown-item @click.native="commonproblem"
+            <el-dropdown-item @click="commonproblem"
               >{{ $t("index.commonproblem") }}
             </el-dropdown-item>
 
             <el-dropdown-item
               ><a href="javascript:;" class="helpitem">{{
                 $t("index.Resourcedownload")
-              }}</a></el-dropdown-item
-            >
-          </el-dropdown-menu>
+              }}</a></el-dropdown-item>
+          </el-dropdown-menu></template>
         </el-dropdown>
       </el-col>
+      </el-row>
       <!-- 设置logo -->
       <el-dialog
         :title="$t('index.Setlogo')"
-        :visible.sync="setLogo"
+        v-model="setLogo"
         class="edit"
         width="30%"
         style="text-align: center"
-        :modal-append-to-body="false"
       >
         <el-upload
           :action="ImagePath"
@@ -248,22 +228,21 @@
           :on-exceed="handleExceed"
           :before-upload="beforeAvatarUpload"
         >
-          <div slot="tip" class="el-upload__tip">
+          <template #tip><div class="el-upload__tip">
             {{ $t("index.pic") }}
-          </div>
+          </div></template>
           <i class="el-icon-plus"></i>
         </el-upload>
 
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button @click="addCancel">{{ $t("index.Cancel") }}</el-button>
           <el-button type="primary" @click="addTrue">{{
             $t("index.Confirm")
           }}</el-button>
-        </div>
+        </div></template>
       </el-dialog>
       <el-dialog
-        :visible.sync="dialogVisible"
-        :modal-append-to-body="false"
+        v-model="dialogVisible"
         :append-to-body="true"
       >
         <img width="100%" :src="dialogImageUrl" alt />
@@ -272,12 +251,11 @@
       <!-- 发送消息 -->
       <el-dialog
         :title="$t('index.sendmessage')"
-        :visible.sync="showSendMessage"
+        v-model="showSendMessage"
         class="edit"
         width="30%"
         style="text-align: center"
         :close-on-press-escape="false"
-        :modal-append-to-body="false"
         :append-to-body="true"
       >
         <el-form
@@ -315,14 +293,14 @@
             </el-input>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+        <template #footer><div class="dialog-footer" style="margin-top: -10px">
           <el-button @click="showSendMessage = false">{{
             $t("index.Cancel")
           }}</el-button>
           <el-button type="primary" @click="sendMsgTrue()">{{
             $t("index.Confirm")
           }}</el-button>
-        </div>
+        </div></template>
       </el-dialog>
     </div>
   </div>
@@ -392,169 +370,17 @@ export default {
       isActiveClass: "",
     };
   },
+  computed: {
+    headerMenuActive() {
+      return this.resolveHeaderMenuIndex(this.$route.path);
+    },
+  },
   beforeMount() {
     // this.imgSrc = host.host + "logo/" + this.$store.state.userInfo.filelogo;
     this.imgSrc = this.$store.state.userInfo.filelogo
       ? host.host + "logo/" + this.$store.state.userInfo.filelogo
       : "../../../../../static/logo.png";
-    switch (this.$route.path) {
-      case "/dashboard":
-        this.isActiveClass = "dashboard";
-        break;
-      case "/terminal":
-        this.isActiveClass = "terminal";
-        break;
-      case "/beacon":
-        this.isActiveClass = "terminal";
-        break;
-      case "/aoa":
-        this.isActiveClass = "terminal";
-        break;
-      case "/gateway":
-        this.isActiveClass = "terminal";
-        break;
-      case "/ns":
-        this.isActiveClass = "terminal";
-        break;
-      case "/nsconfig":
-        this.isActiveClass = "terminal";
-        break;
-
-      case "/usermanagement":
-        this.isActiveClass = "user";
-        break;
-      case "/companymanagement":
-        this.isActiveClass = "user";
-        break;
-
-      case "/customermanagement":
-        this.isActiveClass = "user";
-        break;
-
-      case "/territorymanagement":
-        this.isActiveClass = "territory";
-        break;
-
-      case "/mapmanagement":
-        if (
-          this.$store.state.userInfo.prionum == 1 ||
-          this.$store.state.userInfo.prionum == 2
-        ) {
-          this.isActiveClass = "adminMap";
-        } else if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "project";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "position";
-        }
-        break;
-      case "/projectmanagement":
-        this.isActiveClass = "project";
-        break;
-      case "/buildingmanagement":
-        if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "project";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "position";
-        }
-        break;
-      case "/floormanagement":
-        if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "project";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "position";
-        }
-        break;
-      case "/buildingdetails":
-        if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "project";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "position";
-        }
-        break;
-      case "/location":
-        this.isActiveClass = "project";
-        break;
-      case "/config":
-        this.isActiveClass = "project";
-        break;
-      case "/test":
-        this.isActiveClass = "data";
-        break;
-      case "/heartbeat":
-        this.isActiveClass = "data";
-        break;
-
-      case "/downlink":
-        this.isActiveClass = "data";
-        break;
-
-      case "/warningmanagement":
-        if (
-          this.$store.state.userInfo.prionum == 3 ||
-          this.$store.state.userInfo.prionum == 4
-        ) {
-          this.isActiveClass = "data";
-        } else if (this.$store.state.userInfo.prionum == 5) {
-          this.isActiveClass = "warning";
-        }
-        break;
-
-      case "/staffmanagement":
-        this.isActiveClass = "staff";
-        break;
-      case "/tboxManagement":
-        this.isActiveClass = "staff";
-        break;
-      case "/assetManagement":
-        this.isActiveClass = "staff";
-        break;
-      case "/checkwork":
-        this.isActiveClass = "staff";
-        break;
-      case "/inspection":
-        this.isActiveClass = "staff";
-        break;
-      case "/outdoor/locationoutdoor":
-        this.isActiveClass = "position";
-        break;
-
-      case "/indoor/locationindoor":
-        this.isActiveClass = "position";
-        break;
-      case "/logmanagement":
-        this.isActiveClass = "system";
-        break;
-      case "/otamanagement":
-        this.isActiveClass = "system";
-        break;
-
-      case "/myorder":
-        this.isActiveClass = "system";
-        break;
-      case "/usercenter":
-        this.isActiveClass = "system";
-        break;
-      case "/userorder":
-        this.isActiveClass = "system";
-        break;
-      case "/orderdetails":
-        this.isActiveClass = "system";
-        break;
-      default:
-        break;
-    }
+    this.updateActiveClassFromRoute();
   },
   mounted() {
     if (this.$route.name == "Message") {
@@ -567,8 +393,241 @@ export default {
     }
     this.getPustMsg();
   },
+  beforeUnmount() {
+    if (this._pushDataHandler) {
+      this.$EventBus.$off("pushData", this._pushDataHandler);
+    }
+  },
 
   methods: {
+    resolveHeaderMenuIndex(path) {
+      const devicePaths = [
+        "/terminal",
+        "/beacon",
+        "/security",
+        "/gateway",
+        "/ns",
+        "/nsconfig",
+        "/aoa",
+      ];
+      if (devicePaths.includes(path)) {
+        return "/terminal";
+      }
+      if (path === "/dashboard") {
+        return "/dashboard";
+      }
+      if (["/usermanagement", "/companymanagement"].includes(path)) {
+        return "/usermanagement";
+      }
+      if (path === "/customermanagement") {
+        return "/customermanagement";
+      }
+      if (path === "/territorymanagement") {
+        return "/territorymanagement";
+      }
+
+      const prionum = this.$store.state.userInfo.prionum;
+      if (path === "/mapmanagement") {
+        if (prionum == 1 || prionum == 2) {
+          return "/mapmanagement";
+        }
+        if (prionum == 3 || prionum == 4) {
+          return "/projectmanagement";
+        }
+        return path;
+      }
+      if (
+        [
+          "/projectmanagement",
+          "/buildingmanagement",
+          "/floormanagement",
+          "/buildingdetails",
+          "/location",
+          "/config",
+        ].includes(path)
+      ) {
+        if (prionum == 3 || prionum == 4) {
+          return "/projectmanagement";
+        }
+        return path;
+      }
+      if (["/test", "/heartbeat", "/downlink", "/testdata"].includes(path)) {
+        return "/test";
+      }
+      if (path === "/warningmanagement" && (prionum == 3 || prionum == 4)) {
+        return "/test";
+      }
+      if (
+        [
+          "/logmanagement",
+          "/otamanagement",
+          "/myorder",
+          "/usercenter",
+          "/userorder",
+          "/orderdetails",
+        ].includes(path)
+      ) {
+        return "/usercenter";
+      }
+      return path;
+    },
+    updateActiveClassFromRoute(path = this.$route.path) {
+      switch (path) {
+        case "/dashboard":
+          this.isActiveClass = "dashboard";
+          break;
+        case "/terminal":
+          this.isActiveClass = "terminal";
+          break;
+        case "/beacon":
+          this.isActiveClass = "terminal";
+          break;
+        case "/security":
+          this.isActiveClass = "terminal";
+          break;
+        case "/aoa":
+          this.isActiveClass = "terminal";
+          break;
+        case "/gateway":
+          this.isActiveClass = "terminal";
+          break;
+        case "/ns":
+          this.isActiveClass = "terminal";
+          break;
+        case "/nsconfig":
+          this.isActiveClass = "terminal";
+          break;
+        case "/usermanagement":
+          this.isActiveClass = "user";
+          break;
+        case "/companymanagement":
+          this.isActiveClass = "user";
+          break;
+        case "/customermanagement":
+          this.isActiveClass = "user";
+          break;
+        case "/territorymanagement":
+          this.isActiveClass = "territory";
+          break;
+        case "/mapmanagement":
+          if (
+            this.$store.state.userInfo.prionum == 1 ||
+            this.$store.state.userInfo.prionum == 2
+          ) {
+            this.isActiveClass = "adminMap";
+          } else if (
+            this.$store.state.userInfo.prionum == 3 ||
+            this.$store.state.userInfo.prionum == 4
+          ) {
+            this.isActiveClass = "project";
+          } else if (this.$store.state.userInfo.prionum == 5) {
+            this.isActiveClass = "position";
+          }
+          break;
+        case "/projectmanagement":
+          this.isActiveClass = "project";
+          break;
+        case "/buildingmanagement":
+          if (
+            this.$store.state.userInfo.prionum == 3 ||
+            this.$store.state.userInfo.prionum == 4
+          ) {
+            this.isActiveClass = "project";
+          } else if (this.$store.state.userInfo.prionum == 5) {
+            this.isActiveClass = "position";
+          }
+          break;
+        case "/floormanagement":
+          if (
+            this.$store.state.userInfo.prionum == 3 ||
+            this.$store.state.userInfo.prionum == 4
+          ) {
+            this.isActiveClass = "project";
+          } else if (this.$store.state.userInfo.prionum == 5) {
+            this.isActiveClass = "position";
+          }
+          break;
+        case "/buildingdetails":
+          if (
+            this.$store.state.userInfo.prionum == 3 ||
+            this.$store.state.userInfo.prionum == 4
+          ) {
+            this.isActiveClass = "project";
+          } else if (this.$store.state.userInfo.prionum == 5) {
+            this.isActiveClass = "position";
+          }
+          break;
+        case "/location":
+          this.isActiveClass = "project";
+          break;
+        case "/config":
+          this.isActiveClass = "project";
+          break;
+        case "/test":
+          this.isActiveClass = "data";
+          break;
+        case "/heartbeat":
+          this.isActiveClass = "data";
+          break;
+        case "/downlink":
+          this.isActiveClass = "data";
+          break;
+        case "/testdata":
+          this.isActiveClass = "data";
+          break;
+        case "/warningmanagement":
+          if (
+            this.$store.state.userInfo.prionum == 3 ||
+            this.$store.state.userInfo.prionum == 4
+          ) {
+            this.isActiveClass = "data";
+          } else if (this.$store.state.userInfo.prionum == 5) {
+            this.isActiveClass = "warning";
+          }
+          break;
+        case "/staffmanagement":
+          this.isActiveClass = "staff";
+          break;
+        case "/tboxManagement":
+          this.isActiveClass = "staff";
+          break;
+        case "/assetManagement":
+          this.isActiveClass = "staff";
+          break;
+        case "/checkwork":
+          this.isActiveClass = "staff";
+          break;
+        case "/inspection":
+          this.isActiveClass = "staff";
+          break;
+        case "/outdoor/locationoutdoor":
+          this.isActiveClass = "position";
+          break;
+        case "/indoor/locationindoor":
+          this.isActiveClass = "position";
+          break;
+        case "/logmanagement":
+          this.isActiveClass = "system";
+          break;
+        case "/otamanagement":
+          this.isActiveClass = "system";
+          break;
+        case "/myorder":
+          this.isActiveClass = "system";
+          break;
+        case "/usercenter":
+          this.isActiveClass = "system";
+          break;
+        case "/userorder":
+          this.isActiveClass = "system";
+          break;
+        case "/orderdetails":
+          this.isActiveClass = "system";
+          break;
+        default:
+          break;
+      }
+    },
     Onlinedocumentation() {
       // 说明：帮助文档地址以环境变量为基础，默认你的线上地址
       const base = process.env.VUE_APP_HELP_BASE
@@ -654,14 +713,14 @@ export default {
       return isLt2M;
     },
     getPustMsg() {
-      this.$EventBus.$on("pushData", (msgId) => {
-        //删除id数据
+      this._pushDataHandler = (msgId) => {
         for (let i = 0; i < this.msgtable.length; i++) {
           if (this.msgtable[i].id == msgId) {
             this.msgtable.splice(i, 1);
           }
         }
-      });
+      };
+      this.$EventBus.$on("pushData", this._pushDataHandler);
     },
     //获取通知消息
     getMsg() {
@@ -907,6 +966,9 @@ export default {
   },
 
   watch: {
+    "$route.path"(path) {
+      this.updateActiveClassFromRoute(path);
+    },
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
 
@@ -931,25 +993,49 @@ export default {
   justify-content: space-between !important;
   border: none !important;
   background-color: #409eff !important;
+  --el-menu-bg-color: #409eff;
+  --el-menu-text-color: #ffffff;
+  --el-menu-hover-bg-color: #ffffff;
+  --el-menu-active-color: #844200;
+  --el-menu-horizontal-height: 60px;
 }
 
 .menu .el-menu-item {
   height: 60px !important;
-  color: white;
+  line-height: 60px !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+  background-color: transparent !important;
 }
 
-.menu .el-menu-item:hover {
-  color: #844200;
+/* 非当前项悬停：白底 + 深色字，避免白字叠白底看不见 */
+.menu.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
+.menu.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+.menu .el-menu-item:hover,
+.menu .el-menu-item:focus {
+  background-color: #ffffff !important;
+  color: #844200 !important;
 }
 
-.menu .is-active {
-  background: white;
-  color: #844200;
+.menu .el-menu-item.is-active,
+.menu .el-menu-item.is-active:hover,
+.menu .el-menu-item.is-active:focus,
+.menu.el-menu--horizontal > .el-menu-item.is-active {
+  background-color: #ffffff !important;
+  color: #844200 !important;
+}
+
+.menu .el-menu-item.selectMenu,
+.menu .el-menu-item.selectMenu:hover,
+.menu .el-menu-item.selectMenu:focus,
+.menu.el-menu--horizontal > .el-menu-item.selectMenu {
+  background-color: #ffffff !important;
+  color: #844200 !important;
 }
 
 .selectMenu {
   color: #844200 !important;
-  background: white;
+  background: white !important;
 }
 
 .header_item {
@@ -974,7 +1060,7 @@ export default {
 }
 
 .el-dropdown-link1 {
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .msgbox {
@@ -1014,9 +1100,40 @@ export default {
   /* border-bottom: 2px solid #DDDDFF; */
 }
 
+.header > .el-row {
+  width: 100%;
+}
+
 .perDiv {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding-right: 12px;
+  height: 60px;
+  box-sizing: border-box;
+}
+
+.perDiv .header-action,
+.perDiv .perDropdown {
+  margin: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 60px;
+}
+
+.perDiv .el-dropdown-link,
+.perDiv .el-dropdown-link1,
+.perDiv .perSpan,
+.perDiv .perSpan1 {
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  height: 60px !important;
+  line-height: 1 !important;
 }
 
 .perDropdown {
@@ -1024,33 +1141,47 @@ export default {
 }
 
 .perSpan {
-  display: inline-block;
-  height: 56px;
-  line-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+  line-height: 1;
 }
 
 .perSpan1 {
-  display: inline-block;
-  height: 56px;
-  line-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+  line-height: 1;
 }
 
 .perIcon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   height: 32px;
   position: relative;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  transform: none;
 }
 
 .perIcon1 {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 30px;
   height: 30px;
   position: relative;
-  top: 50%;
-  transform: translateY(-55%);
+  top: 0;
+  transform: none;
+}
+
+.perIcon img,
+.perIcon1 img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .demo-form-inline .el-form-item__label {
@@ -1072,7 +1203,7 @@ export default {
   line-height: 34px !important;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 
@@ -1218,7 +1349,7 @@ export default {
 }
 
 .el-dropdown-link1 {
-  margin-left: 4px;
+  margin-left: 0;
 }
 
 .el-dropdown-menu__item:hover a {
