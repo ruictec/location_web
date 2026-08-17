@@ -57,7 +57,7 @@
                 align="center"
                 :formatter="formatVtime"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("warningVoice.warningTime2")
                   }}</span>
@@ -67,12 +67,12 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("warningVoice.warningTimeTip") }}<br />
                         {{ $t("warningVoice.warningTimeCycleTip") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -84,7 +84,7 @@
                 align="center"
                 :formatter="formatTime"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("warningVoice.warningCycle2")
                   }}</span>
@@ -94,12 +94,12 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("warningVoice.warningCycleTip") }}<br />
                         {{ $t("warningVoice.warningTimeCycleTip") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -109,7 +109,7 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("warningVoice.push1")
                   }}</span>
@@ -119,11 +119,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("warningVoice.pushTip") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -141,7 +141,7 @@
                 align="center"
                 min-width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -150,7 +150,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="editss"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
@@ -164,7 +164,7 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
@@ -180,7 +180,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -193,7 +193,7 @@
           <!-- 添加告警设置 -->
           <el-dialog
             :title="$t('warning.title1')"
-            :visible.sync="add"
+            v-model="add"
             width="30%"
             style="text-align: center"
             @close="addCancel(addData)"
@@ -258,11 +258,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title7") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -290,11 +290,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -323,7 +323,7 @@
                 </el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel(addData)">
                 {{ $t("warning.Cancel") }}
               </el-button>
@@ -332,15 +332,14 @@
                 :loading="loading"
                 @click="addTrue(addData)"
               >
-                {{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                {{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑告警设置 -->
           <el-dialog
             :title="$t('warning.title6')"
-            :visible.sync="edit"
+            v-model="edit"
             width="30%"
             style="text-align: center"
             @close="editCancel(editData)"
@@ -408,11 +407,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title7") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -441,11 +440,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -474,7 +473,7 @@
                 </el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel(editData)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -482,9 +481,8 @@
                 type="primary"
                 :loading="loading"
                 @click="editTrue(editData)"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -1146,11 +1144,11 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
 
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
@@ -1159,26 +1157,26 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }

@@ -75,26 +75,22 @@
                 class="reset"
                 style="margin-left: 0%"
                 @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
+                >{{ $t("terminal.import") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
+                >{{ $t("terminal.export") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
+                >{{ $t("terminal.exportAll") }}</el-button>
               <el-button type="primary" class="add" @click="addTBox()">{{
                 $t("car.Addvehicle")
-              }}</el-button
-              ><el-button type="danger" class="add" @click="removeTBoxs()">{{
+              }}</el-button><el-button type="danger" class="add" @click="removeTBoxs()">{{
                 $t("car.unbind")
               }}</el-button>
               <el-button type="primary" class="add add2" @click="goSetTBox()">{{
@@ -167,8 +163,9 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -179,8 +176,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -190,25 +188,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="staffEdit(scope.row)"
-                          >{{ $t("car.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("car.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="TBoxDele(scope.row)"
-                          >{{ $t("car.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("car.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -218,7 +212,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
@@ -232,7 +226,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       style="margin-left: 0"
                       @click="staffAction(scope.row)"
@@ -251,7 +245,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -265,7 +259,7 @@
           <el-dialog
             :title="$t('car.text1')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -287,9 +281,9 @@
               :on-change="handleChange"
               :on-remove="handleRemove"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("car.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -358,7 +352,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -366,18 +360,17 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+          <el-dialog v-model="dialogVisible" :append-to-body="true">
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
           <!-- 编辑 -->
           <el-dialog
             :title="$t('car.text3')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -400,9 +393,9 @@
               :on-exceed="handleExceedEdit"
               :before-upload="beforeAvatarUploadEdit"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("car.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -471,7 +464,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(edit = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -479,15 +472,14 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('car.text4')"
-            :visible.sync="removeTBox"
+            v-model="removeTBox"
             class="edit"
             width="50%"
             style="text-align: center"
@@ -523,7 +515,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeTBox = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -531,19 +523,17 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 设置车辆类型 -->
           <el-dialog
             :title="$t('car.text5')"
-            :visible.sync="addAssets"
+            v-model="addAssets"
             class="edit"
             width="30%"
             style="text-align: center"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
           >
             <el-radio-group size="small">
@@ -552,8 +542,7 @@
                 class="add"
                 style="float: left"
                 @click="addTBoxRow"
-                >{{ $t("car.add") }}</el-button
-              >
+                >{{ $t("car.add") }}</el-button>
             </el-radio-group>
             <el-form style="text-align: center">
               <el-form-item
@@ -577,18 +566,17 @@
                     :key="item.projectid"
                     :label="item.name"
                     :value="item.projectid"
-                  ></el-option> </el-select
-                ><el-tooltip
+                  ></el-option> </el-select><el-tooltip
                   class="item"
                   effect="light"
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("car.title6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -615,22 +603,21 @@
                     deleTBoxRow(index, item.id, item.name, item.tenantid, item.projectid)
                   "
                   class="del"
-                  >{{ $t("car.delete") }}</el-button
-                >
+                  >{{ $t("car.delete") }}</el-button>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+            <template #footer><div class="dialog-footer" style="margin-top: -10px">
               <el-button @click="addAssets = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addTBoxRowTrue()">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
           <!-- 行为分析 -->
           <el-dialog
-            :visible.sync="actions"
+            v-model="actions"
             width="60%"
             style="text-align: center"
             :close-on-click-modal="false"
@@ -638,7 +625,7 @@
             @close="closeAction"
           >
             <el-dialog
-              :visible.sync="trajectory"
+              v-model="trajectory"
               width="80%"
               style="text-align: center"
               :close-on-click-modal="false"
@@ -693,7 +680,7 @@
                 <el-date-picker
                   v-model="actionTime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('car.to')"
                   :start-placeholder="$t('car.starttime')"
                   :end-placeholder="$t('car.endtime')"
@@ -704,14 +691,12 @@
                   type="primary"
                   class="query"
                   @click="searchAction()"
-                  >{{ $t("car.search") }}</el-button
-                >
+                  >{{ $t("car.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="showTrajectory()"
-                  >{{ $t("car.Viewtrack") }}</el-button
-                >
+                  >{{ $t("car.Viewtrack") }}</el-button>
               </el-form-item>
             </el-form>
             <div class="actionDetails">
@@ -807,29 +792,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -2348,10 +2333,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2376,28 +2361,28 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 
@@ -2422,7 +2407,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
-.actionDetails >>> .ivu-timeline {
+.actionDetails :deep(.ivu-timeline) {
   width: 23%;
   margin-left: 2%;
   text-align: left;
@@ -2434,17 +2419,17 @@ export default {
 .action .demo-form-inline .el-form-item .el-form-item__content {
   width: 100%;
 }
-.trajectory >>> .el-dialog {
+.trajectory :deep(.el-dialog) {
   height: 85%;
   margin-top: 2% !important;
 }
-.trajectory >>> .el-dialog__header {
+.trajectory :deep(.el-dialog__header) {
   height: 4%;
 }
-.trajectory >>> .el-dialog__headerbtn {
+.trajectory :deep(.el-dialog__headerbtn) {
   top: 1% !important;
 }
-.trajectory >>> .el-dialog__body {
+.trajectory :deep(.el-dialog__body) {
   height: 96%;
   padding-top: 10px !important;
 }

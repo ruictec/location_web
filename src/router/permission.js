@@ -2,7 +2,6 @@
 import router from './index.js'
 import { adminRoutes, userRoutes, resetRouter } from './index.js'
 import store from '../store'
-import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 
@@ -20,10 +19,14 @@ function injectRoutesByRole (prionum) {
   } catch (e) {}
   if (Number(prionum) === 5) {
     store.commit('addRoutes', userRoutes)
-    router.addRoutes(userRoutes)
+    userRoutes.forEach((route) => {
+      router.addRoute(route)
+    })
   } else {
     store.commit('addRoutes', adminRoutes)
-    router.addRoutes(adminRoutes)
+    adminRoutes.forEach((route) => {
+      router.addRoute(route)
+    })
   }
 }
 

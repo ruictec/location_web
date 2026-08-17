@@ -10,17 +10,17 @@
         <el-main>
           <div class="gateway_input">
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline gateway-search-form"
               :model="searchList"
               style="display: flex; white-space: nowrap; margin-left: 1%; z-index: 1"
             >
               <el-form-item
                 :label="$t('gateway.company')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
               >
                 <el-select
-                  style="width: 95%; float: left"
+                  style="width: 100%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -37,10 +37,10 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.deveui')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
               >
                 <el-select
-                  style="width: 95%; float: left"
+                  style="width: 100%; float: left"
                   v-model="searchList.deveui"
                   clearable
                   filterable
@@ -56,10 +56,10 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.scheme')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
               >
                 <el-select
-                  style="width: 95%; float: left"
+                  style="width: 100%; float: left"
                   v-model="searchList.scheme"
                   clearable
                   filterable
@@ -75,10 +75,10 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.Online')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
               >
                 <el-select
-                  style="width: 95%; float: left"
+                  style="width: 100%; float: left"
                   v-model="searchList.hbstatus"
                   clearable
                   filterable
@@ -109,15 +109,13 @@
                     contrForPrionum == 3 ||
                     contrForPrionum == 4
                   "
-                  >{{ $t('gateway.addstation') }}</el-button
-                >
+                  >{{ $t('gateway.addstation') }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="GwToNs()"
                   v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                  >{{ $t('gateway.Batchsynchronization') }}</el-button
-                >
+                  >{{ $t('gateway.Batchsynchronization') }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -203,15 +201,13 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
-                  <el-button
+                <template #default="scope">
+                  <el-button text
                     v-if="scope.row.network == 1 && scope.row.cardid"
                     @click="show4Gs(scope.$index)"
-                    type="text"
                     size="small"
                     style="width: 60%"
-                    >{{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}</el-button
-                  >
+                    >{{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}</el-button>
                   <p v-if="scope.row.network != 1 || scope.row.cardid == null">
                     {{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}
                   </p>
@@ -261,8 +257,9 @@
                   contrForPrionum == 4
                 "
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -273,8 +270,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -282,7 +280,7 @@
                         style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="gatewayEdit(scope.row)"
                           v-if="
@@ -291,28 +289,22 @@
                             contrForPrionum == 3 ||
                             contrForPrionum == 4
                           "
-                          >{{ $t('gateway.edit') }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t('gateway.edit') }}</el-button></el-dropdown-item>
                       <el-dropdown-item style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="gatewayBack(scope.row)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                          >{{ $t('terminal.recovery') }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t('terminal.recovery') }}</el-button></el-dropdown-item>
                       <el-dropdown-item style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="gatewayDele(scope.row)"
                           v-if="contrForPrionum == 1 || contrForPrionum == 3 || delprio == 1"
-                          >{{ $t('gateway.delete') }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t('gateway.delete') }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -322,7 +314,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -375,7 +367,7 @@
           <el-dialog
             :title="$t('gateway.addgateway')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -400,9 +392,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet1') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -420,9 +412,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet2') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -471,9 +463,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet3') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -570,18 +562,17 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')"> {{ $t('terminal.cancel') }}</el-button>
               <el-button type="primary" @click="addTrue('addData')" :loading="loading">
-                {{ $t('terminal.confirm') }}</el-button
-              >
-            </div>
+                {{ $t('terminal.confirm') }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 修改gateway -->
           <el-dialog
             :title="$t('gateway.editgateway')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -725,16 +716,16 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{ $t('terminal.cancel') }}</el-button>
               <el-button type="primary" @click="editTrue('editData')" :loading="loading">{{
                 $t('terminal.confirm')
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 显示4G信息 -->
-          <el-dialog width="30%" :visible.sync="show4Gdialog" style="text-align: center">
+          <el-dialog width="30%" v-model="show4Gdialog" style="text-align: center">
             <el-form :model="show4GData" label-width="110px" style="text-align: left">
               <el-form-item :label="$t('gateway.Cardnumber')" prop="name" style="margin-right: 2%">
                 <el-input v-model="show4GData.cardid"></el-input>
@@ -2055,11 +2046,11 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td,
-.el-table >>> .current-row td {
+.el-table :deep(.hover-row td,
+.el-table >>> .current-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2068,21 +2059,32 @@ export default {
   padding: 8px 14px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
+}
+
+.gateway-search-form :deep(.el-form-item .el-form-item__content) {
+  flex: 1;
+  min-width: 0;
+}
+
+.gateway-search-form :deep(.el-select),
+.gateway-search-form :deep(.el-select .el-select__wrapper) {
+  width: 100% !important;
+  min-width: 140px;
 }
 
 /* 地图 */

@@ -198,8 +198,7 @@
           <div v-if="isDepartmentData">
             <dv-decoration-7
               style="width: 100%; height: 30px; margin-top: 20px"
-              >{{ $t("LocationIndoor.DepartmentStatistics") }}</dv-decoration-7
-            >
+              >{{ $t("LocationIndoor.DepartmentStatistics") }}</dv-decoration-7>
             <dv-capsule-chart
               :config="departmentData"
               class="department_data"
@@ -208,8 +207,7 @@
           <div v-if="isSosData">
             <dv-decoration-7
               style="width: 100%; height: 30px; margin-top: 20px"
-              >{{ $t("Breadcrumb.AlarmStatistics") }}</dv-decoration-7
-            >
+              >{{ $t("Breadcrumb.AlarmStatistics") }}</dv-decoration-7>
             <dv-active-ring-chart :config="sosDatas" class="sosDatas_data" />
           </div>
         </div>
@@ -277,8 +275,7 @@
                   label="所有"
                   style="margin-left: 0"
                 ></el-checkbox> -->
-              </el-checkbox-group></transition
-            >
+              </el-checkbox-group></transition>
           </div>
           <!-- 楼栋选择 -->
           <div class="selectBuild">
@@ -292,7 +289,7 @@
                 v-model="isactive"
                 placeholder=""
                 @change="getGrounds(isactive)"
-                :popper-append-to-body="false"
+                :teleported="false"
                 style="position: absolute; right: 0; z-index: 1001"
                 v-if="buildShow"
               >
@@ -524,8 +521,7 @@
                 <el-checkbox
                   :label="$t('LocationIndoor.hour')"
                   style="margin-left: 0"
-                ></el-checkbox> </el-checkbox-group
-            ></transition>
+                ></el-checkbox> </el-checkbox-group></transition>
           </div>
           <!-- 楼栋选择 -->
           <div class="selectBuild selectBuild3d">
@@ -539,7 +535,7 @@
                 v-model="isactive"
                 placeholder=""
                 @change="getGrounds(isactive)"
-                :popper-append-to-body="false"
+                :teleported="false"
                 v-if="buildShow"
                 style="position: absolute; right: 0; z-index: 1001"
               >
@@ -680,7 +676,7 @@
 
     <!-- 点击地图上图标显示的内容 -->
     <el-dialog
-      :visible.sync="visible"
+      v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
       class="Info_dialog"
       :modal="false"
@@ -723,11 +719,9 @@
               <li class="goDev bracelet_dev">
                 <span
                   >{{ $t("terminal.deveui") }}
-                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span
-                >
+                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span>
                 <span v-if="battery"
-                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span
-                >
+                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("terminal.Locationupdatetime1") }}{{ gpstime }}</li>
@@ -741,21 +735,17 @@
                 <span>{{ $t("terminal.deveui") }} {{ bracelet_eui }}</span>
                 <span
                   >{{ $t("locationoutdoor.electricity")
-                  }}{{ bracelet_soc }}%</span
-                >
+                  }}{{ bracelet_soc }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li class="bracelet_dev">
                 <span
-                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span
-                >
+                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span>
                 <span
                   >{{ $t("LocationIndoor.temperature")
-                  }}{{ bracelet_tem }} °C</span
-                >
+                  }}{{ bracelet_tem }} °C</span>
                 <span
-                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span
-                >
+                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("home.Dataupdatetime") }}{{ bracelet_time }}</li>
@@ -843,8 +833,9 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min";
+import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import host from "../../host";
-import Fullscreen from "vue-fullscreen/src/component.vue";
+import { component as Fullscreen } from "vue-fullscreen";
 
 import {
   getBuildingByProjectid,
@@ -4006,6 +3997,7 @@ export default {
           level: ground,
           floorSpace: 5,
         },
+        decoderURL: FENGMAP_DECODER_URL,
       };
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {
@@ -5036,7 +5028,7 @@ export default {
       }
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timeOut);
     this.timeOut = null;
     if (this.map) {
@@ -5049,7 +5041,7 @@ export default {
     }
   },
 
-  destroyed() {
+  unmounted() {
     if (this.websock) {
       this.websock.close();
     }
@@ -5112,11 +5104,11 @@ export default {
 </script>
 
 <style scoped>
-.Info_dialog >>> .el-dialog {
+.Info_dialog :deep(.el-dialog) {
   border-radius: 20px !important;
   background: rgba(0, 0, 0, 0.5);
 }
-.Info_dialog >>> .el-dialog__body {
+.Info_dialog :deep(.el-dialog__body) {
   color: white !important;
 }
 .container {
@@ -5164,7 +5156,7 @@ export default {
   margin: 0;
   padding: 0;
 }
-.selectGround >>> .el-scrollbar__wrap {
+.selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
 >>> .el-notification.right {
@@ -5176,15 +5168,15 @@ export default {
   right: 0;
   z-index: 1;
 }
-.selectBuild >>> .el-scrollbar__wrap {
+.selectBuild :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
-.selectBuild >>> .el-select {
+.selectBuild :deep(.el-select) {
   width: 200px;
   margin-right: 0%;
   display: block;
 }
-.selectBuild3d >>> .el-select {
+.selectBuild3d :deep(.el-select) {
   margin-right: 4%;
 }
 .home {
@@ -5219,7 +5211,7 @@ li {
   background-color: #0e2232;
 }
 
-.addclass >>> span {
+.addclass :deep(span) {
   color: #409eff;
   transition: all 0.3s;
 }
@@ -5229,24 +5221,24 @@ li {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -5284,11 +5276,11 @@ a {
   margin-left: 0%;
 }
 
-.statistics >>> .el-table tr {
+.statistics :deep(.el-table tr) {
   background-color: #f5f7fa !important;
 }
 
-.statistics >>> .cell-blue {
+.statistics :deep(.cell-blue) {
   background: #bed7f0 !important;
 }
 .statistics3d {
@@ -5303,7 +5295,7 @@ a {
   z-index: 1;
   align-items: center;
 }
-.statistics3d >>> .el-table td {
+.statistics3d :deep(.el-table td) {
   padding: 10px 0 !important;
 }
 .buildings-item li {
@@ -5430,18 +5422,18 @@ a {
   width: 300px;
   margin-top: -10px;
 }
-.rloe_data >>> .capsule-item-column,
+.rloe_data :deep(.capsule-item-column,
 .department_data >>> .capsule-item-column,
 .rloe_data >>> .capsule-item-column .capsule-item-value,
-.department_data >>> .capsule-item-column .capsule-item-value {
+.department_data >>> .capsule-item-column .capsule-item-value) {
   margin: 0;
 }
-.rloe_data >>> .capsule-container .unit-label,
-.department_data >>> .capsule-container .unit-label {
+.rloe_data :deep(.capsule-container .unit-label,
+.department_data >>> .capsule-container .unit-label) {
   margin: 0 !important;
 }
-.rloe_data >>> .capsule-container .unit-label div,
-.department_data >>> .capsule-container .unit-label div {
+.rloe_data :deep(.capsule-container .unit-label div,
+.department_data >>> .capsule-container .unit-label div) {
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -5457,18 +5449,18 @@ a {
 .pan_box {
   margin-left: 4%;
 }
-.pan_box >>> .el-tabs__header {
+.pan_box :deep(.el-tabs__header) {
   border: 0px !important;
 }
-.pan_box >>> .el-tabs__nav {
+.pan_box :deep(.el-tabs__nav) {
   border: 0px !important;
 }
-.pan_box >>> .el-tabs__nav .is-active {
+.pan_box :deep(.el-tabs__nav .is-active) {
   color: white;
   background-color: gray;
   opacity: 0.7;
 }
-.pan_box >>> .el-tabs__item {
+.pan_box :deep(.el-tabs__item) {
   border: 0px !important;
   color: white;
   opacity: 0.7;
@@ -5480,20 +5472,20 @@ a {
 .data_table::before {
   height: 0 !important;
 }
-.data_table >>> .has-gutter tr th {
+.data_table :deep(.has-gutter tr th) {
   background: transparent !important;
 }
-.data_table >>> tr {
+.data_table :deep(tr) {
   background: transparent !important;
   color: white;
   opacity: 0.7;
 }
-.data_table >>> tr td,
-.data_table >>> tr th {
+.data_table :deep(tr td,
+.data_table >>> tr th) {
   border: 0px !important;
   padding: 5px 0;
 }
-.data_table >>> .el-table__body tr:hover > td {
+.data_table :deep(.el-table__body tr:hover > td) {
   background: transparent !important;
 }
 </style>

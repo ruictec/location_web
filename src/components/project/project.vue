@@ -3,16 +3,18 @@
     <el-button
       :class="btnChange ? 'changeBtn1' : 'changeBtn'"
       @click="changeIcon()"
-      v-bind:icon="iconData"
-    ></el-button>
+    >
+      <i :class="iconData"></i>
+    </el-button>
     <el-menu
       class="el-menu-vertical-demo"
       :default-active="activeName"
-      mode=""
+      mode="vertical"
       :router="true"
     >
       <el-menu-item
         index="/mapmanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4 || maprio == 1"
       >
         <el-tooltip
@@ -24,13 +26,14 @@
         >
           <i class="icon map"></i>
         </el-tooltip>
-        <span slot="title" v-if="show">{{
+        <span v-show="show">{{
           $t("Breadcrumb.Mapmanagement")
         }}</span>
       </el-menu-item>
 
       <el-menu-item
         index="/buildingmanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4 || maprio == 1"
       >
         <el-tooltip
@@ -42,12 +45,13 @@
         >
           <i class="icon tower"></i>
         </el-tooltip>
-        <span slot="title" v-if="show">{{
+        <span v-show="show">{{
           $t("Breadcrumb.Buildingmanagement")
         }}</span>
       </el-menu-item>
       <el-menu-item
         index="/floormanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4 || maprio == 1"
       >
         <el-tooltip
@@ -59,31 +63,26 @@
         >
           <i class="icon tier"></i>
         </el-tooltip>
-        <span v-if="show">{{ $t("Breadcrumb.Floormanagement") }}</span>
+        <span v-show="show">{{ $t("Breadcrumb.Floormanagement") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>{{ $t("Breadcrumb.tet") }}</p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
 
       <el-menu-item
         index="/buildingdetails"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
-        ><el-tooltip
+      >
+        <el-tooltip
           class="item"
           effect="dark"
           :content="$t('Breadcrumb.Floordetails')"
@@ -92,31 +91,24 @@
         >
           <i class="icon detail"></i>
         </el-tooltip>
-        <span v-if="show">{{ $t("Breadcrumb.Floordetails") }}</span>
+        <span v-show="show">{{ $t("Breadcrumb.Floordetails") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>{{ $t("Breadcrumb.tet1") }}</p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
       <el-menu-item
         index="/outdoor/locationoutdoor"
+        :class="{ left: show, 'is-active': isActiveClass == 'locationoutdoor' }"
         @click="changeActiveName()"
         v-if="contrForPrioNum == 5 && projectType == 1"
-        :class="isActiveClass == 'locationoutdoor' ? 'is-active' : ''"
       >
         <el-tooltip
           class="item"
@@ -133,9 +125,9 @@
 
       <el-menu-item
         index="/indoor/locationindoor"
+        :class="{ left: show, 'is-active': isActiveClass == 'locationindoor' }"
         @click="changeActiveName2()"
         v-if="contrForPrioNum == 5"
-        :class="isActiveClass == 'locationindoor' ? 'is-active' : ''"
       >
         <el-tooltip
           class="item"
@@ -151,6 +143,7 @@
       </el-menu-item>
       <el-menu-item
         index="/location"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
       >
         <el-tooltip
@@ -160,12 +153,13 @@
           placement="right"
           :disabled="open"
         >
-          <i class="el-icon-data-board"></i>
+          <i class="el-icon-data-board menu-side-icon"></i>
         </el-tooltip>
         <span v-show="show">{{ $t("Breadcrumb.Locationdata") }}</span>
       </el-menu-item>
       <el-menu-item
         index="/config"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
       >
         <el-tooltip
@@ -175,25 +169,18 @@
           placement="right"
           :disabled="open"
         >
-          <i class="el-icon-setting"></i>
+          <i class="el-icon-setting menu-side-icon"></i>
         </el-tooltip>
         <span v-show="show">{{ $t("Breadcrumb.Config") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>{{ $t("Breadcrumb.tet2") }}</p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
@@ -272,14 +259,12 @@ export default {
 </script>
 
 <style scoped>
-.el-menu-item {
-  text-align: left;
-}
 .changeBtn {
   width: 30px;
   height: 50px;
   border: none;
   background-color: #fff;
+  padding-left: 20%;
 }
 .changeBtn1 {
   width: 149px;
@@ -299,6 +284,16 @@ export default {
   height: 16px;
   display: inline-block;
   background-color: #909399;
+}
+.menu-side-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
 }
 .icon.map {
   mask: url("../../assets/map.svg");
@@ -324,7 +319,16 @@ export default {
   mask: url("../../assets/outdoor.svg");
   mask-size: contain;
 }
+.is-active .icon,
+.is-active .menu-side-icon {
+  color: #409eff;
+  background-color: transparent;
+}
 .is-active .icon {
   background-color: #409eff;
+}
+.left {
+  text-align: start !important;
+  padding-left: 40px !important;
 }
 </style>

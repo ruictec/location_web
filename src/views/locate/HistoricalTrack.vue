@@ -68,7 +68,7 @@
           <el-date-picker
             v-model="actionTime"
             type="datetimerange"
-            :picker-options="pickerOptions"
+            :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
             :range-separator="$t('terminal.to')"
             :start-placeholder="$t('terminal.startdate')"
             :end-placeholder="$t('terminal.enddate')"
@@ -117,7 +117,7 @@
       </Timeline>
     </div>
     <el-dialog
-      :visible.sync="trajectory"
+      v-model="trajectory"
       width="80%"
       style="text-align: center"
       :close-on-click-modal="false"
@@ -154,29 +154,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             }
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             }
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             }
           }
         ]
@@ -620,28 +620,28 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 .el-form-item .el-button {
@@ -654,7 +654,7 @@ export default {
   flex-wrap: wrap;
   padding-top: 2%;
 }
-.actionDetails >>> .ivu-timeline {
+.actionDetails :deep(.ivu-timeline) {
   width: 23%;
   margin-left: 2%;
   text-align: left;
@@ -668,17 +668,17 @@ export default {
   width: 100%;
 }
 
-.trajectory >>> .el-dialog {
+.trajectory :deep(.el-dialog) {
   height: 85%;
   margin-top: 2% !important;
 }
-.trajectory >>> .el-dialog__header {
+.trajectory :deep(.el-dialog__header) {
   height: 4%;
 }
-.trajectory >>> .el-dialog__headerbtn {
+.trajectory :deep(.el-dialog__headerbtn) {
   top: 1% !important;
 }
-.trajectory >>> .el-dialog__body {
+.trajectory :deep(.el-dialog__body) {
   height: 96%;
   padding-top: 10px !important;
 }
@@ -688,7 +688,7 @@ export default {
 .work_type_list {
   display: flex;
 }
-.work_type_list >>> .el-form-item__content {
+.work_type_list :deep(.el-form-item__content) {
   display: flex;
   width: 100%;
   margin-left: 80px !important;

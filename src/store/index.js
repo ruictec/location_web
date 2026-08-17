@@ -1,12 +1,7 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 import { constantRoutes, resetRouter } from '../router/index.js'
 
-// import createpersistedstate from 'vuex-persistedstate'
-
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
+const store = createStore({
     // state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
     state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
         // 存储数据

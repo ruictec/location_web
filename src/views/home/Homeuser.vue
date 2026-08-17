@@ -29,10 +29,8 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i> {{ $t("homepage.livedata") }} </span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.people") }}{{ max_num_buildNum }}</span
-                  >
+                    ><i class="mdi mdi-menu-up"></i> {{ $t("homepage.livedata") }} </span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.people") }}{{ max_num_buildNum }}</span>
                   <span style="float: right"
                     ><a @click="ranking(1)">{{ $t("homepage.Buildingranking") }}</a>
                   </span>
@@ -62,10 +60,8 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.people") }}{{ max_num_groundNum }}</span
-                  >
+                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.people") }}{{ max_num_groundNum }}</span>
                   <span style="float: right"
                     ><a @click="ranking(2)">{{ $t("homepage.Floorranking") }}</a>
                   </span>
@@ -96,10 +92,8 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span
-                  ><span style="float: right"
+                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span><span style="float: right"
                     ><a @click="ranking(3)">{{ $t("homepage.Stepranking") }}</a>
                   </span>
                 </div>
@@ -115,15 +109,15 @@
             style="position: relative; z-index: 100"
           >
             <el-card style="height: 46vh; width: 108%; position: absolute">
-              <div
-                slot="header"
+              <template #header><div
+               
                 class="clearfix"
                 style="text-align: left; font-weight: 600"
               >
                 <span style="cursor: pointer" @click="$router.push('/device/terminal')">{{
                   $t("homepage.equipmentstatus")
                 }}</span>
-              </div>
+              </div></template>
               <div id="main" style="height: 40vh; width: 100%"></div>
             </el-card>
 
@@ -334,15 +328,15 @@
         >
           <el-col :xs="26" :sm="26" :lg="7" style="height: 40vh">
             <el-card class="box-card soscard" style="width: 100%; height: 100%">
-              <div
-                slot="header"
+              <template #header><div
+               
                 class="clearfix"
                 style="text-align: left; font-weight: 600"
               >
                 <span style="cursor: pointer" @click="$router.push('/warning/index')">
                   {{ $t("homepage.AlertType") }}
                 </span>
-              </div>
+              </div></template>
               <div id="projectType" style="width: 100%">
                 <el-table
                   :key="tableKey"
@@ -369,7 +363,7 @@
                     show-overflow-tooltip
                     min-width="55"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <span v-if="scope.row.warn_status1_num == 0">{{
                         scope.row.warn_status1_num
                       }}</span>
@@ -385,7 +379,7 @@
                     show-overflow-tooltip
                     min-width="50"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <span v-if="scope.row.warn_status2_num == 0">{{
                         scope.row.warn_status2_num
                       }}</span>
@@ -399,7 +393,7 @@
                     min-width="50"
                     align="center"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <el-tooltip
                         class="item"
                         effect="dark"
@@ -408,9 +402,9 @@
                       >
                         <el-button
                           type="primary"
-                          size="mini"
+                          size="small"
                           class="editss"
-                          @click.native.stop="getWarnWeekNumLists(scope.$index)"
+                          @click.stop="getWarnWeekNumLists(scope.$index)"
                         >
                           {{ $t("homepage.census") }}
                         </el-button>
@@ -423,14 +417,13 @@
           </el-col>
           <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="attenFlag">
             <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
+              <template #header><div style="text-align: left; font-weight: 600">
                 <span
                   style="cursor: pointer"
                   @click="attendance ? $router.push('/staff/checkwork') : ''"
                 >
-                  {{ $t("homepage.Attendancestatistics") }}</span
-                >
-              </div>
+                  {{ $t("homepage.Attendancestatistics") }}</span>
+              </div></template>
               <div class="member">
                 <div class="add">
                   <span>{{ $t("homepage.Today") }}</span>
@@ -438,14 +431,12 @@
                   <span style="font-size: 18px; font-weight: 600; margin-right: 10px">
                     {{ attendance ? memberNum.member_attendance_num || 0 : 0 }}
                   </span>
-                  <span>{{ $t("homepage.Unattendedattendance") }} </span
-                  ><span style="font-size: 18px; font-weight: 600; margin-right: 10px">
+                  <span>{{ $t("homepage.Unattendedattendance") }} </span><span style="font-size: 18px; font-weight: 600; margin-right: 10px">
                     {{
                       attendance
                         ? memberNum.member_sum_num - memberNum.member_attendance_num || 0
                         : 0
-                    }}</span
-                  >
+                    }}</span>
                 </div>
                 <div id="main6" style="height: 100%; width: 100%"></div>
               </div>
@@ -454,11 +445,10 @@
 
           <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="!attenFlag">
             <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
+              <template #header><div style="text-align: left; font-weight: 600">
                 <span style="cursor: pointer" @click="$router.push('/device/beacon')">
-                  {{ $t("home.BeaconStatus") }}</span
-                >
-              </div>
+                  {{ $t("home.BeaconStatus") }}</span>
+              </div></template>
               <div class="member">
                 <div id="main7" style="height: 100%; width: 100%"></div>
               </div>
@@ -467,16 +457,14 @@
 
           <el-col :xs="24" :sm="24" :lg="9" style="height: 40vh">
             <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
+              <template #header><div style="text-align: left; font-weight: 600">
                 <el-breadcrumb>
                   <el-breadcrumb-item
                     :to="employee ? { path: '/staff/staffmanagement' } : ''"
-                    >{{ $t("homepage.personnel") }}</el-breadcrumb-item
-                  >
+                    >{{ $t("homepage.personnel") }}</el-breadcrumb-item>
                   <el-breadcrumb-item
                     :to="asset ? { path: '/staff/assetManagement' } : ''"
-                    >{{ $t("homepage.assets") }}</el-breadcrumb-item
-                  >
+                    >{{ $t("homepage.assets") }}</el-breadcrumb-item>
                   <el-breadcrumb-item
                     class="breadcrumb"
                     :to="tbox ? { path: '/staff/tboxManagement' } : ''"
@@ -489,13 +477,13 @@
                     placement="right-start"
                     style="margin-left: 5px"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("homepage.content1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </el-breadcrumb>
-              </div>
+              </div></template>
               <div id="main0" style="height: 100%; width: 100%; padding-top: 18px">
                 <el-carousel :interval="4000" type="card" height="90%" :autoplay="true">
                   <el-carousel-item v-for="item in 3" :key="item">
@@ -516,11 +504,10 @@
     <el-dialog
       :title="$t('navbar.Selectitem')"
       v-if="pro"
-      :visible.sync="pro"
+      v-model="pro"
       :close-on-press-escape="false"
       :show-close="false"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
       width="40%"
       style="text-align: center"
       class="select"
@@ -552,8 +539,7 @@
                 effect="dark"
                 :content="item.memo"
                 placement="bottom-end"
-                ><span>{{ item.memo }}</span></el-tooltip
-              >
+                ><span>{{ item.memo }}</span></el-tooltip>
             </div>
           </div>
         </div>
@@ -562,15 +548,15 @@
 
     <el-dialog
       :title="$t('Breadcrumb.AlarmStatistics')"
-      :visible.sync="warningWeek"
+      v-model="warningWeek"
       @close="closeWarningWeek()"
     >
       <div id="warningweekdatas"></div>
     </el-dialog>
 
     <!-- 排行 -->
-    <el-dialog :visible.sync="rankings" width="30%" class="dialog_box">
-      <div slot="title" :class="showTitleTips == true ? 'dialog-title' : ''">
+    <el-dialog v-model="rankings" width="30%" class="dialog_box">
+      <template #title><div :class="showTitleTips == true ? 'dialog-title' : ''">
         <p class="title-text">{{ rankingName }}</p>
         <el-tooltip
           class="title-tips"
@@ -578,17 +564,17 @@
           placement="right-start"
           v-if="showTitleTips"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("homepage.stepTips") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
-      </div>
+      </div></template>
       <el-table :data="rankingData" border>
         <el-table-column :label="$t('homepage.No')" width="60" align="center">
-          <template slot-scope="scope">
+          <template #default="scope">
             <img :src="scope.row.picurl" alt="" srcset="" />
           </template>
         </el-table-column>
@@ -650,7 +636,7 @@
 import host from "../../host";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
-import CountTo from "vue-count-to";
+import { CountTo } from "vue3-count-to";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
@@ -680,7 +666,7 @@ import OlStyleStyle from "ol/style/Style";
 import OlStyleIcon from "ol/style/Icon";
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
-import * as echarts from "echarts";
+import echarts from "../../utils/echartsLegacy";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom"; //鼠标双击放大
 import "echarts/theme/macarons.js";
 import { fromLonLat } from "ol/proj";
@@ -694,6 +680,7 @@ import Feature from "ol/Feature";
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
+import { markRaw } from "vue";
 
 export default {
   mixins: [mapStyleMixin],
@@ -706,12 +693,6 @@ export default {
   name: "Home",
   data() {
     return {
-      scene: null, //场景
-      cameras: null, //照相机
-      renderer: null, //渲染器
-      textureLoader: null, // 纹理加载器
-      groupBox: null,
-      control: null, // 相机控件
       publicPath: process.env.BASE_URL,
       clearAnim: null,
 
@@ -820,32 +801,44 @@ export default {
       fences:[]
     };
   },
+  created() {
+    this.scene = null;
+    this.cameras = null;
+    this.renderer = null;
+    this.textureLoader = null;
+    this.groupBox = null;
+    this.control = null;
+  },
 
   methods: {
     initThree() {
       // 场景
-      this.scene = new THREE.Scene();
+      this.scene = markRaw(new THREE.Scene());
       // 1.2 相机
-      this.cameras = new THREE.PerspectiveCamera(
+      this.cameras = markRaw(
+        new THREE.PerspectiveCamera(
         50,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
+        )
       );
       // 设置摄像机位置
       this.cameras.position.set(30, 50, 70);
       // 指向场景中心
       this.cameras.lookAt(this.scene.position);
       // 1.3 渲染器
-      this.renderer = new THREE.WebGLRenderer({
+      this.renderer = markRaw(
+        new THREE.WebGLRenderer({
         antialias: true,
         // alpha: true,
-      });
+        })
+      );
 
       this.renderer.outputEncoding = THREE.sRGBEncoding;
 
       // 创建纹理加载器
-      this.textureLoader = new THREE.TextureLoader();
+      this.textureLoader = markRaw(new THREE.TextureLoader());
       // 创建一个组合对象
       // this.groupBox = new THREE.Group();
       // let axes = new THREE.AxesHelper(100);
@@ -871,7 +864,9 @@ export default {
       $("#userMap")[0].appendChild(this.renderer.domElement);
 
       //创建相机控件
-      this.control = new OrbitControls(this.cameras, this.renderer.domElement);
+      this.control = markRaw(
+        new OrbitControls(this.cameras, this.renderer.domElement)
+      );
       this.control.enableDamping = true;
       // 动态阻尼系数 就是鼠标拖拽旋转灵敏度，阻尼越小越灵敏
       // this.control.dampingFactor = 0.5;
@@ -917,7 +912,7 @@ export default {
     loadFbxModel() {
       var loader = new FBXLoader();
       loader.load(host.host + "model/" + this.intoProjectFBXUrl, (object) => {
-        this.scene.add(object); //模型
+        this.scene.add(markRaw(object)); //模型
       });
     },
     startDrag(event) {
@@ -3368,7 +3363,7 @@ export default {
     },
   },
 
-  destroyed() {
+  unmounted() {
     if (this.myChart1) {
       this.myChart1.dispose();
     }
@@ -3896,7 +3891,7 @@ main.el-main {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: 0.25rem;
+  border-radius: 4px;
   -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
@@ -3923,7 +3918,7 @@ h4.mb-0 {
   background-color: #fff;
   background-clip: border-box;
   border: 1px solid #dfe2e6;
-  border-radius: 0.5rem;
+  border-radius: 8px;
 }
 .card-group-row__card {
   flex: 1 0 0;
@@ -4042,16 +4037,16 @@ h4.mb-0 {
   flex-wrap: wrap;
 }
 [dir] .pb-4 {
-  padding-bottom: 1rem !important;
+  padding-bottom: 16px !important;
 }
 
 [dir="ltr"] .px-8 {
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
 }
 
 [dir] .mt-2 {
-  margin-top: 0.5rem !important;
+  margin-top: 8px !important;
 }
 
 .justify-between {
@@ -4104,16 +4099,16 @@ h4.mb-0 {
 .el-carousel__indicator--horizontal {
   padding: 0 !important;
 }
-.soscard >>> .el-card__body {
+.soscard :deep(.el-card__body) {
   padding: 0px !important;
 }
-.sostable >>> .cell {
+.sostable :deep(.cell) {
   text-overflow: clip !important;
 }
-.sostable >>> .el-table__row td {
+.sostable :deep(.el-table__row td) {
   padding: 2px !important;
 }
-.dialog_box >>> .el-dialog__header {
+.dialog_box :deep(.el-dialog__header) {
   display: flex;
   justify-content: center;
 }

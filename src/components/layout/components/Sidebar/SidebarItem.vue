@@ -8,8 +8,8 @@
       </app-link>
     </template>
 
-    <el-submenu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
-      <template slot="title">
+    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)">
+      <template #title>
         <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
       </template>
       <sidebar-item
@@ -20,13 +20,24 @@
         :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
-    </el-submenu>
+    </el-sub-menu>
   </div>
 </template>
 
 <script>
-import path from 'path'
 import { isExternal } from '@/utils/validate'
+
+function resolveRoutePath(basePath, routePath) {
+  if (routePath.startsWith('/')) return routePath
+  const base = String(basePath || '').replace(/\/+$/, '')
+  const segs = []
+  ;(base + '/' + routePath).split('/').forEach((seg) => {
+    if (!seg || seg === '.') return
+    if (seg === '..') segs.pop()
+    else segs.push(seg)
+  })
+  return '/' + segs.join('/')
+}
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
@@ -86,7 +97,7 @@ export default {
       if (isExternal(this.basePath)) {
         return this.basePath
       }
-      return path.resolve(this.basePath, routePath)
+      return resolveRoutePath(this.basePath, routePath)
     }
   }
 }

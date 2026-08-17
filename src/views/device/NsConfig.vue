@@ -25,6 +25,7 @@
   </div>
 </template>
 <script>
+import { resolveElTab } from '../../utils/elementTab'
 import Menu from "../../components/menu/Menu";
 import Devicemanagement from "../../components/devicemanagement/devicemanagement";
 import Teanats from "./nsConfig/tenant.vue";
@@ -37,12 +38,12 @@ export default {
   data() {
     return {
       contrForPrionum: this.$store.state.userInfo.prio,
-      activeName: "",
+      activeName: "0",
     };
   },
   methods: {
     changeTab(tab, event) {
-      switch (tab.name) {
+      switch (resolveElTab(tab).name) {
         case "0":
           this.$refs.Teanats.getOrganizationOnes();
           break;
@@ -91,10 +92,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -111,33 +112,33 @@ export default {
   background-color: rgb(196, 27, 27);
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.chose >>> button {
+.chose :deep(button) {
   padding: 0;
   line-height: 34px;
   border: 0;
 }
 
-.memo >>> .el-input {
+.memo :deep(.el-input) {
   width: 80%;
 }
 </style>

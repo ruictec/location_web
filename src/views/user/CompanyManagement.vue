@@ -45,22 +45,19 @@
                   class="reset"
                   style="margin-left: 0%"
                   @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button
-                >
+                  >{{ $t("terminal.exportAll") }}</el-button>
                 <el-button type="primary" class="add" @click="addUsers()">{{
                   $t("companymanagement.addclient")
                 }}</el-button>
@@ -210,8 +207,9 @@
                 min-width="160"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -222,8 +220,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -233,29 +232,26 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userEdit(scope.row)"
                           class="edits"
                         >
-                          {{ $t("usermanagement.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          {{ $t("usermanagement.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="userDele(scope.row)"
-                          >{{ $t("usermanagement.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("usermanagement.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
 
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -266,8 +262,9 @@
                         <img src="../../../static/synchronization.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -277,26 +274,22 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userSync(scope.row)"
                           class="edits"
-                          >{{ $t("companymanagement.lns") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("companymanagement.lns") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userSyncSQL(scope.row)"
                           class="edits"
                         >
-                          {{ $t("companymanagement.mysql") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          {{ $t("companymanagement.mysql") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -310,7 +303,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -323,7 +316,7 @@
           <el-dialog
             :title="$t('companymanagement.addclientinfor')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -484,9 +477,7 @@
                     <span style="float: left">{{ item.value }}</span>
                     <span
                       style="float: right; color: #8492a6; font-size: 13px"
-                      >{{ item.label }}</span
-                    ></el-option
-                  >
+                      >{{ item.label }}</span></el-option>
                 </el-select>
               </el-form-item>
 
@@ -516,7 +507,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -524,15 +515,14 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑模态框 -->
           <el-dialog
             :title="$t('companymanagement.edituser')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -670,9 +660,7 @@
                     <span style="float: left">{{ item.value }}</span>
                     <span
                       style="float: right; color: #8492a6; font-size: 13px"
-                      >{{ item.label }}</span
-                    ></el-option
-                  >
+                      >{{ item.label }}</span></el-option>
                 </el-select>
               </el-form-item>
 
@@ -700,7 +688,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -708,15 +696,14 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
             :title="$t('companymanagement.deleteclient')"
-            :visible.sync="deleTpl"
+            v-model="deleTpl"
             style="text-align: center"
           >
             <el-form>
@@ -732,14 +719,13 @@
                 }}{{ $t("companymanagement.deleteclientrules1") }}
               </p>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">
-                {{ $t("terminal.cancel") }}</el-button
-              >
+                {{ $t("terminal.cancel") }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("terminal.confirm")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -2175,14 +2161,14 @@ export default {
   display: -webkit-box !important;
 }
 
-.editInput >>> textarea {
+.editInput :deep(textarea) {
   min-height: 88px !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2190,19 +2176,19 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

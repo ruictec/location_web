@@ -105,11 +105,9 @@
               <el-form-item style="float: left; margin-left: 0%">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("heartbeat.search")
-                }}</el-button
-                ><el-button type="primary" class="reset" @click="clearBtn()">{{
+                }}</el-button><el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("heartbeat.reset")
-                }}</el-button
-                ><el-button
+                }}</el-button><el-button
                   type="primary"
                   class="reset"
                   @click="delDevCommands()"
@@ -119,8 +117,7 @@
                     contrForPrionum == 3 ||
                     delprio == 1
                   "
-                  >{{ $t("test.Batchdelete") }}</el-button
-                >
+                  >{{ $t("test.Batchdelete") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -224,7 +221,7 @@
                   delprio == 1
                 "
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -248,7 +245,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -259,7 +256,7 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('downlink.msgdelete')" :visible.sync="del">
+          <el-dialog :title="$t('downlink.msgdelete')" v-model="del">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -329,7 +326,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -337,9 +334,8 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -811,10 +807,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -825,19 +821,19 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

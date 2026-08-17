@@ -70,7 +70,8 @@
 
               <!-- 隐藏显示所有按钮 -->
               <el-form-item
-                style="display: flex; margin-left: 0%"
+                class="search-actions"
+                style="display: flex; margin-left: 10px"
                 v-show="seen"
               >
                 <!-- 高级 -->
@@ -91,16 +92,14 @@
                   style="margin-left: 0%"
                   @click="importExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="addBeacon"
@@ -111,10 +110,9 @@
                     contrForPrionum == 3 ||
                     contrForPrionum == 4
                   "
-                  >{{ $t("beacon.addbeacon") }}</el-button
-                >
+                  >{{ $t("beacon.addbeacon") }}</el-button>
                 <el-dropdown
-                  size="small "
+                  size="small"
                   type="primary"
                   trigger="hover"
                   v-if="
@@ -124,12 +122,14 @@
                     contrForPrionum == 4
                   "
                 >
-                  <el-button type="primary" size="small ">
+                  <span class="el-dropdown-link">
+                  <el-button type="primary" size="small">
                     {{ $t("beacon.batch")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -148,9 +148,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("beacon.edit") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -160,9 +158,7 @@
                         class="delBeacons"
                         @click="assignBeacons()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -172,9 +168,7 @@
                         class="delBeacons"
                         @click="removeBeacons()"
                         v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -182,17 +176,15 @@
                       "
                       ><el-button
                         class="dels"
-                        size="mini"
+                        size="small"
                         @click="deleteBeacons()"
                         v-if="
                           contrForPrionum == 1 ||
                           contrForPrionum == 3 ||
                           delprio == 1
                         "
-                        >{{ $t("terminal.delete") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </el-form-item>
 
@@ -439,17 +431,18 @@
                   style="width: 95%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('beacon.to')"
                   :start-placeholder="$t('beacon.starttime')"
                   :end-placeholder="$t('beacon.endtime')"
-                  align="left"
+                  placement="bottom-start"
                 >
                 </el-date-picker>
               </el-form-item>
               <el-form-item
+                class="search-actions"
                 v-show="seen1 && contrForPrionum == 5"
-                style="display: flex; margin-left: 0%; margin-right: 0"
+                style="display: flex; margin-left: 10px; margin-right: 0"
               >
                 <span class="el-dropdown-link" @click="changeItem()">
                   {{ $t("beacon.putAway")
@@ -496,12 +489,12 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <el-input
+                  <template #reference><el-input
                     style="width: 95%; float: left"
                     v-model="selectMemo"
                     :placeholder="$t('beacon.please')"
-                    slot="reference"
-                  ></el-input>
+                   
+                  ></el-input></template>
                 </el-popover>
               </el-form-item>
 
@@ -524,16 +517,17 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <el-input
+                  <template #reference><el-input
                     style="width: 95%; float: left"
                     v-model="selectMemo"
                     :placeholder="$t('beacon.please')"
-                    slot="reference"
-                  ></el-input>
+                   
+                  ></el-input></template>
                 </el-popover>
               </el-form-item>
               <el-form-item
-                style="display: flex; margin-left: 1%; margin-right: 0"
+                class="search-actions"
+                style="display: flex; margin-left: 10px; margin-right: 0"
               >
                 <!-- 高级 -->
                 <span class="el-dropdown-link" @click="changeItem()">
@@ -553,16 +547,14 @@
                   style="margin-left: 0%"
                   @click="importExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   style="margin-left: 0%"
                   @click="exportExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="addBeacon"
@@ -573,10 +565,9 @@
                     contrForPrionum == 3 ||
                     contrForPrionum == 4
                   "
-                  >{{ $t("beacon.addbeacon") }}</el-button
-                >
+                  >{{ $t("beacon.addbeacon") }}</el-button>
                 <el-dropdown
-                  size="small "
+                  size="small"
                   type="primary"
                   trigger="hover"
                   v-if="
@@ -586,6 +577,7 @@
                     contrForPrionum == 4
                   "
                 >
+                  <span class="el-dropdown-link">
                   <el-button
                     type="primary"
                     size="small"
@@ -594,8 +586,9 @@
                     {{ $t("beacon.batch")
                     }}<i class="el-icon-arrow-down el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu
-                    slot="dropdown"
+                  </span>
+<template #dropdown><el-dropdown-menu
+                   
                     style="background-color: rgb(219, 222, 231)"
                     class="selects"
                   >
@@ -614,9 +607,7 @@
                           contrForPrionum == 3 ||
                           contrForPrionum == 4
                         "
-                        >{{ $t("beacon.edit") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
 
                     <el-dropdown-item
                       style="
@@ -627,9 +618,7 @@
                         class="delBeacons"
                         @click="assignBeacons()"
                         v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -639,9 +628,7 @@
                         class="delBeacons"
                         @click="removeBeacons()"
                         v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button
-                      ></el-dropdown-item
-                    >
+                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                     <el-dropdown-item
                       style="
                         margin-top: 4%;
@@ -649,17 +636,15 @@
                       "
                       ><el-button
                         class="dels"
-                        size="mini"
+                        size="small"
                         @click="deleteBeacons()"
                         v-if="
                           contrForPrionum == 1 ||
                           contrForPrionum == 3 ||
                           delprio == 1
                         "
-                        >{{ $t("beacon.delete") }}</el-button
-                      ></el-dropdown-item
-                    >
-                  </el-dropdown-menu>
+                        >{{ $t("beacon.delete") }}</el-button></el-dropdown-item>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </el-form-item>
             </el-form>
@@ -930,9 +915,9 @@
                 align="center"
                 min-width="80"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-dropdown
-                    size="mini"
+                    size="small"
                     type="primary"
                     trigger="click"
                     v-if="
@@ -941,7 +926,7 @@
                       contrForPrionum == 3 ||
                       contrForPrionum == 4
                     "
-                    ><el-tooltip
+                    ><span class="el-dropdown-link"><el-tooltip
                       class="item"
                       effect="dark"
                       :content="$t('staff.operate')"
@@ -950,9 +935,9 @@
                       <el-button type="primary" class="icon_button">
                         <img src="../../../static/control.png" />
                       </el-button>
-                    </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </el-tooltip></span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -962,7 +947,7 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="editBeacon(scope.$index, tableData)"
                           v-if="
@@ -971,9 +956,7 @@
                             contrForPrionum == 3 ||
                             contrForPrionum == 4
                           "
-                          >{{ $t("beacon.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
 
                       <el-dropdown-item
                         style="
@@ -981,33 +964,29 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="assignBeacon(scope.$index, tableData)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                          >{{ $t("beacon.assign") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="recycleBeacon(scope.$index, tableData)"
                           v-if="contrForPrionum == 3 || delprio == 1"
-                          >{{ $t("terminal.recovery") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="delss"
                           @click="delBeacons(scope.$index)"
                           v-if="
@@ -1015,10 +994,8 @@
                             contrForPrionum == 3 ||
                             delprio == 1
                           "
-                          >{{ $t("beacon.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("beacon.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
 
                   <el-tooltip
@@ -1029,7 +1006,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       v-if="contrForPrionum == 5 && intoProjectType == 2"
                       @click="goLocation(scope.$index)"
@@ -1046,7 +1023,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       v-if="contrForPrionum == 5 && intoProjectType == 1"
                       @click="goLocationDetails(scope.$index)"
@@ -1064,7 +1041,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -1078,7 +1055,7 @@
           <el-dialog
             :title="$t('beacon.addmsg')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-aling: center"
             @close="addCancel('addData')"
           >
@@ -1112,9 +1089,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet1") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1141,9 +1118,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet2") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1177,12 +1154,12 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet3") }}</p>
                     <p>{{ $t("beacon.tet4") }}</p>
                     <p>{{ $t("beacon.tet5") }}</p>
                     <p>{{ $t("beacon.tet6") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1204,9 +1181,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet8") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1228,9 +1205,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet9") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1253,9 +1230,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tet14") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1298,11 +1275,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("beacon.tet11") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1336,7 +1313,7 @@
                 </el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1344,15 +1321,14 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 修改一个Beacon -->
           <el-dialog
             :title="$t('beacon.editmsg')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1475,7 +1451,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancle('editData')">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1483,15 +1459,14 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量编辑beacon信息 -->
           <el-dialog
             :title="$t('beacon.editmsgs')"
-            :visible.sync="edits"
+            v-model="edits"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1575,7 +1550,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editscancel('editDatas')">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1583,13 +1558,12 @@
                 type="primary"
                 @click="editsTrue('editDatas')"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量删除beacon信息 -->
-          <el-dialog :title="$t('beacon.deletemsgs')" :visible.sync="del">
+          <el-dialog :title="$t('beacon.deletemsgs')" v-model="del">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -1699,7 +1673,7 @@
                 show-overflow-tooltip
                 width="100"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("beacon.battery1")
                   }}</span>
@@ -1709,11 +1683,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("terminal.electricityHelp") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -1747,7 +1721,7 @@
               ></el-table-column>
             </el-table>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1755,15 +1729,14 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 分配信标 -->
           <el-dialog
             :title="$t('beacon.assignbeacon')"
-            :visible.sync="assign"
+            v-model="assign"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1794,7 +1767,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(assign = false), (loading = false)">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1802,15 +1775,14 @@
                 type="primary"
                 @click="assignTrue('assignData')"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 批量分配信标 -->
           <el-dialog
             :title="$t('beacon.assignbeacons')"
-            :visible.sync="assigns"
+            v-model="assigns"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1841,7 +1813,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(assigns = false), (loading = false)">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1849,15 +1821,14 @@
                 type="primary"
                 @click="assignsTrue('assignDatas')"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('beacon.deletemsgs1')"
-            :visible.sync="removeBeacon"
+            v-model="removeBeacon"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1879,7 +1850,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeBeacon = false), (loading = false)">{{
                 $t("change.cancle")
               }}</el-button>
@@ -1887,14 +1858,13 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("change.sure") }}</el-button
-              >
-            </div>
+                >{{ $t("change.sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 导出 表格复选框没有选择-->
           <el-dialog
             :title="$t('terminal.tit2')"
-            :visible.sync="exportBtn"
+            v-model="exportBtn"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -1938,9 +1908,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.tit3") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1973,9 +1943,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("beacon.tit6") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -2020,14 +1990,14 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("terminal.tet42") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(exportBtn = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -2035,9 +2005,8 @@
                 type="primary"
                 @click="exportExcelTrue()"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -2119,29 +2088,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -4557,10 +4526,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .selects button {
@@ -4569,8 +4538,16 @@ export default {
 }
 .query,
 .reset,
+.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
 .delBeacons,
-.addBeacon,
 .editBeacons,
 .dels {
   padding: 8px 12px !important;
@@ -4591,34 +4568,61 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
-  line-height: 34px;
+  line-height: 34px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
-  line-height: 34px;
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  line-height: 34px !important;
+  white-space: nowrap;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+
+.demo-form-inline :deep(.search-actions) {
+  margin-left: 10px !important;
+}
+
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-button),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown-link),
+.demo-form-inline :deep(.el-form-item .el-form-item__content > span) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.chose >>> button {
+.chose :deep(button) {
   padding: 0;
   line-height: 34px;
   border: 0;
 }
 
-.memo >>> .el-input {
+.memo :deep(.el-input) {
   width: 80%;
 }
 .el-form-item .el-button {
-  margin-left: 4px !important;
+  margin-left: 0 !important;
 }
 .icon_button {
   padding: 2px 16px !important;

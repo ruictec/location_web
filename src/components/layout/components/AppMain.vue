@@ -72,6 +72,7 @@ export default {
   transition: all .5s
 }
 
+.fade-transform-enter-from,
 .fade-transform-enter {
   opacity: 0;
   transform: translateX(-30px);

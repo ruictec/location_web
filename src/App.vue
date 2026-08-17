@@ -3,7 +3,7 @@
     <router-view />
     <el-dialog
       :title="$t('tet.tet19')"
-      :visible.sync="editSos"
+      v-model="editSos"
       class="edit"
       width="30%"
       style="text-align: center"
@@ -14,7 +14,7 @@
         :rules="updateSos"
         label-width="100px"
         style="text-align: left"
-        @submit.native.prevent
+        @submit.prevent
       >
         <el-form-item :label="$t('usermanagement.password')" prop="userkey">
           <el-input
@@ -24,14 +24,14 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="">
+      <template #footer><div class="">
         <el-button @click="editSos = false">{{
           $t("territorymanagement.cancle")
         }}</el-button>
         <el-button type="primary" @click="editSosTrue('closeSosValue')">{{
           $t("territorymanagement.sure")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <div v-show="showlargr">
       <div class="changeLanguage" v-if="showFooter">
@@ -39,17 +39,17 @@
         <p class="moreInfo">
           <el-dropdown>
             <span class="el-dropdown-link">
-              {{ $t("login.language")
+              {{ i8n == "zh" ? $t("message.zh") : $t("message.en")
               }}<i class="el-icon-arrow-up el-icon--right"></i>
             </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="changeLanguagezh()">{{
+            <template #dropdown><el-dropdown-menu>
+              <el-dropdown-item @click="changeLanguagezh()">{{
                 $t("message.zh")
               }}</el-dropdown-item>
-              <el-dropdown-item @click.native="changeLanguageen()">{{
+              <el-dropdown-item @click="changeLanguageen()">{{
                 $t("message.en")
               }}</el-dropdown-item>
-            </el-dropdown-menu>
+            </el-dropdown-menu></template>
           </el-dropdown>
           <span @click="showVer()" class="show_ver">V1.15</span>
           <el-tooltip
@@ -58,7 +58,7 @@
             effect="dark"
             :content="$t('navbar.Selectitem')"
             placement="bottom"
-            :value="showTooltip"
+            :visible="showTooltip"
           >
             <span
               class="project_name"
@@ -68,13 +68,12 @@
             </span>
           </el-tooltip>
           <span v-if="i8n == 'zh'" class="xcx_name" @click="showImage()">
-            小程序</span
-          >
+            小程序</span>
         </p>
       </div>
     </div>
 
-    <el-dialog :title="$t('versions.title')" :visible.sync="showVersion">
+    <el-dialog :title="$t('versions.title')" v-model="showVersion">
       <div class="version">
         <el-timeline :reverse="reverse">
           <el-timeline-item
@@ -95,19 +94,18 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="" :visible.sync="showImages">
+    <el-dialog title="" v-model="showImages">
       <img src="./assets/xcx.jpg" alt="" srcset="" />
     </el-dialog>
 
     <!-- 选择项目 -->
     <el-dialog
       :title="$t('navbar.Selectitem')"
-      :visible.sync="selectProjects"
+      v-model="selectProjects"
       class="edit padreduce"
       style="text-align: center"
       :close-on-press-escape="false"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
       :append-to-body="true"
       width="40%"
     >
@@ -687,8 +685,11 @@ export default {
       this.showFooter = true;
     }
     window.addEventListener("beforeunload", (e) => this.beforeunloadHandler(e));
+    window.addEventListener("popstate", function () {
+      history.forward();
+    }, false);
     this.bindAuthChannel();
-    document.title = i18n.t("title.title");
+    document.title = i18n.global.t("title.title");
     window.GoMap = this.GoMap;
     window.hideNotify = this.hideNotify;
     window.showNotify = this.showNotify;
@@ -786,16 +787,18 @@ export default {
       this.showVersion = true;
     },
     changeLanguagezh() {
-      const lang = (this.$i18n.locale = "zh");
+      const lang = "zh";
       this.$i18n.locale = lang;
       this.$store.state.i18n = lang;
-      document.title = i18n.t("title.title");
+      this.i8n = lang;
+      document.title = i18n.global.t("title.title");
     },
     changeLanguageen() {
-      const lang = (this.$i18n.locale = "en");
+      const lang = "en";
       this.$i18n.locale = lang;
       this.$store.state.i18n = lang;
-      document.title = i18n.t("title.title");
+      this.i8n = lang;
+      document.title = i18n.global.t("title.title");
     },
     beforeunloadHandler(e) {
       this.saveState();
@@ -1528,7 +1531,7 @@ export default {
       return Y + M + D + h + m + s;
     },
   },
-  destroyed() {
+  unmounted() {
     window.removeEventListener("beforeunload", (e) =>
       this.beforeunloadHandler(e)
     );
@@ -1579,6 +1582,7 @@ export default {
   position: fixed;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: white;
   width: 100%;
   bottom: 0;
@@ -1586,6 +1590,15 @@ export default {
   border-top: 1px solid pink;
   height: 30px;
   line-height: 30px;
+  box-sizing: border-box;
+}
+
+.changeLanguage > p {
+  margin: 0;
+  height: 30px;
+  line-height: 30px;
+  display: flex;
+  align-items: center;
 }
 
 .changeLanguage p:nth-of-type(1) {
@@ -1596,9 +1609,37 @@ export default {
   margin-right: 20px;
 }
 
+.changeLanguage .moreInfo {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+}
+
+.changeLanguage .el-dropdown {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+}
+
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+  vertical-align: middle;
+}
+
+.changeLanguage .show_ver,
+.changeLanguage .xcx_name,
+.changeLanguage .project_name {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
 }
 
 .el-icon-arrow-down {
@@ -1733,15 +1774,17 @@ body {
   background-color: #bed7f0 !important;
 }
 
-.el-dropdown-menu.el-popper.el-dropdown-menu--mini {
+.el-dropdown-menu.el-popper.el-dropdown-menu--mini,
+.el-dropdown-menu.el-popper.el-dropdown-menu--small {
   transform: translateX(-30px);
 }
 
-body .el-table th {
+body .el-table th,
+body .el-table th.el-table__cell {
   display: table-cell !important;
 }
 </style>
-<style lang="sss" scoped>
+<style scoped>
 /*项目选择 */
 .project-wrapper {
   display: flex;

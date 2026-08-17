@@ -42,7 +42,7 @@
                     <el-date-picker
                       v-model="tasktime"
                       type="datetimerange"
-                      :picker-options="pickerOptions"
+                      :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                       :range-separator="$t('checkwork.to')"
                       :start-placeholder="$t('checkwork.starttime')"
                       :end-placeholder="$t('checkwork.endtime')"
@@ -53,21 +53,18 @@
                       type="primary"
                       class="querry"
                       @click="searchInfo()"
-                      >{{ $t("inspection.search") }}</el-button
-                    >
+                      >{{ $t("inspection.search") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="clearBtn()"
-                      >{{ $t("inspection.reset") }}</el-button
-                    >
+                      >{{ $t("inspection.reset") }}</el-button>
 
                     <el-button
                       type="primary"
                       class="reset"
                       @click="addInspection()"
-                      >{{ $t("inspection.addtask") }}</el-button
-                    ><el-tooltip
+                      >{{ $t("inspection.addtask") }}</el-button><el-tooltip
                       class="item"
                       effect="light"
                       placement="right-start"
@@ -79,14 +76,14 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("inspection.tttt2") }}<br />
                           {{ $t("inspection.tttt3") }}<br />
                           {{ $t("inspection.tttt4") }}<br />
                           {{ $t("inspection.tttt5") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -196,17 +193,15 @@
                     min-width="80"
                     align="center"
                   >
-                    <template slot-scope="scope">
-                      <el-button
+                    <template #default="scope">
+                      <el-button text
                         v-if="
                           scope.row.userids != '' && scope.row.userids != null
                         "
                         @click="showInspectionPer(scope.$index)"
-                        type="text"
                         size="small"
                         style="width: 60%"
-                        >{{ $t("inspection.Check") }}</el-button
-                      >
+                        >{{ $t("inspection.Check") }}</el-button>
                       <p
                         v-if="
                           scope.row.userids == '' || scope.row.userids == null
@@ -222,8 +217,9 @@
                     min-width="250"
                     align="center"
                   >
-                    <template slot-scope="scope">
-                      <el-dropdown size="mini" type="primary" trigger="click">
+                    <template #default="scope">
+                      <el-dropdown size="small" type="primary" trigger="click">
+                        <span class="el-dropdown-link">
                         <el-tooltip
                           class="item"
                           effect="dark"
@@ -234,8 +230,9 @@
                             <img src="../../../static/control.png" />
                           </el-button>
                         </el-tooltip>
-                        <el-dropdown-menu
-                          slot="dropdown"
+                        </span>
+<template #dropdown><el-dropdown-menu
+                         
                           style="background-color: rgb(219, 222, 231)"
                           class="selects"
                         >
@@ -245,12 +242,10 @@
                               background-color: rgb(219, 222, 231);
                             "
                             ><el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="editTask(scope.$index, tableData)"
-                              >{{ $t("inspection.edit") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.edit") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -258,12 +253,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="updateTask(scope.$index, tableData)"
-                              >{{ $t("inspection.distribution") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.distribution") }}</el-button></el-dropdown-item>
 
                           <el-dropdown-item
                             style="
@@ -272,17 +265,16 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="dels"
                               @click="delTask(scope.$index, tableData)"
-                              >{{ $t("inspection.delete") }}</el-button
-                            ></el-dropdown-item
-                          >
-                        </el-dropdown-menu>
+                              >{{ $t("inspection.delete") }}</el-button></el-dropdown-item>
+                        </el-dropdown-menu></template>
                       </el-dropdown>
 
                       <!-- 路线操作 -->
-                      <el-dropdown size="mini" type="primary" trigger="click">
+                      <el-dropdown size="small" type="primary" trigger="click">
+                        <span class="el-dropdown-link">
                         <el-tooltip
                           class="item"
                           effect="dark"
@@ -293,8 +285,9 @@
                             <img src="../../../static/route.png" />
                           </el-button>
                         </el-tooltip>
-                        <el-dropdown-menu
-                          slot="dropdown"
+                        </span>
+<template #dropdown><el-dropdown-menu
+                         
                           style="background-color: rgb(219, 222, 231)"
                           class="selects"
                         >
@@ -305,12 +298,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="setInspection(scope.$index, tableData)"
-                              >{{ $t("inspection.setroute") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.setroute") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -318,12 +309,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="openDetail(scope.$index)"
-                              >{{ $t("inspection.route1") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.route1") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -331,13 +320,11 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="removeInspection(scope.$index)"
-                              >{{ $t("inspection.RemoveRoute") }}</el-button
-                            ></el-dropdown-item
-                          >
-                        </el-dropdown-menu>
+                              >{{ $t("inspection.RemoveRoute") }}</el-button></el-dropdown-item>
+                        </el-dropdown-menu></template>
                       </el-dropdown>
 
                       <el-tooltip
@@ -364,7 +351,7 @@
                       >
                         <el-button
                           type="danger"
-                          size="mini"
+                          size="small"
                           class="icon_button"
                           @click="onTask(scope.$index, 2)"
                           v-show="scope.row.states !== 2"
@@ -383,7 +370,7 @@
                   <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page.sync="currentPage1"
+                    v-model:current-page="currentPage1"
                     :page-sizes="[10, 20, 30, 40, 50]"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total"
@@ -481,7 +468,7 @@
                     <el-date-picker
                       v-model="searchListHis.taskdate"
                       type="date"
-                      value-format="yyyy-MM-dd"
+                      value-format="YYYY-MM-DD"
                       :placeholder="$t('inspection.Selectdate')"
                     ></el-date-picker>
                   </el-form-item>
@@ -490,26 +477,22 @@
                       type="primary"
                       class="querry"
                       @click="searchInfoHis()"
-                      >{{ $t("inspection.search") }}</el-button
-                    >
+                      >{{ $t("inspection.search") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="clearBtnHis()"
-                      >{{ $t("inspection.reset") }}</el-button
-                    >
+                      >{{ $t("inspection.reset") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="delTaskListHis()"
-                      >{{ $t("inspection.batchdeletion") }}</el-button
-                    >
+                      >{{ $t("inspection.batchdeletion") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="taskListHisInfo()"
-                      >{{ $t("inspection.Inspectiondetails") }}</el-button
-                    >
+                      >{{ $t("inspection.Inspectiondetails") }}</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -559,7 +542,7 @@
                     show-overflow-tooltip
                     align="center"
                   >
-                    <template slot="header" slot-scope="scope">
+                    <template #header="scope">
                       <span class="cell" style="padding-right: 0">{{
                         $t("inspection.Inspectionrecord")
                       }}</span>
@@ -569,11 +552,11 @@
                         placement="right-start"
                         style="font-size: 130%"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           <p>
                             {{ $t("inspection.tttt") }}
                           </p>
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </template>
@@ -606,7 +589,7 @@
                     show-overflow-tooltip
                     align="center"
                   >
-                    <template slot="header" slot-scope="scope">
+                    <template #header="scope">
                       <span class="cell" style="padding-right: 0">{{
                         $t("inspection.number")
                       }}</span>
@@ -616,11 +599,11 @@
                         placement="right-start"
                         style="font-size: 130%"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           <p>
                             {{ $t("inspection.tttt1") }}
                           </p>
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </template>
@@ -639,7 +622,7 @@
                     align="center"
                     class-name="taskstatustr"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <p :class="tableCellClassName(scope.row)"></p>
                       <span>
                         {{
@@ -666,7 +649,7 @@
                   <el-pagination
                     @size-change="handleSizeChangeHis"
                     @current-change="handleCurrentChangeHis"
-                    :current-page.sync="currentPage1"
+                    v-model:current-page="currentPage1"
                     :page-sizes="[10, 20, 30, 40, 50]"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total"
@@ -679,7 +662,7 @@
           </el-tabs>
 
           <!-- 批量删除巡检历史 -->
-          <el-dialog :title="$t('inspection.text2')" :visible.sync="delHis">
+          <el-dialog :title="$t('inspection.text2')" v-model="delHis">
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -758,7 +741,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(delHis = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -766,14 +749,13 @@
                 type="primary"
                 :loading="loading"
                 @click="deleteTrueHis()"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 查看巡检历史里的巡检详情 -->
           <el-dialog
-            :visible.sync="taskHisInfo"
+            v-model="taskHisInfo"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
@@ -789,10 +771,9 @@
                 round
                 @click="closeTaskInfoHisCancle()"
                 style="width: 90px; height: 30px; text-align: left"
-                size="mini"
-                icon="el-icon-arrow-left"
-                >{{ $t("login.return") }}</el-button
-              >
+                size="small"
+               
+                ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
               <el-form-item
                 :label="$t('inspection.Building')"
@@ -875,32 +856,28 @@
                 <el-button-group>
                   <el-button
                     type="primary"
-                    icon="el-icon-arrow-left"
+                   
                     :disabled="lastBuilding"
                     @click="lastBuildings"
-                    >{{ $t("inspection.previousbuilding") }}</el-button
-                  >
+                    ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
                   <el-button
                     type="primary"
-                    icon="el-icon-arrow-left"
+                   
                     :disabled="lastGroup"
                     @click="lastGroups"
-                    >{{ $t("inspection.previouslayer") }}</el-button
-                  >
+                    ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
                   <el-button
                     type="primary"
                     :disabled="nextGroup"
                     @click="nextGroups"
                     >{{ $t("inspection.Nextlevel")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i
-                  ></el-button>
+                    }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                   <el-button
                     type="primary"
                     :disabled="nextBuilding"
                     @click="nextBuildings"
                     >{{ $t("inspection.nextbuilding")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i
-                  ></el-button>
+                    }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                 </el-button-group>
               </div>
             </div>
@@ -911,36 +888,32 @@
                   <el-button-group>
                     <el-button
                       type="primary"
-                      icon="el-icon-arrow-left"
+                     
                       :disabled="lastBuilding"
                       @click="lastBuildings"
                       style="z-index: 1"
-                      >{{ $t("inspection.previousbuilding") }}</el-button
-                    >
+                      ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
                     <el-button
                       type="primary"
-                      icon="el-icon-arrow-left"
+                     
                       :disabled="lastGroup3D"
                       @click="lastGroups3D"
                       style="z-index: 1"
-                      >{{ $t("inspection.previouslayer") }}</el-button
-                    >
+                      ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
                     <el-button
                       type="primary"
                       :disabled="nextGroup3D"
                       @click="nextGroups3D"
                       style="z-index: 1"
                       >{{ $t("inspection.Nextlevel")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i
-                    ></el-button>
+                      }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                     <el-button
                       type="primary"
                       :disabled="nextBuilding"
                       @click="nextBuildings"
                       style="z-index: 1"
                       >{{ $t("inspection.nextbuilding")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i
-                    ></el-button>
+                      }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                   </el-button-group>
                 </div>
               </div>
@@ -949,7 +922,7 @@
 
           <!-- 设置巡检详情 -->
           <el-dialog
-            :visible.sync="setInspectionMap"
+            v-model="setInspectionMap"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
@@ -965,10 +938,9 @@
                 round
                 @click="inspectioncancel()"
                 style="width: 90px; height: 30px; text-align: left"
-                size="mini"
-                icon="el-icon-arrow-left"
-                >{{ $t("login.return") }}</el-button
-              >
+                size="small"
+               
+                ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
               <el-form-item
                 :label="$t('inspection.Building')"
@@ -994,8 +966,7 @@
                   type="primary"
                   @click="updateTaskManagementDetailsTrue()"
                   class="reset"
-                  >{{ $t("inspection.preservation") }}</el-button
-                >
+                  >{{ $t("inspection.preservation") }}</el-button>
               </el-form-item>
             </el-form>
             <div v-show="mapTypes" class="mapConent">
@@ -1066,7 +1037,7 @@
           <!-- 显示巡检路线详情 -->
           <el-dialog
             :title="$t('inspection.text3')"
-            :visible.sync="showInspection"
+            v-model="showInspection"
             width="40%"
             style="text-align: center"
             @close="closeInspection"
@@ -1116,27 +1087,24 @@
                   width="170"
                   align="center"
                 >
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="
                         goShowInspection(scope.$index, showInspectionData)
                       "
-                      >{{ $t("inspection.Check") }}</el-button
-                    >
+                      >{{ $t("inspection.Check") }}</el-button>
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="dels"
                       @click="
                         delShowInspection(scope.$index, showInspectionData)
                       "
-                      >{{ $t("inspection.delete") }}</el-button
-                    >
-                  </template></el-table-column
-                >
+                      >{{ $t("inspection.delete") }}</el-button>
+                  </template></el-table-column>
               </el-table>
             </div>
           </el-dialog>
@@ -1145,7 +1113,7 @@
           <el-dialog
             :title="$t('inspection.text4')"
             width="40%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
             @opened="openDialog('addData')"
@@ -1195,22 +1163,20 @@
               <el-form-item :label="$t('inspection.Date')">
                 <el-date-picker
                   v-model="totleDate"
-                  format="yyyy-MM-dd"
-                  value-format="yyyy-MM-dd"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                   type="daterange"
                   :range-separator="$t('inspection.to')"
                   :start-placeholder="$t('inspection.startdate')"
                   :end-placeholder="$t('inspection.enddate')"
-                  :picker-options="above_now"
+                  :disabled-date="above_now.disabledDate"
+                  @calendar-change="(val) => above_now.onPick && above_now.onPick({ minDate: val[0], maxDate: val[1] })"
                 >
                 </el-date-picker>
               </el-form-item>
               <el-form-item :label="$t('inspection.time')">
                 <el-time-picker
                   is-range
-                  :picker-options="{
-                    selectableRange: '00:00 - 24:00',
-                  }"
                   v-model="totleTime"
                   format="HH:mm"
                   value-format="HH:mm"
@@ -1231,7 +1197,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1239,15 +1205,14 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 编辑巡检任务 -->
           <el-dialog
             :title="$t('inspection.text5')"
             width="40%"
-            :visible.sync="edit"
+            v-model="edit"
             style="text-align: center"
             @close="editCancel('editData')"
           >
@@ -1297,13 +1262,14 @@
               <el-form-item :label="$t('inspection.Date')">
                 <el-date-picker
                   v-model="totleDate"
-                  format="yyyy-MM-dd"
-                  value-format="yyyy-MM-dd"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                   type="daterange"
                   :range-separator="$t('inspection.to')"
                   :start-placeholder="$t('inspection.startdate')"
                   :end-placeholder="$t('inspection.enddate')"
-                  :picker-options="above_now"
+                  :disabled-date="above_now.disabledDate"
+                  @calendar-change="(val) => above_now.onPick && above_now.onPick({ minDate: val[0], maxDate: val[1] })"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -1311,9 +1277,6 @@
                 <el-time-picker
                   is-range
                   arrow-control
-                  :picker-options="{
-                    selectableRange: '00:00 - 24:00',
-                  }"
                   v-model="totleTime"
                   format="HH:mm"
                   value-format="HH:mm"
@@ -1334,7 +1297,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1342,15 +1305,14 @@
                 type="primary"
                 @click="editTaskTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 分配巡检任务 -->
           <el-dialog
             :title="$t('inspection.text6')"
             width="30%"
-            :visible.sync="update"
+            v-model="update"
             style="text-align: center"
           >
             <el-form
@@ -1384,7 +1346,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="update = false">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1392,15 +1354,14 @@
                 type="primary"
                 @click="updateTaskTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 显示巡检任务分配人员 -->
           <el-dialog
             :title="$t('inspection.Personneldetails')"
             width="40%"
-            :visible.sync="showUser"
+            v-model="showUser"
             style="text-align: center"
             @close="closeAction"
           >
@@ -1452,6 +1413,8 @@
   </div>
 </template>
 <script>
+import { resolveElTab } from '../../utils/elementTab'
+import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import host from "../../host";
 import Menu from "../../components/menu/Menu";
 import basecard from "../../components/card/base-card";
@@ -1531,33 +1494,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -2075,7 +2038,7 @@ export default {
     //切换标签
     changeTab(tab, event) {
       var that = this;
-      switch (tab.index) {
+      switch (resolveElTab(tab).index) {
         case "0":
           //巡检任务
           that.searchList = {
@@ -2461,6 +2424,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
+        decoderURL: FENGMAP_DECODER_URL,
         // mapURL: "/data/",
         // themeURL: "/data/theme/",
       };
@@ -2560,6 +2524,7 @@ export default {
         viewMode: fengmap.FMViewMode.MODE_2D, //设置地图2d显示
         mapID: that.fmapId,
         themeID: that.themeId,
+        decoderURL: FENGMAP_DECODER_URL,
         // mapURL: "/data/",
         // themeURL: "/data/theme/",
       };
@@ -5193,10 +5158,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .el-table .not-conducted {
@@ -5206,7 +5171,7 @@ export default {
   height: 12px;
   border-radius: 50%;
 }
-.el-table >>> .taskstatustr {
+.el-table :deep(.taskstatustr) {
   display: flex;
   text-align: left;
 }
@@ -5217,14 +5182,14 @@ export default {
   height: 12px;
   border-radius: 50%;
 }
-.el-table >>> .finished {
+.el-table :deep(.finished) {
   display: inline-block;
   width: 12px;
   height: 12px;
   border-radius: 50%;
   background: rgba(0, 255, 0, 1);
 }
-.el-table >>> .unfinished {
+.el-table :deep(.unfinished) {
   display: inline-block;
   width: 12px;
   height: 12px;
@@ -5237,23 +5202,23 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -5261,7 +5226,7 @@ export default {
   margin-left: 4px !important;
 }
 
-.addInspection >>> .el-range-separator {
+.addInspection :deep(.el-range-separator) {
   width: auto !important;
   padding: 0 !important;
 }
@@ -5297,7 +5262,7 @@ export default {
   background-color: white;
 }
 
-.selectGround >>> .el-scrollbar__wrap {
+.selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
 .selectGround {
@@ -5351,14 +5316,14 @@ export default {
 .setInspection {
   background-color: #f1f5f7 !important;
 }
-.setInspection >>> .el-dialog {
+.setInspection :deep(.el-dialog) {
   background-color: #f1f5f7 !important;
 }
 
-.setInspection >>> .el-dialog__header {
+.setInspection :deep(.el-dialog__header) {
   display: none;
 }
-.setInspection >>> .el-dialog__body {
+.setInspection :deep(.el-dialog__body) {
   width: 100%;
   height: 100%;
 }

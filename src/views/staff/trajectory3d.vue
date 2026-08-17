@@ -20,8 +20,7 @@
         <div class="right">
           <span id="speed_0.5" @click="onHandleBtn('speed', 0.5)">x0.5</span>
           <span id="speed_1" class="active" @click="onHandleBtn('speed', 1)"
-            >x1</span
-          >
+            >x1</span>
           <span id="speed_1.5" @click="onHandleBtn('speed', 1.5)">x1.5</span>
           <span id="speed_2" @click="onHandleBtn('speed', 2)">x2</span>
           <span id="speed_3" @click="onHandleBtn('speed', 3)">x3</span>
@@ -52,6 +51,7 @@ import Graphs from "./trajectory2.js";
 // import "fengmap/build/toolBarStyle.css";
 
 import fengmap from "fengmap/build/fengmap.map.min"; //核心包
+import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import "fengmap/build/fengmap.plugin.ui.min"; //UI控件包
 import "fengmap/build/fengmap.analyser.min"; //分析器包
 import "fengmap/build/fengmap.plugin.navi.min"; //导航包
@@ -540,6 +540,7 @@ export default {
         level: level,
         visibleLevels: [level],
         floorSpace: 50,
+        decoderURL: FENGMAP_DECODER_URL,
         // mapURL: "/data/",
         // themeURL: "/data/theme/",
       };

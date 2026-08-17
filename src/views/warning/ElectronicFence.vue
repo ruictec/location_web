@@ -46,8 +46,7 @@
                   type="primary"
                   class="reset"
                   @click="showAllFence()"
-                  >{{ $t("warning.Preview") }}</el-button
-                >
+                  >{{ $t("warning.Preview") }}</el-button>
                 <el-popover
                   placement="bottom"
                   width="auto"
@@ -66,11 +65,11 @@
                       @click="handleIndoorFence()"
                     >{{ $t("warning.indoorFence") }}</el-button>
                   </div>
-                  <el-button
+                  <template #reference><el-button
                     type="primary"
                     class="reset"
-                    slot="reference"
-                  >{{ $t("warning.add") }}</el-button>
+                   
+                  >{{ $t("warning.add") }}</el-button></template>
                 </el-popover>
               </el-form-item>
             </el-form>
@@ -109,7 +108,7 @@
                 align="center"
                 min-width="150"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <span>{{ getFloorDisplay(scope.row) }}</span>
                 </template>
               </el-table-column>
@@ -118,7 +117,7 @@
                 align="center"
                 width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <div
                     :style="{
                       width: '30px',
@@ -136,7 +135,7 @@
                 align="center"
                 width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-switch
                     :value="scope.row.flag !== false"
                     @change="handleFenceFlagChange(scope.row, $event)"
@@ -150,7 +149,7 @@
                 align="center"
                 min-width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -159,7 +158,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="editss"
                       @click="EditFenceCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
@@ -173,7 +172,7 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="DelFenceCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
@@ -189,7 +188,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -201,7 +200,7 @@
             <!-- 地图弹框 -->
             <el-dialog
               :title="add ? $t('warning.add') : edit ? $t('warning.edit') : ''"
-              :visible.sync="showMap"
+              v-model="showMap"
               width="70%"
               style="text-align: center"
               @opened="initMap"
@@ -246,8 +245,7 @@
                 </el-form-item>
                 <el-form-item v-if="add" style="display: flex; margin-left: 2%">
                   <el-button @click="clearFence" type="primary">
-                    {{ $t("warning.Redraw") }}</el-button
-                  >
+                    {{ $t("warning.Redraw") }}</el-button>
                 </el-form-item>
                 <!-- 编辑时显示保存按钮 -->
                 <el-form-item v-if="edit" style="display: flex; margin-left: 2%">
@@ -256,15 +254,14 @@
                     :loading="loading"
                     @click="mapTrue(mapData)"
                   >
-                    {{ $store.state.i18n == "zh" ? "保存" : "Save" }}</el-button
-                  >
+                    {{ $store.state.i18n == "zh" ? "保存" : "Save" }}</el-button>
                 </el-form-item>
               </el-form>
               <div class="mapConent" style="position: relative">
                 <MapLayerSwitcher :map="map" />
                 <div id="map" ref="map"></div>
               </div>
-              <div slot="footer" class="dialog-footer" v-if="add">
+              <template #footer><div class="dialog-footer" v-if="add">
                 <el-button @click="mapCancel(mapData)">
                   {{ $t("warning.Cancel") }}
                 </el-button>
@@ -273,15 +270,14 @@
                   :loading="loading"
                   @click="mapTrue(mapData)"
                 >
-                  {{ $t("warning.Sure") }}</el-button
-                >
-              </div>
+                  {{ $t("warning.Sure") }}</el-button>
+              </div></template>
             </el-dialog>
 
             <!-- 楼栋楼层选择对话框 -->
             <el-dialog
               :title="$t('warning.selectFenceType')"
-              :visible.sync="showBuildingFloorDialog"
+              v-model="showBuildingFloorDialog"
               width="30%"
               style="text-align: center"
             >
@@ -317,7 +313,7 @@
                   </el-select>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="cancelBuildingFloorDialog()">
                   {{ $t("warning.Cancel") }}
                 </el-button>
@@ -328,12 +324,12 @@
                 >
                   {{ $t("warning.Sure") }}
                 </el-button>
-              </div>
+              </div></template>
             </el-dialog>
 
             <!-- 室内地图弹框 -->
             <el-dialog
-              :visible.sync="showIndoorMapDialog"
+              v-model="showIndoorMapDialog"
               width="90%"
               :close-on-click-modal="false"
               @close="handleCancelIndoorMap"
@@ -352,34 +348,30 @@
                       type="primary"
                       @click="toggleCreateFence3d"
                       style="width: 120px; height: 30px"
-                      size="mini"
-                      >{{ isCreatingFence3d ? $t("warning.End") : $t("warning.CreateFence") }}</el-button
-                    >
+                      size="small"
+                      >{{ isCreatingFence3d ? $t("warning.End") : $t("warning.CreateFence") }}</el-button>
                     <el-button
                       v-if="currentGroundInfo && currentGroundInfo.maptype == 2 && isEditingFence3d"
                       type="primary"
                       @click="toggleEditFence3d"
                       style="width: 120px; height: 30px; margin-left: 10px"
-                      size="mini"
-                      >{{ $t("warning.EndEdit") }}</el-button
-                    >
+                      size="small"
+                      >{{ $t("warning.EndEdit") }}</el-button>
                     <!-- 2D地图按钮 -->
                     <el-button
                       v-if="currentGroundInfo && currentGroundInfo.maptype == 1 && !isEditingFence2d && !isEditFromList"
                       type="primary"
                       @click="toggleCreateFence2d"
                       style="width: 120px; height: 30px"
-                      size="mini"
-                      >{{ isCreatingFence2d ? $t("warning.End") : $t("warning.CreateFence") }}</el-button
-                    >
+                      size="small"
+                      >{{ isCreatingFence2d ? $t("warning.End") : $t("warning.CreateFence") }}</el-button>
                     <el-button
                       v-if="currentGroundInfo && currentGroundInfo.maptype == 1 && isEditingFence2d"
                       type="primary"
                       @click="toggleEditFence2d"
                       style="width: 120px; height: 30px; margin-left: 10px"
-                      size="mini"
-                      >{{ $t("warning.EndEdit") }}</el-button
-                    >
+                      size="small"
+                      >{{ $t("warning.EndEdit") }}</el-button>
                   </el-form>
                 </div>
                 <div style="width: 100%; margin-top: 2%">
@@ -416,7 +408,7 @@
             <!-- 创建/编辑电子围栏对话框 -->
             <el-dialog
               :title="isEditingFence3d ? $t('warning.EditFenceInfo') : $t('warning.SetFenceInfo')"
-              :visible.sync="showFenceDialog"
+              v-model="showFenceDialog"
               width="500px"
               :close-on-click-modal="false"
             >
@@ -431,10 +423,10 @@
                   <el-switch v-model="fenceForm.flag"></el-switch>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="cancelCreateFence3d">{{ $t("login.cancel") }}</el-button>
                 <el-button type="primary" @click="confirmCreateFence3d">{{ $t("login.confirm") }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
           </div>
         </el-main>
@@ -467,6 +459,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
+import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import host from "../../host";
 
 import Menu from "../../components/menu/Menu";
@@ -1141,6 +1134,7 @@ export default {
             mapID: that.fmapId,
             themeID: that.themeId,
             zoomRange: [1, 29],
+            decoderURL: FENGMAP_DECODER_URL,
             // mapURL: "/data/",
             // themeURL: "/data/theme/",
           };
@@ -3240,7 +3234,7 @@ export default {
       var that = this;
       
       // 设置更新中状态，防止重复点击
-      this.$set(row, 'updating', true);
+      row['updating'] = true;
       
       // 构建请求数据
       var data = {
@@ -3252,7 +3246,7 @@ export default {
       updateFenceManage(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
         (res) => {
           // 清除更新中状态
-          that.$set(row, 'updating', false);
+          row['updating'] = false;
           
           if (res.code == 1001) {
             // 更新本地数据
@@ -3274,7 +3268,7 @@ export default {
         }
       ).catch((error) => {
         // 清除更新中状态
-        that.$set(row, 'updating', false);
+        row['updating'] = false;
         // 恢复原状态
         row.flag = !value;
         that.$message({
@@ -3353,11 +3347,11 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
 
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
@@ -3366,26 +3360,26 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -3404,10 +3398,10 @@ export default {
   width: 100%;
   /* z-index: 1; */
 }
-.fence >>> .el-dialog {
+.fence :deep(.el-dialog) {
   margin-top: 5vh !important;
 }
-.indoorMapDialog >>> .el-dialog {
+.indoorMapDialog :deep(.el-dialog) {
   margin-top: 2vh !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -3416,10 +3410,10 @@ export default {
   width: 90% !important;
   max-width: none !important;
 }
-.indoorMapDialog >>> .el-dialog__wrapper {
+.indoorMapDialog :deep(.el-dialog__wrapper) {
   overflow: hidden !important;
 }
-.indoorMapDialog >>> .el-dialog__body {
+.indoorMapDialog :deep(.el-dialog__body) {
   padding: 0 !important;
   overflow: hidden !important;
   flex: 1 !important;
@@ -3506,7 +3500,7 @@ export default {
   background-color: rgb(196, 27, 27) !important;
   color: white;
 }
-.threecontent >>> li {
+.threecontent :deep(li) {
   margin-top: 5px;
 }
 #fengMap >>> .hiddenclock {

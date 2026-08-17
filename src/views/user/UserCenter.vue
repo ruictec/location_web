@@ -188,7 +188,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("usercenter.Embedprompt1") }}
                         </p>
@@ -201,7 +201,7 @@
                         <p>
                           {{ $t("usercenter.Embedprompt4") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -217,14 +217,9 @@
             </el-tabs>
 
             <el-form
+              class="usercenter-actions"
               :label-position="labelPosition"
               :model="userInfo"
-              style="
-                display: flex;
-                margin-top: 2%;
-                width: 100%;
-                justify-content: center;
-              "
             >
               <el-form-item>
                 <el-button type="primary" class="edit" @click="editUser()">{{
@@ -233,14 +228,12 @@
                    <el-button type="primary" class="edit" @click="updateCode()"
                   >{{
                   $t("usercenter.Updatelicensekey")
-                }}</el-button
-                >
+                }}</el-button>
                 <el-button
                   type="primary"
                   class="edit"
                   @click="resetUserKeys()"
-                  >{{ $t("usercenter.editpwd") }}</el-button
-                >
+                  >{{ $t("usercenter.editpwd") }}</el-button>
 
                 <el-button
                   type="primary"
@@ -248,8 +241,7 @@
                   :disabled="deleteUser"
                   @click="userDele()"
                   v-if="!deleteUser"
-                  >{{ $t("usercenter.cancel") }}</el-button
-                >
+                  >{{ $t("usercenter.cancel") }}</el-button>
                 <el-button type="primary" class="out" @click="logout()">{{
                   $t("usercenter.signout")
                 }}</el-button>
@@ -260,7 +252,7 @@
           <!-- 修改个人信息 -->
           <el-dialog
             :title="$t('usercenter.editinfor1')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -325,7 +317,7 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("usercenter.cancel")
               }}</el-button>
@@ -333,9 +325,8 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("usercenter.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("usercenter.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 修改密码 -->
@@ -343,7 +334,7 @@
             :title="$t('usercenter.editpwd')"
             width="30%"
             style="text-align: center"
-            :visible.sync="passwordTpl"
+            v-model="passwordTpl"
             class="passward"
           >
             <el-form
@@ -379,7 +370,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(passwordTpl = false), (loading = false)">{{
                 $t("usercenter.cancel")
               }}</el-button>
@@ -387,9 +378,8 @@
                 type="primary"
                 @click="passwordTrue('passwordData')"
                 :loading="loading"
-                >{{ $t("usercenter.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("usercenter.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -958,5 +948,31 @@ export default {
   flex-direction: column;
   align-items: start;
   justify-content: baseline;
+}
+
+.usercenter-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2%;
+  width: 100%;
+}
+
+.usercenter-actions :deep(.el-form-item) {
+  width: auto !important;
+  margin-bottom: 0;
+}
+
+.usercenter-actions :deep(.el-form-item__content) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.usercenter-actions :deep(.el-form-item__content > .el-button) {
+  margin: 0 !important;
 }
 </style>

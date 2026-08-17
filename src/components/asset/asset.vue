@@ -3,11 +3,12 @@
     <el-button
       :class="btnChange ? 'changeBtn1' : 'changeBtn'"
       @click="changeIcon()"
-      v-bind:icon="iconData"
-    ></el-button>
+    >
+      <i :class="iconData"></i>
+    </el-button>
     <el-menu
       class="el-menu-vertical-demo"
-      :default-active="this.$route.path"
+      :default-active="$route.path"
       :router="true"
     >
       <el-menu-item index="/staffmanagement" v-if="contrForPrioNum != 6">
@@ -45,7 +46,7 @@
         >
           <i class="icon check"></i>
         </el-tooltip>
-        <span slot="title" v-show="show">{{
+        <span v-show="show">{{
           $t("Breadcrumb.Attendancemanagement")
         }}</span>
       </el-menu-item>
@@ -59,7 +60,7 @@
         >
           <i class="icon task"></i>
         </el-tooltip>
-        <span slot="title" v-show="show">{{
+        <span v-show="show">{{
           $t("Breadcrumb.Patrolmanagement")
         }}</span>
       </el-menu-item>

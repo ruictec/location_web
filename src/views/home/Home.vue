@@ -15,18 +15,16 @@
               contrForPrionum == 4
             "
           >
-            <div
-              style="display: flex; justify-content: space-between; width: 100%"
-            >
+            <div class="charts-top">
               <el-card class="box-card" style="width: 48%; margin-left: 1%">
-                <div
-                  slot="header"
+                <template #header><div
+                 
                   class="clearfix"
                   style="text-align: left; font-weight: 600"
                   @click="goBeacon()"
                 >
                   <span>{{ $t("home.BeaconStatus") }}</span>
-                </div>
+                </div></template>
                 <div style="display: flex">
                   <div id="beacon" style="width: 50%"></div>
                   <div id="beaconPower" style="width: 50%"></div>
@@ -34,48 +32,41 @@
               </el-card>
 
               <el-card class="box-card" style="width: 25%">
-                <div
-                  slot="header"
+                <template #header><div
+                 
                   class="clearfix"
                   style="text-align: left; font-weight: 600"
                 >
                   <span>{{ $t("home.ProjectType") }}</span>
-                </div>
+                </div></template>
                 <div id="projectType" style="width: 100%"></div>
               </el-card>
 
-              <el-card class="box-card" style="width: 20%">
-                <div
-                  slot="header"
+              <el-card class="box-card device-type-card" style="width: 20%">
+                <template #header><div
+                 
                   class="clearfix"
                   style="text-align: left; font-weight: 600"
                   @click="goTerminal()"
                 >
                   <span>{{ $t("home.DeviceType") }}</span>
-                </div>
+                </div></template>
                 <div id="gatewayType" style="width: 100%"></div>
               </el-card>
             </div>
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                margin-top: 1%;
-                width: 100%;
-              "
-            >
+            <div class="charts-bottom">
               <el-card
                 class="box-card local"
                 style="margin-left: 1%; width: 42%"
               >
-                <div
-                  slot="header"
+                <template #header><div
+                 
                   class="clearfix"
                   style="text-align: left; font-weight: 600"
                   @click="goTerminal()"
                 >
                   <span>{{ $t("home.DeviceState") }}</span>
-                </div>
+                </div></template>
                 <div id="gateway" style="width: 100%"></div>
               </el-card>
               <!-- 地图 -->
@@ -89,8 +80,7 @@
                 <div id="gatewayMap" ref="map"></div>
                 <div class="tips">
                   <span style="color: #fff; font-size: 18px">
-                    - {{ $t("home.BaseStation") }} -</span
-                  >
+                    - {{ $t("home.BaseStation") }} -</span>
                   <div class="item" style="font-size: 14px">
                     {{ $t("home.Online") }}
                     <div
@@ -283,7 +273,15 @@ export default {
       var beaconPower = this.$echarts.init(
         document.getElementById("beaconPower")
       );
-      var gateway = this.$echarts.init(document.getElementById("gateway"));
+      var gatewayEl = document.getElementById("gateway");
+      // 避免 ECharts 在容器未撑开时写入固定 300px 宽度后无法再铺满
+      if (gatewayEl) {
+        gatewayEl.style.width = "100%";
+        gatewayEl.style.height = "100%";
+        const oldChart = this.$echarts.getInstanceByDom(gatewayEl);
+        if (oldChart) oldChart.dispose();
+      }
+      var gateway = this.$echarts.init(gatewayEl);
       var gatewayType = this.$echarts.init(
         document.getElementById("gatewayType")
       );
@@ -797,17 +795,27 @@ export default {
       } else {
         gatewayOption = {
           aria: {
-            enabled: true,
+            enabled: false,
             decal: {
-              show: true,
+              show: false,
             },
           },
           tooltip: {},
+          grid: {
+            left: 48,
+            right: 20,
+            top: 28,
+            bottom: 72,
+            containLabel: false,
+          },
           xAxis: {
+            type: "category",
             data: dev_hbstatus_xAx,
             axisLabel: {
               interval: 0,
               rotate: 30,
+              fontSize: 12,
+              hideOverlap: false,
             },
             axisTick: {
               alignWithLabel: true,
@@ -817,7 +825,7 @@ export default {
             type: "value",
           },
           legend: {
-            show: true,
+            show: false,
           },
           series: [
             {
@@ -828,27 +836,25 @@ export default {
               //   position: "insideTop",
               // },
               itemStyle: {
-                normal: {
-                  color: function (params) {
-                    var colorList = [
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#d72a14"],
-                      ["#E1D95B"],
-                      ["#52ca52"],
-                    ];
-                    return colorList[params.dataIndex];
-                  },
+                color: function (params) {
+                  var colorList = [
+                    "#52ca52",
+                    "#d72a14",
+                    "#52ca52",
+                    "#d72a14",
+                    "#d72a14",
+                    "#52ca52",
+                    "#d72a14",
+                    "#52ca52",
+                    "#d72a14",
+                    "#d72a14",
+                    "#E1D95B",
+                    "#52ca52",
+                  ];
+                  return colorList[params.dataIndex];
                 },
               },
-              barCategoryGap: "60%",
+              barCategoryGap: "35%",
               data: dev_hbstatus_yAy,
             },
           ],
@@ -902,7 +908,8 @@ export default {
           // show: true,
           // type: "plain",
           orient: "vertical",
-          x: "right",
+          right: 0,
+          top: 0,
         },
         series: [
           //第一环
@@ -910,7 +917,7 @@ export default {
             type: "pie",
             selectedMode: "single",
             radius: ["0%", "35%"],
-            center: ["30%", "50%"],
+            center: ["35%", "50%"],
             label: {
               normal: {
                 position: "inner",
@@ -927,7 +934,7 @@ export default {
           {
             type: "pie",
             radius: ["45%", "60%"],
-            center: ["30%", "50%"],
+            center: ["35%", "50%"],
 
             label: {
               normal: {
@@ -1150,6 +1157,28 @@ export default {
           default:
             break;
         }
+      });
+      this.$nextTick(() => {
+        const resizeCharts = () => {
+          if (gatewayEl && gateway) {
+            gatewayEl.style.width = "100%";
+            gatewayEl.style.height = "100%";
+            const w = gatewayEl.clientWidth;
+            const h = gatewayEl.clientHeight;
+            if (w > 0 && h > 0) {
+              gateway.resize({ width: w, height: h });
+            } else {
+              gateway.resize();
+            }
+          }
+          [projectType, beacon, beaconPower, gatewayType].forEach(
+            (chart) => chart && chart.resize()
+          );
+          if (this.map) this.map.updateSize();
+        };
+        resizeCharts();
+        setTimeout(resizeCharts, 50);
+        setTimeout(resizeCharts, 200);
       });
     },
 
@@ -1560,6 +1589,11 @@ export default {
       this.getFristPages();
       this.initGatewayMap();
       this.getGwActiveInfos();
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (this.map) this.map.updateSize();
+        }, 100);
+      });
     }
   },
   computed: {
@@ -1591,10 +1625,73 @@ export default {
   position: relative;
 }
 
+.content {
+  height: calc(100% - 60px);
+}
+
 .asi {
   position: absolute;
-  top: 50px;
+  top: 60px;
+  bottom: 30px;
+  left: 0;
   width: 99%;
+}
+
+.asi :deep(.el-main) {
+  padding: 8px 8px 0 !important;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.Echarts {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.charts-top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.charts-bottom {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1%;
+  flex: 1;
+  min-height: 0;
+}
+
+.charts-bottom .local {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
+.charts-bottom .local :deep(.el-card__header) {
+  flex-shrink: 0;
+}
+
+.charts-bottom .local :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  position: relative;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.device-type-card :deep(.el-card__body) {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .box-card span {
@@ -1604,15 +1701,26 @@ export default {
 #beacon,
 #beaconPower,
 #projectType,
-#gatewayType,
-#gateway {
+#gatewayType {
   height: 300px;
+}
+
+#gateway {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
 }
 
 /* 地图 */
 .mapConent {
   width: 56%;
   position: relative;
+  height: 100%;
 }
 
 .mapConent .tips {
@@ -1621,18 +1729,29 @@ export default {
   top: 10px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   background-color: rgba(134, 153, 175, 0.7);
   padding: 4px;
   border-radius: 4px;
+  text-align: left;
+}
+
+.mapConent .tips > span {
+  display: block;
+  width: 100%;
+  text-align: left;
 }
 
 .mapConent .tips .item {
   display: flex;
   margin-right: 0;
   align-items: center;
+  justify-content: flex-start;
   font-size: 10px;
   color: #fff;
   padding: 1px 0 1px 0;
+  width: 100%;
+  text-align: left;
 }
 
 .mapConent .tips .item .color {

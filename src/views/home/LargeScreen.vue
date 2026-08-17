@@ -248,7 +248,7 @@ import OlStyleStyle from "ol/style/Style";
 import OlStyleIcon from "ol/style/Icon";
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
-import * as echarts from "echarts";
+import echarts from "../../utils/echartsLegacy";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom"; //鼠标双击放大
 import DragPan from "ol/interaction/DragPan";
 import MouseWheelZoom from "ol/interaction/MouseWheelZoom";
@@ -383,7 +383,7 @@ export default {
     }
   },
   
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timers);
     this.timers = null;
   },
@@ -2014,7 +2014,7 @@ export default {
       // });
     },
     // 销毁定时器
-    destroyed() {
+    unmounted() {
       clearInterval(this.timerMap);
       this.timerMap = null;
     },
@@ -2078,7 +2078,7 @@ $border: 1px solid red;
   }
 }
 
-.LargeScreen >>> .baseLayerClass {
+.LargeScreen :deep(.baseLayerClass) {
   filter: grayscale(50%) sepia(45%) invert(100%) saturate(350%)
     hue-rotate(-46deg);
 }
@@ -2207,39 +2207,39 @@ $border: 1px solid red;
                 background: rgb(56, 151, 234);
               }
 
-              .el-table >>> .has-gutter tr th {
+              .el-table :deep(.has-gutter tr th) {
                 background-color: #05162d;
                 color: white;
                 font-weight: bolder;
                 border: 0px;
               }
 
-              .el-table >>> .has-gutter tr th .cell {
+              .el-table :deep(.has-gutter tr th .cell) {
                 font-size: 18px;
               }
-              .el-table >>> body .el-table th {
+              .el-table :deep(body .el-table th) {
                 display: none !important;
               }
               .el-table,
-              .el-table >>> .el-table__header-wrapper,
+              .el-table :deep(.el-table__header-wrapper,
               .el-table >>> .el-table__body-wrapper,
               .el-table >>> .el-table__body,
-              .el-table >>> tr {
+              .el-table >>> tr) {
                 background: transparent !important;
                 width: 100% !important;
               }
 
-              .el-table >>> .el-table__header-wrapper,
-              .el-table >>> .el-table__body-wrapper {
+              .el-table :deep(.el-table__header-wrapper,
+              .el-table >>> .el-table__body-wrapper) {
                 overflow-x: hidden !important;
               }
 
-              .el-table >>> .el-table__header,
-              .el-table >>> .el-table__body {
+              .el-table :deep(.el-table__header,
+              .el-table >>> .el-table__body) {
                 width: 100% !important;
               }
 
-              .el-table >>> td {
+              .el-table :deep(td) {
                 border: none;
               }
 
@@ -2247,22 +2247,22 @@ $border: 1px solid red;
                 color: #f1f1f1;
               }
 
-              .el-table >>> .el-table__body tr > td,
+              .el-table :deep(.el-table__body tr > td,
               .el-table >>> .el-table__body tr:hover > td,
               .el-table >>> .el-table__body tr.hover-row > td,
               .el-table >>> .el-table__body tr.current-row > td,
               .el-table >>> .el-table__row,
               .el-table >>> .el-table__row:hover,
-              .el-table >>> .el-table__row:hover td {
+              .el-table >>> .el-table__row:hover td) {
                 background: transparent !important;
                 color: #f1f1f1 !important;
               }
 
-              .el-table >>> .el-table__expand-icon {
+              .el-table :deep(.el-table__expand-icon) {
                 color: #8ec8ff;
               }
 
-              .el-table >>> .el-table__placeholder {
+              .el-table :deep(.el-table__placeholder) {
                 width: 16px;
               }
             }

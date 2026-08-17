@@ -101,7 +101,7 @@
                 fixed="right"
                 min-width="70"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -126,7 +126,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -138,7 +138,7 @@
 
           <el-dialog
             :title="$t('otamanagement.uploadtitle')"
-            :visible.sync="uploadVisible"
+            v-model="uploadVisible"
             width="32%"
             @close="resetUpload()"
           >
@@ -184,20 +184,20 @@
                   <el-button size="small" type="primary">{{
                     $t("otamanagement.selectfile")
                   }}</el-button>
-                  <div slot="tip" class="el-upload__tip">
+                  <template #tip><div class="el-upload__tip">
                     {{ $t("otamanagement.filetip") }}
-                  </div>
+                  </div></template>
                 </el-upload>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="uploadVisible = false">{{
                 $t("terminal.cancel")
               }}</el-button>
               <el-button type="primary" @click="submitUpload()">{{
                 $t("terminal.confirm")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -514,10 +514,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -525,18 +525,18 @@ export default {
 .uploadBtn {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

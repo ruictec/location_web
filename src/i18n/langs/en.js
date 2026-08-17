@@ -1,4 +1,4 @@
-import enLocale from 'element-ui/lib/locale/lang/en'
+import enLocale from 'element-plus/es/locale/lang/en'
 //Login.vue页面
 const en = {
     title: {
@@ -2268,6 +2268,10 @@ const en = {
         Layoutsuccessful: 'Layout successful！',
         buildingfirst: 'Please delete all floor information under the building first！',
 
+    },
+    //定位管理 楼层详情
+    floordetails: {
+        noFloorInfo: 'No floor information for this building',
     },
     //定位管理 楼层管理
     floormanagement: {

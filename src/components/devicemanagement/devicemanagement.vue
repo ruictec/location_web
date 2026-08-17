@@ -3,11 +3,12 @@
     <el-button
       :class="btnChange ? 'changeBtn1' : 'changeBtn'"
       @click="changeIcon()"
-      v-bind:icon="iconData"
-    ></el-button>
+    >
+      <i :class="iconData"></i>
+    </el-button>
     <el-menu
       class="el-menu-vertical-demo"
-      :default-active="this.$route.path"
+      :default-active="$route.path"
       :router="true"
     >
       <el-menu-item index="/terminal" :class="{ left: show }">
@@ -156,7 +157,7 @@ export default {
       this.open = false;
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.$store.commit("changeShow", this.show);
   }
 };

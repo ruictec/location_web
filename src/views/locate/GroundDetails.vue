@@ -24,15 +24,16 @@
               $t("Breadcrumb.Floordetails")
             }}</el-breadcrumb-item>
           </el-breadcrumb>
-          <div class="containers" style="width: 100%; height: 95%">
-            <div v-show="mapTypes" class="mapConent">
+          <div class="containers ground-details-map" style="width: 100%; height: 95%">
+            <div v-if="mapTypes" class="mapConent">
               <div id="allmap" ref="map" class="allmap">
                 <!-- 楼栋选择 -->
                 <div class="selectBuild">
                   <el-select
                     v-model="isactive"
                     placeholder=""
-                    @change="getGrounds(isactive)"
+                    @change="getGrounds"
+                    popper-class="ground-details-building-select"
                     style="position: absolute; top: 2px; right: 0; z-index: 1"
                   >
                     <el-option
@@ -49,11 +50,13 @@
               <!-- 切换按钮 -->
               <div class="changShowButton" v-if="showOptions">
                 <el-dropdown @command="showOptionsTrue">
+                  <span class="el-dropdown-link">
                   <el-button type="primary">
                     {{ showOptionName
                     }}<i class="el-icon-arrow-up el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu slot="dropdown">
+                  </span>
+<template #dropdown><el-dropdown-menu>
                     <el-dropdown-item command="1" v-if="intoProjectType == 1">{{
                       $t("change.showAliases")
                     }}</el-dropdown-item>
@@ -66,7 +69,7 @@
                     <el-dropdown-item command="4">{{
                       $t("change.showPosition")
                     }}</el-dropdown-item>
-                  </el-dropdown-menu>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </div>
               <!-- 楼层 -->
@@ -126,16 +129,16 @@
               </div>
             </div>
 
-            <div v-show="!mapTypes" class="mapConentD">
+            <div v-if="!mapTypes" class="mapConentD">
               <div id="fengMap">
                 <!-- 楼栋选择 -->
                 <div class="selectBuild">
                   <el-select
                     v-model="isactive"
                     placeholder=""
-                    @change="getGrounds(isactive)"
-                    :popper-append-to-body="false"
-                    style="position: absolute; top: 2px; right: 0; z-index: 1"
+                    @change="getGrounds"
+                    popper-class="ground-details-building-select"
+                    style="position: absolute; top: 2px; right: 0; z-index: 1001"
                   >
                     <el-option
                       v-for="item in buildings"
@@ -150,11 +153,13 @@
               <!-- 切换按钮 -->
               <div class="changShowButton" v-if="showOptions">
                 <el-dropdown @command="showOptionsTrue">
+                  <span class="el-dropdown-link">
                   <el-button type="primary">
                     {{ showOptionName
                     }}<i class="el-icon-arrow-up el-icon--right"></i>
                   </el-button>
-                  <el-dropdown-menu slot="dropdown">
+                  </span>
+<template #dropdown><el-dropdown-menu>
                     <el-dropdown-item command="1" v-if="intoProjectType == 1">{{
                       $t("change.showAliases")
                     }}</el-dropdown-item>
@@ -167,7 +172,7 @@
                     <el-dropdown-item command="4">{{
                       $t("change.showPosition")
                     }}</el-dropdown-item>
-                  </el-dropdown-menu>
+                  </el-dropdown-menu></template>
                 </el-dropdown>
               </div>
             </div>
@@ -186,6 +191,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
+import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 
 import {
   getBuildingByProjectid,
@@ -251,7 +257,7 @@ export default {
       groundListCopy: [], //用于3D地图的时候，设定新的对应关系
       newGround: "", //用于3D地图的时候新的对应关系里的新的楼层对应的
       //3D 地图相关
-      mapTypes: false,
+      mapTypes: true,
       map3d: null,
       fmapId: "",
       themeId: "",
@@ -262,6 +268,8 @@ export default {
       showOption: 1,
       showOptionName: this.$t("change.showAliases"),
       showOptions: false,
+      lastValidBuilding: null,
+      lastValidMapTypes: null,
     };
   },
   methods: {
@@ -600,23 +608,21 @@ export default {
               return item.id == that.buildingId;
             });
             if (found.buildtype == 1) {
-              that.mapTypes = true;
               that.getGroundLists(that.buildingId);
             } else if (found.buildtype == 2) {
-              that.mapTypes = false;
               that.getMapid(that.buildingId);
-              that.getGroundLists3D(that.buildingId);
+              that.$nextTick(() => {
+                that.getGroundLists3D(that.buildingId);
+              });
             }
           } else {
             if (that.buildings[0].buildtype == 1) {
-              that.mapTypes = true;
-
               that.getGroundLists(that.buildings[0].id);
             } else if (that.buildings[0].buildtype == 2) {
-              that.mapTypes = false;
-
               that.getMapid(that.buildings[0].id);
-              that.getGroundLists3D(that.buildings[0].id);
+              that.$nextTick(() => {
+                that.getGroundLists3D(that.buildings[0].id);
+              });
             }
           }
         }
@@ -628,25 +634,51 @@ export default {
       this.selectBeacon = null;
       this.groundId = null;
       this.buildingId = null;
-      var that = this;
       var found = this.buildings.find(function (item) {
         return item.id == val;
       });
-      if (this.map) {
-        this.map.setTarget("mmmm");
+      if (!found) {
+        return;
       }
+      const revertContext = {
+        building: this.lastValidBuilding,
+        mapTypes: this.lastValidMapTypes,
+      };
       if (found.buildtype == 1) {
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
-        this.mapTypes = true;
-        this.getGroundLists(val);
+        this.$nextTick(() => {
+          this.getGroundLists(val, revertContext);
+        });
       } else if (found.buildtype == 2) {
-        this.mapTypes = false;
-        // this.getMapid(found.id);
-        this.getGroundLists3D(val);
+        this.$nextTick(() => {
+          this.getGroundLists3D(val, null, revertContext);
+        });
       }
+    },
+    // 等待 3D 地图容器挂载并有尺寸后再初始化
+    prepareMap3dContainer() {
+      const wrap = document.querySelector(".ground-details-map .mapConentD");
+      const el = document.getElementById("fengMap");
+      if (!wrap || !el) {
+        return false;
+      }
+      const containers = wrap.closest(".containers");
+      if (wrap.offsetHeight === 0 && containers && containers.clientHeight > 0) {
+        wrap.style.minHeight = containers.clientHeight + "px";
+      }
+      return el.offsetWidth > 0 && el.offsetHeight > 0;
+    },
+    runWhenMap3dReady(callback, attempt = 0) {
+      const that = this;
+      const maxAttempts = 30;
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          if (that.prepareMap3dContainer() || attempt >= maxAttempts) {
+            callback();
+            return;
+          }
+          setTimeout(() => that.runWhenMap3dReady(callback, attempt + 1), 50);
+        });
+      });
     },
     // 3D楼栋获取地图的编号
     getMapid(id) {
@@ -663,8 +695,9 @@ export default {
       });
     },
     //获取楼层
-    getGroundLists(val) {
+    getGroundLists(val, revertContext) {
       var that = this;
+      const fromUserChange = !!revertContext;
 
       this.isactive = val;
       let data = {
@@ -677,60 +710,109 @@ export default {
         that.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.grounds = res.data.reverse();
+          const floors = res.data || [];
+          if (floors.length === 0) {
+            that.$message.warning(that.$t("floordetails.noFloorInfo"));
+            if (
+              fromUserChange &&
+              revertContext.building != null &&
+              revertContext.building !== ""
+            ) {
+              that.isactive = revertContext.building;
+              that.mapTypes = revertContext.mapTypes;
+            } else {
+              that.grounds = [];
+            }
+            return;
+          }
+
+          if (that.map3d) {
+            that.map3d.dispose();
+            that.map3d = null;
+          }
+
+          that.mapTypes = true;
+          that.grounds = floors.reverse();
           that.building = val;
+          that.lastValidBuilding = val;
+          that.lastValidMapTypes = true;
           if (that.groundId) {
             that.getBuildGroundLists();
           } else {
-            that.getBuildGroundLists(res.data[res.data.length - 1]);
+            that.getBuildGroundLists(floors[floors.length - 1]);
           }
-          // that.getBuildGroundLists(res.data[res.data.length - 1]);
         }
       });
     },
 
     // 获取楼层3D
-    getGroundLists3D(build, ground) {
+    getGroundLists3D(build, ground, revertContext) {
       var that = this;
       that.groundListCopy = [];
+      const fromUserChange = !!revertContext;
       this.building = build;
       this.isactive = build;
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
       let data = {
         buildid: build,
       };
       getGround(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
         (res) => {
           if (res.code == 1001) {
-            for (let i = 0; i < res.data.length; i++) {
-              let groundinfo = {
-                groundid: res.data[i].id,
-                ground: res.data[i].ground,
-                newground: i + 1,
-              };
-              that.groundListCopy.push(groundinfo);
+            const floors = res.data || [];
+            if (floors.length === 0) {
+              that.$message.warning(that.$t("floordetails.noFloorInfo"));
+              if (
+                fromUserChange &&
+                revertContext.building != null &&
+                revertContext.building !== ""
+              ) {
+                that.isactive = revertContext.building;
+                that.building = revertContext.building;
+              }
+              return;
             }
 
-            that.fmapId = res.data[0].filename;
-            that.themeId = res.data[0].filetype;
-            let ground = null;
-            if (that.groundId) {
-              let found = that.groundListCopy.find(function (item) {
-                return item.groundid == that.groundId;
-              });
-              ground = found.newground;
+            if (that.map3d) {
+              that.map3d.dispose();
+              that.map3d = null;
             }
-            setTimeout(() => {
-              that.onmap(
-                that.$store.state.intoProjectid,
-                res.data[0].appname,
-                res.data[0].mapkey,
-                ground
-              );
-            }, 1);
+
+            that.mapTypes = false;
+            that.$nextTick(() => {
+              for (let i = 0; i < floors.length; i++) {
+                let groundinfo = {
+                  groundid: floors[i].id,
+                  ground: floors[i].ground,
+                  newground: i + 1,
+                };
+                that.groundListCopy.push(groundinfo);
+              }
+
+              that.fmapId = floors[0].filename;
+              that.themeId = floors[0].filetype;
+              that.lastValidBuilding = build;
+              that.lastValidMapTypes = false;
+              let groundLevel = null;
+              if (that.groundId) {
+                let found = that.groundListCopy.find(function (item) {
+                  return item.groundid == that.groundId;
+                });
+                if (found) {
+                  groundLevel = found.newground;
+                }
+              }
+              setTimeout(() => {
+                that.runWhenMap3dReady(() => {
+                  that.onmap(
+                    that.$store.state.intoProjectid,
+                    floors[0].appname,
+                    floors[0].mapkey,
+                    groundLevel
+                  );
+                });
+              }, 1);
+            });
+            return;
           } else {
             that.$message({
               message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -747,8 +829,13 @@ export default {
         return false;
       };
       var that = this;
+      const container = document.getElementById("fengMap");
+      if (!container) {
+        return;
+      }
+      this.prepareMap3dContainer();
       var mapOpation = {
-        container: document.getElementById("fengMap"),
+        container: container,
         level: ground ? ground : 1, //默认聚焦楼层
         visibleLevels: ground ? [ground] : [1], //初始显示楼层ID数组
         appName: appname,
@@ -757,12 +844,22 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
+        decoderURL: FENGMAP_DECODER_URL,
         // mapURL: "/data/",
         // themeURL: "/data/theme/",
       };
 
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {
+        try {
+          const level = that.map3d.getLevel();
+          const floor = that.map3d.getFloor(level);
+          if (floor && floor.getBound) {
+            that.map3d.setFitView(floor.getBound());
+          }
+        } catch (e) {
+          // ignore fit view errors
+        }
         that.loadScrollFloorCtrl();
         let focusGroupID = that.groundListCopy.find(function (item) {
           return item.newground == that.map3d.getLevel();
@@ -1285,14 +1382,14 @@ export default {
 .containers {
   display: flex;
 }
-.selectGround >>> .el-scrollbar__wrap {
+.selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
 .selectBuild {
   width: 100%;
   margin-left: 2%;
 }
-.selectBuild >>> .el-select {
+.selectBuild :deep(.el-select) {
   width: 200px;
   margin-left: 0%;
   display: block;
@@ -1336,6 +1433,7 @@ li {
   height: 100%;
   width: 100%;
   margin-left: 2%;
+  position: relative;
 }
 .allmap {
   background-color: white;
@@ -1350,11 +1448,11 @@ li {
   color: #409eff;
   transition: all 0.3s;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 
@@ -1381,17 +1479,38 @@ li {
 .mapConentD {
   width: 100%;
   margin-left: 0;
+  position: relative;
 }
 
 #fengMap {
-  width: 90%;
+  width: 100%;
   height: 85%;
   display: flex;
   position: absolute;
+  left: 0;
+  top: 0;
   z-index: 11;
+  margin: 0 !important;
 }
 .changShowButton {
   position: absolute;
   bottom: 4%;
+  z-index: 12;
+}
+
+/* 覆盖 App.vue 全局 * { margin: 0 auto }，避免 flex 子项被收成半宽 */
+.ground-details-map > .mapConent,
+.ground-details-map > .mapConentD {
+  flex: 1 1 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin-right: 0 !important;
+}
+.ground-details-map > .mapConent {
+  margin-left: 2% !important;
+}
+.ground-details-map > .mapConentD {
+  width: 100% !important;
+  margin-left: 0 !important;
 }
 </style>

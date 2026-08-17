@@ -20,7 +20,7 @@
           <el-date-picker
             v-model="tasktime"
             type="datetimerange"
-            :picker-options="pickerOptions"
+            :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
             :range-separator="$t('terminal.to')"
             :start-placeholder="$t('terminal.starttime')"
             :end-placeholder="$t('terminal.endtime')"
@@ -29,11 +29,9 @@
         </el-form-item>
         <!-- <el-form-item style="display: flex; margin-left: 2%">
           <el-button type="primary" class="query" @click="searchInfo()"
-            >查询</el-button
-          >
+            >查询</el-button>
           <el-button type="primary" class="reset" @click="clearBtn()"
-            >刷新</el-button
-          >
+            >刷新</el-button>
         </el-form-item> -->
         <el-form-item
           ><el-switch
@@ -41,8 +39,7 @@
             :active-text="$t('tet.Timedisplay')"
             @change="openTime"
           >
-          </el-switch
-        ></el-form-item>
+          </el-switch></el-form-item>
       </el-form>
     </div>
     <div class="mapConent">
@@ -141,33 +138,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -229,7 +226,7 @@ export default {
             scale: 0.5,
             // rotation: 0, // 旋转
             // size: [52, 26], // 图标大小
-            src: require("../../../static/user2.png"),
+            src: (process.env.BASE_URL || '/') + 'static/user2.png',
             rotateWithView: true,
           }),
         }),
@@ -237,14 +234,14 @@ export default {
           // 设置开始标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/start.png"),
+            src: (process.env.BASE_URL || '/') + 'static/start.png',
           }),
         }),
         end: new Style({
           // 设置结束标记样式
           image: new Icon({
             anchor: [0.5, 1],
-            src: require("../../../static/end.png"),
+            src: (process.env.BASE_URL || '/') + 'static/end.png',
           }),
         }),
       },
@@ -642,7 +639,7 @@ export default {
               scale: 0.5,
               // rotation: 0, // 旋转
               // size: [52, 26], // 图标大小
-              src: require("../../../static/user2.png"),
+              src: (process.env.BASE_URL || '/') + 'static/user2.png',
               rotateWithView: true,
             }),
           }),
@@ -919,7 +916,7 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
@@ -929,26 +926,26 @@ export default {
 .delBeacons {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.demo-form-inline >>> .el-form-item:nth-of-type(1) .el-input__inner {
+.demo-form-inline :deep(.el-form-item:nth-of-type(1) .el-input__inner) {
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -990,11 +987,11 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 .bar-box {

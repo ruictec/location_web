@@ -60,8 +60,7 @@
         <span
           v-if="item.redirect === 'noRedirect' || index == levelList.length - 1"
           class="no-redirect"
-          >{{ $t(item.meta.title) }}</span
-        >
+          >{{ $t(item.meta.title) }}</span>
         <a v-else @click.prevent="handleLink(item)">{{
           $t(item.meta.title)
         }}</a>
@@ -181,6 +180,7 @@ export default {
   transition: all 0.5s;
 }
 
+.breadcrumb-enter-from,
 .breadcrumb-enter,
 .breadcrumb-leave-active {
   opacity: 0;

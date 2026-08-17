@@ -78,8 +78,7 @@
         v-if="inDoor"
       >
         <span class="golink hover-effect" @click="goLink('indoor')">
-          <i class="icon1 indoor" style="font-size: 28px"></i
-        ></span>
+          <i class="icon1 indoor" style="font-size: 28px"></i></span>
       </el-tooltip>
       <!-- 室外定位 -->
       <el-tooltip
@@ -101,22 +100,20 @@
         <span class="el-dropdown-link perSpan">
           <i class="icon menu1" style="font-size: 24px"></i>
         </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="goCenter">{{
+        <template #dropdown><el-dropdown-menu>
+          <el-dropdown-item @click="goCenter">{{
             $t("navbar.PersonalCenter")
           }}</el-dropdown-item>
 
           <el-dropdown-item
             v-if="contrForPrioNum == 5 && $store.state.projectTable.length > 1"
-            @click.native="selectProject"
-            >{{ $t("navbar.Selectitem") }}</el-dropdown-item
-          >
+            @click="selectProject"
+            >{{ $t("navbar.Selectitem") }}</el-dropdown-item>
           <el-dropdown-item
             v-if="logoprio == 1 || clogoprio == 1"
-            @click.native="goSetLogo"
-            >{{ $t("navbar.Logosettings") }}</el-dropdown-item
-          >
-          <el-dropdown-item @click.native="goscreen" v-if="i8n == 'zh'">{{
+            @click="goSetLogo"
+            >{{ $t("navbar.Logosettings") }}</el-dropdown-item>
+          <el-dropdown-item @click="goscreen" v-if="i8n == 'zh'">{{
             $t("index.largescreen")
           }}</el-dropdown-item>
           <el-dropdown-item
@@ -126,13 +123,12 @@
               contrForPrioNum == 3 ||
               contrForPrioNum == 4
             "
-            @click.native="sendMessage"
-            >{{ $t("navbar.Sendnotification") }}</el-dropdown-item
-          >
-          <el-dropdown-item @click.native="logout">{{
+            @click="sendMessage"
+            >{{ $t("navbar.Sendnotification") }}</el-dropdown-item>
+          <el-dropdown-item @click="logout">{{
             $t("navbar.signout")
           }}</el-dropdown-item>
-        </el-dropdown-menu>
+        </el-dropdown-menu></template>
       </el-dropdown>
 
       <!-- 通知消息 -->
@@ -145,7 +141,7 @@
       >
         <el-dropdown
           style="z-index: 999"
-          @click.native="goMsg()"
+          @click="goMsg()"
           class="perDropdown"
           :divided="true"
         >
@@ -159,9 +155,9 @@
             ></el-badge>
             <!-- </i> -->
           </span>
+          <template #dropdown>
           <el-dropdown-menu
             v-if="msgtable.length > 0"
-            slot="dropdown"
             v-bind:class="[isActive ? 'boxcard' : 'hideClass']"
           >
             <div style="max-height: 200px; overflow: auto">
@@ -184,19 +180,18 @@
             </div>
             <el-dropdown-item class="btnMsgHover">
               <span class="gtMessage">
-                <el-button type="text" size="mini" @click="redCourentMsg()">{{
+                <el-button text size="small" @click="redCourentMsg()">{{
                   $t("navbar.tet")
                 }}</el-button>
               </span>
               <span class="gtMessage1">
-                <el-button type="text" size="mini" @click.native="goMsg()">{{
+                <el-button text size="small" @click="goMsg()">{{
                   $t("navbar.tet1")
                 }}</el-button>
               </span>
             </el-dropdown-item>
           </el-dropdown-menu>
-
-          <el-dropdown-menu style="border: none"></el-dropdown-menu>
+          </template>
         </el-dropdown>
       </el-tooltip>
       <!-- 帮助菜单 -->
@@ -204,12 +199,12 @@
         <span class="el-dropdown-link perSpan">
           <i class="more icon" style="font-size: 24px"></i>
         </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="Onlinedocumentation">
+        <template #dropdown><el-dropdown-menu>
+          <el-dropdown-item @click="Onlinedocumentation">
             {{ $t("navbar.Onlinedocumentation") }}
           </el-dropdown-item>
 
-          <el-dropdown-item @click.native="commonproblem">
+          <el-dropdown-item @click="commonproblem">
             {{ $t("navbar.commonproblem") }}
           </el-dropdown-item>
 
@@ -218,26 +213,24 @@
               $t("navbar.Resourcedownload")
             }}</a>
           </el-dropdown-item>
-        </el-dropdown-menu>
+        </el-dropdown-menu></template>
       </el-dropdown>
       <!-- 显示/隐藏告警弹框 -->
       <el-button
         v-show="showWarnignButton > 0"
         type="primary"
-        size="mini"
+        size="small"
         class="warning_button"
         @click="changeShowWarning()"
-        >{{ buttonText }}</el-button
-      >
+        >{{ buttonText }}</el-button>
     </div>
     <!-- 设置logo -->
     <el-dialog
       :title="$t('navbar.Setlogo')"
-      :visible.sync="setLogo"
+      v-model="setLogo"
       class="edit"
       width="30%"
       style="text-align: center"
-      :modal-append-to-body="false"
       :append-to-body="true"
     >
       <el-upload
@@ -256,22 +249,20 @@
         :on-exceed="handleExceed"
         :before-upload="beforeAvatarUpload"
       >
-        <div slot="tip" class="el-upload__tip">
+        <template #tip><div class="el-upload__tip">
           {{ $t("navbar.tet2") }}
-        </div>
+        </div></template>
         <i class="el-icon-plus"></i>
       </el-upload>
 
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="addCancel">{{ $t("terminal.cancel") }}</el-button>
         <el-button type="primary" @click="addTrue">
-          {{ $t("terminal.confirm") }}</el-button
-        >
-      </div>
+          {{ $t("terminal.confirm") }}</el-button>
+      </div></template>
     </el-dialog>
     <el-dialog
-      :visible.sync="dialogVisible"
-      :modal-append-to-body="false"
+      v-model="dialogVisible"
       :append-to-body="true"
     >
       <img width="100%" :src="dialogImageUrl" alt />
@@ -280,12 +271,11 @@
     <!-- 选择项目 -->
     <el-dialog
       :title="$t('navbar.Selectitem')"
-      :visible.sync="selectProjects"
+      v-model="selectProjects"
       class="edit padreduce"
       style="text-align: center"
       :close-on-press-escape="false"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
       :append-to-body="true"
       width="40%"
     >
@@ -333,12 +323,11 @@
     </el-dialog>
     <el-dialog
       :title="$t('index.sendmessage')"
-      :visible.sync="showSendMessage"
+      v-model="showSendMessage"
       class="edit"
       width="30%"
       style="text-align: center"
       :close-on-press-escape="false"
-      :modal-append-to-body="false"
       :append-to-body="true"
     >
       <el-form
@@ -375,14 +364,14 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+      <template #footer><div class="dialog-footer" style="margin-top: -10px">
         <el-button @click="showSendMessage = false">{{
           $t("terminal.cancel")
         }}</el-button>
         <el-button type="primary" @click="sendMsgTrue()">{{
           $t("terminal.confirm")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <audio :src="audioSrc" controls="controls" loop hidden ref="audio"></audio>
   </div>
@@ -652,14 +641,14 @@ export default {
       return isLt2M;
     },
     getPustMsg() {
-      this.$EventBus.$on("pushData", (msgId) => {
-        //删除id数据
+      this._pushDataHandler = (msgId) => {
         for (let i = 0; i < this.msgtable.length; i++) {
           if (this.msgtable[i].id == msgId) {
             this.msgtable.splice(i, 1);
           }
         }
-      });
+      };
+      this.$EventBus.$on("pushData", this._pushDataHandler);
     },
     //获取通知消息
     getMsg() {
@@ -1073,9 +1062,12 @@ export default {
       });
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timer);
     this.timer = null;
+    if (this._pushDataHandler) {
+      this.$EventBus.$off("pushData", this._pushDataHandler);
+    }
   },
   computed: {
     ...mapGetters(["sidebar", "avatar", "device"]),
@@ -1127,7 +1119,7 @@ export default {
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
@@ -1332,7 +1324,7 @@ export default {
   line-height: 34px !important;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 

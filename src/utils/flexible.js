@@ -90,10 +90,11 @@
     }
  
     function refreshRem() {
+        // PC 管理端按视口宽度等比缩放：html font-size = 宽度 / 10
+        // 1920 宽时 1rem = 192px，与 postcss-pxtorem rootValue 对齐
         var width = docEl.getBoundingClientRect().width;
-        if (width / dpr > 540) {
-            width = width * dpr;
-        }
+        if (width < 1024) width = 1024;
+        if (width > 2560) width = 2560;
         var rem = width / 10;
         docEl.style.fontSize = rem + 'px';
         flexible.rem = win.rem = rem;

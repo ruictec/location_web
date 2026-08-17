@@ -52,7 +52,7 @@
           <el-date-picker
             v-model="tasktime"
             type="datetimerange"
-            :picker-options="pickerOptions"
+            :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
             :range-separator="$t('LocationIndoorHis.to')"
             :start-placeholder="$t('LocationIndoorHis.starttime')"
             :end-placeholder="$t('LocationIndoorHis.endtime')"
@@ -70,12 +70,12 @@
               margin-left: 5px;
             "
           >
-            <div slot="content">
+            <template #content><div>
               <p>
                 {{ $t("LocationIndoorHis.text3") }} <br />
                 {{ $t("LocationIndoorHis.text4") }}
               </p>
-            </div>
+            </div></template>
             <i class="el-icon-question" />
           </el-tooltip>
         </el-form-item>
@@ -153,7 +153,7 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage1"
+          v-model:current-page="currentPage1"
           :page-sizes="[10, 20, 30, 40, 50]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -216,40 +216,40 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               // start.setTime(start.setHours(0, 0, 0, 0));
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -579,10 +579,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
@@ -593,34 +593,34 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
 }
-.demo-form-inline >>> .el-form-item:nth-of-type(1) .el-input__inner {
+.demo-form-inline :deep(.el-form-item:nth-of-type(1) .el-input__inner) {
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item:nth-of-type(2) .el-input__inner {
+.demo-form-inline :deep(.el-form-item:nth-of-type(2) .el-input__inner) {
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
-.tableData >>> td,
-.tableData >>> th {
+.tableData :deep(td,
+.tableData >>> th) {
   text-align: center !important;
 }
 .el-form-item .el-button {
@@ -629,11 +629,11 @@ export default {
 .trajectory {
   height: 100%;
 }
-.trajectory >>> .el-dialog {
+.trajectory :deep(.el-dialog) {
   height: 80%;
   margin-top: 0;
 }
-.trajectory >>> .el-dialog__body {
+.trajectory :deep(.el-dialog__body) {
   height: 90%;
 }
 </style>

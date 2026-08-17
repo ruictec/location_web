@@ -127,22 +127,19 @@
                 class="reset"
                 style="margin-left: 0%"
                 @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
+                >{{ $t("terminal.import") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
+                >{{ $t("terminal.export") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
+                >{{ $t("terminal.exportAll") }}</el-button>
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("staff.Addemployees")
               }}</el-button>
@@ -165,34 +162,29 @@
                 type="danger"
                 class="add move"
                 @click="removeStaffs()"
-                >{{ $t("staff.unbind") }}</el-button
-              >
+                >{{ $t("staff.unbind") }}</el-button>
               <el-button
                 type="primary"
                 class="add move"
                 @click="goSetDepart()"
-                >{{ $t("staff.DepartmentSettings") }}</el-button
-              >
+                >{{ $t("staff.DepartmentSettings") }}</el-button>
               <el-button
                 type="primary"
                 class="add move"
                 @click="goSetWorktype()"
-                >{{ $t("staff.Tradesettings") }}</el-button
-              >
+                >{{ $t("staff.Tradesettings") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="importExcelWorktype()"
-                >{{ $t("staff.importWorktype") }}</el-button
-              >
+                >{{ $t("staff.importWorktype") }}</el-button>
               <el-button
                 type="primary"
                 class="reset"
                 style="margin-left: 0%"
                 @click="exportExcelWorkType()"
-                >{{ $t("staff.exportWorktype") }}</el-button
-              >
+                >{{ $t("staff.exportWorktype") }}</el-button>
             </el-form-item>
           </el-form>
 
@@ -244,7 +236,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ ages(scope.row.birthday) }}
                 </template>
               </el-table-column>
@@ -295,7 +287,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ scope.row.steps ? scope.row.steps : "/" }}
                 </template>
               </el-table-column>
@@ -320,8 +312,9 @@
                 min-width="160"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -332,8 +325,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -343,25 +337,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="staffEdit(scope.row)"
-                          >{{ $t("staff.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("staff.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="staffDele(scope.row)"
-                          >{{ $t("staff.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("staff.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -403,7 +393,7 @@
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -417,7 +407,7 @@
           <el-dialog
             :title="$t('staff.text1')"
             width="30%"
-            :visible.sync="add"
+            v-model="add"
             style="text-align: center"
             @close="addCancel('addData')"
           >
@@ -439,9 +429,9 @@
               :on-change="handleChange"
               :on-remove="handleRemove"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("staff.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -462,7 +452,7 @@
                   v-model="addData.birthday"
                   type="date"
                   :placeholder="$t('staff.birthdayPlaceholder')"
-                  value-format="yyyy-MM-dd"
+                  value-format="YYYY-MM-DD"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -568,7 +558,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -576,19 +566,18 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+          <el-dialog v-model="dialogVisible" :append-to-body="true">
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
 
           <!-- 编辑 -->
           <el-dialog
             :title="$t('staff.text3')"
-            :visible.sync="edit"
+            v-model="edit"
             class="edit"
             width="30%"
             style="text-align: center"
@@ -612,9 +601,9 @@
               :on-exceed="handleExceedEdit"
               :before-upload="beforeAvatarUploadEdit"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("staff.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -635,7 +624,7 @@
                   v-model="editData.birthday"
                   type="date"
                   :placeholder="$t('staff.birthdayPlaceholder')"
-                  value-format="yyyy-MM-dd"
+                  value-format="YYYY-MM-DD"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -739,7 +728,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -747,14 +736,13 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 行为分析 -->
           <el-dialog
-            :visible.sync="actions"
+            v-model="actions"
             width="60%"
             style="text-align: center"
             :close-on-click-modal="false"
@@ -762,7 +750,7 @@
             @close="closeAction"
           >
             <el-dialog
-              :visible.sync="trajectory"
+              v-model="trajectory"
               width="80%"
               style="text-align: center"
               :close-on-click-modal="false"
@@ -774,7 +762,7 @@
               <Trajectory ref="trajectory" @closePopup2d="closePopup" />
             </el-dialog>
             <el-dialog
-              :visible.sync="trajectory3d"
+              v-model="trajectory3d"
               width="80%"
               style="text-align: center"
               :close-on-click-modal="false"
@@ -828,7 +816,7 @@
                 <el-date-picker
                   v-model="actionTime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('terminal.to')"
                   :start-placeholder="$t('terminal.startdate')"
                   :end-placeholder="$t('terminal.enddate')"
@@ -839,14 +827,12 @@
                   type="primary"
                   class="query"
                   @click="searchAction()"
-                  >{{ $t("staff.search") }}</el-button
-                >
+                  >{{ $t("staff.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="showTrajectory()"
-                  >{{ $t("staff.Viewtrack") }}</el-button
-                >
+                  >{{ $t("staff.Viewtrack") }}</el-button>
               </el-form-item>
             </el-form>
             <div class="actionDetails">
@@ -891,7 +877,7 @@
           <!-- 删除 -->
           <el-dialog
             :title="$t('staff.text4')"
-            :visible.sync="deleTpl"
+            v-model="deleTpl"
             style="text-align: center"
           >
             <el-form>
@@ -906,21 +892,21 @@
                 {{ $t("staff.text5") }}{{ deleStaff }}{{ $t("staff.text6") }}
               </p>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
           <!--轨迹！-->
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('staff.text7')"
-            :visible.sync="removeStaff"
+            v-model="removeStaff"
             class="edit"
             width="50%"
             style="text-align: center"
@@ -947,7 +933,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeStaff = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -955,19 +941,17 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 设置角色 -->
           <el-dialog
             :title="$t('staff.text8')"
-            :visible.sync="addWorktype"
+            v-model="addWorktype"
             class="edit"
             width="30%"
             style="text-align: center"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
           >
             <div class="import_type">
@@ -977,8 +961,7 @@
                   class="add"
                   style="float: left"
                   @click="addWorktypeRow"
-                  >{{ $t("staff.add") }}</el-button
-                >
+                  >{{ $t("staff.add") }}</el-button>
               </el-radio-group>
               <el-form style="text-align: center">
                 <el-form-item
@@ -1016,11 +999,11 @@
                       margin-left: 5px;
                     "
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("staff.text9") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </el-form-item>
@@ -1054,8 +1037,7 @@
                       item.projectid
                     )
                   "
-                  >{{ $t("staff.delete") }}</el-button
-                >
+                  >{{ $t("staff.delete") }}</el-button>
                 <el-image
                   style="width: 32px; height: 32px; cursor: pointer"
                   :src="
@@ -1064,23 +1046,23 @@
                     '.png'
                   "
                   fit="fill"
-                  @click.native="changeIcon(item)"
+                  @click="changeIcon(item)"
                 ></el-image>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+            <template #footer><div class="dialog-footer" style="margin-top: -10px">
               <el-button @click="addWorktype = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addWorktypeRowTrue()">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 选择角色图标 -->
-          <el-dialog :visible.sync="showIcon" width="25%">
-            <span slot="title"> 选择图标 </span>
+          <el-dialog v-model="showIcon" width="25%">
+            <template #title><span> 选择图标 </span></template>
             <el-radio-group
               v-model="radio"
               @change="chooseIcon()"
@@ -1090,70 +1072,70 @@
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc1"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="2">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc2"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="3">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc3"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="4">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc4"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="5">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc5"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="6">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc6"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="7">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc7"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="8">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc8"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="9">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc9"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="10">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc10"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
             </el-radio-group>
@@ -1162,12 +1144,11 @@
           <!-- 设置部门 -->
           <el-dialog
             :title="$t('staff.text10')"
-            :visible.sync="addDepartktype"
+            v-model="addDepartktype"
             class="edit"
             width="30%"
             style="text-align: center"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
           >
             <el-radio-group size="small">
@@ -1176,8 +1157,7 @@
                 class="add"
                 style="float: left"
                 @click="addDepartRow"
-                >{{ $t("staff.add") }}</el-button
-              >
+                >{{ $t("staff.add") }}</el-button>
             </el-radio-group>
             <el-form style="text-align: center">
               <el-form-item
@@ -1215,11 +1195,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("staff.text11") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1252,18 +1232,17 @@
                     )
                   "
                   class="del"
-                  >{{ $t("staff.delete") }}</el-button
-                >
+                  >{{ $t("staff.delete") }}</el-button>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+            <template #footer><div class="dialog-footer" style="margin-top: -10px">
               <el-button @click="addDepartktype = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addDepartRowTrue()">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -1304,7 +1283,6 @@ import {
 import Location from "./outdoorTrajectory.vue";
 import Trajectory from "./trajectory.vue";
 import Trajectorys from "./trajectory3d.vue";
-import { name } from "file-loader";
 
 export default {
   components: {
@@ -1324,29 +1302,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -3685,10 +3663,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -3713,28 +3691,28 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 .el-form-item .el-button {
@@ -3747,7 +3725,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
-.actionDetails >>> .ivu-timeline {
+.actionDetails :deep(.ivu-timeline) {
   width: 23%;
   margin-left: 2%;
   text-align: left;
@@ -3764,17 +3742,17 @@ export default {
   transform: translateX(4px);
 } */
 
-.trajectory >>> .el-dialog {
+.trajectory :deep(.el-dialog) {
   height: 85%;
   margin-top: 2% !important;
 }
-.trajectory >>> .el-dialog__header {
+.trajectory :deep(.el-dialog__header) {
   height: 4%;
 }
-.trajectory >>> .el-dialog__headerbtn {
+.trajectory :deep(.el-dialog__headerbtn) {
   top: 1% !important;
 }
-.trajectory >>> .el-dialog__body {
+.trajectory :deep(.el-dialog__body) {
   height: 96%;
   padding-top: 10px !important;
 }
@@ -3784,7 +3762,7 @@ export default {
 .work_type_list {
   display: flex;
 }
-.work_type_list >>> .el-form-item__content {
+.work_type_list :deep(.el-form-item__content) {
   display: flex;
   width: 100%;
   margin-left: 80px !important;
