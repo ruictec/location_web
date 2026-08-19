@@ -1,21 +1,27 @@
 <template>
   <section class="app-main">
-    <transition name="fade-transform" mode="out-in">
-        <router-view :key="key" />
-    </transition>
+    <router-view v-if="outletReady" :key="viewKey" />
   </section>
 </template>
 
 <script>
 export default {
   name: 'AppMain',
-  computed: {
-    // cachedViews() {
-    //   return this.$store.state.tagsView.cachedViews
-    // },
-    key() {
-      return this.$route.path
+  data() {
+    return {
+      outletReady: false
     }
+  },
+  computed: {
+    viewKey() {
+      // 用 fullPath 强制子页在路由切换时重建，避免从大屏返回后内层空白
+      return (this.$route && this.$route.fullPath) || 'app-main'
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.outletReady = true
+    })
   }
 }
 </script>
@@ -35,57 +41,9 @@ export default {
 .fixed-header+.app-main {
   padding-top: 50px;
 }
-
-// .hasTagsView {
-//   .app-main {
-//     /* 84 = navbar + tags-view = 50 + 34 */
-//     min-height: calc(100vh - 84px);
-//   }
-
-//   .fixed-header+.app-main {
-//     padding-top: 84px;
-//   }
-// }
-// .fade-enter-active,
-// .fade-leave-active {
-//   transition: opacity 0.28s;
-// }
-
-// .fade-enter,
-// .fade-leave-active {
-//   opacity: 0;
-// }
-
-/* fade-transform */
-// @keyframes fade {
-//   0% {
-//     opacity: 0;
-//   transform: translateX(-30px);
-//   };
-//   100% {
-//      opacity: 1;
-//   transform: translateX(30px);
-//   }
-// }
-.fade-transform-leave-active,
-.fade-transform-enter-active {
-  transition: all .5s
-}
-
-.fade-transform-enter-from,
-.fade-transform-enter {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.fade-transform-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
 </style>
 
 <style lang="scss">
-// fix css style bug in open el-dialog
 .el-popup-parent--hidden {
   .fixed-header {
     padding-right: 15px;

@@ -416,14 +416,17 @@
             </el-card>
           </el-col>
           <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="attenFlag">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <template #header><div style="text-align: left; font-weight: 600">
-                <span
-                  style="cursor: pointer"
-                  @click="attendance ? $router.push('/staff/checkwork') : ''"
-                >
-                  {{ $t("homepage.Attendancestatistics") }}</span>
-              </div></template>
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title">
+                  <span
+                    style="cursor: pointer"
+                    @click="attendance ? $router.push('/staff/checkwork') : ''"
+                  >
+                    {{ $t("homepage.Attendancestatistics") }}
+                  </span>
+                </div>
+              </template>
               <div class="member">
                 <div class="add">
                   <span>{{ $t("homepage.Today") }}</span>
@@ -444,54 +447,62 @@
           </el-col>
 
           <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="!attenFlag">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <template #header><div style="text-align: left; font-weight: 600">
-                <span style="cursor: pointer" @click="$router.push('/device/beacon')">
-                  {{ $t("home.BeaconStatus") }}</span>
-              </div></template>
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title">
+                  <span style="cursor: pointer" @click="$router.push('/device/beacon')">
+                    {{ $t("home.BeaconStatus") }}
+                  </span>
+                </div>
+              </template>
               <div class="member">
-                <div id="main7" style="height: 100%; width: 100%"></div>
+                <div id="main7" class="home-chart home-chart-fill"></div>
               </div>
             </el-card>
           </el-col>
 
           <el-col :xs="24" :sm="24" :lg="9" style="height: 40vh">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <template #header><div style="text-align: left; font-weight: 600">
-                <el-breadcrumb>
-                  <el-breadcrumb-item
-                    :to="employee ? { path: '/staff/staffmanagement' } : ''"
-                    >{{ $t("homepage.personnel") }}</el-breadcrumb-item>
-                  <el-breadcrumb-item
-                    :to="asset ? { path: '/staff/assetManagement' } : ''"
-                    >{{ $t("homepage.assets") }}</el-breadcrumb-item>
-                  <el-breadcrumb-item
-                    class="breadcrumb"
-                    :to="tbox ? { path: '/staff/tboxManagement' } : ''"
-                  >
-                    {{ $t("homepage.vehicle") }}
-                  </el-breadcrumb-item>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="margin-left: 5px"
-                  >
-                    <template #content><div>
-                      <p>{{ $t("homepage.content1") }}</p>
-                    </div></template>
-                    <i class="el-icon-question" />
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title home-card-title-polar">
+                  <el-breadcrumb separator="/">
+                    <el-breadcrumb-item
+                      :to="employee ? { path: '/staff/staffmanagement' } : ''"
+                      >{{ $t("homepage.personnel") }}</el-breadcrumb-item>
+                    <el-breadcrumb-item
+                      :to="asset ? { path: '/staff/assetManagement' } : ''"
+                      >{{ $t("homepage.assets") }}</el-breadcrumb-item>
+                    <el-breadcrumb-item
+                      :to="tbox ? { path: '/staff/tboxManagement' } : ''"
+                    >
+                      {{ $t("homepage.vehicle") }}
+                    </el-breadcrumb-item>
+                  </el-breadcrumb>
+                  <el-tooltip class="item" effect="light" placement="right-start">
+                    <template #content>
+                      <div>
+                        <p>{{ $t("homepage.content1") }}</p>
+                      </div>
+                    </template>
+                    <i class="el-icon-question home-card-help" />
                   </el-tooltip>
-                </el-breadcrumb>
-              </div></template>
-              <div id="main0" style="height: 100%; width: 100%; padding-top: 18px">
-                <el-carousel :interval="4000" type="card" height="90%" :autoplay="true">
-                  <el-carousel-item v-for="item in 3" :key="item">
-                    <div
-                      :id="'main' + item"
-                      style="height: 90%; width: 100%; opacity: 0.9"
-                    ></div>
-                    <p>{{ $t("homepage.Total") }}{{ $data[`memberNum${item}`] }}</p>
+                </div>
+              </template>
+              <!-- 恢复 Vue2 的 card 走马灯结构，保证三环并排预览 -->
+              <div id="main0" class="home-chart-carousel">
+                <el-carousel
+                  :interval="4000"
+                  type="card"
+                  height="100%"
+                  :autoplay="true"
+                  indicator-position="outside"
+                  @change="onPolarCarouselChange"
+                >
+                  <el-carousel-item v-for="item in 3" :key="'polar-' + item">
+                    <div :id="'main' + item" class="home-chart-polar"></div>
+                    <p class="polar-total">
+                      {{ $t("homepage.Total") }}{{ $data[`memberNum${item}`] }}
+                    </p>
                   </el-carousel-item>
                 </el-carousel>
               </div>
@@ -517,7 +528,6 @@
           class="project-item"
           v-for="(item, index) in projectTable"
           :key="index"
-          :class="index % 2 == 0 ? 'odditem' : ''"
           @click="choseProject(item)"
         >
           <div class="item-header">
@@ -556,7 +566,7 @@
 
     <!-- 排行 -->
     <el-dialog v-model="rankings" width="30%" class="dialog_box">
-      <template #title><div :class="showTitleTips == true ? 'dialog-title' : ''">
+      <template #header><div :class="showTitleTips == true ? 'dialog-title' : ''">
         <p class="title-text">{{ rankingName }}</p>
         <el-tooltip
           class="title-tips"
@@ -651,6 +661,7 @@ import {
   getDevGpsOne,
   getFenceManageAndPointList,
 } from "../../axios/api";
+import i18n from "../../i18n/i18n";
 
 //地图
 import "ol/ol.css";
@@ -770,6 +781,8 @@ export default {
       myChart1: "",
       myChart2: "",
       myChartBeacon: null,
+      polarActive: 1,
+      polarTimer: null,
       myChart3: "",
       myChart4: "",
       myChart5: "",
@@ -811,6 +824,271 @@ export default {
   },
 
   methods: {
+    getChartDom(id) {
+      const root = this.$el;
+      if (!root) {
+        return document.getElementById(id);
+      }
+      const list = Array.from(root.querySelectorAll("#" + id));
+      if (!list.length) {
+        return document.getElementById(id);
+      }
+      // Element Plus card 走马灯会克隆节点，只绑原始项，避免图表画在克隆上后消失
+      const scored = list
+        .filter((el) => el.isConnected)
+        .map((el) => {
+          const wrap = el.closest(".el-carousel-item");
+          const isClone = !!(wrap && wrap.classList.contains("is-clone"));
+          const active = !!(wrap && wrap.classList.contains("is-active"));
+          const area = (el.clientWidth || 1) * (el.clientHeight || 1);
+          return { el, isClone, active, area };
+        })
+        .sort((a, b) => {
+          if (a.isClone !== b.isClone) return a.isClone ? 1 : -1;
+          if (a.active !== b.active) return a.active ? -1 : 1;
+          return b.area - a.area;
+        });
+      return (scored[0] && scored[0].el) || list[0];
+    },
+    disposeChart(key) {
+      if (this[key] && this[key].dispose && !this[key].isDisposed?.()) {
+        try {
+          this[key].dispose();
+        } catch (e) {}
+      }
+      this[key] = null;
+    },
+    measureChartBox(el, fallbackH) {
+      if (!el) {
+        return { width: 360, height: fallbackH || 220 };
+      }
+      // 抵消全局 * { margin: 0 auto } 把容器挤成内容宽
+      el.style.marginLeft = "0";
+      el.style.marginRight = "0";
+      el.style.margin = "0";
+      el.style.width = "100%";
+
+      if (el.id === "main7") {
+        const member = el.closest(".member");
+        const cardBody = el.closest(".el-card__body");
+        const targetH = Math.max(
+          (member && member.clientHeight) || 0,
+          (cardBody && cardBody.clientHeight - 4) || 0,
+          fallbackH || 260
+        );
+        el.style.height = targetH + "px";
+        el.style.minHeight = targetH + "px";
+        el.style.flex = "1 1 auto";
+        return {
+          width: Math.max(el.clientWidth || el.offsetWidth || 0, 280),
+          height: targetH,
+        };
+      }
+
+      const parent = el.closest(".el-carousel-item") || el.parentElement;
+      let width = el.clientWidth || el.offsetWidth || 0;
+      let height = el.clientHeight || el.offsetHeight || 0;
+      if (parent) {
+        width = Math.max(width, parent.clientWidth || 0);
+        // card 模式下侧卡偏窄，至少给中心卡可用高度
+        const parentH = parent.clientHeight || 0;
+        height = Math.max(height, parentH > 40 ? parentH - 36 : 0, fallbackH || 200);
+      }
+      height = Math.max(height, fallbackH || 200);
+      width = Math.max(width, 200);
+      el.style.height = height + "px";
+      el.style.minHeight = height + "px";
+      return { width, height };
+    },
+    ensureChart(id, key, theme) {
+      const el = this.getChartDom(id);
+      if (!el) {
+        return null;
+      }
+      this.disposeChart(key);
+      const exist = echarts.getInstanceByDom && echarts.getInstanceByDom(el);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      const size = this.measureChartBox(el, id === "main7" ? 280 : 200);
+      const instance = echarts.init(el, theme, {
+        width: size.width,
+        height: size.height,
+        renderer: "canvas",
+      });
+      this[key] = instance ? markRaw(instance) : null;
+      return this[key];
+    },
+    onPolarCarouselChange() {
+      this.scheduleHomeChartsResize();
+    },
+    whenChartDomReady(id, run, tries) {
+      const max = tries == null ? 30 : tries;
+      const el = this.getChartDom(id);
+      if (el) {
+        this.measureChartBox(el, id === "main7" ? 280 : 200);
+        if (el.clientWidth > 0 && el.clientHeight > 0) {
+          run(el);
+          return;
+        }
+      }
+      if (max <= 0) {
+        if (el) run(el);
+        return;
+      }
+      setTimeout(() => {
+        if (!this.$el || (this.$route && this.$route.path === "/largescreen")) {
+          return;
+        }
+        this.whenChartDomReady(id, run, max - 1);
+      }, 50);
+    },
+    polarBarColor() {
+      if (echarts.graphic && echarts.graphic.LinearGradient) {
+        return new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+          { offset: 0, color: "#518FEF" },
+          { offset: 1, color: "#5CBEFF" },
+        ]);
+      }
+      return "#559BF4";
+    },
+    buildPolarRingOption(percent, title, onlineName, offlineName, offlineNum, onlineNum) {
+      let P = Number(percent);
+      if (isNaN(P)) P = 0;
+      // 对齐大屏已验证可显示的 ECharts5 极坐标写法
+      return {
+        backgroundColor: "#ffffff",
+        title: {
+          text: P + "%",
+          textStyle: {
+            color: "#559BF4",
+            fontSize: 22,
+          },
+          subtext: title,
+          subtextStyle: {
+            color: "#B1B1B1",
+            fontSize: 14,
+          },
+          itemGap: 12,
+          left: "center",
+          top: "38%",
+        },
+        tooltip: {
+          formatter: function (params) {
+            if (params.seriesName === onlineName || params.name === onlineName) {
+              return onlineName + "：" + onlineNum;
+            }
+            return offlineName + "：" + offlineNum;
+          },
+        },
+        polar: {
+          radius: ["62%", "78%"],
+          center: ["50%", "50%"],
+        },
+        angleAxis: {
+          max: 100,
+          show: false,
+          clockwise: false,
+        },
+        radiusAxis: {
+          type: "category",
+          show: false,
+        },
+        series: [
+          {
+            name: onlineName,
+            type: "bar",
+            data: [{ name: onlineName, value: P }],
+            coordinateSystem: "polar",
+            roundCap: true,
+            barWidth: 16,
+            showBackground: true,
+            backgroundStyle: {
+              color: "rgba(220,220,220,1)",
+            },
+            itemStyle: {
+              color: this.polarBarColor(),
+            },
+            emphasis: {
+              disabled: true,
+            },
+          },
+        ],
+      };
+    },
+    scheduleHomeChartsResize() {
+      const run = () => {
+        const beaconEl = this.getChartDom("main7");
+        if (beaconEl && this.myChartBeacon && !this.myChartBeacon.isDisposed?.()) {
+          const size = this.measureChartBox(beaconEl, 260);
+          try {
+            this.myChartBeacon.resize({ width: size.width, height: size.height });
+          } catch (e) {}
+        }
+        [
+          this.myChart1,
+          this.myChart2,
+          this.myChart3,
+          this.myChart4,
+          this.myChart5,
+        ].forEach((chart) => {
+          if (chart && chart.resize && !chart.isDisposed?.()) {
+            try {
+              chart.resize();
+            } catch (e) {}
+          }
+        });
+      };
+      this.$nextTick(run);
+      clearTimeout(this._chartResizeTimer1);
+      clearTimeout(this._chartResizeTimer2);
+      this._chartResizeTimer1 = setTimeout(run, 80);
+      this._chartResizeTimer2 = setTimeout(run, 320);
+    },
+    renderBeaconAndDeviceCharts(beaconBatTimeNum) {
+      try {
+        this.myEcharts1();
+      } catch (e) {
+        console.warn(e);
+      }
+      const paintBeacon = () => {
+        try {
+          this.beaconData = beaconBatTimeNum || {
+            beacon_low_3day: 0,
+            beacon_more_3day: 0,
+            beacon_time_unknown: 0,
+            bat_60_100: 0,
+            bat_20_60: 0,
+            bat_0_20: 0,
+          };
+          this.myEchartsBeacon();
+          this.scheduleHomeChartsResize();
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      // 立即画一次，再等布局稳定后重画，避免从大屏返回时容器尚未撑开
+      paintBeacon();
+      this.whenChartDomReady("main7", paintBeacon);
+      setTimeout(paintBeacon, 300);
+    },
+    renderPolarCharts() {
+      const paint = () => {
+        try {
+          this.myEcharts3();
+          this.myEcharts4();
+          this.myEcharts5();
+          this.scheduleHomeChartsResize();
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      paint();
+      this.$nextTick(paint);
+      setTimeout(paint, 300);
+    },
     initThree() {
       // 场景
       this.scene = markRaw(new THREE.Scene());
@@ -1050,7 +1328,7 @@ export default {
       var that = this;
       switch (type) {
         case 1:
-          that.rankingName = this.$t("homepage.Buildingranking1");
+          that.rankingName = i18n.global.t("homepage.Buildingranking1");
           that.rankingData = that.max_num_build;
           that.rankingBuild = true;
           that.rankingGround = false;
@@ -1059,7 +1337,7 @@ export default {
           that.showTitleTips = false;
           break;
         case 2:
-          that.rankingName = this.$t("homepage.Floorranking1");
+          that.rankingName = i18n.global.t("homepage.Floorranking1");
           that.rankingData = that.max_num_ground;
           that.rankingBuild = false;
           that.rankingGround = true;
@@ -1068,7 +1346,7 @@ export default {
           that.showTitleTips = false;
           break;
         case 3:
-          that.rankingName = this.$t("homepage.Stepranking1");
+          that.rankingName = i18n.global.t("homepage.Stepranking1");
           that.rankingData = that.memberMaxStep;
           that.rankingBuild = false;
           that.rankingGround = false;
@@ -1139,28 +1417,28 @@ export default {
         timezone: this.timezone,
       };
       switch (this.warnNumList[index].typestr) {
-        case this.$t("homepage.SOSalert"):
+        case i18n.global.t("homepage.SOSalert"):
           data.type = 1;
           break;
-        case this.$t("homepage.gatherwarn"):
+        case i18n.global.t("homepage.gatherwarn"):
           data.type = 2;
           break;
-        case this.$t("homepage.crosswarn"):
+        case i18n.global.t("homepage.crosswarn"):
           data.type = 3;
           break;
-        case this.$t("homepage.strandedwarn"):
+        case i18n.global.t("homepage.strandedwarn"):
           data.type = 4;
           break;
-        case this.$t("homepage.Unusuallystill"):
+        case i18n.global.t("homepage.Unusuallystill"):
           data.type = 5;
           break;
-        case this.$t("warning.Tilt"):
+        case i18n.global.t("warning.Tilt"):
           data.type = 6;
           break;
-        case this.$t("warning.Dumpalarm"):
+        case i18n.global.t("warning.Dumpalarm"):
           data.type = 7;
           break;
-        case this.$t("warning.Firealarm"):
+        case i18n.global.t("warning.Firealarm"):
           data.type = 8;
           break;
         default:
@@ -1245,12 +1523,12 @@ export default {
         },
         series: [
           {
-            message: this.$t("homepage.Lifted"),
+            message: i18n.global.t("homepage.Lifted"),
             type: "bar",
             data: warningData2.reverse(),
           },
           {
-            message: this.$t("homepage.Notlifted"),
+            message: i18n.global.t("homepage.Notlifted"),
             type: "bar",
             data: warningData1.reverse(),
           },
@@ -1265,17 +1543,17 @@ export default {
     // 跳转到告警信息页面
     handdle(row, column, cell, event) {
       let statustype, type;
-      if (column.label == this.$t("homepage.Lifted")) {
+      if (column.label == i18n.global.t("homepage.Lifted")) {
         if (row.warn_status2_num == 0) return;
         statustype = 2;
-      } else if (column.label == this.$t("homepage.Notlifted")) {
+      } else if (column.label == i18n.global.t("homepage.Notlifted")) {
         if (row.warn_status1_num == 0) return;
         statustype = 1;
       } else {
         return;
       }
       switch (row.typestr) {
-        case this.$t("homepage.SOSalert"):
+        case i18n.global.t("homepage.SOSalert"):
           type = 1;
           this.$router.push({
             path: "/warning/index",
@@ -1285,7 +1563,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.gatherwarn"):
+        case i18n.global.t("homepage.gatherwarn"):
           type = 2;
           this.$router.push({
             path: "/warning/index",
@@ -1295,7 +1573,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.crosswarn"):
+        case i18n.global.t("homepage.crosswarn"):
           type = 3;
           this.$router.push({
             path: "/warning/index",
@@ -1305,7 +1583,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.strandedwarn"):
+        case i18n.global.t("homepage.strandedwarn"):
           type = 4;
           this.$router.push({
             path: "/warning/index",
@@ -1315,7 +1593,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.Unusuallystill"):
+        case i18n.global.t("homepage.Unusuallystill"):
           type = 5;
           this.$router.push({
             path: "/warning/index",
@@ -1325,7 +1603,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Tilt"):
+        case i18n.global.t("warning.Tilt"):
           type = 6;
           this.$router.push({
             path: "/warning/index",
@@ -1335,7 +1613,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Dumpalarm"):
+        case i18n.global.t("warning.Dumpalarm"):
           type = 7;
           this.$router.push({
             path: "/warning/index",
@@ -1345,7 +1623,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Firealarm"):
+        case i18n.global.t("warning.Firealarm"):
           type = 8;
           this.$router.push({
             path: "/warning/index",
@@ -1355,7 +1633,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.closecontact"):
+        case i18n.global.t("homepage.closecontact"):
           type = 9;
           this.$router.push({
             path: "/warning/index",
@@ -1424,11 +1702,21 @@ export default {
       this.$store.commit("selectProjectprojectType", row.projectype);
       that.intoProjectid = row.projectid;
       that.intoProjectFBXUrl = row.filename;
-      that.intoProjectType = row.projectype;
+      that.intoProjectType = row.type;
       this.timezone = row.timezone;
       this.zoom = row.zoom;
       this.longi = row.longi;
       this.lati = row.lati;
+      const lang = (
+        this.$store.state.i18n ||
+        (i18n.global && i18n.global.locale) ||
+        ""
+      )
+        .toString()
+        .toLowerCase();
+      if (lang.indexOf("zh") === 0) {
+        this.$router.push("/largescreen").catch(() => {});
+      }
       //获取告警信息
       let data = {
         superid: this.$store.state.userInfo.superid,
@@ -1442,43 +1730,45 @@ export default {
           if (res.code == 1001) {
             that.$store.commit("setWarningNum", res.data.size);
             let sosNums = that.$store.state.sosNums;
+            const audio = that.$refs.audio;
             if (sosNums == 0 || sosNums == "") {
               if (res.data.warning) {
                 if (res.data.warning.id != that.$store.state.warningInfo.id) {
-                  that.$refs.audio.pause();
+                  if (audio) {
+                    audio.pause();
+                  }
                   clearInterval(that.audioTimer);
                   that.audioTimer = null;
                   that.$store.commit("setWarningInfo", res.data.warning);
-                  that.$refs.audio.src =
-                    "../../../static/video/" + res.data.warning.voice + ".mp3";
-                  that.$refs.audio.currentTime = 0; //从头开始播放
-                  that.$refs.audio.play(); //播放
+                  if (audio) {
+                    audio.src =
+                      "../../../static/video/" + res.data.warning.voice + ".mp3";
+                    audio.currentTime = 0;
+                    audio.play();
+                  }
                   if (res.data.warning.vtime > 0) {
                     setTimeout(() => {
-                      that.$refs.audio.pause();
+                      audio && audio.pause();
                     }, res.data.warning.vtime * 1000);
                     if (res.data.warning.vcycle > 0) {
                       that.audioTimer = setInterval(() => {
-                        that.$refs.audio.play(); //播放
+                        audio && audio.play();
                         setTimeout(() => {
-                          that.$refs.audio.pause();
+                          audio && audio.pause();
                         }, res.data.warning.vtime * 1000);
                       }, res.data.warning.vcycle * 1000);
                     }
                   } else {
-                    that.$refs.audio.pause();
+                    audio && audio.pause();
                     clearInterval(that.audioTimer);
                     that.audioTimer = null;
                   }
                 }
               }
             } else {
-              that.$refs.audio.pause();
+              audio && audio.pause();
               clearInterval(that.audioTimer);
               that.audioTimer = null;
-            }
-            if (that.$store.state.i18n == "zh") {
-              that.$router.push("/largescreen").catch((err) => {});
             }
           }
         }
@@ -1654,11 +1944,22 @@ export default {
         });
       }
       setTimeout(() => {
-        that.map = new Map({
-          target: "userMap",
-          layers: that.seeLayer,
-          view: that.view,
-        });
+        const origGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (type, options) {
+          if (type === "2d") {
+            options = Object.assign({}, options || {}, { willReadFrequently: true });
+          }
+          return origGetContext.call(this, type, options);
+        };
+        try {
+          that.map = new Map({
+            target: "userMap",
+            layers: that.seeLayer,
+            view: that.view,
+          });
+        } finally {
+          HTMLCanvasElement.prototype.getContext = origGetContext;
+        }
 
         this.map.addControl(new ScaleLine()); //缩放比例控件
         if (this.mapInfos.length > 0) {
@@ -1713,7 +2014,7 @@ export default {
         numberFeature.setStyle(
           new Style({
             text: new Text({
-              text: String(fenceData.num) + this.$t("warning.people"),
+              text: String(fenceData.num) + i18n.global.t("warning.people"),
               font: "24px Calibri,sans-serif",
               fill: new Fill({ color: "black" }),
               stroke: new Stroke({
@@ -1741,7 +2042,7 @@ export default {
       numberFeature
         .getStyle()
         .getText()
-        .setText(String(newNumber) + this.$t("warning.people"));
+        .setText(String(newNumber) + i18n.global.t("warning.people"));
 
       this.vectorSource.changed(); // 通知源更新
     },
@@ -1909,9 +2210,8 @@ export default {
 
     myEcharts3() {
       var that = this;
-      var chartDom = document.getElementById("main1");
-      this.myChart3 = echarts.init(chartDom);
-      var option;
+      this.myChart3 = this.ensureChart("main1", "myChart3");
+      if (!this.myChart3) return;
       this.memberNum.member_online_num = this.employee
         ? this.memberNum.member_online_num
         : 0;
@@ -1920,149 +2220,26 @@ export default {
         (this.memberNum.member_online_num / this.memberNum.member_sum_num) *
         100
       ).toFixed(2);
-
       if (isNaN(P)) {
         P = "0";
       }
-      var getfpkszb = [P];
       var offLineNum = this.memberNum.member_sum_num - this.memberNum.member_online_num;
-
-      option = {
-        backgroundColor: "#ffffff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet1"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet2")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet2") +
-                "：" +
-                that.memberNum.member_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet3") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-            data: [
-              {
-                name: this.$t("home.tet2"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF", // 0% 处的颜色
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            data: [
-              {
-                name: this.$t("home.tet3"),
-                value: 100,
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart3.setOption(option);
-      //点击事件
+      const option = this.buildPolarRingOption(
+        P,
+        i18n.global.t("home.tet1"),
+        i18n.global.t("home.tet2"),
+        i18n.global.t("home.tet3"),
+        offLineNum,
+        this.memberNum.member_online_num
+      );
+      try {
+        this.myChart3.clear();
+        this.myChart3.setOption(option, true);
+        this.myChart3.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      this.myChart3.off("click");
       this.myChart3.on("click", function (params) {
         if (!that.employee) {
           return;
@@ -2093,9 +2270,8 @@ export default {
     },
     myEcharts4() {
       var that = this;
-      var chartDom = document.getElementById("main2");
-      this.myChart4 = echarts.init(chartDom);
-      var option;
+      this.myChart4 = this.ensureChart("main2", "myChart4");
+      if (!this.myChart4) return;
       this.memberNum.asset_online_num = this.asset ? this.memberNum.asset_online_num : 0;
       this.memberNum.asset_sum_num = this.asset ? this.memberNum.asset_sum_num : 0;
       let P = (
@@ -2105,147 +2281,23 @@ export default {
       if (isNaN(P)) {
         P = "0";
       }
-      var getfpkszb = [P];
       var offLineNum = this.asset ? this.memberNum.asset_offline_num : 0;
-
-      option = {
-        backgroundColor: "#fff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet4"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet5")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet5") +
-                "：" +
-                that.memberNum.asset_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet6") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-
-            data: [
-              {
-                name: this.$t("home.tet5"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF",
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            color: "#111111",
-            data: [
-              {
-                value: 100,
-                name: this.$t("home.tet6"),
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart4.setOption(option);
-      //点击事件
+      const option = this.buildPolarRingOption(
+        P,
+        i18n.global.t("home.tet4"),
+        i18n.global.t("home.tet5"),
+        i18n.global.t("home.tet6"),
+        offLineNum,
+        this.memberNum.asset_online_num
+      );
+      try {
+        this.myChart4.clear();
+        this.myChart4.setOption(option, true);
+        this.myChart4.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      this.myChart4.off("click");
       this.myChart4.on("click", function (params) {
         if (!that.asset) {
           return;
@@ -2276,9 +2328,8 @@ export default {
     },
     myEcharts5() {
       var that = this;
-      var chartDom = document.getElementById("main3");
-      this.myChart5 = echarts.init(chartDom);
-      var option;
+      this.myChart5 = this.ensureChart("main3", "myChart5");
+      if (!this.myChart5) return;
       this.memberNum.tbox_online_num = this.tbox ? this.memberNum.tbox_online_num : 0;
       this.memberNum.tbox_sum_num = this.tbox ? this.memberNum.tbox_sum_num : 0;
       let P = (
@@ -2288,147 +2339,23 @@ export default {
       if (isNaN(P)) {
         P = "0";
       }
-      var getfpkszb = [P];
       var offLineNum = this.tbox ? this.memberNum.tbox_offline_num : 0;
-
-      option = {
-        backgroundColor: "#fff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet7"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet8")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet8") +
-                "：" +
-                that.memberNum.tbox_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet9") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-
-            data: [
-              {
-                name: this.$t("home.tet8"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF", // 0% 处的颜色
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            color: "#111111",
-            data: [
-              {
-                value: 100,
-                name: this.$t("home.tet9"),
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart5.setOption(option);
-      //点击事件
+      const option = this.buildPolarRingOption(
+        P,
+        i18n.global.t("home.tet7"),
+        i18n.global.t("home.tet8"),
+        i18n.global.t("home.tet9"),
+        offLineNum,
+        this.memberNum.tbox_online_num
+      );
+      try {
+        this.myChart5.clear();
+        this.myChart5.setOption(option, true);
+        this.myChart5.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      this.myChart5.off("click");
       this.myChart5.on("click", function (params) {
         if (!that.tbox) {
           return;
@@ -2462,14 +2389,28 @@ export default {
       var that = this;
       //初始化echarts实例
       var chartDom = document.getElementById("main");
-      this.myChart1 = echarts.init(chartDom, "macarons");
+      if (this.myChart1 && this.myChart1.dispose && !this.myChart1.isDisposed?.()) {
+        try {
+          this.myChart1.dispose();
+        } catch (e) {}
+        this.myChart1 = null;
+      }
+      const exist = chartDom && echarts.getInstanceByDom && echarts.getInstanceByDom(chartDom);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      const instance = echarts.init(chartDom, "macarons");
+      this.myChart1 = instance ? markRaw(instance) : null;
+      if (!this.myChart1) return;
       var option;
       let bgColor = "#fff";
       let title = "总量";
 
       let echartData = [
         {
-          name: this.$t("home.tet10"),
+          name: i18n.global.t("home.tet10"),
           value: this.devBatTimeNum.bat_0_20,
           itemStyle: {
             color: "#d72a14",
@@ -2479,24 +2420,24 @@ export default {
           itemStyle: {
             color: "#E1D95B",
           },
-          name: this.$t("home.tet11"),
+          name: i18n.global.t("home.tet11"),
           value: this.devBatTimeNum.bat_20_60,
         },
         {
           itemStyle: {
             color: "#52ca52",
           },
-          name: this.$t("home.tet12"),
+          name: i18n.global.t("home.tet12"),
           value: this.devBatTimeNum.bat_60_100,
         },
       ];
       let echartData2 = [
         {
-          name: this.$t("home.Unused"),
+          name: i18n.global.t("home.Unused"),
           value: this.devTypeNum.inuse_no,
         },
         {
-          name: this.$t("home.Used"),
+          name: i18n.global.t("home.Used"),
           value: this.devTypeNum.inuse_yes,
         },
       ];
@@ -2652,6 +2593,9 @@ export default {
       //初始化echarts实例
       var chartDom = document.getElementById("main6");
       this.myChart2 = echarts.init(chartDom, "macarons");
+      if (!this.myChart2) return;
+      this.myChart2 = markRaw(this.myChart2);
+      if (!this.myChart2) return;
       var option;
       var category = [];
       var barData1 = [];
@@ -2686,7 +2630,7 @@ export default {
           },
         },
         legend: {
-          data: [this.$t("checkwork.Attendance"), this.$t("checkwork.Noattendance")],
+          data: [i18n.global.t("checkwork.Attendance"), i18n.global.t("checkwork.Noattendance")],
           bottom: "0",
           textStyle: {
             color: "#666",
@@ -2735,7 +2679,7 @@ export default {
         series: [
           {
             cursor: "default",
-            name: this.$t("checkwork.Attendance"),
+            name: i18n.global.t("checkwork.Attendance"),
             type: "bar",
             stack: "总量",
             barWidth: 14,
@@ -2752,7 +2696,7 @@ export default {
           },
           {
             cursor: "default",
-            name: this.$t("checkwork.Noattendance"),
+            name: i18n.global.t("checkwork.Noattendance"),
             type: "bar",
             stack: "总量",
             barWidth: 14,
@@ -2786,40 +2730,37 @@ export default {
         this.myChart2 = null;
       }
       var that = this;
-      //初始化echarts实例
-      var chartDom = document.getElementById("main7");
-      this.myChartBeacon = echarts.init(chartDom);
-      let beacon_data =
-        that.beaconData == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.Scanneddays"),
-                value: that.beaconData.beacon_low_3day,
-              },
-              {
-                name: this.$t("home.scannedwithin"),
-                value: that.beaconData.beacon_more_3day,
-              },
-              {
-                name: this.$t("home.Neverscanned"),
-                value: that.beaconData.beacon_time_unknown,
-              },
-              {
-                name: ">60%",
-                value: that.beaconData.bat_60_100,
-              },
-              {
-                name: ">20%",
-                value: that.beaconData.bat_20_60,
-              },
-              {
-                name: "<20%",
-                value: that.beaconData.bat_0_20,
-              },
-            ];
+      this.myChartBeacon = this.ensureChart("main7", "myChartBeacon");
+      if (!this.myChartBeacon) return;
+      const raw = that.beaconData && typeof that.beaconData === "object" ? that.beaconData : {};
+      let beacon_data = [
+        {
+          name: i18n.global.t("home.Scanneddays"),
+          value: raw.beacon_low_3day,
+        },
+        {
+          name: i18n.global.t("home.scannedwithin"),
+          value: raw.beacon_more_3day,
+        },
+        {
+          name: i18n.global.t("home.Neverscanned"),
+          value: raw.beacon_time_unknown,
+        },
+        {
+          name: ">60%",
+          value: raw.bat_60_100,
+        },
+        {
+          name: ">20%",
+          value: raw.bat_20_60,
+        },
+        {
+          name: "<20%",
+          value: raw.bat_0_20,
+        },
+      ];
       for (let i = beacon_data.length - 1; i > -1; i--) {
-        if (beacon_data[i].value == undefined) {
+        if (beacon_data[i].value == undefined || beacon_data[i].value === "") {
           beacon_data[i].value = 0;
         }
       }
@@ -2831,13 +2772,13 @@ export default {
       }
       var option;
       option = {
-        aria: {
-          enabled: true,
-          decal: {
-            show: true,
-          },
-        },
         tooltip: {},
+        grid: {
+          left: 40,
+          right: 20,
+          top: 30,
+          bottom: 60,
+        },
         xAxis: {
           data: dev_beacon_xAx,
           axisLabel: {
@@ -2850,26 +2791,22 @@ export default {
         },
         yAxis: {
           type: "value",
-        },
-        legend: {
-          show: true,
+          minInterval: 1,
         },
         series: [
           {
             type: "bar",
             itemStyle: {
-              normal: {
-                color: function (params) {
-                  var colorList = [
-                    ["#52ca52"],
-                    ["#E1D95B"],
-                    ["#d72a14"],
-                    ["#52ca52"],
-                    ["#E1D95B"],
-                    ["#d72a14"],
-                  ];
-                  return colorList[params.dataIndex];
-                },
+              color: function (params) {
+                var colorList = [
+                  "#52ca52",
+                  "#E1D95B",
+                  "#d72a14",
+                  "#52ca52",
+                  "#E1D95B",
+                  "#d72a14",
+                ];
+                return colorList[params.dataIndex];
               },
             },
             barCategoryGap: "60%",
@@ -2878,7 +2815,14 @@ export default {
         ],
       };
 
-      option && that.myChartBeacon.setOption(option);
+      try {
+        that.myChartBeacon.clear();
+        that.myChartBeacon.setOption(option, true);
+        that.myChartBeacon.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      that.myChartBeacon.off("click");
       that.myChartBeacon.on("click", function (param) {
         switch (param.name) {
           case that.$t("home.Scanneddays"):
@@ -2950,17 +2894,12 @@ export default {
           if (res.data.devBatTimeNum) {
             that.devBatTimeNum = res.data.devBatTimeNum;
           }
-          that.myEcharts1();
-          if (res.data.beaconBatTimeNum) {
-            that.beaconData = res.data.beaconBatTimeNum;
-            that.myEchartsBeacon();
-          } else {
-            that.beaconData = "";
-            if (that.myChartBeacon) {
-              that.myChartBeacon.dispose();
-              that.myChartBeacon = null;
+          that.$nextTick(() => {
+            if (!that.$el || that.$route.path === "/largescreen") {
+              return;
             }
-          }
+            that.renderBeaconAndDeviceCharts(res.data.beaconBatTimeNum);
+          });
         }
       });
       //本地时区 console.log(0 - new Date().getTimezoneOffset() / 60);
@@ -2988,7 +2927,7 @@ export default {
             that.max_num_buildName = that.max_num_build[0].building;
             that.max_num_buildNum = that.max_num_build[0].num;
           } else {
-            that.max_num_buildName = this.$t("tet.nodata");
+            that.max_num_buildName = i18n.global.t("tet.nodata");
             that.max_num_buildNum = "";
           }
           that.max_num_ground = res.data.max_num_ground;
@@ -2997,7 +2936,7 @@ export default {
               that.max_num_ground[0].building + "/" + that.max_num_ground[0].groundname;
             that.max_num_groundNum = that.max_num_ground[0].num;
           } else {
-            that.max_num_groundName = this.$t("tet.nodata");
+            that.max_num_groundName = i18n.global.t("tet.nodata");
             that.max_num_groundNum = "";
           }
 
@@ -3007,7 +2946,7 @@ export default {
             that.memberMaxStepName = that.memberMaxStep[0].username;
             that.memberMaxStepNum = that.memberMaxStep[0].steps;
           } else {
-            that.memberMaxStepName = this.$t("tet.nodata");
+            that.memberMaxStepName = i18n.global.t("tet.nodata");
             that.memberMaxStepNum = "";
           }
 
@@ -3020,51 +2959,51 @@ export default {
           that.warnNumList = [
             {
               type: 1,
-              typestr: this.$t("homepage.SOSalert"),
+              typestr: i18n.global.t("homepage.SOSalert"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.gatherwarn"),
+              typestr: i18n.global.t("homepage.gatherwarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.crosswarn"),
+              typestr: i18n.global.t("homepage.crosswarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.strandedwarn"),
+              typestr: i18n.global.t("homepage.strandedwarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.Unusuallystill"),
+              typestr: i18n.global.t("homepage.Unusuallystill"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("warning.Tilt"),
-              warn_status1_num: 0,
-              warn_status2_num: 0,
-            },
-
-            {
-              type: 1,
-              typestr: this.$t("warning.Dumpalarm"),
+              typestr: i18n.global.t("warning.Tilt"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
 
             {
               type: 1,
-              typestr: this.$t("warning.Firealarm"),
+              typestr: i18n.global.t("warning.Dumpalarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.Firealarm"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
@@ -3086,18 +3025,20 @@ export default {
             that.memberNum1 = that.employee ? res.data.member_sum_num : 0;
             that.memberNum2 = that.asset ? res.data.asset_sum_num : 0;
             that.memberNum3 = that.tbox ? res.data.tbox_sum_num : 0;
-            that.myEcharts5();
-
-            that.myEcharts3();
-            that.myEcharts4();
-            if (that.attendanceNum.length > 0) {
-              that.myEcharts2();
-            } else {
-              if (that.myChart2) {
+            that.$nextTick(() => {
+              that.renderPolarCharts();
+              if (that.attendanceNum.length > 0) {
+                try {
+                  that.myEcharts2();
+                } catch (e) {
+                  console.warn(e);
+                }
+              } else if (that.myChart2) {
                 that.myChart2.dispose();
                 that.myChart2 = null;
               }
-            }
+              that.scheduleHomeChartsResize();
+            });
           }
         }
       });
@@ -3225,53 +3166,62 @@ export default {
       });
     },
     updateSize() {
-      this.map.updateSize();
+      if (this.map && this.map.updateSize) {
+        this.map.updateSize();
+      }
+    },
+    bootstrapHomePage() {
+      let that = this;
+      if (this.$store.state.longis && this.$store.state.latis) {
+        this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
+      } else {
+        if (that.$store.state.i18n == "zh") {
+          that.mapCenter = [118, 32];
+        } else {
+          that.mapCenter = [0.1, 51.3];
+        }
+      }
+      this.outdoorBaseLayers = createOutdoorBaseLayers(
+        this.$store.state.i18n == "zh"
+      );
+      var count = document.getElementById("count");
+      if (count) {
+        count.style.height = 15 + "vh";
+      }
+      clearInterval(this.timer);
+      this.timer = null;
+      clearInterval(this.timerMap);
+      this.timerMap = null;
+      if (
+        this.$store.state.userInfo.prionum == 5 &&
+        !this.$store.state.projectid
+      ) {
+        this.getProjectFirstLists();
+      } else if (
+        this.$store.state.userInfo.prionum == 5 &&
+        this.$store.state.projectid
+      ) {
+        this.getFristPages(this.$store.state.projectid);
+        this.getBuildingByProjectids(this.$store.state.projectid);
+        this.timer = setInterval(() => {
+          that.getFristPages(that.$store.state.projectid);
+        }, 30000);
+        this.timerMap = setInterval(() => {
+          that.getBuildingByProjectids2(this.$store.state.projectid);
+        }, 30000);
+      }
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+        if (this.map && this.map.updateSize) {
+          this.map.updateSize();
+        }
+        this.scheduleHomeChartsResize();
+      });
     },
   },
 
   mounted() {
-    let that = this;
-    if (this.$store.state.longis && this.$store.state.latis) {
-      this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
-    } else {
-      if (that.$store.state.i18n == "zh") {
-        that.mapCenter = [118, 32];
-      } else {
-        that.mapCenter = [0.1, 51.3];
-      }
-    }
-    this.outdoorBaseLayers = createOutdoorBaseLayers(
-      this.$store.state.i18n == "zh"
-    );
-    var count = document.getElementById("count");
-
-    if (
-      document.fullscreen ||
-      document.mozFullScreen ||
-      document.webkitIsFullScreen ||
-      document.msFullscreenElement ||
-      window.fullScreen
-    ) {
-      count.style.height = 12.5 + "vh";
-    } else {
-      count.style.height = 15 + "vh";
-    }
-    if (this.$store.state.userInfo.prionum == 5 && this.$store.state.projectid == "") {
-      this.getProjectFirstLists();
-    } else if (
-      this.$store.state.userInfo.prionum == 5 &&
-      this.$store.state.projectid != ""
-    ) {
-      this.getFristPages(this.$store.state.projectid);
-      this.getBuildingByProjectids(this.$store.state.projectid);
-      this.timer = setInterval(() => {
-        that.getFristPages(that.$store.state.projectid);
-      }, 30000);
-
-      this.timerMap = setInterval(() => {
-        that.getBuildingByProjectids2(this.$store.state.projectid);
-      }, 30000);
-    }
+    this.bootstrapHomePage();
   },
   computed: {
     isFullscreen() {
@@ -3364,6 +3314,10 @@ export default {
   },
 
   unmounted() {
+    clearTimeout(this._chartResizeTimer1);
+    clearTimeout(this._chartResizeTimer2);
+    clearInterval(this.polarTimer);
+    this.polarTimer = null;
     if (this.myChart1) {
       this.myChart1.dispose();
     }
@@ -3595,16 +3549,15 @@ a {
 
 /*项目选择 */
 .project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5vw;
 }
 .project-item {
-  margin: 0;
   position: relative;
   z-index: 1;
-  width: 11.2vw;
+  width: 100%;
+  box-sizing: border-box;
   padding-bottom: 20px;
   z-index: 0;
   transition: all 0s;
@@ -3612,7 +3565,8 @@ a {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0.5vw;
+  margin: 0;
+  text-align: left;
   box-shadow: 3px 3px 4px -2px #d6d6d6;
 }
 
@@ -3667,29 +3621,36 @@ a {
 }
 .item-info {
   display: flex;
-  margin-top: 14px;
-  justify-self: start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 14px 0 0;
+  text-align: left;
 }
 .item-info .key {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 0 10px;
   white-space: nowrap;
+  text-align: left;
 }
 .item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
+  text-align: left;
 }
 .item-info .value {
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
+  align-items: flex-start;
+  margin: 0 0 0 5px;
+  min-width: 0;
+  text-align: left;
 }
 .item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: #2d2d2d;
   text-align: left;
 }
@@ -3805,13 +3766,16 @@ a {
 .main_box {
   height: 100%;
   width: 100%;
+  margin: 0 !important;
 }
 .asi {
   width: 100%;
   height: 100%;
+  margin: 0 !important;
 }
 
 main.el-main {
+  margin: 0 !important;
   padding: 0;
   padding-top: 0px !important;
   padding-left: 15px !important;
@@ -3963,14 +3927,75 @@ h4.mb-0 {
   max-width: 100%;
 }
 
->>> .el-card__body {
+:deep(.el-card__body) {
   height: calc(100% - 50px);
   padding-top: 0;
 }
 
->>> .el-card__header {
+:deep(.el-card__header) {
   padding-top: 8px;
   padding-bottom: 8px;
+  text-align: left !important;
+}
+.home-stat-card {
+  text-align: left !important;
+}
+.home-stat-card :deep(.el-card__header),
+.home-stat-card :deep(.el-card__body),
+.home-stat-card :deep(.member),
+.home-stat-card :deep(.home-chart-carousel),
+.home-stat-card :deep(.el-carousel),
+.home-stat-card :deep(.el-carousel__container),
+.home-stat-card :deep(.el-carousel__item),
+.home-stat-card :deep(.home-chart),
+.home-stat-card :deep(.home-chart-polar),
+.home-stat-card :deep(.polar-total),
+.home-stat-card :deep(.el-breadcrumb),
+.home-stat-card :deep(.home-card-title) {
+  /* 覆盖 App.vue 全局 * { margin: 0 auto }，否则标题居中、内容被挤成窄条 */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.home-stat-card :deep(.el-card__header) {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center;
+  text-align: left !important;
+}
+.home-stat-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: calc(100% - 50px) !important;
+  padding: 8px 12px 12px !important;
+  box-sizing: border-box;
+  width: 100% !important;
+}
+.home-card-title {
+  width: 100%;
+  text-align: left !important;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.home-card-title-polar {
+  gap: 6px;
+}
+.home-card-title :deep(.el-breadcrumb) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  font-weight: 600;
+}
+.home-card-title :deep(.el-breadcrumb__item) {
+  float: none;
+}
+.home-card-help {
+  margin-left: 4px !important;
+  cursor: help;
 }
 .count {
   padding: 22px;
@@ -3996,15 +4021,75 @@ h4.mb-0 {
 .member {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 100% !important;
+  flex: 1;
+  min-height: 0;
   height: 100%;
-  align-items: center;
+  align-items: stretch;
 }
 .member .add {
   margin-top: 12px;
+  flex: 0 0 auto;
 }
 #main6 {
   margin-top: -9%;
+  flex: 1;
+  min-height: 0;
+}
+.home-chart,
+.home-chart-polar {
+  width: 100% !important;
+}
+.home-chart-fill {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: 240px !important;
+  height: 100% !important;
+}
+.home-chart-carousel {
+  flex: 1;
+  min-height: 0;
+  width: 100% !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.home-chart-carousel :deep(.el-carousel) {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+}
+.home-chart-carousel :deep(.el-carousel__container) {
+  height: calc(100% - 24px) !important;
+}
+.home-chart-carousel :deep(.el-carousel__item) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+.home-chart-polar {
+  width: 100% !important;
+  flex: 1 1 auto;
+  min-height: 160px !important;
+  height: calc(100% - 28px) !important;
+}
+.polar-total {
+  margin: 0 !important;
+  line-height: 28px;
+  text-align: center;
+  flex: 0 0 auto;
+  width: 100%;
+  white-space: nowrap;
+}
+.box-card2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100% !important;
 }
 
 // ======================================================================================
@@ -4125,5 +4210,22 @@ h4.mb-0 {
   font-size: 130%;
   line-height: 24px;
   margin-left: 5px;
+}
+</style>
+
+<style lang="scss">
+/* 非 scoped：确保压过 #app { text-align:center } 与 * { margin:0 auto } */
+.home-stat-card .el-card__header,
+.home-stat-card .home-card-title {
+  text-align: left !important;
+}
+.home-stat-card .el-card__body,
+.home-stat-card .member,
+.home-stat-card #main7,
+.home-stat-card #main0,
+.home-stat-card .el-carousel {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 </style>

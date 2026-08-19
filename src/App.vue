@@ -501,6 +501,9 @@ export default {
       to.path == "/largescreen"
         ? (this.showlargr = false)
         : (this.showlargr = true);
+      if (from && from.path === "/largescreen") {
+        this.restoreViewport();
+      }
       // if (to.path === "/location/indoor/locationindoor") {
       //   let notification = document.getElementsByClassName("el-notification");
       //   if (notification.length > 0) {
@@ -695,6 +698,27 @@ export default {
     window.showNotify = this.showNotify;
   },
   methods: {
+    restoreViewport() {
+      const html = document.documentElement;
+      const body = document.body;
+      html.style.height = "100%";
+      body.style.height = "100%";
+      html.style.overflow = "";
+      body.style.overflow = "";
+      body.style.paddingRight = "0px";
+      body.classList.remove("el-popup-parent--hidden");
+      document.querySelectorAll("body > .el-overlay").forEach((el) => {
+        if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
+          el.remove();
+        }
+      });
+      if (window.lib && window.lib.flexible && window.lib.flexible.refreshRem) {
+        window.lib.flexible.refreshRem();
+      }
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+    },
     // 选择项目
     selectProject() {
       var that = this;
@@ -1664,6 +1688,8 @@ html,
 body,
 #app {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -1787,16 +1813,15 @@ body .el-table th.el-table__cell {
 <style scoped>
 /*项目选择 */
 .project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5vw;
 }
 .project-item {
-  margin: 0;
   position: relative;
   z-index: 1;
-  width: 11.2vw;
+  width: 100%;
+  box-sizing: border-box;
   padding-bottom: 20px;
   z-index: 0;
   transition: all 0.3s;
@@ -1804,7 +1829,8 @@ body .el-table th.el-table__cell {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0.5vw;
+  margin: 0;
+  text-align: left;
   box-shadow: 3px 3px 4px -2px #d6d6d6;
 }
 
@@ -1859,29 +1885,36 @@ body .el-table th.el-table__cell {
 }
 .item-info {
   display: flex;
-  margin-top: 14px;
-  justify-self: start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 14px 0 0;
+  text-align: left;
 }
 .item-info .key {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 0 10px;
   white-space: nowrap;
+  text-align: left;
 }
 .item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
+  text-align: left;
 }
 .item-info .value {
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
+  align-items: flex-start;
+  margin: 0 0 0 5px;
+  min-width: 0;
+  text-align: left;
 }
 .item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: #2d2d2d;
   text-align: left;
 }

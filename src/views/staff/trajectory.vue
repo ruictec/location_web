@@ -723,8 +723,10 @@ export default {
         extent: extent,
       });
       setTimeout(() => {
-        this.$refs.map.style.width = "100%";
-        this.$refs.map.style.height = "99%";
+        if (this.$refs.map) {
+          this.$refs.map.style.width = "100%";
+          this.$refs.map.style.height = "100%";
+        }
 
         this.map = new Map({
           layers: [
@@ -745,6 +747,7 @@ export default {
           }),
         });
         that.addLayers();
+        that.refreshMapSize();
       }, 0);
     },
 
@@ -1312,7 +1315,20 @@ export default {
         this.map.addControl(new ScaleLine());
         this.addLayers();
         this.addLine(this.map);
+        this.refreshMapSize();
       }, 0);
+    },
+    refreshMapSize() {
+      const resize = () => {
+        if (this.map && this.map.updateSize) {
+          this.map.updateSize();
+        }
+      };
+      this.$nextTick(() => {
+        resize();
+        setTimeout(resize, 50);
+        setTimeout(resize, 300);
+      });
     },
     // 描线（南海）
     addLine(map) {
@@ -1409,13 +1425,23 @@ export default {
   justify-content: flex-start;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
 }
 .progress_div {
   display: flex;
   width: 100%;
+  max-width: 100%;
   flex-wrap: nowrap;
   align-items: center;
+  flex-shrink: 0;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
 }
 .progress {
   width: 98% !important;
@@ -1443,13 +1469,29 @@ export default {
 }
 .mapContent {
   margin-top: 1%;
+  margin-left: 0;
+  margin-right: 0;
   width: 100%;
-  height: 100%;
+  max-width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-sizing: border-box;
 }
+.allmap,
 #allmap {
-  height: 99%;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
   width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   background-color: white;
+  box-sizing: border-box;
 }
 
 .block {

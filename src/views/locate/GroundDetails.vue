@@ -192,6 +192,7 @@ import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
 import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { markRaw } from "vue";
 
 import {
   getBuildingByProjectid,
@@ -261,7 +262,8 @@ export default {
       map3d: null,
       fmapId: "",
       themeId: "",
-      scrollFloorControl: "",
+      scrollFloorControl: null,
+      map3dLoadToken: 0,
       layer: null,
       layerList: [],
       // 图标显示相关
@@ -629,8 +631,38 @@ export default {
       });
     },
 
+    destroyMap3d() {
+      this.destroyFengmapFloorToolbar();
+      try {
+        if (this.map3d && typeof this.map3d.dispose === "function") {
+          this.map3d.dispose();
+        }
+      } catch (e) {
+        // ignore map dispose errors
+      }
+      this.map3d = null;
+      this.destroyFengmapFloorToolbar();
+    },
+    destroyFengmapFloorToolbar() {
+      try {
+        const ctrl = this.scrollFloorControl;
+        if (ctrl && typeof ctrl.remove === "function") {
+          ctrl.remove();
+        }
+      } catch (e) {
+        // ignore toolbar remove errors
+      }
+      this.scrollFloorControl = null;
+      const container = document.getElementById("fengMap");
+      if (container) {
+        container
+          .querySelectorAll(".fm-control-groups")
+          .forEach((el) => el.remove());
+      }
+    },
     // 点击楼栋,判断楼栋是2D还是3D
     getGrounds(val) {
+      this.map3dLoadToken += 1;
       this.selectBeacon = null;
       this.groundId = null;
       this.buildingId = null;
@@ -726,10 +758,7 @@ export default {
             return;
           }
 
-          if (that.map3d) {
-            that.map3d.dispose();
-            that.map3d = null;
-          }
+          that.destroyMap3d();
 
           that.mapTypes = true;
           that.grounds = floors.reverse();
@@ -748,6 +777,7 @@ export default {
     // 获取楼层3D
     getGroundLists3D(build, ground, revertContext) {
       var that = this;
+      const loadToken = this.map3dLoadToken;
       that.groundListCopy = [];
       const fromUserChange = !!revertContext;
       this.building = build;
@@ -757,6 +787,9 @@ export default {
       };
       getGround(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
         (res) => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
+          }
           if (res.code == 1001) {
             const floors = res.data || [];
             if (floors.length === 0) {
@@ -772,10 +805,7 @@ export default {
               return;
             }
 
-            if (that.map3d) {
-              that.map3d.dispose();
-              that.map3d = null;
-            }
+            that.destroyMap3d();
 
             that.mapTypes = false;
             that.$nextTick(() => {
@@ -803,11 +833,15 @@ export default {
               }
               setTimeout(() => {
                 that.runWhenMap3dReady(() => {
+                  if (loadToken !== that.map3dLoadToken) {
+                    return;
+                  }
                   that.onmap(
                     that.$store.state.intoProjectid,
                     floors[0].appname,
                     floors[0].mapkey,
-                    groundLevel
+                    groundLevel,
+                    loadToken
                   );
                 });
               }, 1);
@@ -824,15 +858,19 @@ export default {
     },
 
     //加载3D地图
-    onmap(projectid, appname, mapkey, ground) {
+    onmap(projectid, appname, mapkey, ground, loadToken) {
       document.oncontextmenu = function (e) {
         return false;
       };
       var that = this;
+      if (loadToken != null && loadToken !== this.map3dLoadToken) {
+        return;
+      }
       const container = document.getElementById("fengMap");
       if (!container) {
         return;
       }
+      this.destroyMap3d();
       this.prepareMap3dContainer();
       var mapOpation = {
         container: container,
@@ -849,8 +887,11 @@ export default {
         // themeURL: "/data/theme/",
       };
 
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = markRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
+        if (loadToken != null && loadToken !== that.map3dLoadToken) {
+          return;
+        }
         try {
           const level = that.map3d.getLevel();
           const floor = that.map3d.getFloor(level);
@@ -941,7 +982,8 @@ export default {
           y: 20,
         },
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.destroyFengmapFloorToolbar();
+      this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
     },
 
@@ -1343,6 +1385,10 @@ export default {
     updateSize() {
       this.map.updateSize();
     },
+  },
+  beforeUnmount() {
+    this.map3dLoadToken += 1;
+    this.destroyMap3d();
   },
   mounted() {
     this.buildingId = this.$route.query.buildid * 1;

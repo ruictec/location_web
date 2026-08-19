@@ -873,11 +873,6 @@ export default {
       this.$store.state.showWarningDialog
         ? this.$store.commit("setlargeScreen", true)
         : this.$store.commit("setlargeScreen", false);
-      // if (this.$store.state.showWarningDialog == true) {
-      //   this.$store.commit("setlargeScreen", true);
-      // } else {
-      //   this.$store.commit("setlargeScreen", false);
-      // }
       this.$store.commit("changeWarningDialog", false);
       this.$store.commit("setscreen", false);
     },
@@ -1338,16 +1333,15 @@ export default {
 
 /*项目选择 */
 .project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5vw;
 }
 .project-item {
-  margin: 0;
   position: relative;
   z-index: 1;
-  width: 11.2vw;
+  width: 100%;
+  box-sizing: border-box;
   padding-bottom: 20px;
   z-index: 0;
   transition: all 0.3s;
@@ -1355,7 +1349,8 @@ export default {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0.5vw;
+  margin: 0;
+  text-align: left;
   box-shadow: 3px 3px 4px -2px #d6d6d6;
 }
 
@@ -1410,29 +1405,36 @@ export default {
 }
 .item-info {
   display: flex;
-  margin-top: 14px;
-  justify-self: start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 14px 0 0;
+  text-align: left;
 }
 .item-info .key {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 0 10px;
   white-space: nowrap;
+  text-align: left;
 }
 .item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
+  text-align: left;
 }
 .item-info .value {
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
+  align-items: flex-start;
+  margin: 0 0 0 5px;
+  min-width: 0;
+  text-align: left;
 }
 .item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: #2d2d2d;
   text-align: left;
 }

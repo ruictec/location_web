@@ -60,9 +60,9 @@
         <span
           v-if="item.redirect === 'noRedirect' || index == levelList.length - 1"
           class="no-redirect"
-          >{{ $t(item.meta.title) }}</span>
+          >{{ breadcrumbTitle(item.meta.title) }}</span>
         <a v-else @click.prevent="handleLink(item)">{{
-          $t(item.meta.title)
+          breadcrumbTitle(item.meta.title)
         }}</a>
       </el-breadcrumb-item>
     </transition-group>
@@ -71,6 +71,7 @@
 
 <script>
 import pathToRegexp from "path-to-regexp";
+import i18n from "../../../../i18n/i18n";
 
 export default {
   data() {
@@ -127,7 +128,7 @@ export default {
         matched = [
           {
             path: "/dashboard",
-            meta: { title: this.$t("Breadcrumb.homepage") }
+            meta: { title: "router.homepage" }
           }
         ].concat(matched);
       }
@@ -136,12 +137,26 @@ export default {
         item => item.meta && item.meta.title && item.meta.breadcrumb !== false
       );
     },
+    breadcrumbTitle(title) {
+      if (!title) return "";
+      return i18n.global.t(title);
+    },
     isDashboard(route) {
-      const name = route && route.name;
-      if (!name) {
+      if (!route) {
         return false;
       }
-      return name.trim().toLocaleLowerCase() === "首页".toLocaleLowerCase();
+      const name = (route.name || "").toString().trim().toLowerCase();
+      const path = (route.path || "").toString();
+      const title = route.meta && route.meta.title;
+      return (
+        name === "homeuser" ||
+        name === "home" ||
+        name === "首页" ||
+        path === "/dashboard" ||
+        path === "/dashboard/index" ||
+        path === "/" ||
+        title === "router.homepage"
+      );
     },
     pathCompile(path) {
       // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561

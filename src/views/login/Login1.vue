@@ -72,6 +72,7 @@ import {
   registerUserPwd,
 } from "../../axios/api";
 import { persistTabSession, notifyAuthEvent } from "../../utils/authSession";
+import { injectRoutesByRole } from "../../router/permission";
 // 路由注入由permission.js处理，不再需要导入
 export default {
   components: {
@@ -581,12 +582,10 @@ export default {
                 username: that.userInfo.username,
                 prionum: that.userInfo.prionum,
               });
-              // 登录成功后直接跳转，路由注入由permission.js处理
-              if (that.$store.state.userInfo.prionum == 5) {
-                that.$router.push("/dashboard").catch(() => {});
-              } else {
-                that.$router.push("/dashboard").catch(() => {});
-              }
+              try {
+                injectRoutesByRole(that.userInfo.prionum);
+              } catch (e) {}
+              that.$router.push("/dashboard").catch(() => {});
               that.$store.commit("changeShow", true);
             } else {
               that.$message({
@@ -861,9 +860,11 @@ export default {
 </script>
 
 <style>
-* {
-  margin: 0px auto;
-  padding: 0px;
+/* 只作用在登录页，避免登录后污染首页 flex 布局（否则会白屏） */
+.cotn_principal,
+.cotn_principal * {
+  margin: 0 auto;
+  padding: 0;
 }
 
 .el-tooltip__popper {

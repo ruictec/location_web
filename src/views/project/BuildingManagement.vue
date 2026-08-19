@@ -2285,7 +2285,6 @@ export default {
         data = {
           tenantid: this.superId,
           projectid: val,
-          status: 3,
           maptype: this.buildtype,
         };
       } else if (
@@ -2295,7 +2294,6 @@ export default {
         data = {
           tenantid: this.tenantid_A,
           projectid: val,
-          status: 3,
           maptype: this.buildtype,
         };
       }

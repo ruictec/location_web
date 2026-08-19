@@ -165,6 +165,71 @@ body .el-table th,
   z-index: 4000 !important;
 }
 
+/* 室内定位楼栋下拉：挂到 body，避免被 3D 地图 canvas 挡住选项点击 */
+.el-popper.location-indoor-building-select {
+  z-index: 10050 !important;
+}
+
+/* 室内定位 - 查看详情统计面板：按内容宽度，不撑满地图 */
+.mapConent .statistics,
+.mapConentD .statistics.statistics3d {
+  justify-content: flex-start !important;
+  text-align: left !important;
+  width: fit-content !important;
+  max-width: calc(100% - 48px) !important;
+  left: auto !important;
+  right: 0 !important;
+}
+
+.mapConent .statistics > *,
+.mapConentD .statistics.statistics3d > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+.mapConent .statistics .statistics-charts,
+.mapConentD .statistics.statistics3d .statistics-charts {
+  width: auto !important;
+  max-width: none !important;
+}
+
+.mapConent .statistics .el-table,
+.mapConentD .statistics.statistics3d .el-table,
+.mapConent .statistics .el-table__footer-wrapper,
+.mapConentD .statistics.statistics3d .el-table__footer-wrapper {
+  width: 320px !important;
+  max-width: 320px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 室内定位 - 地图标记详情弹框（append-to-body，需全局样式） */
+.el-dialog.Info_dialog {
+  border-radius: 20px !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  --el-dialog-bg-color: rgba(0, 0, 0, 0.5);
+  box-shadow: none;
+}
+
+.el-dialog.Info_dialog .el-dialog__body {
+  color: #fff !important;
+  padding: 10px 16px 16px !important;
+}
+
+.el-dialog.Info_dialog .el-dialog__header {
+  padding: 8px 12px 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog.Info_dialog .el-divider--horizontal {
+  border-top-color: rgba(255, 255, 255, 0.25);
+}
+
+.el-dialog.Info_dialog .goDev a {
+  color: #409eff;
+}
+
 /* ---------- 输入框 / 选择器（Element Plus 边框在 wrapper 上） ---------- */
 .el-input__wrapper {
   padding: 1px 11px;
@@ -470,14 +535,20 @@ body .el-table th,
   box-sizing: border-box;
 }
 
-/* 全局 * { margin: 0 auto } 会把 flex 子项收成内容宽并左右居中 */
+/* 全局 * { margin: 0 auto } 会把 flex 子项收成内容宽并上下左右居中，首页被挤成白屏 */
 .el-container,
 .el-container > .el-aside,
 .el-container > .el-header,
 .el-container > .el-main,
 .el-container > .el-footer {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  margin: 0 !important;
+}
+
+.app-wrapper,
+.app-main,
+.main-container {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .el-container {
@@ -488,7 +559,14 @@ body .el-table th,
 .el-container > .el-main {
   flex: 1 1 auto !important;
   min-width: 0;
+  min-height: 0;
   max-width: 100%;
+}
+
+/* 栅格列被 * { margin: 0 auto } 居中，首页地图等会在侧栏右侧留出大块空白 */
+.el-col {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 /* tabs 是 column flex，auto 左右 margin 会让表格按内容宽度居中 */
@@ -1149,6 +1227,48 @@ body .el-table th,
   color: #8c97aa;
 }
 
+/* 侧栏：抵消 * { margin: 0 auto } 把 flex 子项左右拉开 */
+.sidebar-container .el-menu-item,
+.sidebar-container .el-sub-menu__title,
+.sidebar-container .el-menu-tooltip__trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.sidebar-container .el-menu-item > *,
+.sidebar-container .el-sub-menu__title > *,
+.sidebar-container .el-menu-tooltip__trigger > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.sidebar-container .el-menu-item .icon,
+.sidebar-container .el-sub-menu__title .icon {
+  margin-right: 8px !important;
+  margin-left: 0 !important;
+  flex-shrink: 0;
+}
+
+.sidebar-container .el-menu-item > span,
+.sidebar-container .el-sub-menu__title > span,
+.sidebar-container .el-menu-tooltip__trigger > span {
+  margin: 0 !important;
+}
+
+.sidebar-container .el-sub-menu__title > .el-sub-menu__icon-arrow {
+  margin-left: auto !important;
+}
+
+.sidebar-container .el-menu-item .el-badge.warningbox {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
 /* 各模块左侧竖向菜单：抵消 * { margin: 0 auto }，图标+文字左对齐，问号跟在后面 */
 .el-menu-vertical-demo .el-menu-item {
   display: flex !important;
@@ -1220,6 +1340,126 @@ body .el-table th,
 .el-pagination .el-select {
   width: 110px;
   min-width: 110px;
+}
+
+/* 员工/资产「查看轨迹」弹窗：append-to-body 后 scoped 选不中，需全局撑开宽高 */
+.el-dialog.trajectory {
+  height: 85vh !important;
+  max-height: 85vh !important;
+  margin-top: 7.5vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  width: 80% !important;
+  max-width: 80% !important;
+}
+
+.el-dialog.trajectory .el-dialog__header {
+  flex-shrink: 0;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog.trajectory .el-dialog__headerbtn {
+  top: 12px !important;
+}
+
+.el-dialog.trajectory .el-dialog__body {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  padding-top: 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+}
+
+/* 抵消 App.vue * { margin: 0 auto }：否则 mapConent 会按内容宽居中成窄条 */
+.el-dialog.trajectory .el-dialog__body > .mapConent,
+.el-dialog.trajectory .mapConent,
+.el-dialog.trajectory .progress_div,
+.el-dialog.trajectory .progress_div > *,
+.el-dialog.trajectory .mapContent,
+.el-dialog.trajectory .allmap,
+.el-dialog.trajectory #allmap,
+.el-dialog.trajectory .ol-viewport,
+.el-dialog.trajectory .ol-overlaycontainer,
+.el-dialog.trajectory .ol-overlaycontainer-stopevent,
+.el-dialog.trajectory canvas {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog.trajectory .el-dialog__body > .mapConent,
+.el-dialog.trajectory .mapConent {
+  flex: 1 1 0 !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.trajectory .progress_div {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.trajectory .mapContent {
+  flex: 1 1 0 !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.trajectory .allmap,
+.el-dialog.trajectory #allmap {
+  flex: 1 1 0 !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.trajectory .allmap .ol-viewport,
+.el-dialog.trajectory #allmap .ol-viewport,
+.el-dialog.trajectory .allmap .ol-overlaycontainer,
+.el-dialog.trajectory #allmap .ol-overlaycontainer,
+.el-dialog.trajectory .allmap .ol-overlaycontainer-stopevent,
+.el-dialog.trajectory #allmap .ol-overlaycontainer-stopevent {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.el-dialog.trajectory .allmap canvas,
+.el-dialog.trajectory #allmap canvas {
+  max-width: none !important;
 }
 
 .el-dialog__header {
@@ -1345,6 +1585,35 @@ body .el-table th,
 
 .el-card__body {
   padding: 20px;
+}
+
+/* 首页信标/人员卡片：抵消 App.vue * { margin:0 auto } + #app text-align:center */
+.home-stat-card,
+.home-stat-card .el-card__header,
+.home-stat-card .el-card__body,
+.home-stat-card .member,
+.home-stat-card .home-chart-carousel,
+.home-stat-card .el-carousel,
+.home-stat-card .el-carousel__container,
+.home-stat-card .el-carousel__item,
+.home-stat-card .home-chart,
+.home-stat-card .home-chart-polar,
+.home-stat-card .polar-total,
+.home-stat-card .home-card-title,
+.home-stat-card .el-breadcrumb {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.home-stat-card .el-card__header,
+.home-stat-card .home-card-title {
+  text-align: left !important;
+  justify-content: flex-start !important;
+}
+.home-stat-card .el-card__body,
+.home-stat-card .member,
+.home-stat-card .home-chart-carousel,
+.home-stat-card .el-carousel {
+  width: 100% !important;
 }
 
 /* 旧版 mini 尺寸选择器兼容 */

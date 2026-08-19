@@ -371,12 +371,10 @@ export default {
     this.btnClick(); //刚进页面进入大屏
 
     this.escape();
-    window.onresize = () => {
-      //控制Echarts的缩放渲染
-      return (() => {
-        this.screenWidth = document.body.clientWidth;
-      })();
+    this._onResize = () => {
+      this.screenWidth = document.body.clientWidth;
     };
+    window.addEventListener("resize", this._onResize);
     let ulscrollsArray = Array.from(document.querySelectorAll(".ultitle"));
     if (ulscrollsArray.length > 7) {
       ulscrollsArray.style.overflowY = "none";
@@ -386,6 +384,16 @@ export default {
   beforeUnmount() {
     clearInterval(this.timers);
     this.timers = null;
+    clearInterval(this.timerMap);
+    this.timerMap = null;
+    if (this._onFullscreenChange) {
+      window.removeEventListener("fullscreenchange", this._onFullscreenChange);
+      this._onFullscreenChange = null;
+    }
+    if (this._onResize) {
+      window.removeEventListener("resize", this._onResize);
+      this._onResize = null;
+    }
   },
   methods: {
     //获取楼栋信息
@@ -440,8 +448,33 @@ export default {
       this.current = `${year}-${month}-${date}`;
     },
     brk() {
-      //返回到首页
-      this.$router.push("/dashboard");
+      if (this._leavingLargeScreen) return;
+      this._leavingLargeScreen = true;
+      if (this._onFullscreenChange) {
+        window.removeEventListener("fullscreenchange", this._onFullscreenChange);
+        this._onFullscreenChange = null;
+      }
+      if (this._onResize) {
+        window.removeEventListener("resize", this._onResize);
+        this._onResize = null;
+      }
+      const goHome = () => {
+        this.$router.push({ name: "HomeUser" }).catch(() => {
+          this.$router.push("/dashboard").catch(() => {});
+        });
+      };
+      const fs =
+        document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs && document.exitFullscreen) {
+        document.exitFullscreen().then(goHome).catch(goHome);
+      } else if (fs && document.webkitExitFullscreen) {
+        try {
+          document.webkitExitFullscreen();
+        } catch (e) {}
+        this.$nextTick(goHome);
+      } else {
+        goHome();
+      }
       this.$store.state.largeScreen
         ? this.$store.commit("changeWarningDialog", true)
         : this.$store.commit("changeWarningDialog", false);
@@ -1208,77 +1241,134 @@ export default {
       ColumnEcharts3.setOption(ColumnOption3);
       ColumnEcharts3.resize();
     },
-    // 设备状态
+    // 设备状态：按 Vue2 大屏截图还原（环形扇区+引导线，不是 ECharts5 胶囊玫瑰图）
     setPie() {
-      var pieEcharts = this.$echarts.init(
-        document.getElementById("pieEcharts")
-      );
+      var pieEl = document.getElementById("pieEcharts");
+      if (!pieEl) return;
+      var exist = this.$echarts.getInstanceByDom(pieEl);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      var pieEcharts = this.$echarts.init(pieEl);
+      if (!pieEcharts) return;
 
+      var batLow = Number(this.devBatTimeNum && this.devBatTimeNum.bat_0_20) || 0;
+      var batMid = Number(this.devBatTimeNum && this.devBatTimeNum.bat_20_60) || 0;
+      var batHigh = Number(this.devBatTimeNum && this.devBatTimeNum.bat_60_100) || 0;
+      var inUse = Number(this.devTypeNum && this.devTypeNum.inuse_yes) || 0;
+      var notUse = Number(this.devTypeNum && this.devTypeNum.inuse_no) || 0;
+
+      // 与 Vue2 截图一致：外层按数值占角度的圆环（不要 roseType，ECharts5 的 rose+大圆角会变成分散胶囊）
       var pieEchartsOption = {
         legend: {
-          bottom: "16%",
-          itemWidth: 8, // 设置图例标记的宽度
-          itemHeight: 10, // 设置图例标记的高度
+          bottom: "18%",
+          left: "center",
+          itemWidth: 8,
+          itemHeight: 10,
+          itemGap: 14,
           textStyle: {
-            color: "white", // 字体颜色
+            color: "#ffffff",
+            fontSize: 12,
           },
+          data: ["电量<20%", "电量>20%", "电量>60%", "已使用", "未使用"],
         },
         series: [
           {
             name: "外层",
             type: "pie",
-            radius: ["30%", "60%"],
-            center: ["center", "40%"],
-            // roseType: "area",
-            roseType: "radius",
-
+            radius: ["34%", "60%"],
+            center: ["50%", "40%"],
+            avoidLabelOverlap: true,
+            label: {
+              show: true,
+              color: "#ffffff",
+              fontSize: 12,
+              formatter: "{b}",
+            },
+            labelLine: {
+              show: true,
+              length: 12,
+              length2: 8,
+              lineStyle: {
+                color: "rgba(255,255,255,0.55)",
+              },
+            },
             itemStyle: {
-              borderRadius: 100,
+              borderColor: "rgb(5, 22, 45)",
+              borderWidth: 3,
+            },
+            emphasis: {
+              scale: false,
             },
             data: [
               {
-                value: Number(this.devBatTimeNum.bat_0_20),
+                value: batLow,
                 name: "电量<20%",
                 itemStyle: { color: "#d72a14" },
+                label: { color: "#d72a14" },
+                labelLine: { lineStyle: { color: "#d72a14" } },
               },
               {
-                value: Number(this.devBatTimeNum.bat_20_60),
+                value: batMid,
                 name: "电量>20%",
                 itemStyle: { color: "#E1D95B" },
+                label: { color: "#E1D95B" },
+                labelLine: { lineStyle: { color: "#E1D95B" } },
               },
-
               {
-                value: Number(this.devBatTimeNum.bat_60_100),
+                value: batHigh,
                 name: "电量>60%",
                 itemStyle: { color: "#52ca52" },
+                label: { color: "#52ca52" },
+                labelLine: { lineStyle: { color: "#52ca52" } },
               },
             ],
           },
           {
             name: "内层",
             type: "pie",
-            radius: "40",
-            center: ["center", "40%"],
+            // 实心圆心，盖住外环空洞；接近 Vue2 的黄色中心
+            radius: "30%",
+            center: ["50%", "40%"],
+            z: 3,
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "{b}",
+              fontSize: 12,
+              color: "#1b1b1b",
+            },
+            labelLine: { show: false },
             itemStyle: {
-              borderRadius: 100,
+              borderColor: "rgb(5, 22, 45)",
+              borderWidth: 2,
+            },
+            emphasis: {
+              scale: false,
             },
             data: [
               {
-                value: Number(this.devTypeNum.inuse_yes),
+                value: inUse,
                 name: "已使用",
-                itemStyle: { color: "yellow" },
+                itemStyle: { color: "#f0d24b" },
               },
               {
-                value: Number(this.devTypeNum.inuse_no),
+                value: notUse,
                 name: "未使用",
-                itemStyle: { color: "orange" },
+                itemStyle: { color: "#ff9b2f" },
               },
             ],
           },
         ],
       };
-      pieEcharts.setOption(pieEchartsOption);
-      pieEcharts.resize();
+      try {
+        pieEcharts.setOption(pieEchartsOption, true);
+        pieEcharts.resize();
+      } catch (e) {
+        console.warn(e);
+      }
     },
     // 信标状态
     setCylinder() {
@@ -1998,25 +2088,12 @@ export default {
       );
     },
     escape() {
-      var that = this;
-      window.addEventListener("fullscreenchange", () => {
+      this._onFullscreenChange = () => {
         if (screenfull.isFullscreen == false) {
-          that.brk();
+          this.brk();
         }
-      });
-      // document.addEventListener("keyup", function (event) {
-      //   console.log(event.key);
-      //   if (event.key == "Escape") {
-      //     event.preventDefault();
-      //     console.log("按下了Esc键");
-      //     that.brk();
-      //   }
-      // });
-    },
-    // 销毁定时器
-    unmounted() {
-      clearInterval(this.timerMap);
-      this.timerMap = null;
+      };
+      window.addEventListener("fullscreenchange", this._onFullscreenChange);
     },
   },
 };

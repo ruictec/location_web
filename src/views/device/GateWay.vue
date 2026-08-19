@@ -92,6 +92,26 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item
+                :label="$t('terminal.Project1')"
+                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                v-if="contrForPrionum == 3 || contrForPrionum == 4"
+              >
+                <el-select
+                  style="width: 95%; float: left"
+                  v-model="searchList.projectid"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in searchProjectList"
+                    :key="item.projectid"
+                    :label="item.name"
+                    :value="item.projectid"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item style="margin-left: 2%">
                 <el-button type="primary" class="query" @click="searchGateway()">{{
                   $t('gateway.search')
@@ -821,6 +841,7 @@ export default {
       userName: this.$store.state.userInfo.username,
       delprio: this.$store.state.userInfo.delprio,
       projectList: [],
+      searchProjectList: [],
       multipleSelection: [],
       tableData: [],
       tenantidData: [],
@@ -1926,6 +1947,21 @@ export default {
         this.projectList = res.data.list
       })
     },
+
+    //获取项目搜索下拉框（权限3/4，参考终端管理）
+    getProjectLists() {
+      let data = {
+        superid: this.tenantid_A,
+      }
+      getProjectListByTenantid(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then(res => {
+        this.searchProjectList = res.data.list
+      })
+    },
   },
   beforeMount() {
     this.outdoorBaseLayers = createOutdoorBaseLayers(
@@ -1954,7 +1990,17 @@ export default {
       }
     }
     if (this.$store.state.userInfo.prionum == 3 || this.$store.state.userInfo.prionum == 4) {
+      this.searchList = {
+        deveui: '',
+        scheme: '',
+        tenantid: this.$store.state.userInfo.tenantid,
+        page: 1,
+        count: 10,
+        hbstatus: '',
+        projectid: '',
+      }
       this.getSearchProjectList(this.$store.state.userInfo.tenantid)
+      this.getProjectLists()
     }
 
     this.getCustomerNames()

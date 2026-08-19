@@ -123,11 +123,13 @@
               >
               </el-table-column>
               <el-table-column
-                property="warnum"
                 :label="$t('warning.threshold')"
                 show-overflow-tooltip
                 align="center"
               >
+                <template #default="scope">
+                  {{ formatWarnum(scope.row) }}
+                </template>
               </el-table-column>
               <el-table-column
                 property="memo"
@@ -345,14 +347,14 @@
                 </el-time-picker>
               </el-form-item>
 
-              <el-form-item
-                :label="$t('warning.threshold1')"
-                prop="warnum"
-                v-if="showWarnum"
-              >
+              <el-form-item :label="$t('warning.threshold1')" prop="warnum">
                 <el-input
                   v-model="addData.warnum"
-                  :placeholder="$t('warning.text7')"
+                  :placeholder="
+                    addData.type == 4
+                      ? $t('warning.text7Passing')
+                      : $t('warning.text7')
+                  "
                 ></el-input>
                 <el-tooltip
                   class="item"
@@ -368,7 +370,11 @@
                 >
                   <template #content><div>
                     <p>
-                      {{ $t("warning.title2") }}
+                      {{
+                        addData.type == 4
+                          ? $t("warning.title2AssetPassing")
+                          : $t("warning.title2")
+                      }}
                     </p>
                   </div></template>
                   <i class="el-icon-question" />
@@ -479,14 +485,14 @@
                 </el-time-picker>
               </el-form-item>
 
-              <el-form-item
-                :label="$t('warning.threshold1')"
-                prop="warnum"
-                v-if="showWarnum"
-              >
+              <el-form-item :label="$t('warning.threshold1')" prop="warnum">
                 <el-input
                   v-model="editData.warnum"
-                  :placeholder="$t('warning.text7')"
+                  :placeholder="
+                    editData.type == 4
+                      ? $t('warning.text7Passing')
+                      : $t('warning.text7')
+                  "
                 ></el-input>
                 <el-tooltip
                   class="item"
@@ -502,7 +508,11 @@
                 >
                   <template #content><div>
                     <p>
-                      {{ $t("warning.title2") }}
+                      {{
+                        editData.type == 4
+                          ? $t("warning.title2AssetPassing")
+                          : $t("warning.title2")
+                      }}
                     </p>
                   </div></template>
                   <i class="el-icon-question" />
@@ -723,15 +733,55 @@ export default {
     };
   },
   methods: {
-    // 判断是否是选择越界告警和聚集告警
+    // 越界告警显示触发方式；门限始终可填（参考资产告警）
     changeType(val) {
-      if (val == 4) {
-        this.addData.warnum = "";
-        this.showWarnum = false;
-      } else {
-        this.showWarnum = true;
-      }
+      this.showWarnum = val != 4;
       this.typeval = val;
+      this.updateWarnumRules(val);
+      this.$nextTick(() => {
+        if (this.$refs.addData) {
+          this.$refs.addData.clearValidate("warnum");
+        }
+      });
+    },
+    // 滞留/聚集/异常静止：门限必填正整数；越界：门限选填，填了须为 >=0 的整数
+    updateWarnumRules(type) {
+      if (type == 4) {
+        this.addRules.warnum = [
+          {
+            validator: (rule, value, callback) => {
+              if (value === "" || value === null || value === undefined) {
+                callback();
+                return;
+              }
+              if (!/^(0|[1-9]\d*)$/.test(String(value))) {
+                callback(new Error(this.$t("warning.nonNegativeInteger")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ];
+      } else {
+        this.addRules.warnum = [
+          {
+            required: true,
+            pattern: /^[1-9]\d*$/,
+            message: this.$t("beacon.positiveinteger"),
+            trigger: "blur",
+          },
+        ];
+      }
+    },
+    validateWarnum(value, type) {
+      if (type == 4) {
+        if (value === "" || value === null || value === undefined) {
+          return true;
+        }
+        return /^(0|[1-9]\d*)$/.test(String(value));
+      }
+      return /^[1-9]\d*$/.test(String(value));
     },
     // 生成区域展示名称
     decorateFenceOption(item) {
@@ -812,6 +862,16 @@ export default {
         }
       }
       return typeName || "-";
+    },
+    // 聚集告警显示「人」，其余显示「分钟」
+    formatWarnum(row) {
+      if (row.warnum === "" || row.warnum === null || row.warnum === undefined) {
+        return "-";
+      }
+      if (row.type == 2) {
+        return row.warnum + this.$t("warning.people");
+      }
+      return row.warnum + this.$t("warning.minutes");
     },
     handleAddTrancheChange(val) {
       this.handleTrancheChange(val, "addTranches");
@@ -983,6 +1043,7 @@ export default {
       };
       this.add = true;
       this.showWarnum = true;
+      this.updateWarnumRules("");
     },
     addCancel(addData) {
       this.add = false;
@@ -1104,11 +1165,8 @@ export default {
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
-      if (this.editData.type == 4) {
-        this.showWarnum = false;
-      } else {
-        this.showWarnum = true;
-      }
+      this.showWarnum = this.editData.type != 4;
+      this.updateWarnumRules(this.editData.type);
       const meth = this.tableData[index].meth;
       this.editData.meth = meth || meth === 0 ? Number(meth) : "";
 
@@ -1134,6 +1192,23 @@ export default {
     },
     editTrue(editData) {
       var that = this;
+      if (
+        that.editData.warnum === "" ||
+        that.editData.warnum === null ||
+        that.editData.warnum === undefined
+      ) {
+        that.editData.warnum = 0;
+      }
+      if (!that.validateWarnum(that.editData.warnum, that.editData.type)) {
+        that.$message({
+          message:
+            that.editData.type == 4
+              ? that.$t("warning.nonNegativeInteger")
+              : that.$t("beacon.positiveinteger"),
+          type: "warning",
+        });
+        return;
+      }
       if (that.editWorktypes.length == 0) {
         that.$message({
           message: this.$t("beacon.Pleasework"),
@@ -1347,6 +1422,10 @@ export default {
           index: 2,
           value: this.$t("warning.Aggregatealarm"),
         },
+        {
+          index: 4,
+          value: this.$t("warning.Passingalarm"),
+        },
       ];
     }
   },
@@ -1369,6 +1448,10 @@ export default {
             index: 3,
             value: this.$t("warning.Abnormalstatic"),
           },
+          {
+            index: 4,
+            value: this.$t("warning.Passingalarm"),
+          },
         ];
       } else if (this.$store.state.intoProjectType == 2) {
         this.typeList = [
@@ -1379,6 +1462,10 @@ export default {
           {
             index: 2,
             value: this.$t("warning.Aggregatealarm"),
+          },
+          {
+            index: 4,
+            value: this.$t("warning.Passingalarm"),
           },
         ];
       }

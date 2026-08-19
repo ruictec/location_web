@@ -295,13 +295,6 @@
               ></el-table-column>
 
               <el-table-column
-                property="warningstr"
-                :label="$t('home.alarm')"
-                align="center"
-                show-overflow-tooltip
-                v-if="intoProjectType == 2"
-              ></el-table-column>
-              <el-table-column
                 property="memo"
                 :label="$t('asset.Remark')"
                 align="center"
@@ -500,26 +493,6 @@
                 </el-select>
               </el-form-item>
 
-              <el-form-item
-                :label="$t('tet.Triggeralarm')"
-                v-if="intoProjectType == 2"
-              >
-                <el-select
-                  v-model="addData.warning"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-
               <el-form-item :label="$t('asset.Remark2')">
                 <el-input
                   type="textarea"
@@ -650,25 +623,6 @@
                       item.beaconid + ' / ' + item.major + ' / ' + item.minor
                     "
                     :value="item.beaconid"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item
-                :label="$t('tet.Triggeralarm')"
-                v-if="intoProjectType == 2"
-              >
-                <el-select
-                  v-model="editData.warning"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
                   >
                   </el-option>
                 </el-select>
@@ -908,16 +862,6 @@ export default {
       beaconidList: [], //标签号下拉框
       beaconidLists: [], //标签号下拉框
       bleList: [],
-      warningList: [
-        {
-          index: 1,
-          value: "disabled",
-        },
-        {
-          index: 2,
-          value: "enabled",
-        },
-      ],
       searchSelectPerson: [],
       tableData: [],
       pageCount: 20,
@@ -935,7 +879,6 @@ export default {
         depart: "", //所在部门
         beaconid: "", //绑定标签好
         memo: "", //备注
-        warning: "", //是否触发告警
         flag: "", //是否是信标
       },
       ProjectTye: "",
@@ -953,7 +896,6 @@ export default {
         beaconid: "", //绑定标签好
         memo: "", //备注
         filename: "",
-        warning: "", //是否触发告警
         flag: "",
       },
       editRules: {
@@ -1127,9 +1069,6 @@ export default {
             case that.$t("otherDev.beacon"):
               obj["flag"] = outdata[i][key];
               break;
-            case that.$t("home.alarm"):
-              obj["warning"] = outdata[i][key];
-              break;
             case that.$t("asset.Remark"):
               obj["memo"] = outdata[i][key];
               break;
@@ -1226,10 +1165,6 @@ export default {
                 value: "flag",
               },
               {
-                msg: that.$t("home.alarm"),
-                value: "warning",
-              },
-              {
                 msg: that.$t("asset.Remark"),
                 value: "memo",
               },
@@ -1262,7 +1197,6 @@ export default {
               "depart",
               "beaconid",
               "flag",
-              "warning",
               "memo",
             ];
       for (let i = 0; i < exprotHeadertype.length; i++) {
@@ -1360,10 +1294,6 @@ export default {
               {
                 msg: that.$t("otherDev.beacon"),
                 value: "flag",
-              },
-              {
-                msg: that.$t("home.alarm"),
-                value: "warning",
               },
               {
                 msg: that.$t("asset.Remark"),
@@ -1881,7 +1811,6 @@ export default {
         depart: "", //所在部门
         beaconid: "", //绑定标签好
         memo: "", //备注
-        warning: "", //是否触发告警
         flag: "", //是否是信标
       };
 
@@ -1919,7 +1848,6 @@ export default {
             that.userIdForPic.depart = that.addData.depart;
             that.userIdForPic.beaconid = that.addData.beaconid;
             that.userIdForPic.memo = that.addData.memo;
-            that.userIdForPic.warning = that.addData.warning;
             that.userIdForPic.flag = that.addData.flag;
             that.$refs.upload.submit();
           } else {
@@ -1981,7 +1909,6 @@ export default {
       this.editData.beaconid = row.beaconid;
       this.editData.memo = row.memo;
       this.editData.filename = row.filename;
-      this.editData.warning = row.warning;
       this.editData.flag = row.flag;
       Promise.all([
         this.getMemberLists(),
@@ -2017,7 +1944,6 @@ export default {
             that.userIdForPicEdit.projectid = that.editData.projectid;
             that.userIdForPicEdit.beaconid = that.editData.beaconid;
             that.userIdForPicEdit.memo = that.editData.memo;
-            that.userIdForPicEdit.warning = that.editData.warning;
             that.userIdForPicEdit.flag = that.editData.flag;
             that.$refs.upload.submit();
           } else {

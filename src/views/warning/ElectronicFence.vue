@@ -137,7 +137,7 @@
               >
                 <template #default="scope">
                   <el-switch
-                    :value="scope.row.flag !== false"
+                    :model-value="isFenceFlagOn(scope.row.flag)"
                     @change="handleFenceFlagChange(scope.row, $event)"
                     :disabled="scope.row.updating"
                   ></el-switch>
@@ -3229,6 +3229,10 @@ export default {
       
       return '';
     },
+    // Element Plus 开关只认 modelValue；并兼容接口可能返回字符串/数字
+    isFenceFlagOn(flag) {
+      return flag === true || flag === "true" || flag === 1 || flag === "1";
+    },
     // 处理电子围栏开启/关闭状态切换
     handleFenceFlagChange(row, value) {
       var that = this;
@@ -3239,7 +3243,7 @@ export default {
       // 构建请求数据
       var data = {
         id: row.id,
-        flag: value, // true为开启，false为关闭
+        flag: !!value, // true为开启，false为关闭
       };
       
       // 调用接口
@@ -3250,7 +3254,7 @@ export default {
           
           if (res.code == 1001) {
             // 更新本地数据
-            row.flag = value;
+            row.flag = !!value;
             that.$message({
               message: value 
                 ? (that.$store.state.i18n == "zh" ? "已开启" : "Enabled")
