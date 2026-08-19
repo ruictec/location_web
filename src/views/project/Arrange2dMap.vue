@@ -931,6 +931,7 @@ import {
   updateDevList,
   updateDevOther,
   updateDevOtherTranche,
+  getFenceManageAndPointListByPage,
 } from "../../axios/api";
 
 // 布置相关
@@ -960,7 +961,7 @@ import {
   Translate,
   defaults as defaultInteractions,
 } from "ol/interaction";
-import { LineString } from "ol/geom";
+import { LineString, Polygon } from "ol/geom";
 
 // 用来添加相关文字描述的
 import Text from "ol/style/Text";
@@ -1059,6 +1060,10 @@ export default {
         },
       ],
       groundid: "", //进入的楼层编号
+      fenceManageList: [],
+      fenceVectorSource: null,
+      fenceVectorLayer: null,
+      fenceFeatures2d: [],
       selectArrangeData: "", //表格里选中要布置的设备信息
       arrangeData: [], //表格里的设备信息
       showTable: false, //是否显示图表
@@ -1523,7 +1528,7 @@ export default {
       let list = that.map.getLayers().getArray();
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
-        if (!item.getSource().image_) {
+        if (that.shouldRemoveVectorLayer(item)) {
           that.map.removeLayer(item);
           i--;
         }
@@ -1534,6 +1539,7 @@ export default {
       } else {
         that.getArrangeGatewayPos(that.intoProjectid);
       }
+      that.renderIndoorFences2d();
     },
     //设置相邻关系
     setAdj() {
@@ -2440,6 +2446,7 @@ export default {
           //获取设备位置信息，在地图上显示，获取已布置的设备,需要楼层编号
           that.getArrangeBeaconPos(info.projectid);
         }
+        that.loadIndoorFences();
       };
       runInit();
     },
@@ -3538,13 +3545,14 @@ export default {
           let list = that.map.getLayers().getArray();
           for (let i = 0; i < list.length; i++) {
             const item = list[i];
-            if (!item.getSource().image_) {
+            if (that.shouldRemoveVectorLayer(item)) {
               that.map.removeLayer(item);
               i--;
             }
           }
           that.addSubPolygon();
           that.getArrangeBeaconPos(that.intoProjectid);
+          that.renderIndoorFences2d();
         } else {
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -3567,8 +3575,10 @@ export default {
             (source.getFeatures()[0].values_.name ||
               source.getFeatures()[0].values_.id)
           ) {
-            that.map.removeLayer(arr[i]);
-            i--;
+            if (!that.isFenceVectorLayer(arr[i])) {
+              that.map.removeLayer(arr[i]);
+              i--;
+            }
           }
         }
       } else {
@@ -3577,8 +3587,10 @@ export default {
         for (let i = 0; i < arr.length; i++) {
           let source = arr[i].getSource();
           if (source.getFeatures && source.getFeatures()[0].values_.id) {
-            that.map.removeLayer(arr[i]);
-            i--;
+            if (!that.isFenceVectorLayer(arr[i])) {
+              that.map.removeLayer(arr[i]);
+              i--;
+            }
           }
         }
         that.addSubPolygon();
@@ -4389,13 +4401,14 @@ export default {
               let list = that.map.getLayers().getArray();
               for (let i = 0; i < list.length; i++) {
                 const item = list[i];
-                if (!item.getSource().image_) {
+                if (that.shouldRemoveVectorLayer(item)) {
                   that.map.removeLayer(item);
                   i--;
                 }
               }
               that.addSubPolygon();
               that.getArrangeBeaconPos(that.intoProjectid);
+              that.renderIndoorFences2d();
             } else {
               that.$message({
                 message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -5446,6 +5459,9 @@ export default {
       if (this.arrange) {
         let LayerArrays = this.map.getLayers().getArray();
         for (let i = LayerArrays.length - 1; i > 0; i--) {
+          if (this.isFenceVectorLayer(LayerArrays[i])) {
+            continue;
+          }
           LayerArrays[i]
             .getSource()
             .getFeatures()
@@ -5460,6 +5476,7 @@ export default {
         } else {
           that.getArrangeBeaconPos(that.intoProjectid);
         }
+        that.renderIndoorFences2d();
       }
     },
 
@@ -5574,7 +5591,136 @@ export default {
       // });
     },
 
-    //布置
+    // 布置
+    hexToRgba(hex, opacity) {
+      const rgb = parseInt(hex.slice(1), 16);
+      const r = (rgb >> 16) & 0xff;
+      const g = (rgb >> 8) & 0xff;
+      const b = rgb & 0xff;
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    },
+    ensureFenceLayer2d() {
+      if (!this.map) {
+        return;
+      }
+      if (this.fenceVectorLayer) {
+        var onMap =
+          this.map.getLayers().getArray().indexOf(this.fenceVectorLayer) !== -1;
+        if (onMap) {
+          return;
+        }
+        this.fenceVectorLayer = null;
+        this.fenceVectorSource = null;
+      }
+      this.fenceVectorSource = new OlSourceVector();
+      this.fenceVectorLayer = new VectorLayer({
+        source: this.fenceVectorSource,
+        zIndex: 5,
+      });
+      this.fenceVectorLayer.set("isElectronicFenceLayer", true);
+      this.map.addLayer(this.fenceVectorLayer);
+    },
+    isFenceVectorLayer(layer) {
+      return !!(
+        layer &&
+        (layer === this.fenceVectorLayer || layer.get("isElectronicFenceLayer"))
+      );
+    },
+    shouldRemoveVectorLayer(layer) {
+      if (!layer || !layer.getSource || this.isFenceVectorLayer(layer)) {
+        return false;
+      }
+      return !layer.getSource().image_;
+    },
+    clearIndoorFences2d() {
+      if (this.fenceVectorSource) {
+        this.fenceVectorSource.clear();
+      }
+      this.fenceFeatures2d = [];
+      this.fenceManageList = [];
+      if (this.fenceVectorLayer && this.map) {
+        this.map.removeLayer(this.fenceVectorLayer);
+      }
+      this.fenceVectorLayer = null;
+      this.fenceVectorSource = null;
+    },
+    loadIndoorFences() {
+      var that = this;
+      if (!that.groundid || !that.intoProjectid) {
+        return;
+      }
+      getFenceManageAndPointListByPage(
+        {
+          projectid: that.intoProjectid,
+          groundid: that.groundid,
+        },
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.fenceManageList = res.data.list || [];
+          that.renderIndoorFences2d();
+        }
+      });
+    },
+    renderIndoorFences2d() {
+      var that = this;
+      if (!that.map) {
+        return;
+      }
+      that.ensureFenceLayer2d();
+      that.fenceFeatures2d.forEach(function (feature) {
+        that.fenceVectorSource.removeFeature(feature);
+      });
+      that.fenceFeatures2d = [];
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      that.fenceManageList.forEach(function (fence) {
+        if (!fence.list || fence.list.length < 3) {
+          return;
+        }
+        var polygonCoords = fence.list.map(function (point) {
+          return [point.pointX || point.x, point.pointY || point.y];
+        });
+        polygonCoords.push(polygonCoords[0]);
+        var polygon = new Polygon([polygonCoords]);
+        var feature = new OlFeature(polygon);
+        var color = fence.colour || "#FF0000";
+        var fenceName = fence.name || "";
+        feature.setStyle(
+          new Style({
+            fill: new Fill({
+              color: that.hexToRgba(color, 0.3),
+            }),
+            stroke: new Stroke({
+              color: color,
+              width: 2,
+            }),
+            text: fenceName
+              ? new Text({
+                  text: fenceName,
+                  font: "bold 13px Microsoft YaHei, sans-serif",
+                  fill: new Fill({
+                    color: "#333333",
+                  }),
+                  stroke: new Stroke({
+                    color: "#ffffff",
+                    width: 3,
+                  }),
+                  overflow: true,
+                  textAlign: "center",
+                  textBaseline: "middle",
+                })
+              : undefined,
+          })
+        );
+        feature.set("isElectronicFence", true);
+        that.fenceVectorSource.addFeature(feature);
+        that.fenceFeatures2d.push(feature);
+      });
+    },
     arrangeMaps(info, scope) {
       var that = this;
       this.changeMajor = true;
@@ -5748,6 +5894,7 @@ export default {
     arrangcancel() {
       let that = this;
       let goBack = false;
+      that.clearIndoorFences2d();
       let data = {
         groundid: this.groundid,
       };
