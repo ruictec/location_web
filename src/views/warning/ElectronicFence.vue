@@ -446,9 +446,9 @@ import VectorSource from "ol/source/Vector";
 import { Draw, Modify, Select } from "ol/interaction";
 import Overlay from "ol/Overlay";
 import Collection from "ol/Collection";
-import { Polygon } from "ol/geom";
+import { Polygon, Point } from "ol/geom";
 import Feature from "ol/Feature";
-import { Style, Fill, Stroke } from "ol/style";
+import { Style, Fill, Stroke, Text, Icon } from "ol/style";
 // 2D地图相关
 import ImageLayer from "ol/layer/Image";
 import Projection from "ol/proj/Projection";
@@ -474,6 +474,7 @@ import {
   getGround,
   getBuildGroundOne,
   updateFenceManage,
+  getDevAndOtherList,
 } from "../../axios/api";
 import { fromLonLat, toLonLat } from "ol/proj";
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
@@ -554,6 +555,7 @@ export default {
       // 3D地图电子围栏相关（参考ElectronicFenceMap.vue）
       fenceManageList: [], // 电子围栏列表
       fencePolygonMarkers: [], // 已渲染的电子围栏多边形标记数组
+      fenceNameMarkers3d: [], // 已渲染的电子围栏名称标记数组（3D）
       isCreatingFence3d: false, // 是否正在创建3D电子围栏
       fencePoints: [], // 电子围栏的坐标点数组
       fencePointMarkers: [], // 绘制电子围栏时的点标记数组
@@ -578,6 +580,10 @@ export default {
       editingFenceData: null, // 正在编辑的电子围栏原始数据
       pendingEditFenceId: null, // 待编辑的电子围栏ID（用于室内电子围栏编辑）
       isEditFromList: false, // 是否从列表编辑进入的
+      iconSrc: "../../../static/beacon.png",
+      deviceVectorSource: null,
+      deviceVectorLayer: null,
+      deviceMarkers3d: [],
     };
   },
   methods: {
@@ -685,6 +691,34 @@ export default {
       const b = (rgb >> 0) & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    // 室外电子围栏样式（含名称文字）
+    createOutdoorFenceStyle(color, name) {
+      return new Style({
+        fill: new Fill({
+          color: this.hexToRgba(color, 0.5),
+        }),
+        stroke: new Stroke({
+          color: color,
+          width: 2,
+        }),
+        text: name
+          ? new Text({
+              text: name,
+              font: "bold 13px Microsoft YaHei, sans-serif",
+              fill: new Fill({
+                color: "#333333",
+              }),
+              stroke: new Stroke({
+                color: "#ffffff",
+                width: 3,
+              }),
+              overflow: true,
+              textAlign: "center",
+              textBaseline: "middle",
+            })
+          : undefined,
+      });
+    },
     addDrawInteraction() {
       this.drawInteraction = new Draw({
         source: this.vectorSource,
@@ -694,17 +728,7 @@ export default {
       this.drawInteraction.on("drawend", (event) => {
         const feature = event.feature;
         // // 设置样式
-        feature.setStyle(
-          new Style({
-            fill: new Fill({
-              color: this.hexToRgba(this.fillColor, 0.5), // 使用当前选择的颜色
-            }),
-            stroke: new Stroke({
-              color: this.fillColor,
-              width: 2,
-            }),
-          })
-        );
+        feature.setStyle(this.createOutdoorFenceStyle(this.fillColor, this.mapData.name));
         const geometry = feature.getGeometry();
         const coordinates = geometry.getCoordinates();
         // 记录围栏坐标
@@ -759,17 +783,7 @@ export default {
         const polygon = new Polygon([mercatorCoords]);
         const feature = new Feature(polygon);
         // // 设置样式
-        feature.setStyle(
-          new Style({
-            fill: new Fill({
-              color: this.hexToRgba(color, 0.5), // 使用当前选择的颜色
-            }),
-            stroke: new Stroke({
-              color: color,
-              width: 2,
-            }),
-          })
-        );
+        feature.setStyle(this.createOutdoorFenceStyle(color, fenceData.name));
         this.vectorSource.addFeature(feature);
       });
     },
@@ -876,6 +890,10 @@ export default {
         buildingName: selectedBuilding ? selectedBuilding.building : "",
         projectid: this.$store.state.intoProjectid,
       };
+      this.iconSrc =
+        this.$store.state.intoProjectType == 1
+          ? "../../../static/beacon.png"
+          : "../../../static/gateway.png";
       
       console.log("保存的楼层信息:", this.currentGroundInfo);
 
@@ -959,6 +977,7 @@ export default {
         // 2D地图加载完成后，查询电子围栏信息
         if (that.currentGroundInfo) {
           that.getFenceManageData(that.currentGroundInfo.projectid || that.$store.state.intoProjectid, that.currentGroundInfo.id);
+          that.loadArrangedDevices();
         }
       }, 100);
     },
@@ -1144,6 +1163,7 @@ export default {
             console.log("3D地图加载完成");
             // 查询电子围栏信息
             that.getFenceManageData(that.currentGroundInfo.projectid || that.$store.state.intoProjectid, that.currentGroundInfo.id);
+            that.loadArrangedDevices();
             // 绑定地图点击事件（用于右键菜单）
             that.bindMapClickEvent();
           });
@@ -1178,6 +1198,8 @@ export default {
     },
     // 关闭室内地图
     closeIndoorMap() {
+      this.clearArrangedDevices2d();
+      this.clearArrangedDevices3d();
       // 清理2D地图
       if (this.map2d) {
         // 移除所有交互
@@ -1338,6 +1360,269 @@ export default {
         delete window.deleteFence;
       }
     },
+    // 加载当前楼层已布置的设备（参考布置页面）
+    loadArrangedDevices() {
+      var that = this;
+      if (!that.currentGroundInfo) {
+        return;
+      }
+      var projectid =
+        that.currentGroundInfo.projectid || that.$store.state.intoProjectid;
+      var groundid = that.currentGroundInfo.id;
+      getDevAndOtherList(
+        {
+          projectype: that.$store.state.intoProjectType,
+          groundid: groundid,
+          projectid: projectid,
+          inallot: 1,
+          inuse: 1,
+        },
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then(function (res) {
+        if (res.code == 1001) {
+          var deviceList = (res.data.devList || []).concat(
+            res.data.otherList || []
+          );
+          if (
+            that.currentGroundInfo &&
+            that.currentGroundInfo.maptype == 1 &&
+            that.map2d
+          ) {
+            that.renderArrangedDevices2d(deviceList);
+          } else if (
+            that.currentGroundInfo &&
+            that.currentGroundInfo.maptype == 2 &&
+            that.map3d
+          ) {
+            that.renderArrangedDevices3d(deviceList);
+          }
+        }
+      });
+    },
+    ensureDeviceLayer2d() {
+      if (!this.map2d) {
+        return;
+      }
+      if (this.deviceVectorLayer) {
+        var onMap =
+          this.map2d.getLayers().getArray().indexOf(this.deviceVectorLayer) !==
+          -1;
+        if (onMap) {
+          return;
+        }
+        this.deviceVectorLayer = null;
+        this.deviceVectorSource = null;
+      }
+      this.deviceVectorSource = new VectorSource();
+      this.deviceVectorLayer = new VectorLayer({
+        source: this.deviceVectorSource,
+        zIndex: 100,
+      });
+      this.deviceVectorLayer.set("isArrangedDeviceLayer", true);
+      this.map2d.addLayer(this.deviceVectorLayer);
+    },
+    clearArrangedDevices2d() {
+      if (this.deviceVectorSource) {
+        this.deviceVectorSource.clear();
+      }
+      if (this.deviceVectorLayer && this.map2d) {
+        this.map2d.removeLayer(this.deviceVectorLayer);
+      }
+      this.deviceVectorLayer = null;
+      this.deviceVectorSource = null;
+    },
+    clearArrangedDevices3d() {
+      this.deviceMarkers3d.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除已布置设备标记失败:", e);
+        }
+      });
+      this.deviceMarkers3d = [];
+    },
+    getArrangedDevice2dStyle(info) {
+      var alias = info.alias || "";
+      var labelStyle = new Text({
+        text: alias,
+        font: "14px Microsoft YaHei, sans-serif",
+        fill: new Fill({ color: "blue" }),
+        offsetY: 10,
+      });
+      var imageSrc = this.iconSrc;
+      if (info.devtype) {
+        switch (info.devtype) {
+          case 1:
+            imageSrc = "../../../static/aoa.png";
+            break;
+          case 2:
+            imageSrc = "../../../static/smoke.png";
+            break;
+          case 3:
+            imageSrc = "../../../static/alarm.png";
+            break;
+          case 5:
+            imageSrc = "../../../static/camera.png";
+            break;
+          default:
+            break;
+        }
+      } else if (this.$store.state.intoProjectType == 1) {
+        if (info.type == 2) {
+          imageSrc = "../../../static/beacon_sos.png";
+        } else if (info.clockin == 1) {
+          imageSrc = "../../../static/clock.png";
+        }
+      } else if (info.clockin == 1) {
+        imageSrc = "../../../static/clock.png";
+      }
+      return new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: imageSrc,
+          scale: 1,
+        }),
+        text: labelStyle,
+      });
+    },
+    getArrangedDeviceCoords2d(info) {
+      if (info.devtype) {
+        return [info.lastx, info.lasty];
+      }
+      if (this.$store.state.intoProjectType == 1) {
+        return [info.longi, info.lati];
+      }
+      return [info.lastx, info.lasty];
+    },
+    renderArrangedDevices2d(deviceList) {
+      var that = this;
+      if (!that.map2d) {
+        return;
+      }
+      that.ensureDeviceLayer2d();
+      that.deviceVectorSource.clear();
+      if (!deviceList || deviceList.length === 0) {
+        return;
+      }
+      deviceList.forEach(function (info) {
+        var coords = that.getArrangedDeviceCoords2d(info);
+        if (
+          coords[0] === undefined ||
+          coords[0] === null ||
+          coords[1] === undefined ||
+          coords[1] === null
+        ) {
+          return;
+        }
+        var feature = new Feature({
+          geometry: new Point(coords),
+          isArrangedDevice: true,
+        });
+        feature.setStyle(that.getArrangedDevice2dStyle(info));
+        that.deviceVectorSource.addFeature(feature);
+      });
+    },
+    createCompositeDeviceMarker3d(x, y, imageUrl, label) {
+      return new fengmap.FMCompositeMarker({
+        layout: {
+          style: "timage-btext",
+          align: "center",
+        },
+        text: {
+          padding: [0, 0, 0, 0],
+          plateStrokeWidth: 1,
+          content: {
+            textAlign: fengmap.FMTextAlign.Center,
+            lineSpacing: 2,
+            fontSize: 14,
+            fontFamily: "Microsoft YaHei",
+            fillColor: "rgba(0, 0, 238)",
+            text: label,
+          },
+        },
+        x: x,
+        y: y,
+        height: 1,
+        collision: false,
+        anchor: {
+          baseon: "image",
+          anchor: fengmap.FMMarkerAnchor.CENTER,
+        },
+        image: {
+          url: imageUrl,
+          size: [100, 100],
+        },
+      });
+    },
+    addArrangedDeviceMarker3d(info, group) {
+      var that = this;
+      var alias = info.alias || "";
+      var x;
+      var y;
+      var imageUrl = that.iconSrc;
+      if (info.devtype) {
+        x = info.lastx;
+        y = info.lasty;
+        switch (info.devtype) {
+          case 1:
+            imageUrl = "../../../static/aoa.png";
+            break;
+          case 2:
+            imageUrl = "../../../static/smoke.png";
+            break;
+          case 3:
+            imageUrl = "../../../static/alarm.png";
+            break;
+          case 5:
+            imageUrl = "../../../static/camera.png";
+            break;
+          default:
+            break;
+        }
+      } else if (that.$store.state.intoProjectType == 1) {
+        x = info.longi;
+        y = info.lati;
+        if (info.type == 2) {
+          imageUrl = "../../../static/beacon_sos.png";
+        } else if (info.clockin == 1) {
+          imageUrl = "../../../static/clock.png";
+        }
+      } else {
+        x = info.lastx;
+        y = info.lasty;
+        if (info.clockin == 1) {
+          imageUrl = "../../../static/clock.png";
+        }
+      }
+      if (x === undefined || x === null || y === undefined || y === null) {
+        return;
+      }
+      var marker = that.createCompositeDeviceMarker3d(x, y, imageUrl, alias);
+      marker.selfAttr = { isArrangedDevice: true };
+      marker.addTo(group);
+      that.deviceMarkers3d.push(marker);
+    },
+    renderArrangedDevices3d(deviceList) {
+      var that = this;
+      if (!that.map3d) {
+        return;
+      }
+      that.clearArrangedDevices3d();
+      if (!deviceList || deviceList.length === 0) {
+        return;
+      }
+      try {
+        var level = that.map3d.getLevel();
+        var group = that.map3d.getFloor(level);
+        deviceList.forEach(function (info) {
+          that.addArrangedDeviceMarker3d(info, group);
+        });
+      } catch (e) {
+        console.error("渲染已布置设备失败:", e);
+      }
+    },
     // 获取电子围栏列表
     getFenceManageData(projectid, groundid) {
       var that = this;
@@ -1405,6 +1690,41 @@ export default {
         }
       });
     },
+    // 计算围栏多边形中心点
+    getFencePolygonCenter(points) {
+      if (!points || points.length === 0) {
+        return { x: 0, y: 0 };
+      }
+      var validPoints = points;
+      if (
+        points.length > 1 &&
+        (points[0].x || points[0].pointX) ===
+          (points[points.length - 1].x || points[points.length - 1].pointX) &&
+        (points[0].y || points[0].pointY) ===
+          (points[points.length - 1].y || points[points.length - 1].pointY)
+      ) {
+        validPoints = points.slice(0, -1);
+      }
+      var centerX = 0;
+      var centerY = 0;
+      validPoints.forEach(function (point) {
+        centerX += point.x || point.pointX || 0;
+        centerY += point.y || point.pointY || 0;
+      });
+      return {
+        x: centerX / validPoints.length,
+        y: centerY / validPoints.length,
+      };
+    },
+    // 转义围栏名称，避免注入到 DOM
+    escapeFenceName(name) {
+      return String(name || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
     // 渲染所有电子围栏到地图上
     renderAllFences() {
       var that = this;
@@ -1461,6 +1781,36 @@ export default {
 
           polygonMarker.addTo(group);
           that.fencePolygonMarkers.push(polygonMarker);
+
+          // 在围栏中心显示名称，便于多个围栏时区分
+          var fenceName = fence.name || "";
+          if (fenceName) {
+            var center = that.getFencePolygonCenter(polygonPoints);
+            var borderColor = fence.colour || "#FF0000";
+            var nameHtml =
+              '<div style="padding:2px 8px;background:rgba(255,255,255,0.92);border:1px solid ' +
+              borderColor +
+              ';border-radius:4px;color:#333;font-size:12px;line-height:18px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2);">' +
+              that.escapeFenceName(fenceName) +
+              "</div>";
+            var nameMarker = new fengmap.FMDomMarker({
+              x: center.x,
+              y: center.y,
+              height: 2,
+              anchor: fengmap.FMMarkerAnchor.CENTER,
+              collision: false,
+              domWidth: Math.min(220, Math.max(48, fenceName.length * 14 + 20)),
+              domHeight: 28,
+              content: nameHtml,
+            });
+            nameMarker.selfAttr = {
+              fenceId: fence.id,
+              fenceName: fenceName,
+              isNameLabel: true,
+            };
+            nameMarker.addTo(group);
+            that.fenceNameMarkers3d.push(nameMarker);
+          }
         });
       } catch (e) {
         console.error("渲染电子围栏失败:", e);
@@ -1476,6 +1826,14 @@ export default {
         }
       });
       this.fencePolygonMarkers = [];
+      this.fenceNameMarkers3d.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏名称标记失败:", e);
+        }
+      });
+      this.fenceNameMarkers3d = [];
     },
     // ========== 2D地图电子围栏相关方法 ==========
     // 渲染所有2D电子围栏到地图上
@@ -1513,8 +1871,9 @@ export default {
           var polygon = new Polygon([polygonCoords]);
           var feature = new Feature(polygon);
 
-          // 设置样式
+          // 设置样式（含名称文字，便于多个围栏时区分）
           var color = fence.colour || "#FF0000";
+          var fenceName = fence.name || "";
           feature.setStyle(
             new Style({
               fill: new Fill({
@@ -1524,6 +1883,22 @@ export default {
                 color: color,
                 width: 2,
               }),
+              text: fenceName
+                ? new Text({
+                    text: fenceName,
+                    font: "bold 13px Microsoft YaHei, sans-serif",
+                    fill: new Fill({
+                      color: "#333333",
+                    }),
+                    stroke: new Stroke({
+                      color: "#ffffff",
+                      width: 3,
+                    }),
+                    overflow: true,
+                    textAlign: "center",
+                    textBaseline: "middle",
+                  })
+                : undefined,
             })
           );
 
@@ -3018,17 +3393,13 @@ export default {
         if (res.code == 1001) {
           if (res.code == 1001) {
             that.centerX =
-              res.data.length > 0
-                ? res.data[0].list.length > 0
-                  ? res.data[0].list[0].pointX
-                  : 0
-                : 0;
+              res.data.length > 0 && res.data[0].list && res.data[0].list.length > 0
+                ? res.data[0].list[0].pointX
+                : that.$store.state.longis;
             that.centerY =
-              res.data.length > 0
-                ? res.data[0].list.length > 0
-                  ? res.data[0].list[0].pointY
-                  : 0
-                : 0;
+              res.data.length > 0 && res.data[0].list && res.data[0].list.length > 0
+                ? res.data[0].list[0].pointY
+                : that.$store.state.latis;
             that.editFences = [];
             res.data.forEach((item) => {
               let editFences = [];
@@ -3039,6 +3410,7 @@ export default {
               that.editFences.push({
                 coordinates: editFences,
                 color: item.colour,
+                name: item.name,
               });
             });
 
@@ -3086,6 +3458,7 @@ export default {
         this.editFences.push({
           coordinates: editFences,
           color: fenceData.colour,
+          name: fenceData.name,
         });
         this.savedFences = this.editFences;
         this.showMap = true;
@@ -3125,6 +3498,10 @@ export default {
               length: res.data.length,
               width: res.data.width,
             };
+            that.iconSrc =
+              that.$store.state.intoProjectType == 1
+                ? "../../../static/beacon.png"
+                : "../../../static/gateway.png";
             
             // 打开室内地图弹框
             that.showIndoorMapDialog = true;
