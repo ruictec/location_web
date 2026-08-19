@@ -190,7 +190,7 @@
                   <el-radio
                     v-model="assetgw"
                     :label="false"
-                    :disabled="assetgwNum != 0"
+                    :disabled="assetgwNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -205,7 +205,7 @@
                   <el-radio
                     v-model="aoagw"
                     :label="false"
-                    :disabled="aoagwNum != 0"
+                    :disabled="aoagwNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -220,7 +220,7 @@
                   <el-radio
                     v-model="smoke"
                     :label="false"
-                    :disabled="smokeNum != 0"
+                    :disabled="smokeNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -235,7 +235,7 @@
                   <el-radio
                     v-model="alertor"
                     :label="false"
-                    :disabled="alertorNum != 0"
+                    :disabled="alertorNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -250,7 +250,7 @@
                   <el-radio
                     v-model="blesensor"
                     :label="false"
-                    :disabled="blesensorNum != 0"
+                    :disabled="blesensorNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -265,7 +265,7 @@
                   <el-radio
                     v-model="camera"
                     :label="false"
-                    :disabled="cameraNum != 0"
+                    :disabled="cameraNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio
                   >
                 </p>
@@ -360,17 +360,17 @@ export default {
           that.locationindoor = res.data.inDoor;
           that.locationoutdoor = res.data.outDoor;
           that.assetgw = res.data.assetgw;
-          that.assetgwNum = res.data.assetgwNum;
+          that.assetgwNum = res.data.assetgwNum || 0;
           that.aoagw = res.data.aoagw;
-          that.aoagwNum = res.data.aoagwNum;
+          that.aoagwNum = res.data.aoagwNum || 0;
           that.smoke = res.data.smoke;
-          that.smokeNum = res.data.smokeNum;
+          that.smokeNum = res.data.smokeNum || 0;
           that.alertor = res.data.alertor;
-          that.alertorNum = res.data.alertorNum;
+          that.alertorNum = res.data.alertorNum || 0;
           that.blesensor = res.data.blesensor;
-          that.blesensorNum = res.data.blesensorNum;
+          that.blesensorNum = res.data.blesensorNum || 0;
           that.camera = res.data.camera;
-          that.cameraNum = res.data.cameraNum;
+          that.cameraNum = res.data.cameraNum || 0;
           that.devgw = res.data.devgw;
           that.devgwNum = res.data.devgwNum;
           that.scanbeacon = res.data.scanbeacon;

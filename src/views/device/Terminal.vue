@@ -2294,32 +2294,6 @@
               ></el-table-column>
 
               <el-table-column
-                v-if="intoProjectType != 1"
-                key="27"
-                property="warningstr"
-                :label="$t('beacon.warning')"
-                show-overflow-tooltip
-                align="center"
-                min-width="110"
-              >
-                <template slot="header" slot-scope="scope">
-                  <span class="cell" style="padding-right: 0">
-                    {{ $t("beacon.warning") }}</span
-                  >
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="font-size: 130%"
-                  >
-                    <div slot="content">
-                      <p>{{ $t("beacon.warningHelp") }}</p>
-                    </div>
-                    <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
-
-              <el-table-column
                 :property="i8n == 'zh' ? 'postypestr' : 'enpostype'"
                 :label="$t('terminal.postype')"
                 show-overflow-tooltip
@@ -3137,25 +3111,6 @@
                 </el-tooltip>
               </el-form-item>
               <el-form-item
-                :label="$t('terminal.Whethealarmriggered')"
-                prop=""
-                v-show="addDataGateway"
-              >
-                <el-select
-                  v-model="addData.warning"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item
                 :label="$t('terminal.Whetherencrypted')"
                 prop="keyenc"
               >
@@ -3412,7 +3367,6 @@
                   v-model="addData.devtype"
                   clearable
                   filterable
-                  @change="changecusDevtype"
                   :placeholder="$t('terminal.choose')"
                 >
                   <el-option
@@ -3484,25 +3438,6 @@
                 </el-tooltip>
               </el-form-item>
 
-              <el-form-item
-                :label="$t('terminal.Whethealarmriggered')"
-                prop=""
-                v-show="addcueDataGateway"
-              >
-                <el-select
-                  v-model="addData.warning"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item
                 :label="$t('terminal.Whetherencrypted')"
                 prop="keyenc"
@@ -3672,40 +3607,6 @@
                     :value="item.index"
                   ></el-option>
                 </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('terminal.Whethealarmriggered')">
-                <el-select
-                  v-model="editData.warning"
-                  clearable
-                  filterable
-                  :disabled="setWarning"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>{{ $t("terminal.title20") }}</p>
-                    <p>{{ $t("terminal.title21") }}</p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
               </el-form-item>
               <el-form-item :label="$t('terminal.posttype')" prop="postype">
                 <el-select
@@ -3895,22 +3796,6 @@
                 <el-select v-model="editDatas.joinmode" clearable filterable>
                   <el-option
                     v-for="item in joinmodeList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('terminal.Whethealarmriggered')">
-                <el-select
-                  v-model="editDatas.warning"
-                  clearable
-                  filterable
-                  :disabled="setWarning"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in warningList"
                     :key="item.index"
                     :label="item.value"
                     :value="item.index"
@@ -5743,14 +5628,6 @@
               ></el-table-column>
 
               <el-table-column
-                property="warningstr"
-                :label="$t('beacon.warning')"
-                show-overflow-tooltip
-                align="center"
-                min-width="90"
-              ></el-table-column>
-
-              <el-table-column
                 :property="i8n == 'zh' ? 'postypestr' : 'enpostype'"
                 :label="$t('terminal.postype')"
                 show-overflow-tooltip
@@ -7419,7 +7296,6 @@ export default {
         scheme: "",
         devtype: "",
         tenantid: "",
-        warning: "",
         postype: "",
         keyenc: "",
         nwkskey: "",
@@ -7874,10 +7750,7 @@ export default {
           },
         ],
       },
-      addDataGateway: false,
-      addcueDataGateway: false,
       addAgain: true, //添加的时候判断是否调用接口
-      editDataGateway: false,
       edit: false,
       editTenantid: false,
       editData: {
@@ -7895,7 +7768,6 @@ export default {
         lastx: "",
         lasty: "",
         postime: "",
-        warning: "", //gateway
         postype: "", //
         workmode: "", //系统管理员可以
         workstate: "",
@@ -7958,13 +7830,11 @@ export default {
         ],
       },
       edits: false,
-      setWarning: false,
       editDatas: {
         deveuiList: "",
         country: "",
         tenantid: "",
         alias: "",
-        warning: "",
         postype: "",
         workmode: "",
         debugmode: "",
@@ -8175,16 +8045,6 @@ export default {
         {
           index: 3,
           value: "tbox",
-        },
-      ],
-      warningList: [
-        {
-          index: 1,
-          value: "disabled",
-        },
-        {
-          index: 2,
-          value: "enabled",
         },
       ],
       postypeList: [
@@ -9041,10 +8901,6 @@ export default {
             value: "postime",
           },
           {
-            msg: this.$t("beacon.warning"),
-            value: "warning",
-          },
-          {
             msg: this.$t("terminal.postype"),
             value: "postype",
           },
@@ -9171,10 +9027,6 @@ export default {
           {
             msg: this.$t("terminal.Locationupdatetime"),
             value: "postime",
-          },
-          {
-            msg: this.$t("beacon.warning"),
-            value: "warning",
           },
           {
             msg: this.$t("terminal.postype"),
@@ -9310,7 +9162,6 @@ export default {
           "lastx",
           "lasty",
           "postime",
-          "warning",
           "postype",
           "keyenc",
           "appeui",
@@ -9345,7 +9196,6 @@ export default {
           "lastx",
           "lasty",
           "postime",
-          "warning",
           "postype",
           "configmode",
           "keyenc",
@@ -9562,9 +9412,6 @@ export default {
               break;
             case that.$t("terminal.lasty"):
               obj["lasty"] = outdata[i][key];
-              break;
-            case that.$t("beacon.warning"):
-              obj["warning"] = outdata[i][key];
               break;
             case that.$t("terminal.postype"):
               obj["postype"] = outdata[i][key];
@@ -9788,7 +9635,6 @@ export default {
         scheme: "",
         devtype: "",
         tenantid: "",
-        warning: "",
         postype: "",
         keyenc: "",
         nwkskey: "",
@@ -9856,11 +9702,6 @@ export default {
       this.addAgain = true;
       if (this.addData.num == "" || this.addData.num == 0) {
         this.addData.num = 1;
-      }
-
-      //当硬件设备类型不是3（gateway）的时候，不需要RSSI扫描范围和是否触发告警
-      if (this.addData.devtype == 1) {
-        this.addData.warning = "";
       }
 
       if (
@@ -9981,11 +9822,6 @@ export default {
       if (this.addData.num == "" || this.addData.num == 0) {
         this.addData.num = 1;
       }
-
-      //当硬件设备类型不是3（gateway）的时候，不需要RSSI扫描范围和是否触发告警
-      if (this.addData.devtype == 1) {
-        this.addData.warning = "";
-      }
       this.$refs[addData].validate((valid) => {
         if (valid) {
           this.loading = true;
@@ -10096,11 +9932,6 @@ export default {
         });
         return;
       }
-      if (this.tableData[index].clockin == 1) {
-        this.setWarning = true;
-      } else if (this.tableData[index].clockin == 2) {
-        this.setWarning = false;
-      }
       this.editData.deveui = this.tableData[index].deveui;
       this.editData.ver = this.tableData[index].ver;
       this.editData.country = this.tableData[index].country;
@@ -10117,7 +9948,6 @@ export default {
       this.editData.lastx = this.tableData[index].lastx;
       this.editData.lasty = this.tableData[index].lasty;
       this.editData.postime = this.tableData[index].postime;
-      this.editData.warning = this.tableData[index].warning;
       this.editData.postype = this.tableData[index].postype;
       this.editData.workmode = this.tableData[index].workmode;
       this.editData.workstate = this.tableData[index].workstate;
@@ -10126,11 +9956,6 @@ export default {
       this.editData.memo = this.tableData[index].memo;
       this.editData.sysmemo = this.tableData[index].sysmemo;
       this.editData.joinmode = this.tableData[index].joinmode;
-      if (this.tableData[index].devtype == 2) {
-        this.editDataGateway = true;
-      } else {
-        this.editDataGateway = false;
-      }
       if (this.tableData[index].inallot == 2) {
         this.editTenantid = false;
       } else {
@@ -10218,7 +10043,6 @@ export default {
     //批量编辑
     editTers(index) {
       var that = this;
-      this.setWarning = false;
       this.editDatas.deveuiList = "";
       if (this.multipleSelection.length == 0) {
         this.$message({
@@ -10229,9 +10053,6 @@ export default {
       }
       //获取deveui集合
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        if (that.multipleSelection[i].clockin == 1) {
-          that.setWarning = true;
-        }
         if (
           this.multipleSelection[0].customername !=
           this.multipleSelection[i].customername
@@ -10295,7 +10116,6 @@ export default {
         this.editDatas.memo == "" &&
         this.editDatas.postype == "" &&
         this.editDatas.tenantid == "" &&
-        this.editDatas.warning == "" &&
         this.editDatas.workmode == "" &&
         this.editDatas.sysmemo == ""
       ) {
@@ -10614,24 +10434,8 @@ export default {
 
     //devtype硬件设备类型发生改变(系统管理员)
     changeDevtype(event) {
-      if (event == 2) {
-        this.addDataGateway = true;
-      } else if (event == 1) {
-        this.addDataGateway = false;
-        this.addData.warning = "";
-      }
       if (event == 1 || event == 2) {
         this.validateDeveuiDevtypeMatch(this.addData.deveui, event);
-      }
-    },
-
-    //devtype硬件设备类型发生改变(企业管理员)
-    changecusDevtype(event) {
-      if (event == 2) {
-        this.addcueDataGateway = true;
-      } else if (event == 1) {
-        this.addcueDataGateway = false;
-        this.addData.warning = "";
       }
     },
 

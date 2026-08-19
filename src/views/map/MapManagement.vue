@@ -181,30 +181,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagement.statusstr1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
-              >
-                <el-select
-                  style="width: 95%; float: left"
-                  v-model="searchList.status"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in searchStatus"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item style="margin-left: 1%">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("terminal.search")
@@ -253,22 +229,6 @@
                 min-width="100"
                 align="center"
               ></el-table-column>
-              <el-table-column
-                property="statusstr"
-                :label="$t('mapmanagements.ApprovalStatus')"
-                show-overflow-tooltip
-                min-width="77"
-                align="center"
-              ></el-table-column>
-
-              <el-table-column
-                property="instruction"
-                :label="$t('mapmanagements.Auditopinion')"
-                show-overflow-tooltip
-                min-width="95"
-                align="center"
-              ></el-table-column>
-
               <el-table-column
                 property="maptypestr"
                 :label="$t('mapmanagements.mapdimension')"
@@ -383,13 +343,19 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="creattime"
-                :label="$t('mapmanagements.mapcreationtime')"
+                :label="$t('mapmanagements.inusestr')"
                 show-overflow-tooltip
-                :formatter="formatDateCreattime"
-                min-width="115"
+                min-width="88"
                 align="center"
-              ></el-table-column>
+              >
+                <template slot-scope="scope">
+                  {{
+                    scope.row.inuseNum > 0
+                      ? $t("mapmanagements.inuseYes")
+                      : $t("mapmanagements.inuseNo")
+                  }}
+                </template>
+              </el-table-column>
               <el-table-column
                 property="edittime"
                 :label="$t('mapmanagements.mapedittime')"
@@ -399,28 +365,10 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="audittime"
-                :label="$t('mapmanagements.mapreviewtime')"
-                show-overflow-tooltip
-                :formatter="formatDateAudittime"
-                min-width="115"
-                align="center"
-              ></el-table-column>
-
-              <el-table-column
-                property="sysmemo"
-                :label="$t('mapmanagement.sysmemo')"
-                show-overflow-tooltip
-                align="center"
-                v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                min-width="120"
-              ></el-table-column>
-              <el-table-column
                 property="memo"
                 :label="$t('mapmanagements.Remark')"
                 align="center"
                 show-overflow-tooltip
-                v-if="contrForPrionum != 1 && contrForPrionum != 2"
                 min-width="120"
               ></el-table-column>
 
@@ -490,19 +438,6 @@
                             contrForPrionum == 5
                           "
                           >{{ $t("mapmanagements.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                      <el-dropdown-item
-                        style="
-                          margin-top: 4%;
-                          background-color: rgb(219, 222, 231);
-                        "
-                        ><el-button
-                          size="mini"
-                          class="dels"
-                          @click="checkMap(scope.$index)"
-                          v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                          >{{ $t("mapmanagements.examine") }}</el-button
                         ></el-dropdown-item
                       >
                     </el-dropdown-menu>
@@ -710,9 +645,6 @@
               <el-button type="primary" @click="addTrue2D('addData')">{{
                 $t("warning.Sure")
               }}</el-button>
-              <el-button type="primary" @click="auditTrue2D('addData')">{{
-                $t("mapmanagements.Submitreview")
-              }}</el-button>
             </div>
           </el-dialog>
 
@@ -807,6 +739,25 @@
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.scale')" prop="scale">
                 <el-input v-model="addData.scale"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <div slot="content">
+                    <p>
+                      {{ $t("mapmanagements.scaleTip") }}
+                    </p>
+                  </div>
+                  <i class="el-icon-question" />
+                </el-tooltip>
               </el-form-item>
               <el-form-item
                 :label="$t('mapmanagements.Project')"
@@ -844,9 +795,6 @@
               }}</el-button>
               <el-button type="primary" @click="addTrue3D('addData')">{{
                 $t("warning.Sure")
-              }}</el-button>
-              <el-button type="primary" @click="auditTrue3D('addData')">{{
-                $t("mapmanagements.Submitreview")
               }}</el-button>
             </div>
           </el-dialog>
@@ -929,20 +877,6 @@
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.activity')">
                 <el-input v-model="delData.active" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="delData.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.remark')">
                 <el-input
@@ -1113,35 +1047,7 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="editData.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagement.sysmemo1')"
-                v-if="contrForPrionum == 1 || contrForPrionum == 2"
-              >
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="editData.sysmemo"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.remark')"
-                v-if="contrForPrionum != 1 && contrForPrionum != 2"
-              >
+              <el-form-item :label="$t('mapmanagements.remark')">
                 <el-input
                   type="textarea"
                   show-word-limit
@@ -1327,35 +1233,7 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="editDatas.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagement.sysmemo1')"
-                v-if="contrForPrionum == 1 || contrForPrionum == 2"
-              >
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="editDatas.sysmemo"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.remark')"
-                v-if="contrForPrionum != 1 && contrForPrionum != 2"
-              >
+              <el-form-item :label="$t('mapmanagements.remark')">
                 <el-input
                   type="textarea"
                   show-word-limit
@@ -1372,12 +1250,6 @@
               <el-button type="primary" @click="editTrues('editDatas')">{{
                 $t("warning.Sure")
               }}</el-button>
-              <el-button
-                type="primary"
-                @click="auditTrues('editDatas')"
-                v-if="auditBtn"
-                >{{ $t("mapmanagements.Submitreview") }}</el-button
-              >
             </div>
           </el-dialog>
 
@@ -1403,7 +1275,10 @@
                     :label="$t('mapmanagements.Mapname')"
                     prop="mapname"
                   >
-                    <el-input v-model="editData.mapname"></el-input>
+                    <el-input
+                      v-model="editData.mapname"
+                      :disabled="passEdit || changeImg"
+                    ></el-input>
                   </el-form-item>
                   <el-form-item
                     :label="$t('mapmanagements.mapNumber')"
@@ -1469,6 +1344,25 @@
                     prop="scale"
                   >
                     <el-input v-model="editData.scale"></el-input>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <div slot="content">
+                        <p>
+                          {{ $t("mapmanagements.scaleTip") }}
+                        </p>
+                      </div>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
                   </el-form-item>
                   <el-form-item
                     :label="$t('mapmanagements.Project')"
@@ -1490,35 +1384,7 @@
                       ></el-option>
                     </el-select>
                   </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                    <el-select
-                      v-model="editData.status"
-                      disabled
-                      :placeholder="$t('terminal.choose')"
-                    >
-                      <el-option
-                        v-for="item in statusList"
-                        :key="item.index"
-                        :label="item.value"
-                        :value="item.index"
-                      ></el-option>
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagement.sysmemo1')"
-                    v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                  >
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="64"
-                      v-model="editData.sysmemo"
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagements.remark')"
-                    v-if="contrForPrionum != 1 && contrForPrionum != 2"
-                  >
+                  <el-form-item :label="$t('mapmanagements.remark')">
                     <el-input
                       type="textarea"
                       show-word-limit
@@ -1534,14 +1400,7 @@
                   }}</el-button>
                   <el-button type="primary" @click="editTrue3D('editData')">{{
                     $t("warning.Sure")
-                  }}</el-button
-                  ><el-button
-                    type="primary"
-                    @click="auditTrues3D('editData')"
-                    v-if="auditBtn"
-                  >
-                    {{ $t("mapmanagements.Submitreview") }}
-                  </el-button>
+                  }}</el-button>
                 </div>
               </div>
               <div class="check_3d_map">
@@ -1549,223 +1408,6 @@
                   id="fengMap"
                   v-loading="loading"
                   v-if="edit3D"
-                  :element-loading-text="$t('mapmanagements.text19')"
-                ></div>
-              </div>
-            </div>
-          </el-dialog>
-
-          <!-- 审核 -->
-          <el-dialog
-            :title="$t('mapmanagements.text20')"
-            width="30%"
-            :visible.sync="check"
-            style="text-align: center"
-            @close="checkCancle('checkData')"
-          >
-            <div class="imageSize">
-              <el-image
-                style="width: 100px; height: 100px"
-                :src="imgUrl"
-                :preview-src-list="srcList"
-              >
-              </el-image>
-            </div>
-            <el-form
-              :model="checkData"
-              label-width="150px"
-              ref="checkData"
-              style="text-align: left; margin-top: 4%"
-              :rules="addRules"
-            >
-              <el-form-item :label="$t('mapmanagements.Mapname')">
-                <el-input v-model="checkData.mapname" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.imagewidth')">
-                <el-input v-model="imageInfo.height" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.imagelength')">
-                <el-input v-model="imageInfo.width" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Actualwidth')">
-                <el-input v-model="checkData.realwidth" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Actuallength')">
-                <el-input v-model="checkData.reallength" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.sensitivity')">
-                <el-input v-model="checkData.distance" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.activity')">
-                <el-input v-model="checkData.active" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Projectname')" prop="">
-                <el-input v-model="checkData.projectname" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Projectid')" prop="">
-                <el-input v-model="checkData.projectid" disabled></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.Auditstatus')"
-                prop="status"
-              >
-                <el-select
-                  v-model="checkData.status"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Reviewcomments')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="255"
-                  v-model="checkData.instruction"
-                ></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Systemremarks')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="checkData.sysmemo"
-                  disabled
-                ></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.remark')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="checkData.memo"
-                  disabled
-                ></el-input>
-              </el-form-item>
-            </el-form>
-
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="checkCancle('checkData')">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="checkTrue('checkData')">{{
-                $t("warning.Sure")
-              }}</el-button>
-            </div>
-          </el-dialog>
-
-          <!-- 审核3D -->
-          <el-dialog
-            :title="$t('mapmanagements.text20')"
-            width="60%"
-            :visible.sync="check3D"
-            @opened="onmap()"
-            @close="closeCheck('checkData')"
-            style="text-align: center"
-          >
-            <div class="check_3d_box">
-              <div class="check_3d_info">
-                <el-form
-                  :model="checkData"
-                  label-width="150px"
-                  ref="checkData"
-                  style="text-align: left; margin-top: 4%"
-                  :rules="addRules"
-                >
-                  <el-form-item :label="$t('mapmanagements.Mapname')">
-                    <el-input v-model="checkData.mapname" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Mapnumber')">
-                    <el-input v-model="checkData.mapid" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.sensitivity')">
-                    <el-input v-model="checkData.distance" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.activity')">
-                    <el-input v-model="checkData.active" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagements.Projectname')"
-                    prop=""
-                  >
-                    <el-input
-                      v-model="checkData.projectname"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Projectid')" prop="">
-                    <el-input v-model="checkData.projectid" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagements.Auditstatus')"
-                    prop="status"
-                  >
-                    <el-select
-                      v-model="checkData.status"
-                      clearable
-                      filterable
-                      :placeholder="$t('terminal.choose')"
-                    >
-                      <el-option
-                        v-for="item in statusList"
-                        :key="item.index"
-                        :label="item.value"
-                        :value="item.index"
-                      ></el-option>
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Reviewcomments')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="255"
-                      v-model="checkData.instruction"
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Systemremarks')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="64"
-                      v-model="checkData.sysmemo"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.remark')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="64"
-                      v-model="checkData.memo"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                </el-form>
-
-                <div slot="footer" class="dialog-footer">
-                  <el-button @click="closeCheck('checkData')">{{
-                    $t("warning.Cancel")
-                  }}</el-button>
-                  <el-button
-                    type="primary"
-                    :disabled="clickTrue"
-                    @click="checkTrue('checkData')"
-                    >{{ $t("warning.Sure") }}</el-button
-                  >
-                </div>
-              </div>
-              <div class="check_3d_map">
-                <div
-                  id="fengMap"
-                  v-if="check3D"
-                  v-loading="loading"
                   :element-loading-text="$t('mapmanagements.text19')"
                 ></div>
               </div>
@@ -1816,7 +1458,6 @@ import {
   delMapInfo,
   updateMapInfo,
   getProjectListByTenantid,
-  auditMapInfo,
   addMapInfo,
 } from "../../axios/api";
 export default {
@@ -1843,7 +1484,6 @@ export default {
       tableData: [],
       searchList: {
         mapid: "",
-        status: "",
         page: 1,
         count: 20,
         projectid: this.$store.state.projectid,
@@ -1872,8 +1512,8 @@ export default {
       addRules: {
         scale: [
           {
-            pattern: /^\+?\d*$/,
-            message: this.$t("mapmanagement.tit"),
+            pattern: /^(\d+(\.\d+)?|\.\d+)?$/,
+            message: this.$t("mapmanagement.titScale"),
             trigger: "blur",
           },
         ],
@@ -1967,13 +1607,6 @@ export default {
             trigger: "blur",
           },
         ],
-        status: [
-          {
-            required: true,
-            message: this.$t("mapmanagement.selectmap"),
-            trigger: "change",
-          },
-        ],
       },
 
       projectList: [],
@@ -2004,14 +1637,11 @@ export default {
       editCompany2D: false,
       changeImg: false, //判断地图是否可以更换以及是否只能编辑备注，如果地图处于使用状态，就不可更换地图,
       editData: {
-        status: "",
         mapname: "",
         mapid: "",
         width: "",
         length: "",
-        instruction: "",
         memo: "",
-        sysmemo: "",
         projectid: "",
         realwidth: "",
         reallength: "",
@@ -2020,14 +1650,11 @@ export default {
         scale: "",
       },
       editDatas: {
-        status: "",
         mapname: "",
         mapid: "",
         width: "",
         length: "",
-        instruction: "",
         memo: "",
-        sysmemo: "",
         projectid: "",
         realwidth: "",
         reallength: "",
@@ -2041,9 +1668,6 @@ export default {
       // projectEdit: false, //企业级别的管理员在地图已使用的时候不可以修改所属项目
       del: false,
       delData: {},
-      check: false,
-      check3D: false,
-      clickTrue: true,
       map3d: null,
       themeId: "", //3D地图主题id
       fmapId: "",
@@ -2051,57 +1675,9 @@ export default {
       fmapName: "",
       loading: true,
       scrollFloorControl: "",
-      checkData: {},
-
-      auditBtn: "", //编辑页面是否显示提交审核的按钮
-
       imgUrl: "",
       imageInfo: {}, //原始图片的分辨率，用来审核用户添加的长宽比例
       srcList: [],
-      searchStatus: [
-        {
-          index: 1,
-          value: "Draft",
-        },
-        {
-          index: 2,
-          value: "Audit",
-        },
-        {
-          index: 3,
-          value: "Pass",
-        },
-        {
-          index: 4,
-          value: "Fail",
-        },
-        {
-          index: 5,
-          value: "Lock",
-        },
-      ],
-      statusList: [
-        {
-          index: 1,
-          value: "Draft",
-        },
-        {
-          index: 2,
-          value: "Audit",
-        },
-        {
-          index: 3,
-          value: "Pass",
-        },
-        {
-          index: 4,
-          value: "Fail",
-        },
-        {
-          index: 5,
-          value: "Lock",
-        },
-      ],
       mapIdList: [],
       featureNum: 0,
       actualrange: "",
@@ -2326,31 +1902,11 @@ export default {
       return dateStr;
     },
     // 时间转换
-    formatDateCreattime(row, column) {
-      if (row.creattime == null || row.creattime == 0) {
-        return "";
-      }
-      let date = new Date(parseInt(row.creattime) * 1000);
-      let date2 = date.toUTCString();
-      return this.datetimecut(date2);
-    },
-
-    // 时间转换
     formatDateEdittime(row, column) {
       if (row.edittime == null || row.edittime == 0) {
         return "";
       }
       let date = new Date(parseInt(row.edittime) * 1000);
-      let date2 = date.toUTCString();
-      return this.datetimecut(date2);
-    },
-
-    // 时间转换
-    formatDateAudittime(row, column) {
-      if (row.audittime == null || row.audittime == 0) {
-        return "";
-      }
-      let date = new Date(parseInt(row.audittime) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
     },
@@ -2449,14 +2005,8 @@ export default {
     },
 
     handleChange(file) {
-      var that = this;
-      let img = new Image();
-      img.src = file.url;
-      img.onload = function () {
-        that.userIdForPic.width = img.height;
-        that.userIdForPic.length = img.width;
-      };
       this.dialogImageUrl = file.url;
+      this.recordImageSize(file && file.url);
     },
 
     beforeAvatarUpload(file) {
@@ -2545,6 +2095,10 @@ export default {
         };
       }
       this.choseMap = false;
+      this.imageInfo = {};
+      this.imageX = "";
+      this.imageY = "";
+      this.dialogImageUrl = "";
     },
     // 添加2D 地图
     addMap2D() {
@@ -2566,7 +2120,21 @@ export default {
     },
     addTrue2D(addData) {
       this.$refs[addData].validate((valid) => {
-        if (valid) {
+        if (!valid) {
+          return false;
+        }
+        this.ensureImagePixels(null, (ok) => {
+          if (!ok) {
+            return;
+          }
+          if (
+            !this.validateRealSizeRatio(
+              this.addData.realwidth,
+              this.addData.reallength
+            )
+          ) {
+            return;
+          }
           this.addData.maptype = 1;
           this.userIdForPic.tenantid = this.addData.tenantid;
           this.userIdForPic.maptype = this.addData.maptype;
@@ -2577,11 +2145,10 @@ export default {
           this.userIdForPic.reallength = this.addData.reallength;
           this.userIdForPic.distance = this.addData.distance;
           this.userIdForPic.active = this.addData.active;
-          this.userIdForPic.status = 1;
+          this.userIdForPic.width = this.imageInfo.height;
+          this.userIdForPic.length = this.imageInfo.width;
           this.$refs.upload.submit();
-        } else {
-          return false;
-        }
+        });
       });
     },
     addTrue3D(addData) {
@@ -2590,7 +2157,6 @@ export default {
         if (valid) {
           this.addData.filetype = this.themeId;
           this.addData.maptype = 2;
-          this.addData.status = 1;
           addMapInfo(
             this.addData,
             this.tenantkey_A,
@@ -2600,56 +2166,6 @@ export default {
             if (res.code == 1001) {
               that.$message({
                 message: that.$t("mapmanagement.addsuccess"),
-                type: "warning",
-              });
-              that.getMapInfoLists();
-              that.add3D = false;
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        }
-      });
-    },
-    auditTrue2D(addData) {
-      this.$refs[addData].validate((valid) => {
-        if (valid) {
-          this.addData.maptype = 1;
-          this.userIdForPic.tenantid = this.addData.tenantid;
-          this.userIdForPic.maptype = this.addData.maptype;
-          this.userIdForPic.memo = this.addData.memo;
-          this.userIdForPic.mapname = this.addData.mapname;
-          this.userIdForPic.projectid = this.addData.projectid;
-          this.userIdForPic.realwidth = this.addData.realwidth;
-          this.userIdForPic.reallength = this.addData.reallength;
-          this.userIdForPic.distance = this.addData.distance;
-          this.userIdForPic.active = this.addData.active;
-          this.userIdForPic.status = 2;
-          this.$refs.upload.submit();
-        } else {
-          return false;
-        }
-      });
-    },
-    auditTrue3D(addData) {
-      var that = this;
-      this.$refs[addData].validate((valid) => {
-        if (valid) {
-          this.addData.filetype = this.themeId;
-          this.addData.maptype = 2;
-          this.addData.status = 2;
-          addMapInfo(
-            this.addData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.$message({
-                message: that.$t("mapmanagement.Submittedsuccessfully"),
                 type: "warning",
               });
               that.getMapInfoLists();
@@ -2777,7 +2293,6 @@ export default {
       ) {
         this.searchList = {
           mapid: "",
-          status: "",
           page: 1,
           count: this.pageCount,
           projectid: "",
@@ -2789,7 +2304,6 @@ export default {
       ) {
         this.searchList = {
           mapid: "",
-          status: "",
           page: 1,
           count: this.pageCount,
           projectid: this.$store.state.intoProjectid,
@@ -2803,53 +2317,15 @@ export default {
     //编辑
     editMap(index) {
       var that = this;
+      this.changeImg = this.tableData[index].inuseNum > 0;
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
-        if (this.tableData[index].inuseNum > 0) {
-          this.statusList = [
-            {
-              index: 3,
-              value: "Pass",
-            },
-            {
-              index: 5,
-              value: "Lock",
-            },
-          ];
-        } else {
-          this.statusList = [
-            {
-              index: 1,
-              value: "Draft",
-            },
-            {
-              index: 2,
-              value: "Audit",
-            },
-            {
-              index: 3,
-              value: "Pass",
-            },
-            {
-              index: 4,
-              value: "Fail",
-            },
-            {
-              index: 5,
-              value: "Lock",
-            },
-          ];
-        }
-
         this.passEdit = true;
 
         this.editData.mapid = this.tableData[index].mapid;
-        this.editData.status = this.tableData[index].status;
         this.editData.mapname = this.tableData[index].mapname;
         this.editData.width = this.tableData[index].width;
         this.editData.length = this.tableData[index].length;
-        this.editData.instruction = this.tableData[index].instruction;
         this.editData.memo = this.tableData[index].memo;
-        this.editData.sysmemo = this.tableData[index].sysmemo;
         this.editData.projectid = this.tableData[index].projectid;
         this.editData.distance = this.tableData[index].distance;
         this.editData.reallength = this.tableData[index].reallength;
@@ -2865,6 +2341,8 @@ export default {
           this.srcList.push(
             (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype
           );
+          this.setImageInfoFromMap(this.tableData[index]);
+          this.recordImageSize(this.imgUrl);
 
           this.edit2D = true;
         } else {
@@ -2877,30 +2355,15 @@ export default {
           this.loading = true;
         }
       } else {
+        this.passEdit = false;
         // changeImg
-        if (this.tableData[index].inuseNum > 0) {
-          this.changeImg = true;
-        } else {
-          this.changeImg = false;
-        }
-        // 判断是否为草稿状态、失败状态，编辑窗口有“提交审核”的按钮
-        if (
-          this.tableData[index].status == 1 ||
-          this.tableData[index].status == 4
-        ) {
-          that.auditBtn = true;
-        } else {
-          that.auditBtn = false;
-        }
+        this.changeImg = this.tableData[index].inuseNum > 0;
 
         this.editDatas.mapid = this.tableData[index].mapid;
-        this.editDatas.status = this.tableData[index].status;
         this.editDatas.mapname = this.tableData[index].mapname;
         this.editDatas.width = this.tableData[index].width;
         this.editDatas.length = this.tableData[index].length;
-        this.editDatas.instruction = this.tableData[index].instruction;
         this.editDatas.memo = this.tableData[index].memo;
-        this.editDatas.sysmemo = this.tableData[index].sysmemo;
         this.editDatas.projectid = this.tableData[index].projectid;
         this.editDatas.realwidth = this.tableData[index].realwidth;
         this.editDatas.reallength = this.tableData[index].reallength;
@@ -2917,14 +2380,13 @@ export default {
               url: (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype,
             },
           ];
+          this.setImageInfoFromMap(this.tableData[index]);
+          this.recordImageSize(this.fileListEdit[0].url);
           this.editCompany2D = true;
         } else {
           this.editData.mapid = this.tableData[index].mapid;
-          this.editData.status = this.tableData[index].status;
           this.editData.mapname = this.tableData[index].mapname;
-          this.editData.instruction = this.tableData[index].instruction;
           this.editData.memo = this.tableData[index].memo;
-          this.editData.sysmemo = this.tableData[index].sysmemo;
           this.editData.projectid = this.tableData[index].projectid;
           this.editData.distance = this.tableData[index].distance;
           this.editData.width = this.tableData[index].width;
@@ -2947,7 +2409,21 @@ export default {
     editTrue(editData) {
       var that = this;
       this.$refs[editData].validate((valid) => {
-        if (valid) {
+        if (!valid) {
+          return false;
+        }
+        this.ensureImagePixels(this.editData, (ok) => {
+          if (!ok) {
+            return;
+          }
+          if (
+            !this.validateRealSizeRatio(
+              this.editData.realwidth,
+              this.editData.reallength
+            )
+          ) {
+            return;
+          }
           updateMapInfo(
             this.editData,
             this.tenantkey_A,
@@ -2969,9 +2445,7 @@ export default {
               });
             }
           });
-        } else {
-          return false;
-        }
+        });
       });
     },
     // 3D地图编辑确定
@@ -2979,7 +2453,6 @@ export default {
       var that = this;
       this.editData.filetype = this.themeId;
       this.$refs[editData].validate((valid) => {
-        // this.editData.status = 1;
         if (valid) {
           updateMapInfo(
             this.editData,
@@ -3007,57 +2480,42 @@ export default {
         }
       });
     },
-    // 3D地图提交审核
-    auditTrues3D(editData) {
-      var that = this;
-      this.$refs[editData].validate((valid) => {
-        if (valid) {
-          this.editData.status = 2;
-          updateMapInfo(
-            this.editData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.edit3D = false;
-              that.getMapInfoLists();
-              that.getSearchMapInfoList();
-              that.$message({
-                message: that.$t("mapmanagement.Submittedsuccessfully"),
-                type: "success",
-              });
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        } else {
-          return false;
-        }
-      });
-    },
 
     //判断有没有更换地图，从而选择接口
     choseApi(file, fileList) {
       if (this.needChangeAPI) {
         this.choseApiEdit = true;
       }
+      if (file && file.url) {
+        this.dialogImageUrl = file.url;
+        this.recordImageSize(file.url);
+      }
     },
     //企业级管理员编辑确定
     editTrues(editDatas) {
       var that = this;
       this.$refs[editDatas].validate((valid) => {
-        if (valid) {
+        if (!valid) {
+          return false;
+        }
+        this.ensureImagePixels(this.editDatas, (ok) => {
+          if (!ok) {
+            return;
+          }
+          if (
+            !this.validateRealSizeRatio(
+              this.editDatas.realwidth,
+              this.editDatas.reallength
+            )
+          ) {
+            return;
+          }
           if (this.choseApiEdit) {
             this.userIdForPicEdit.projectid = this.editDatas.projectid;
             this.userIdForPicEdit.mapid = this.editDatas.mapid;
             this.userIdForPicEdit.mapname = this.editDatas.mapname;
-            this.userIdForPicEdit.status = 1;
-            this.userIdForPicEdit.width = this.editDatas.width;
-            this.userIdForPicEdit.length = this.editDatas.length;
+            this.userIdForPicEdit.width = this.imageInfo.height;
+            this.userIdForPicEdit.length = this.imageInfo.width;
             this.userIdForPicEdit.memo = this.editDatas.memo;
             this.userIdForPicEdit.distance = this.editDatas.distance;
             this.userIdForPicEdit.reallength = this.editDatas.reallength;
@@ -3065,9 +2523,6 @@ export default {
             this.userIdForPicEdit.active = this.editDatas.active;
             this.$refs.upload.submit();
           } else {
-            if (this.changeImg == false) {
-              this.editDatas.status = 1;
-            }
             updateMapInfo(
               this.editDatas,
               this.tenantkey_A,
@@ -3090,52 +2545,7 @@ export default {
               }
             });
           }
-        }
-      });
-    },
-    // 提交审核
-    auditTrues(editDatas) {
-      var that = this;
-      this.$refs[editDatas].validate((valid) => {
-        if (valid) {
-          if (this.choseApiEdit) {
-            this.userIdForPicEdit.projectid = this.editDatas.projectid;
-            this.userIdForPicEdit.mapid = this.editDatas.mapid;
-            this.userIdForPicEdit.mapname = this.editDatas.mapname;
-            this.userIdForPicEdit.status = 2;
-            this.userIdForPicEdit.width = this.editDatas.width;
-            this.userIdForPicEdit.length = this.editDatas.length;
-            this.userIdForPicEdit.memo = this.editDatas.memo;
-            this.userIdForPicEdit.realwidth = this.editDatas.realwidth;
-            this.userIdForPicEdit.reallength = this.editDatas.reallength;
-            this.userIdForPicEdit.distance = this.editDatas.distance;
-            this.userIdForPicEdit.active = this.editDatas.active;
-            this.$refs.upload.submit();
-          } else {
-            this.editDatas.status = 2;
-            updateMapInfo(
-              this.editDatas,
-              this.tenantkey_A,
-              this.tenantid_A,
-              this.userName
-            ).then((res) => {
-              if (res.code == 1001) {
-                that.editCompany2D = false;
-                that.getMapInfoLists();
-                that.getSearchMapInfoList();
-                that.$message({
-                  message: that.$t("mapmanagement.Submittedsuccessfully"),
-                  type: "success",
-                });
-              } else {
-                that.$message({
-                  message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                  type: "error",
-                });
-              }
-            });
-          }
-        }
+        });
       });
     },
 
@@ -3156,28 +2566,6 @@ export default {
       var that = this;
       if (this.tableData[index].inuseNum < 1) {
         //未使用
-        that.statusList = [
-          {
-            index: 1,
-            value: "Draft",
-          },
-          {
-            index: 2,
-            value: "Audit",
-          },
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 4,
-            value: "Fail",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
         that.imgUrl = "";
         that.srcList = [];
         that.delData = that.tableData[index];
@@ -3219,86 +2607,6 @@ export default {
       );
     },
 
-    //审核
-    checkMap(index) {
-      var that = this;
-      if (this.tableData[index].status == 1) {
-        that.$message({
-          message: this.$t("mapmanagement.tit2"),
-          type: "warning",
-        });
-        return;
-      } else if (this.tableData[index].status == 4) {
-        that.$message({
-          message: this.$t("mapmanagement.tit3"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.tableData[index].inuseNum > 0) {
-        this.statusList = [
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
-      } else {
-        this.statusList = [
-          {
-            index: 1,
-            value: "Draft",
-          },
-          {
-            index: 2,
-            value: "Audit",
-          },
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 4,
-            value: "Fail",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
-      }
-
-      this.checkData = this.tableData[index];
-      if (this.tableData[index].maptype == 1) {
-        this.imgUrl = "";
-        this.srcList = [];
-        this.imgUrl = (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype;
-        this.srcList.push(
-          (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype
-        );
-
-        //获取图片的宽高
-        let img = new Image();
-        img.src = this.imgUrl;
-        img.onload = function () {
-          that.$set(that.imageInfo, "width", img.width);
-          that.$set(that.imageInfo, "height", img.height);
-        };
-
-        this.check = true;
-      } else {
-        this.fmapId = this.tableData[index].filename;
-        this.fmapKey = this.tableData[index].mapkey;
-        this.themeId = this.tableData[index].filetype;
-        this.fmapName = this.tableData[index].appname;
-        this.clickTrue = true;
-        this.check3D = true;
-        this.loading = true;
-      }
-    },
     onmap() {
       var that = this;
       var mapOpation = {
@@ -3314,64 +2622,16 @@ export default {
         modelSelectedEffect: false, //支持单击模型高亮，false为单击时模型不高亮
         defaultViewMode: fengmap.FMViewMode.MODE_3D, //设置地图2d/3d显示
         themeID: that.themeId,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
       };
       this.map3d = new fengmap.FMMap(mapOpation);
-      // this.map3d.openMapById(this.fmapId, function (error) {
-      //   that.$message({
-      //     message: error.data.error_msg,
-      //     type: "error",
-      //   });
-      // });
 
       this.map3d.on("loaded", function () {
-        // if (that.edit3D) {
-        //   if (
-        //     (that.editData.width == "" || that.editData.width == 0) &&
-        //     (that.editData.length == "" || that.editData.length == 0) &&
-        //     (that.editData.realwidth == "" || that.editData.realwidth == 0) &&
-        //     (that.editData.reallength == "" || that.editData.reallength == 0)
-        //   ) {
-        //     let data = {
-        //       mapid: that.editData.mapid,
-        //       filename: that.editData.filename,
-        //       width: that.map3d.minY,
-        //       length: that.map3d.minX,
-        //       realwidth: that.map3d.maxY,
-        //       reallength: that.map3d.maxX,
-        //     };
-        //     // updateMapInfo(
-        //     //   data,
-        //     //   that.tenantkey_A,
-        //     //   that.tenantid_A,
-        //     //   that.userName
-        //     // ).then((res) => {});
-        //   }
-        // }
-        if (that.check3D) {
-          if (
-            (that.checkData.width == "" || that.checkData.width == 0) &&
-            (that.checkData.length == "" || that.checkData.length == 0) &&
-            (that.checkData.realwidth == "" || that.checkData.realwidth == 0) &&
-            (that.checkData.reallength == "" || that.checkData.reallength == 0)
-          ) {
-            that.checkData.width = that.map3d.getBound().min.y;
-            that.checkData.length = that.map3d.getBound().min.x;
-            that.checkData.realwidth = that.map3d.getBound().max.y;
-            that.checkData.reallength = that.map3d.getBound().max.x;
-            that.clickTrue = false;
-          } else {
-            that.clickTrue = false;
-          }
-        }
         that.loading = false;
         that.loadScrollFloorCtrl();
       });
     },
     closeCheck(rule) {
       this.map3d.dispose();
-      this.check3D = false;
       this.edit3D = false;
       this.$refs[rule].resetFields();
     },
@@ -3391,52 +2651,6 @@ export default {
       this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
       this.scrollFloorControl.addTo(this.map3d);
     },
-    checkCancle(checkData) {
-      this.check = false;
-      this.$refs[checkData].resetFields();
-    },
-    checkTrue(checkData) {
-      let that = this;
-      this.$refs[checkData].validate((valid) => {
-        if (valid) {
-          let data = {
-            mapid: this.checkData.mapid,
-            status: this.checkData.status,
-            instruction: this.checkData.instruction,
-            width: this.checkData.width,
-            length: this.checkData.length,
-            realwidth: this.checkData.realwidth,
-            reallength: this.checkData.reallength,
-          };
-          auditMapInfo(
-            data,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.check = false;
-              that.check3D = false;
-              that.getMapInfoLists();
-              that.getSearchMapInfoList();
-              that.$message({
-                message: that.$t("mapmanagement.checksuccess"),
-                type: "success",
-              });
-              that.$refs[checkData].resetFields();
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        } else {
-          return false;
-        }
-      });
-    },
-
     //调整操作栏宽度
     autoWidth() {
       if (this.contrForPrionum == 1) {
@@ -3453,6 +2667,111 @@ export default {
     },
     closeMap() {
       this.dialogImageUrl = "";
+    },
+    setImageInfoFromMap(row) {
+      if (!row) {
+        return;
+      }
+      // 本系统 width=图片高，length=图片宽
+      if (row.length && row.width) {
+        this.imageInfo = {
+          width: Number(row.length),
+          height: Number(row.width),
+        };
+        this.imageX = Number(row.length);
+        this.imageY = Number(row.width);
+      }
+    },
+    recordImageSize(url) {
+      if (!url) {
+        return;
+      }
+      var that = this;
+      var img = new Image();
+      img.onload = function () {
+        that.imageInfo = {
+          width: img.width,
+          height: img.height,
+        };
+        that.imageX = img.width;
+        that.imageY = img.height;
+      };
+      img.src = url;
+    },
+    getMapImageUrl() {
+      if (this.dialogImageUrl) {
+        return this.dialogImageUrl;
+      }
+      if (this.add2D && this.$refs.upload && this.$refs.upload.uploadFiles) {
+        var addFiles = this.$refs.upload.uploadFiles;
+        if (addFiles[0] && addFiles[0].url) {
+          return addFiles[0].url;
+        }
+      }
+      if (this.editCompany2D && this.fileListEdit[0] && this.fileListEdit[0].url) {
+        return this.fileListEdit[0].url;
+      }
+      if (this.edit2D && this.imgUrl) {
+        return this.imgUrl;
+      }
+      return "";
+    },
+    ensureImagePixels(form, done) {
+      if (this.imageInfo && this.imageInfo.width && this.imageInfo.height) {
+        done(true);
+        return;
+      }
+      if (form && form.width && form.length) {
+        this.setImageInfoFromMap(form);
+        if (this.imageInfo && this.imageInfo.width && this.imageInfo.height) {
+          done(true);
+          return;
+        }
+      }
+      var url = this.getMapImageUrl();
+      if (!url) {
+        this.$message.warning(this.$t("mapmanagement.tit4"));
+        done(false);
+        return;
+      }
+      var that = this;
+      var img = new Image();
+      img.onload = function () {
+        that.imageInfo = {
+          width: img.width,
+          height: img.height,
+        };
+        that.imageX = img.width;
+        that.imageY = img.height;
+        done(true);
+      };
+      img.onerror = function () {
+        that.$message.warning(that.$t("mapmanagement.tit4"));
+        done(false);
+      };
+      img.src = url;
+    },
+    // 实际宽高比需接近图片高/宽（width 对应图片高，length 对应图片宽），偏差超过 20% 拦截
+    validateRealSizeRatio(realwidth, reallength) {
+      var rw = Number(realwidth);
+      var rl = Number(reallength);
+      var pw = Number(this.imageInfo && this.imageInfo.width);
+      var ph = Number(this.imageInfo && this.imageInfo.height);
+      if (!rw || !rl || !pw || !ph) {
+        return true;
+      }
+      var actualRatio = rw / rl;
+      var pixelRatio = ph / pw;
+      var diff = Math.abs(actualRatio - pixelRatio) / pixelRatio;
+      if (diff > 0.2) {
+        this.$message({
+          message: this.$t("mapmanagements.ratioMismatch"),
+          type: "warning",
+          duration: 5000,
+        });
+        return false;
+      }
+      return true;
     },
     // 点击打开地图计算实际宽度
     chooseMapPoint() {
@@ -3484,7 +2803,6 @@ export default {
     ) {
       this.searchList = {
         mapid: "",
-        status: "",
         page: 1,
         count: 20,
         projectid: "",

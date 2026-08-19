@@ -110,6 +110,14 @@
                 @click="exportExcelAll()"
                 >{{ $t("terminal.exportAll") }}</el-button
               >
+              <el-button
+                type="primary"
+                class="reset"
+                style="margin-left: 0%"
+                :loading="locating"
+                @click="locateCurrentPosition"
+                >{{ $t("Building.locateMe") }}</el-button
+              >
             </div>
           </div>
           <!-- 修改 -->
@@ -220,7 +228,7 @@ import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
 
 // 描线
-import { Stroke, Style } from "ol/style";
+import { Stroke, Style, Circle as CircleStyle } from "ol/style";
 import { LineString } from "ol/geom";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
@@ -472,6 +480,8 @@ export default {
       longi: this.$store.state.longis,
       lati: this.$store.state.latis,
       mapCenter: [],
+      locating: false,
+      selfLocationLayer: null,
       headlistdata: "",
       showAllGround: "", //是否展示所有楼层
       showAllGroundEdit: false, //是否编辑展示所有楼层选项
@@ -697,6 +707,81 @@ export default {
     goProject() {
       this.$router.push("/projectmanagement");
     },
+    // 浏览器定位到当前位置
+    locateCurrentPosition() {
+      if (!this.map) {
+        return;
+      }
+      if (!navigator.geolocation) {
+        this.$message({
+          message: this.$t("Building.geoNotSupported"),
+          type: "warning",
+        });
+        return;
+      }
+      this.locating = true;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.locating = false;
+          const lon = position.coords.longitude;
+          const lat = position.coords.latitude;
+          const view = this.map.getView();
+          const targetZoom = Math.max(view.getZoom() || 5, 15);
+          view.animate({
+            center: [lon, lat],
+            zoom: targetZoom,
+            duration: 600,
+          });
+          this.showSelfLocationMarker(lon, lat);
+        },
+        (error) => {
+          this.locating = false;
+          let message = this.$t("Building.geoUnavailable");
+          if (error && error.code === 1) {
+            message = this.$t("Building.geoPermissionDenied");
+          } else if (error && error.code === 3) {
+            message = this.$t("Building.geoTimeout");
+          }
+          this.$message({
+            message,
+            type: "warning",
+          });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0,
+        }
+      );
+    },
+    showSelfLocationMarker(lon, lat) {
+      if (!this.map) {
+        return;
+      }
+      if (this.selfLocationLayer) {
+        this.map.removeLayer(this.selfLocationLayer);
+        this.selfLocationLayer = null;
+      }
+      const feature = new OlFeature({
+        geometry: new OlGeomPoint([lon, lat]),
+      });
+      feature.setStyle(
+        new Style({
+          image: new CircleStyle({
+            radius: 8,
+            fill: new Fill({ color: "#409EFF" }),
+            stroke: new Stroke({ color: "#ffffff", width: 2 }),
+          }),
+        })
+      );
+      this.selfLocationLayer = new OlLayerVector({
+        source: new OlSourceVector({
+          features: [feature],
+        }),
+        zIndex: 100,
+      });
+      this.map.addLayer(this.selfLocationLayer);
+    },
     // 加载地图
     initMap() {
       var that = this;
@@ -704,6 +789,7 @@ export default {
         this.map.setTarget("sss");
         this.map = null;
       }
+      this.selfLocationLayer = null;
       this.seeLayer = this.outdoorBaseLayers;
       if (this.mapInfo.length > 0) {
         this.view = new View({
@@ -1628,33 +1714,12 @@ export default {
                 that.userName
               ).then((res) => {
                 if (res.code == 1001) {
-                  let LayerArrays = that.map.getLayers().getArray();
-                  for (let i = 1; i < LayerArrays.length; i++) {
-                    if (
-                      e.values_.longi ==
-                        LayerArrays[i].getSource().getFeatures()[0].values_
-                          .longi &&
-                      e.values_.lati ==
-                        LayerArrays[i].getSource().getFeatures()[0].values_.lati
-                    ) {
-                      that.buildingNameList = that.buildingNameList.filter(
-                        function (item) {
-                          return item != e.values_.building;
-                        }
-                      );
-                      LayerArrays[i]
-                        .getSource()
-                        .getFeatures()
-                        .forEach(function (feature) {
-                          LayerArrays[i].getSource().removeFeature(feature);
-                        });
-                      if (menu_overlay) {
-                        menu_overlay.setPosition(undefined);
-                      }
-                      that.removeClick();
-                      that.map.removeLayer(LayerArrays[i]);
-                    }
-                  }
+                  that.removeBuildingLayerByCoord(
+                    e.values_.longi,
+                    e.values_.lati,
+                    e.values_.building,
+                    menu_overlay
+                  );
                   that.buildingIdList.forEach((item, index) => {
                     if (item == e.values_.id) {
                       that.buildingIdList.splice(index, 1);
@@ -1686,32 +1751,59 @@ export default {
           }
         });
       } else {
-        let LayerArrays = that.map.getLayers().getArray();
-        for (let i = 1; i < LayerArrays.length; i++) {
-          if (
-            e.values_.longi ==
-              LayerArrays[i].getSource().getFeatures()[0].values_.longi &&
-            e.values_.lati ==
-              LayerArrays[i].getSource().getFeatures()[0].values_.lati
-          ) {
-            that.buildingNameList = that.buildingNameList.filter(function (
-              item
-            ) {
-              return item != e.values_.building;
-            });
-            LayerArrays[i]
-              .getSource()
-              .getFeatures()
-              .forEach(function (feature) {
-                LayerArrays[i].getSource().removeFeature(feature);
-              });
-            if (menu_overlay) {
-              menu_overlay.setPosition(undefined);
-            }
-            that.removeClick();
-            that.map.removeLayer(LayerArrays[i]);
-          }
+        that.removeBuildingLayerByCoord(
+          e.values_.longi,
+          e.values_.lati,
+          e.values_.building,
+          menu_overlay
+        );
+      }
+    },
+
+    // 仅处理矢量图层，跳过 OSM/天地图等瓦片底图
+    getLayerVectorFeatures(layer) {
+      if (!layer || layer.get("isOutdoorBase")) {
+        return null;
+      }
+      const source = layer.getSource && layer.getSource();
+      if (!source || typeof source.getFeatures !== "function") {
+        return null;
+      }
+      const features = source.getFeatures();
+      if (!features || !features.length) {
+        return null;
+      }
+      return features;
+    },
+
+    removeBuildingLayerByCoord(longi, lati, building, menu_overlay) {
+      const LayerArrays = this.map.getLayers().getArray().slice();
+      for (let i = 0; i < LayerArrays.length; i++) {
+        const layer = LayerArrays[i];
+        const features = this.getLayerVectorFeatures(layer);
+        if (!features) {
+          continue;
         }
+        const first = features[0];
+        if (
+          !first ||
+          !first.values_ ||
+          longi != first.values_.longi ||
+          lati != first.values_.lati
+        ) {
+          continue;
+        }
+        this.buildingNameList = this.buildingNameList.filter(function (item) {
+          return item != building;
+        });
+        features.slice().forEach((feature) => {
+          layer.getSource().removeFeature(feature);
+        });
+        if (menu_overlay) {
+          menu_overlay.setPosition(undefined);
+        }
+        this.removeClick();
+        this.map.removeLayer(layer);
       }
     },
 
@@ -1721,16 +1813,19 @@ export default {
       let LayerArrays = this.map.getLayers().getArray();
       this.arrs = [];
       let info;
-      for (let i = 1; i < LayerArrays.length; i++) {
-        if (LayerArrays[i].getSource().getFeatures()[0].values_.building) {
+      for (let i = 0; i < LayerArrays.length; i++) {
+        const features = this.getLayerVectorFeatures(LayerArrays[i]);
+        if (!features || !features[0] || !features[0].values_) {
+          continue;
+        }
+        if (features[0].values_.building) {
           //因为画了南海那边的虚线，导致会多获取一个，判断
           info = {
-            building: LayerArrays[i].getSource().getFeatures()[0].values_
-              .building,
-            longi: LayerArrays[i].getSource().getFeatures()[0].values_.longi,
-            lati: LayerArrays[i].getSource().getFeatures()[0].values_.lati,
-            src: LayerArrays[i].getSource().getFeatures()[0].values_.src,
-            id: LayerArrays[i].getSource().getFeatures()[0].values_.id,
+            building: features[0].values_.building,
+            longi: features[0].values_.longi,
+            lati: features[0].values_.lati,
+            src: features[0].values_.src,
+            id: features[0].values_.id,
           };
           that.arrs.push(info);
         }

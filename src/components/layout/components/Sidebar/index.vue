@@ -66,6 +66,12 @@
           }}</el-menu-item>
 
           <el-menu-item
+            index="/warning/warningconfigasset"
+            v-show="intoProjectType == 2 && asset"
+            >{{ $t("list.Assetwarning") }}</el-menu-item
+          >
+
+          <el-menu-item
             index="/warning/warningconfigtbox"
             v-show="intoProjectType == 1 && tboxConfig"
             >{{ $t("list.Vehiclewarning") }}</el-menu-item

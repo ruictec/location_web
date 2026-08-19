@@ -442,6 +442,12 @@ export const userRoutes = [
           meta: { title: 'router.personAlarmConfig', noCache: true }
         },
         {
+          path: 'warningconfigasset',
+          component: () => import('../views/warning/WarningConfigAsset.vue'),
+          name: 'WarningConfigAsset',
+          meta: { title: 'router.assetAlarmConfig', noCache: true }
+        },
+        {
           path: 'warningconfigtbox',
           component: () => import('../views/warning/WarningConfigTBox.vue'),
           name: 'WarningConfigTbox',

@@ -2596,9 +2596,6 @@ export default {
             case that.$t("beacon.region"):
               obj["tranche"] = outdata[i][key];
               break;
-            case that.$t("floormanagement.AlarmareaID"):
-              obj["alarmid"] = outdata[i][key];
-              break;
             case that.$t("floormanagement.Positioningarea"):
               obj["tranche"] = outdata[i][key];
               break;
@@ -2832,10 +2829,6 @@ export default {
             value: "tranche",
           },
           {
-            msg: this.$t("floormanagement.AlarmareaID"),
-            value: "alarmid",
-          },
-          {
             msg: this.$t("floormanagement.Positioningarea"),
             value: "tranche",
           },
@@ -2961,7 +2954,6 @@ export default {
           "workstate",
           "type",
           "tranche",
-          "alarmid",
           "tranche",
           "clockin",
           "rssi1",
