@@ -61,8 +61,13 @@
           }}</el-menu-item>
 
           <el-menu-item
+            index="/warning/warningconfigasset"
+            v-if="intoProjectType == 2 && asset"
+            >{{ $t("list.Assetwarning") }}</el-menu-item>
+
+          <el-menu-item
             index="/warning/warningconfigtbox"
-            v-show="intoProjectType == 1 && tboxConfig"
+            v-if="intoProjectType == 1 && tboxConfig"
             >{{ $t("list.Vehiclewarning") }}</el-menu-item>
           <el-menu-item index="/warning/warningconfig">{{
             $t("list.Alarmconfiguration")
@@ -85,7 +90,7 @@
           }}</el-menu-item>
           <el-menu-item
             index="/staff/tboxManagement"
-            v-show="intoProjectType == 1 && tbox"
+            v-if="intoProjectType == 1 && tbox"
             >{{ $t("list.Vehiclemanagement") }}</el-menu-item>
           <el-menu-item index="/staff/checkwork" v-if="attendance">{{
             $t("list.Attendancemanagement")
@@ -206,6 +211,9 @@ export default {
       const { meta, path } = route;
       if (meta.activeMenu) {
         return meta.activeMenu;
+      }
+      if (path === "/dashboard" || path === "/dashboard/index") {
+        return "/dashboard";
       }
       return path;
     },
@@ -330,8 +338,8 @@ export default {
   width: 18px;
   height: 18px;
   display: inline-block;
-  margin-right: 8px;
-  margin-left: 5px;
+  margin: 0 8px 0 0 !important;
+  flex-shrink: 0;
   background-color: #9c9c9c;
   transition: all 0.2s;
 }
@@ -364,7 +372,8 @@ export default {
   background-color: #458bff;
 }
 .el-badge.warningbox {
-  margin-left: 60px;
+  margin-left: auto !important;
+  margin-right: 0 !important;
 }
 :deep(sup) {
   transform: translateY(5px);

@@ -393,10 +393,14 @@ export const userRoutes = [
 
     {
       path: '/dashboard',
+      name: 'UserDashboard',
       component: Layout,
+      redirect: { name: 'HomeUser' },
       children: [
         {
+          // 空 path 兼容旧链接；alias 兼容曾用过的 /dashboard/index
           path: '',
+          alias: ['index'],
           component: Homeuser,
           name: 'HomeUser',
           meta: { title: 'router.homepage', icon: 'Home', affix: true }
@@ -430,6 +434,12 @@ export const userRoutes = [
           component: () => import('../views/warning/WarningConfigPer.vue'),
           name: 'WarningConfigPer',
           meta: { title: 'router.personAlarmConfig', noCache: true }
+        },
+        {
+          path: 'warningconfigasset',
+          component: () => import('../views/warning/WarningConfigAsset.vue'),
+          name: 'WarningConfigAsset',
+          meta: { title: 'router.assetAlarmConfig', noCache: true }
         },
         {
           path: 'warningconfigtbox',
@@ -600,9 +610,9 @@ export const userRoutes = [
       },
       children: [
         {
-          path: '/',
+          path: '',
           component: Message,
-          name: 'messageuser',
+          name: 'MessageUserPage',
           meta: { title: 'router.messageCenter', noCache: true }
         },
 

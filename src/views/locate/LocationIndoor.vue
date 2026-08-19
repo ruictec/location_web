@@ -288,8 +288,8 @@
               <el-select
                 v-model="isactive"
                 placeholder=""
-                @change="getGrounds(isactive)"
-                :teleported="false"
+                @change="getGrounds"
+                popper-class="location-indoor-building-select"
                 style="position: absolute; right: 0; z-index: 1001"
                 v-if="buildShow"
               >
@@ -321,6 +321,8 @@
                 top: 0;
                 z-index: 1000;
                 align-items: center;
+                width: fit-content;
+                max-width: calc(100% - 48px);
               "
               v-show="groundShow"
             >
@@ -328,12 +330,7 @@
                 v-show="
                   (tableData[0].num > 0 || tableData[1].num > 0) && showEcharts
                 "
-                style="
-                  width: 100%;
-                  height: 100%;
-                  display: flex;
-                  flex-wrap: wrap;
-                "
+                class="statistics-charts"
               >
                 <div>
                   <div style="width: 220px; height: 220px" id="echarts"></div>
@@ -347,10 +344,10 @@
               <div class="show_echarts" @click="showEchart()">
                 {{ show_echart }}
               </div>
-              <div>
+              <div class="statistics-table-wrap">
                 <el-table
                   :data="groundData"
-                  style="width: 100%; margin-bottom: 20px"
+                  style="width: 320px; margin-bottom: 20px"
                   border
                   max-height="300"
                   :cell-class-name="selectGrounds"
@@ -534,14 +531,14 @@
               <el-select
                 v-model="isactive"
                 placeholder=""
-                @change="getGrounds(isactive)"
-                :teleported="false"
+                @change="getGrounds"
+                popper-class="location-indoor-building-select"
                 v-if="buildShow"
                 style="position: absolute; right: 0; z-index: 1001"
               >
                 <el-option
                   v-for="item in buildings"
-                  :key="item.building"
+                  :key="item.id"
                   :label="item.building"
                   :value="item.id"
                 >
@@ -560,12 +557,7 @@
                 v-show="
                   (tableData[0].num > 0 || tableData[1].num > 0) && showEcharts
                 "
-                style="
-                  width: 100%;
-                  height: 100%;
-                  display: flex;
-                  flex-wrap: wrap;
-                "
+                class="statistics-charts"
               >
                 <div>
                   <div
@@ -595,10 +587,10 @@
               >
                 {{ show_echart }}
               </div>
-              <div>
+              <div class="statistics-table-wrap">
                 <el-table
                   :data="groundData"
-                  style="width: 100%; margin-bottom: 20px"
+                  style="width: 320px; margin-bottom: 20px"
                   border
                   max-height="500"
                   :cell-class-name="selectGrounds"
@@ -680,6 +672,8 @@
       :width="showBracelet ? '25%' : '20%'"
       class="Info_dialog"
       :modal="false"
+      :append-to-body="true"
+      :destroy-on-close="false"
     >
       <!-- 左键显示内容的 -->
       <div id="popups" class="ol-popups">
@@ -834,6 +828,7 @@
 <script>
 import fengmap from "fengmap/build/fengmap.map.min";
 import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { markRaw } from "vue";
 import host from "../../host";
 import { component as Fullscreen } from "vue-fullscreen";
 
@@ -1018,9 +1013,11 @@ export default {
       mapTypes: true, //用于判断选择2d还是3d显示
       changemap: true,
       map3d: null,
+      map3dReady: false,
       fmapId: "",
       themeId: "",
-      scrollFloorControl: "",
+      scrollFloorControl: null,
+      map3dLoadToken: 0,
       layer: null,
       layerList: [],
       layer2: null,
@@ -1850,24 +1847,33 @@ export default {
     // 选择哪一层时，表格里标识选中的楼层数据
     selectGrounds({ row }) {
       var that = this;
-      if (this.map3d) {
-        let focusGroupID = that.groundListCopy.find(function (item) {
-          return item.newground == that.map3d.getLevel();
-        });
-        if (focusGroupID.groundid == row.id) {
+      if (!this.mapTypes) {
+        const level = this.getMap3dLevelSafe();
+        if (level != null) {
+          const focusGroupID = that.groundListCopy.find(function (item) {
+            return item.newground == level;
+          });
+          if (focusGroupID && focusGroupID.groundid == row.id) {
+            return "cell-blue";
+          }
+        } else if (that.groundid && row.id == that.groundid) {
           return "cell-blue";
         }
-      } else {
-        let ground;
-        if (row.ground.slice(0, 1) == "B") {
-          ground = -row.ground.slice(1);
-        } else {
-          ground = row.ground.slice(1);
-        }
+        return;
+      }
 
-        if (that.isactiveGround == ground) {
-          return "cell-blue";
-        }
+      let ground;
+      if (!row.ground) {
+        return;
+      }
+      if (row.ground.slice(0, 1) == "B") {
+        ground = -row.ground.slice(1);
+      } else {
+        ground = row.ground.slice(1);
+      }
+
+      if (that.isactiveGround == ground) {
+        return "cell-blue";
       }
     },
     //输入框模糊查询
@@ -2069,10 +2075,7 @@ export default {
             if (that.map) {
               that.map.setTarget("sss");
             }
-            if (that.map3d) {
-              that.map3d.dispose();
-              that.map3d = null;
-            }
+            that.destroyMap3d();
             that.loadingFun();
             that.mapInit(
               res.data.list[0].length,
@@ -2115,10 +2118,8 @@ export default {
               if (that.map) {
                 that.map.setTarget("sss");
               }
-              if (that.map3d) {
-                that.map3d.dispose();
-                that.map3d = null;
-              }
+              that.map3dLoadToken += 1;
+              that.destroyMap3d();
               that.loadingFun();
               that.onmap(
                 "",
@@ -2126,7 +2127,8 @@ export default {
                 mapInfo,
                 res.data[0].appname,
                 res.data[0].mapkey,
-                that.groundListCopy
+                that.groundListCopy,
+                that.map3dLoadToken
               );
             } else {
               that.$message({
@@ -2219,10 +2221,7 @@ export default {
                     if (that.map) {
                       that.map.setTarget("sss");
                     }
-                    if (that.map3d) {
-                      that.map3d.dispose();
-                      that.map3d = null;
-                    }
+                    that.destroyMap3d();
                     that.loadingFun();
                     that.mapInit(
                       res.data.list[0].length,
@@ -2267,10 +2266,8 @@ export default {
                       if (that.map) {
                         that.map.setTarget("sss");
                       }
-                      if (that.map3d) {
-                        that.map3d.dispose();
-                        that.map3d = null;
-                      }
+                      that.map3dLoadToken += 1;
+                      that.destroyMap3d();
                       that.loadingFun();
                       that.onmap(
                         "",
@@ -2278,7 +2275,8 @@ export default {
                         mapInfo,
                         res.data[0].appname,
                         res.data[0].mapkey,
-                        that.groundListCopy
+                        that.groundListCopy,
+                        that.map3dLoadToken
                       );
                       that.wsuri = host.ws + "map/" + that.searchList.deveui;
                       that.initWebsocketOne();
@@ -2856,10 +2854,7 @@ export default {
       if (this.map) {
         this.map.setTarget("sss");
       }
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.destroyMap3d();
       var that = this;
       that.AllSource = new OlSourceVector();
       that.AllLayer = new OlLayerVector({
@@ -3711,30 +3706,69 @@ export default {
       });
     },
 
+    destroyFengmapFloorToolbar() {
+      try {
+        const ctrl = this.scrollFloorControl;
+        if (ctrl && typeof ctrl.remove === "function") {
+          ctrl.remove();
+        }
+      } catch (e) {
+        // ignore toolbar remove errors
+      }
+      this.scrollFloorControl = null;
+      document
+        .querySelectorAll("#fengMap .fm-control-groups, .mapConentD .fm-control-groups")
+        .forEach((el) => el.remove());
+    },
+    destroyMap3d() {
+      this.map3dReady = false;
+      this.destroyFengmapFloorToolbar();
+      try {
+        if (this.map3d && typeof this.map3d.dispose === "function") {
+          this.map3d.dispose();
+        }
+      } catch (e) {
+        // ignore map dispose errors
+      }
+      this.map3d = null;
+      this.destroyFengmapFloorToolbar();
+    },
+    getMap3dLevelSafe() {
+      if (!this.map3d || !this.map3dReady) {
+        return null;
+      }
+      try {
+        const level = this.map3d.getLevel();
+        return level == null ? null : level;
+      } catch (e) {
+        return null;
+      }
+    },
     // 点击楼栋，判断楼栋是2D还是3D
     getGrounds(val) {
       var that = this;
+      if (val == null || val === "") {
+        return;
+      }
+      this.map3dLoadToken += 1;
       var found = this.buildings.find(function (item) {
         return item.id == val;
       });
+      if (!found) {
+        return;
+      }
       if (found.buildtypestr == "2D") {
         if (that.map) {
           that.map.setTarget("sss");
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.destroyMap3d();
         this.mapTypes = true;
         this.getGroundLists(val);
       } else if (found.buildtypestr == "3D") {
         if (that.map) {
           that.map.setTarget("sss");
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.destroyMap3d();
 
         this.showAllGround = found.flag;
         this.mapTypes = false;
@@ -3776,6 +3810,8 @@ export default {
     //获取楼层3D
     getGroundLists3D(val, ground, found) {
       var that = this;
+      const loadToken = this.map3dLoadToken;
+      that.groundListCopy = [];
       if (this.websockNum != 0) {
         this.websock.close();
       }
@@ -3789,6 +3825,9 @@ export default {
       };
       getGround(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
         (res) => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
+          }
           if (res.code == 1001) {
             for (let i = 0; i < res.data.length; i++) {
               let groundinfo = {
@@ -3801,10 +3840,7 @@ export default {
             that.scale = res.data[0].scale;
             if (that.showAllGround) {
               // 显示全部楼层时
-              if (that.map3d) {
-                that.map3d.dispose();
-                that.map3d = null;
-              }
+              that.destroyMap3d();
               if (that.$route.query.deveui) {
                 that.perDeveui = "";
               }
@@ -3825,7 +3861,8 @@ export default {
                 "",
                 res.data[0].appname,
                 res.data[0].mapkey,
-                that.groundListCopy
+                that.groundListCopy,
+                loadToken
               );
               that.wsuri = host.ws + "map/build_" + val;
 
@@ -3837,6 +3874,9 @@ export default {
                 that.tenantid_A,
                 that.userName
               ).then((res) => {
+                if (loadToken !== that.map3dLoadToken) {
+                  return;
+                }
                 if (res.code == 1001) {
                   that.grounds = res.data.reverse();
                   that.building = val;
@@ -3861,10 +3901,8 @@ export default {
     //获取楼层详情3D
     getBuildGroundLists3D(val) {
       this.ground = val;
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      const loadToken = this.map3dLoadToken;
+      this.destroyMap3d();
       if (this.$route.query.deveui) {
         this.perDeveui = "";
       }
@@ -3923,6 +3961,9 @@ export default {
           this.tenantid_A,
           this.userName
         ).then((res) => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
+          }
           if (res.code == 1001) {
             if (res.data.list.length > 0) {
               that.groundid = res.data.list[0].id;
@@ -3934,6 +3975,9 @@ export default {
                 that.websock.close();
               }
               setTimeout(() => {
+                if (loadToken !== that.map3dLoadToken) {
+                  return;
+                }
                 let focusGroupID = that.groundListCopy.find(function (item) {
                   return item.ground == val;
                 });
@@ -3944,7 +3988,8 @@ export default {
                   "",
                   res.data.list[0].appname,
                   res.data.list[0].mapkey,
-                  that.groundListCopy
+                  that.groundListCopy,
+                  loadToken
                 );
                 that.initWebsocket();
               }, 1);
@@ -3954,8 +3999,14 @@ export default {
       }
     },
     //加载3D地图
-    onmap(projectid, groundVal, mapInfo, appname, mapkey, groundList) {
+    onmap(projectid, groundVal, mapInfo, appname, mapkey, groundList, loadToken) {
       var that = this;
+      if (loadToken == null) {
+        this.map3dLoadToken += 1;
+        loadToken = this.map3dLoadToken;
+      } else if (loadToken !== this.map3dLoadToken) {
+        return;
+      }
       if (this.dataTimer) {
         clearInterval(this.dataTimer);
         this.dataTimer = null;
@@ -3970,6 +4021,7 @@ export default {
       if (this.map) {
         this.map.setTarget("sss");
       }
+      this.destroyMap3d();
       let ground;
       if (groundVal) {
         ground = groundVal;
@@ -3999,8 +4051,13 @@ export default {
         },
         decoderURL: FENGMAP_DECODER_URL,
       };
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = markRaw(new fengmap.FMMap(mapOpation));
+      this.map3dReady = false;
       this.map3d.on("loaded", function () {
+        if (loadToken !== that.map3dLoadToken) {
+          return;
+        }
+        that.map3dReady = true;
         console.log("地图加载完成");
         if (that.showAllGround) {
           let bound = that.map3d.getBound();
@@ -4239,7 +4296,8 @@ export default {
           y: 20,
         },
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.destroyFengmapFloorToolbar();
+      this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
     },
 
@@ -5035,10 +5093,8 @@ export default {
       this.map.setTarget("sss");
       this.map = null;
     }
-    if (this.map3d) {
-      this.map3d.dispose();
-      this.map3d = null;
-    }
+    this.map3dLoadToken += 1;
+    this.destroyMap3d();
   },
 
   unmounted() {
@@ -5159,9 +5215,6 @@ export default {
 .selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
->>> .el-notification.right {
-  right: 30px;
-}
 .selectBuild {
   width: 100%;
   position: absolute;
@@ -5273,7 +5326,44 @@ a {
 }
 
 .statistics {
-  margin-left: 0%;
+  margin-left: 0% !important;
+  margin-right: 0 !important;
+  overflow-x: hidden;
+  justify-content: flex-start;
+  text-align: left;
+  width: fit-content !important;
+  max-width: calc(100% - 48px);
+  flex-shrink: 0;
+}
+
+.statistics-charts {
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.statistics-table-wrap {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.statistics > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+.statistics :deep(.el-table) {
+  width: 320px !important;
+  max-width: 320px !important;
+  margin: 0 !important;
+}
+
+.statistics :deep(.el-table__body-wrapper),
+.statistics :deep(.el-table__header-wrapper),
+.statistics :deep(.el-table__footer-wrapper) {
+  width: 100% !important;
 }
 
 .statistics :deep(.el-table tr) {
@@ -5292,8 +5382,30 @@ a {
   box-shadow: 1px 1px 3px 1px #b5c6dd;
   position: absolute;
   right: 0%;
-  z-index: 1;
+  z-index: 1000;
   align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  margin-left: 0 !important;
+  overflow-x: hidden;
+  width: fit-content !important;
+  max-width: calc(100% - 48px);
+  flex-shrink: 0;
+}
+.statistics3d > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+.statistics3d :deep(.el-table) {
+  width: 320px !important;
+  max-width: 320px !important;
+  margin: 0 !important;
+}
+.statistics3d :deep(.el-table__body-wrapper),
+.statistics3d :deep(.el-table__header-wrapper),
+.statistics3d :deep(.el-table__footer-wrapper) {
+  width: 100% !important;
 }
 .statistics3d :deep(.el-table td) {
   padding: 10px 0 !important;
@@ -5341,16 +5453,6 @@ a {
 .fullscreen {
   background-color: #fff !important;
 }
-.statistics {
-  overflow-x: hidden;
-}
->>> .el-select-dropdown.el-popper {
-  top: 39px !important;
-  text-align: left;
-}
->>> .el-select-dropdown__wrap.el-scrollbar__wrap {
-  margin-bottom: 0 !important;
-}
 
 .mapConentD {
   display: flex;
@@ -5391,6 +5493,8 @@ a {
   width: 25px;
   text-align: center;
   line-height: 50px;
+  margin: 0 !important;
+  flex-shrink: 0;
 }
 .float_box {
   background-color: rgba(0, 0, 0, 0.2);
@@ -5422,18 +5526,18 @@ a {
   width: 300px;
   margin-top: -10px;
 }
-.rloe_data :deep(.capsule-item-column,
-.department_data >>> .capsule-item-column,
-.rloe_data >>> .capsule-item-column .capsule-item-value,
-.department_data >>> .capsule-item-column .capsule-item-value) {
+.rloe_data :deep(.capsule-item-column),
+.department_data :deep(.capsule-item-column),
+.rloe_data :deep(.capsule-item-column .capsule-item-value),
+.department_data :deep(.capsule-item-column .capsule-item-value) {
   margin: 0;
 }
-.rloe_data :deep(.capsule-container .unit-label,
-.department_data >>> .capsule-container .unit-label) {
+.rloe_data :deep(.capsule-container .unit-label),
+.department_data :deep(.capsule-container .unit-label) {
   margin: 0 !important;
 }
-.rloe_data :deep(.capsule-container .unit-label div,
-.department_data >>> .capsule-container .unit-label div) {
+.rloe_data :deep(.capsule-container .unit-label div),
+.department_data :deep(.capsule-container .unit-label div) {
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -5480,8 +5584,8 @@ a {
   color: white;
   opacity: 0.7;
 }
-.data_table :deep(tr td,
-.data_table >>> tr th) {
+.data_table :deep(tr td),
+.data_table :deep(tr th) {
   border: 0px !important;
   padding: 5px 0;
 }

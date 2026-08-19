@@ -13,19 +13,27 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 // const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
 // 说明：根据 prionum 动态注入路由；仅注入一次，刷新时若未注入再补注入
-function injectRoutesByRole (prionum) {
+export function injectRoutesByRole (prionum) {
   try {
     resetRouter()
   } catch (e) {}
   if (Number(prionum) === 5) {
     store.commit('addRoutes', userRoutes)
     userRoutes.forEach((route) => {
-      router.addRoute(route)
+      try {
+        router.addRoute(route)
+      } catch (e) {
+        console.warn('addRoute failed:', route && route.path, e)
+      }
     })
   } else {
     store.commit('addRoutes', adminRoutes)
     adminRoutes.forEach((route) => {
-      router.addRoute(route)
+      try {
+        router.addRoute(route)
+      } catch (e) {
+        console.warn('addRoute failed:', route && route.path, e)
+      }
     })
   }
 }

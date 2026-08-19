@@ -15,7 +15,7 @@ const store = createStore({
         },
         userInfo: {},
         userInfoCopy: {},
-        i18n: '',
+        i18n: ((navigator.systemLanguage || navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'),
         projectid: '',
         show: '',
         intoProjectFlag: '',
@@ -252,5 +252,10 @@ const store = createStore({
         // 数据包装
     }
 });
+
+if (!store.state.i18n) {
+  const lan = (navigator.systemLanguage || navigator.language || "").toLowerCase();
+  store.state.i18n = lan.indexOf("zh") === 0 ? "zh" : "en";
+}
 
 export default store

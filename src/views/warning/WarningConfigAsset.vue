@@ -2,7 +2,7 @@
   <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
-      {{ $t("list.Personwarning") }}
+      {{ $t("list.Assetwarning") }}
     </div>
     <div class="content">
       <el-container>
@@ -40,7 +40,8 @@
                   type="primary"
                   class="querry"
                   @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button>
+                  >{{ $t("beacon.search") }}</el-button
+                >
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("beacon.reset")
                 }}</el-button>
@@ -82,7 +83,7 @@
               </el-table-column>
               <el-table-column
                 property="worktypes"
-                :label="$t('warning.Typeofwork')"
+                :label="$t('warning.assettype')"
                 show-overflow-tooltip
                 align="center"
               >
@@ -239,15 +240,15 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.Typeofwork1')">
+              <el-form-item :label="$t('warning.assettype1')">
                 <el-select
                   v-model="addWorktypes"
                   multiple
-                  :placeholder="$t('warning.text5')"
+                  :placeholder="$t('warning.text9')"
                 >
                   <el-option
                     v-for="item in worktypeList"
-                    :key="item.index"
+                    :key="item.id || item.name"
                     :label="item.name"
                     :value="item.name"
                   ></el-option>
@@ -266,7 +267,7 @@
                 >
                   <template #content><div>
                     <p>
-                      {{ $t("warning.title3") }}
+                      {{ $t("warning.titleAssetType") }}
                     </p>
                   </div></template>
                   <i class="el-icon-question" />
@@ -437,15 +438,15 @@
               >
                 <span>{{ formatMeth(editData.meth) }}</span>
               </el-form-item>
-              <el-form-item :label="$t('warning.Typeofwork1')">
+              <el-form-item :label="$t('warning.assettype1')">
                 <el-select
                   v-model="editWorktypes"
                   multiple
-                  :placeholder="$t('warning.text5')"
+                  :placeholder="$t('warning.text9')"
                 >
                   <el-option
                     v-for="item in worktypeList"
-                    :key="item.index"
+                    :key="item.id || item.name"
                     :label="item.name"
                     :value="item.name"
                   ></el-option>
@@ -608,7 +609,7 @@ import {
   getWarningConfigList,
   delWarningConfig,
   addWarningConfig,
-  getMemberType,
+  getAssetType,
   updateWarningConfig,
   getFenceManageByIds,
   getFenceManageList,
@@ -618,7 +619,7 @@ export default {
     Menu,
     Data,
   },
-  name: "WarningConfig",
+  name: "WarningConfigAsset",
   data() {
     return {
       i8n: this.$store.state.i18n,
@@ -637,7 +638,7 @@ export default {
         page: 1,
         count: 20,
         type: "",
-        cate: 1,
+        cate: 3,
       },
       pageCount: 20,
       add: false,
@@ -650,12 +651,12 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
-        cate: 1,
+        cate: 3,
         meth: "",
         postype: "",
       },
 
-      addWorktypes: "", //添加角色集合
+      addWorktypes: "", //添加资产类型集合
       addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
@@ -686,7 +687,7 @@ export default {
         ],
       },
       edit: false,
-      editWorktypes: "", //编辑角色集合
+      editWorktypes: "", //编辑资产类型集合
       editTranches: [], //编辑区域集合
       editTranche: "", //编辑区域集合,用来拼接
       editData: {
@@ -699,7 +700,7 @@ export default {
         warnum: "",
         memo: "",
         id: "",
-        cate: 1,
+        cate: 3,
         postype: "",
         meth: "",
       },
@@ -733,7 +734,7 @@ export default {
     };
   },
   methods: {
-    // 越界告警显示触发方式；门限始终可填（参考资产告警）
+    // 越界告警显示触发方式；门限始终可填
     changeType(val) {
       this.showWarnum = val != 4;
       this.typeval = val;
@@ -744,7 +745,7 @@ export default {
         }
       });
     },
-    // 滞留/聚集/异常静止：门限必填正整数；越界：门限选填，填了须为 >=0 的整数
+    // 滞留：门限必填正整数；越界：门限选填，填了须为 >=0 的整数
     updateWarnumRules(type) {
       if (type == 4) {
         this.addRules.warnum = [
@@ -774,6 +775,7 @@ export default {
         ];
       }
     },
+    // 编辑提交时校验门限
     validateWarnum(value, type) {
       if (type == 4) {
         if (value === "" || value === null || value === undefined) {
@@ -863,15 +865,15 @@ export default {
       }
       return typeName || "-";
     },
-    // 聚集告警显示「人」，其余显示「分钟」
+    // 滞留告警显示「人」，越界告警显示「分钟」
     formatWarnum(row) {
       if (row.warnum === "" || row.warnum === null || row.warnum === undefined) {
         return "-";
       }
-      if (row.type == 2) {
-        return row.warnum + this.$t("warning.people");
+      if (row.type == 4) {
+        return row.warnum + this.$t("warning.minutes");
       }
-      return row.warnum + this.$t("warning.minutes");
+      return row.warnum + this.$t("warning.people");
     },
     handleAddTrancheChange(val) {
       this.handleTrancheChange(val, "addTranches");
@@ -963,13 +965,14 @@ export default {
       });
     },
 
-    //获取角色
+    //获取资产类型
     getBranchNameList() {
       var that = this;
       let data = {
+        tenantid: this.tenantid_A,
         projectid: this.projectid,
       };
-      getMemberType(
+      getAssetType(
         data,
         this.tenantkey_A,
         this.tenantid_A,
@@ -990,7 +993,7 @@ export default {
         type: "",
         page: 1,
         count: 20,
-        cate: 1,
+        cate: 3,
       };
       this.getWarningLists();
       this.getFenceManageAndPointLists();
@@ -1037,7 +1040,7 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
-        cate: 1,
+        cate: 3,
         meth: "",
         postype: "",
       };
@@ -1056,7 +1059,7 @@ export default {
           var that = this;
           if (that.addWorktypes.length == 0) {
             that.$message({
-              message: this.$t("beacon.Pleasework"),
+              message: this.$t("beacon.PleaseAssetType"),
               type: "warning",
             });
             return;
@@ -1211,7 +1214,7 @@ export default {
       }
       if (that.editWorktypes.length == 0) {
         that.$message({
-          message: this.$t("beacon.Pleasework"),
+          message: this.$t("beacon.PleaseAssetType"),
           type: "warning",
         });
         return;
@@ -1389,86 +1392,36 @@ export default {
       type: "",
       page: 1,
       count: 20,
-      cate: 1,
+      cate: 3,
     };
     this.getWarningLists();
     this.getFenceManageAndPointLists();
-    if (this.$store.state.intoProjectType == 1) {
-      this.typeList = [
-        {
-          index: 1,
-          value: this.$t("warning.Detentionalarm"),
-        },
-        {
-          index: 2,
-          value: this.$t("warning.Aggregatealarm"),
-        },
-        {
-          index: 3,
-          value: this.$t("warning.Abnormalstatic"),
-        },
-        {
-          index: 4,
-          value: this.$t("warning.Passingalarm"),
-        },
-      ];
-    } else if (this.$store.state.intoProjectType == 2) {
-      this.typeList = [
-        {
-          index: 1,
-          value: this.$t("warning.Detentionalarm"),
-        },
-        {
-          index: 2,
-          value: this.$t("warning.Aggregatealarm"),
-        },
-        {
-          index: 4,
-          value: this.$t("warning.Passingalarm"),
-        },
-      ];
-    }
+    this.typeList = [
+      {
+        index: 1,
+        value: this.$t("warning.Detentionalarm"),
+      },
+      {
+        index: 4,
+        value: this.$t("warning.Passingalarm"),
+      },
+    ];
   },
   watch: {
     //监听中英文 重新渲染下拉框内容
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
 
-      if (this.$store.state.intoProjectType == 1) {
-        this.typeList = [
-          {
-            index: 1,
-            value: this.$t("warning.Detentionalarm"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Aggregatealarm"),
-          },
-          {
-            index: 3,
-            value: this.$t("warning.Abnormalstatic"),
-          },
-          {
-            index: 4,
-            value: this.$t("warning.Passingalarm"),
-          },
-        ];
-      } else if (this.$store.state.intoProjectType == 2) {
-        this.typeList = [
-          {
-            index: 1,
-            value: this.$t("warning.Detentionalarm"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Aggregatealarm"),
-          },
-          {
-            index: 4,
-            value: this.$t("warning.Passingalarm"),
-          },
-        ];
-      }
+      this.typeList = [
+        {
+          index: 1,
+          value: this.$t("warning.Detentionalarm"),
+        },
+        {
+          index: 4,
+          value: this.$t("warning.Passingalarm"),
+        },
+      ];
       Object.assign(
         this.$data.addRules,
         this.$options.data.call(this).addRules

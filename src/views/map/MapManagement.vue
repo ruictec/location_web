@@ -386,13 +386,19 @@
                 align="center"
               ></el-table-column>
               <el-table-column
-                property="creattime"
-                :label="$t('mapmanagements.mapcreationtime')"
+                :label="$t('mapmanagements.inusestr')"
                 show-overflow-tooltip
-                :formatter="formatDateCreattime"
-                min-width="115"
+                min-width="88"
                 align="center"
-              ></el-table-column>
+              >
+                <template #default="scope">
+                  {{
+                    scope.row.inuseNum > 0
+                      ? $t("mapmanagements.inuseYes")
+                      : $t("mapmanagements.inuseNo")
+                  }}
+                </template>
+              </el-table-column>
               <el-table-column
                 property="edittime"
                 :label="$t('mapmanagements.mapedittime')"
@@ -805,6 +811,25 @@
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.scale')" prop="scale">
                 <el-input v-model="addData.scale"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content><div>
+                    <p>
+                      {{ $t("mapmanagements.scaleTip") }}
+                    </p>
+                  </div></template>
+                  <i class="el-icon-question" />
+                </el-tooltip>
               </el-form-item>
               <el-form-item
                 :label="$t('mapmanagements.Project')"
@@ -1473,6 +1498,25 @@
                     prop="scale"
                   >
                     <el-input v-model="editData.scale"></el-input>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <template #content><div>
+                        <p>
+                          {{ $t("mapmanagements.scaleTip") }}
+                        </p>
+                      </div></template>
+                      <i class="el-icon-question" />
+                    </el-tooltip>
                   </el-form-item>
                   <el-form-item
                     :label="$t('mapmanagements.Project')"
@@ -1878,8 +1922,8 @@ export default {
       addRules: {
         scale: [
           {
-            pattern: /^\+?\d*$/,
-            message: this.$t("mapmanagement.tit"),
+            pattern: /^(\d+(\.\d+)?|\.\d+)?$/,
+            message: this.$t("mapmanagement.titScale"),
             trigger: "blur",
           },
         ],
@@ -2243,6 +2287,10 @@ export default {
           this.dialogImageUrl = url;
           this.imageX = width;
           this.imageY = height;
+          this.imageInfo = {
+            width: width,
+            height: height,
+          };
           this.mapInit(width, height);
         })
         .catch(() => {
@@ -2619,6 +2667,12 @@ export default {
         img.onload = function () {
           that.userIdForPic.width = img.height;
           that.userIdForPic.length = img.width;
+          that.imageInfo = {
+            width: img.width,
+            height: img.height,
+          };
+          that.imageX = img.width;
+          that.imageY = img.height;
         };
       }
       if (this.mapImageRaw) {
@@ -2736,6 +2790,14 @@ export default {
     addTrue2D(addData) {
       this.$refs[addData].validate((valid) => {
         if (valid) {
+          if (
+            !this.validateRealSizeRatio(
+              this.addData.realwidth,
+              this.addData.reallength
+            )
+          ) {
+            return;
+          }
           this.addData.maptype = 1;
           this.userIdForPic.tenantid = this.addData.tenantid;
           this.userIdForPic.maptype = this.addData.maptype;
@@ -2786,6 +2848,14 @@ export default {
     auditTrue2D(addData) {
       this.$refs[addData].validate((valid) => {
         if (valid) {
+          if (
+            !this.validateRealSizeRatio(
+              this.addData.realwidth,
+              this.addData.reallength
+            )
+          ) {
+            return;
+          }
           this.addData.maptype = 1;
           this.userIdForPic.tenantid = this.addData.tenantid;
           this.userIdForPic.maptype = this.addData.maptype;
@@ -2972,6 +3042,7 @@ export default {
     //编辑
     editMap(index) {
       var that = this;
+      this.changeImg = this.tableData[index].inuseNum > 0;
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
         if (this.tableData[index].inuseNum > 0) {
           this.statusList = [
@@ -3034,6 +3105,8 @@ export default {
           this.srcList.push(
             (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype
           );
+          this.setImageInfoFromMap(this.tableData[index]);
+          this.recordImageSize(this.imgUrl);
 
           this.edit2D = true;
         } else {
@@ -3047,11 +3120,7 @@ export default {
         }
       } else {
         // changeImg
-        if (this.tableData[index].inuseNum > 0) {
-          this.changeImg = true;
-        } else {
-          this.changeImg = false;
-        }
+        this.changeImg = this.tableData[index].inuseNum > 0;
         // 判断是否为草稿状态、失败状态，编辑窗口有“提交审核”的按钮
         if (
           this.tableData[index].status == 1 ||
@@ -3086,6 +3155,8 @@ export default {
               url: (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype,
             },
           ];
+          this.setImageInfoFromMap(this.tableData[index]);
+          this.recordImageSize(this.fileListEdit[0].url);
           this.editCompany2D = true;
         } else {
           this.editData.mapid = this.tableData[index].mapid;
@@ -3117,6 +3188,14 @@ export default {
       var that = this;
       this.$refs[editData].validate((valid) => {
         if (valid) {
+          if (
+            !this.validateRealSizeRatio(
+              this.editData.realwidth,
+              this.editData.reallength
+            )
+          ) {
+            return;
+          }
           updateMapInfo(
             this.editData,
             this.tenantkey_A,
@@ -3220,6 +3299,14 @@ export default {
       var that = this;
       this.$refs[editDatas].validate((valid) => {
         if (valid) {
+          if (
+            !this.validateRealSizeRatio(
+              this.editDatas.realwidth,
+              this.editDatas.reallength
+            )
+          ) {
+            return;
+          }
           if (this.choseApiEdit) {
             this.userIdForPicEdit.projectid = this.editDatas.projectid;
             this.userIdForPicEdit.mapid = this.editDatas.mapid;
@@ -3267,6 +3354,14 @@ export default {
       var that = this;
       this.$refs[editDatas].validate((valid) => {
         if (valid) {
+          if (
+            !this.validateRealSizeRatio(
+              this.editDatas.realwidth,
+              this.editDatas.reallength
+            )
+          ) {
+            return;
+          }
           if (this.choseApiEdit) {
             this.userIdForPicEdit.projectid = this.editDatas.projectid;
             this.userIdForPicEdit.mapid = this.editDatas.mapid;
@@ -3623,6 +3718,58 @@ export default {
     },
     closeMap() {
       this.dialogImageUrl = "";
+    },
+    setImageInfoFromMap(row) {
+      if (!row) {
+        return;
+      }
+      // 本系统 width=图片高，length=图片宽
+      if (row.length && row.width) {
+        this.imageInfo = {
+          width: Number(row.length),
+          height: Number(row.width),
+        };
+        this.imageX = Number(row.length);
+        this.imageY = Number(row.width);
+      }
+    },
+    recordImageSize(url) {
+      if (!url) {
+        return;
+      }
+      var that = this;
+      var img = new Image();
+      img.onload = function () {
+        that.imageInfo = {
+          width: img.width,
+          height: img.height,
+        };
+        that.imageX = img.width;
+        that.imageY = img.height;
+      };
+      img.src = url;
+    },
+    // 实际宽高比需接近图片高/宽（width 对应图片高，length 对应图片宽），偏差超过 20% 拦截
+    validateRealSizeRatio(realwidth, reallength) {
+      var rw = Number(realwidth);
+      var rl = Number(reallength);
+      var pw = Number(this.imageInfo && this.imageInfo.width);
+      var ph = Number(this.imageInfo && this.imageInfo.height);
+      if (!rw || !rl || !pw || !ph) {
+        return true;
+      }
+      var actualRatio = rw / rl;
+      var pixelRatio = ph / pw;
+      var diff = Math.abs(actualRatio - pixelRatio) / pixelRatio;
+      if (diff > 0.2) {
+        this.$message({
+          message: this.$t("mapmanagements.ratioMismatch"),
+          type: "warning",
+          duration: 5000,
+        });
+        return false;
+      }
+      return true;
     },
     // 点击打开地图计算实际宽度
     chooseMapPoint() {

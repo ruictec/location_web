@@ -3724,10 +3724,22 @@ export default {
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  text-align: left;
 }
-.actionDetails :deep(.ivu-timeline) {
+.actionDetails :deep(.el-timeline) {
   width: 23%;
   margin-left: 2%;
+  margin-right: 0;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__wrapper),
+.actionDetails :deep(.el-timeline-item__content) {
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__content) p {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
   text-align: left;
 }
 
@@ -3742,20 +3754,7 @@ export default {
   transform: translateX(4px);
 } */
 
-.trajectory :deep(.el-dialog) {
-  height: 85%;
-  margin-top: 2% !important;
-}
-.trajectory :deep(.el-dialog__header) {
-  height: 4%;
-}
-.trajectory :deep(.el-dialog__headerbtn) {
-  top: 1% !important;
-}
-.trajectory :deep(.el-dialog__body) {
-  height: 96%;
-  padding-top: 10px !important;
-}
+/* 轨迹弹窗高度见 element-plus-compat.css .el-dialog.trajectory */
 .import_type {
   white-space: nowrap;
 }

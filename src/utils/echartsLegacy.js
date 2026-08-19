@@ -24,8 +24,46 @@ const originalInit = echarts.init.bind(echarts)
 const patched = new Proxy(echarts, {
   get(target, prop, receiver) {
     if (prop === 'init') {
-      return function (dom, theme, opts) {
-        return originalInit(dom, theme || 'echarts4legacy', opts)
+      return function (dom, theme, opts = {}) {
+        if (!dom) {
+          return null
+        }
+        const exist = target.getInstanceByDom(dom)
+        if (exist) {
+          if (dom.clientWidth > 0 && dom.clientHeight > 0) {
+            try {
+              exist.resize()
+            } catch (e) {}
+          }
+          return exist
+        }
+        const hasSize = dom.clientWidth > 0 && dom.clientHeight > 0
+        // 容器尚未撑开时，优先使用调用方传入的宽高，不要强行建成 1x1（会导致图表“空白”）
+        const width = hasSize
+          ? opts.width
+          : (opts.width || Math.max(dom.offsetWidth || 0, 360))
+        const height = hasSize
+          ? opts.height
+          : (opts.height || Math.max(dom.offsetHeight || 0, 220))
+        if (!hasSize) {
+          dom.style.minWidth = (typeof width === 'number' ? width : 360) + 'px'
+          dom.style.minHeight = (typeof height === 'number' ? height : 220) + 'px'
+        }
+        const instance = originalInit(dom, theme || 'echarts4legacy', {
+          ...opts,
+          ...(hasSize ? {} : { width, height }),
+        })
+        const resizeWhenReady = () => {
+          try {
+            if (!instance.isDisposed?.() && dom.clientWidth > 0 && dom.clientHeight > 0) {
+              instance.resize()
+            }
+          } catch (e) {}
+        }
+        requestAnimationFrame(resizeWhenReady)
+        setTimeout(resizeWhenReady, 120)
+        setTimeout(resizeWhenReady, 360)
+        return instance
       }
     }
     return Reflect.get(target, prop, receiver)
