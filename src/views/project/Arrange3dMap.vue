@@ -873,6 +873,7 @@ import {
   updateDevOther,
   updateBeacon,
   updateDevOtherTranche,
+  getFenceManageAndPointListByPage,
 } from "../../axios/api";
 
 export default {
@@ -959,6 +960,9 @@ export default {
         },
       ],
       groundid: "", //进入的楼层编号
+      fenceManageList: [],
+      fencePolygonMarkers: [],
+      fenceNameMarkers3d: [],
       selectArrangeData: "", //表格里选中要布置的设备信息
       arrangeData: [], //表格里的设备信息
       showTable: false, //是否显示图表
@@ -1442,6 +1446,7 @@ export default {
         } else if (that.$store.state.intoProjectType == 2) {
           that.getArrangeGatewayPos3D(projectid, that.lastGroupid);
         }
+        that.loadIndoorFences();
       });
       //鼠标左右键点击事件
       this.map3d.on("click", function (event) {
@@ -3829,6 +3834,8 @@ export default {
 
     //关闭3D地图布置的回调
     closeMap3D() {
+      this.clearIndoorFences3d();
+      this.fenceManageList = [];
       this.map3d.dispose();
       this.map3d = null;
     },
@@ -3866,9 +3873,157 @@ export default {
     },
 
     //3D地图布置页面点击返回
+    escapeFenceName(name) {
+      return String(name || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
+    getFencePolygonCenter(points) {
+      if (!points || points.length === 0) {
+        return { x: 0, y: 0 };
+      }
+      var validPoints = points;
+      if (
+        points.length > 1 &&
+        (points[0].x || points[0].pointX) ===
+          (points[points.length - 1].x || points[points.length - 1].pointX) &&
+        (points[0].y || points[0].pointY) ===
+          (points[points.length - 1].y || points[points.length - 1].pointY)
+      ) {
+        validPoints = points.slice(0, -1);
+      }
+      var centerX = 0;
+      var centerY = 0;
+      validPoints.forEach(function (point) {
+        centerX += point.x || point.pointX || 0;
+        centerY += point.y || point.pointY || 0;
+      });
+      return {
+        x: centerX / validPoints.length,
+        y: centerY / validPoints.length,
+      };
+    },
+    clearIndoorFences3d() {
+      this.fencePolygonMarkers.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏标记失败:", e);
+        }
+      });
+      this.fencePolygonMarkers = [];
+      this.fenceNameMarkers3d.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏名称标记失败:", e);
+        }
+      });
+      this.fenceNameMarkers3d = [];
+    },
+    loadIndoorFences() {
+      var that = this;
+      if (!that.groundid || !that.intoProjectid) {
+        return;
+      }
+      getFenceManageAndPointListByPage(
+        {
+          projectid: that.intoProjectid,
+          groundid: that.groundid,
+        },
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.fenceManageList = res.data.list || [];
+          that.renderIndoorFences3d();
+        }
+      });
+    },
+    renderIndoorFences3d() {
+      var that = this;
+      if (!that.map3d) {
+        return;
+      }
+      that.clearIndoorFences3d();
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      try {
+        var level = that.map3d.getLevel();
+        var group = that.map3d.getFloor(level);
+        that.fenceManageList.forEach(function (fence) {
+          if (!fence.list || fence.list.length < 3) {
+            return;
+          }
+          var polygonPoints = fence.list.map(function (point) {
+            return {
+              x: point.pointX || point.x,
+              y: point.pointY || point.y,
+              z: 1,
+            };
+          });
+          polygonPoints.push({
+            x: polygonPoints[0].x,
+            y: polygonPoints[0].y,
+            z: 1,
+          });
+          var polygonMarker = new fengmap.FMPolygonMarker({
+            points: polygonPoints,
+            color: fence.colour || "#FF0000",
+            alpha: 0.3,
+            lineWidth: 2,
+            lineColor: fence.colour || "#FF0000",
+          });
+          polygonMarker.selfAttr = {
+            fenceId: fence.id,
+            fenceName: fence.name,
+            isElectronicFence: true,
+          };
+          polygonMarker.addTo(group);
+          that.fencePolygonMarkers.push(polygonMarker);
+          var fenceName = fence.name || "";
+          if (fenceName) {
+            var center = that.getFencePolygonCenter(polygonPoints);
+            var borderColor = fence.colour || "#FF0000";
+            var nameHtml =
+              '<div style="padding:2px 8px;background:rgba(255,255,255,0.92);border:1px solid ' +
+              borderColor +
+              ';border-radius:4px;color:#333;font-size:12px;line-height:18px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2);">' +
+              that.escapeFenceName(fenceName) +
+              "</div>";
+            var nameMarker = new fengmap.FMDomMarker({
+              x: center.x,
+              y: center.y,
+              height: 2,
+              anchor: fengmap.FMMarkerAnchor.CENTER,
+              collision: false,
+              domWidth: Math.min(220, Math.max(48, fenceName.length * 14 + 20)),
+              domHeight: 28,
+              content: nameHtml,
+            });
+            nameMarker.selfAttr = {
+              fenceId: fence.id,
+              fenceName: fenceName,
+              isNameLabel: true,
+            };
+            nameMarker.addTo(group);
+            that.fenceNameMarkers3d.push(nameMarker);
+          }
+        });
+      } catch (e) {
+        console.error("渲染电子围栏失败:", e);
+      }
+    },
     arrangcancel3D() {
       let that = this;
       let goBack = false;
+      that.clearIndoorFences3d();
+      that.fenceManageList = [];
       let data = {
         groundid: this.groundid,
       };
