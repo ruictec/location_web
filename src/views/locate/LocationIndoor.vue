@@ -670,7 +670,7 @@
     <el-dialog
       v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
-      class="Info_dialog"
+      class="Info_dialog indoor-info-dialog"
       :modal="false"
       :append-to-body="true"
       :destroy-on-close="false"
@@ -827,6 +827,9 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min";
+import "fengmap/build/fengmap.plugin.ui.min";
+import "fengmap/build/fengmap.plugin.markers.min";
+import "fengmap/build/toolBarStyle.css";
 import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import { markRaw } from "vue";
 import host from "../../host";
@@ -4034,106 +4037,123 @@ export default {
       groundList.forEach((item) => {
         newGroundList.push(item.newground);
       });
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
-        level: ground,
-        visibleLevels: that.showAllGround ? newGroundList : [ground],
-        appName: appname,
-        key: mapkey,
-        mapID: that.fmapId,
-        themeID: that.themeId,
-        highlightPicker: ["hover"],
-        floorSpace: 5,
-        zoomRange: [1, 25],
-        buildingOptions: {
-          level: ground,
-          floorSpace: 5,
-        },
-        decoderURL: FENGMAP_DECODER_URL,
-      };
-      this.map3d = markRaw(new fengmap.FMMap(mapOpation));
-      this.map3dReady = false;
-      this.map3d.on("loaded", function () {
-        if (loadToken !== that.map3dLoadToken) {
-          return;
-        }
-        that.map3dReady = true;
-        console.log("地图加载完成");
-        if (that.showAllGround) {
-          let bound = that.map3d.getBound();
-          that.map3d.setFitView(bound);
-        } else {
-          let bound = that.map3d.getFloor(1).getBound();
-          that.map3d.setFitView(bound);
-        }
-        that.loading.close();
-        that.loadScrollFloorCtrl();
-        if (projectid) {
-          that.getData();
-          // 刚进入页面以及刷新的时候会调用接口查询最后一次的位置信息
 
-          if (that.intoProjectType == 1) {
-            //正向项目
-            that.getDevGpsLocation3D(that.groundid, that.map3d.getLevel());
-          } else if (that.intoProjectType == 2) {
-            //反向项目
-            that.getBeaconGpss3D(that.groundid, that.map3d.getLevel());
+      // 等 3D 容器显示后再初始化，避免 WebGL 在隐藏/半宽容器里初始化后黑屏
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
           }
-        }
-
-        // 搜索的时候会调用
-        that.groundListCopy.forEach((item) => {
-          if (item.ground == mapInfo.ground) {
-            mapInfo.newground = item.newground;
+          const container = document.getElementById("fengMap");
+          if (!container) {
+            that.loading.close();
+            return;
           }
-        });
-        if (mapInfo && that.searchLists.perDeveui) {
-          that.addMarker(groundVal, mapInfo);
-        } else if (mapInfo && that.searchLists.assetDeveui) {
-          that.addAsset(groundVal, mapInfo);
-        } else if (mapInfo && that.searchLists.tboxDeveui) {
-          that.addTBox(groundVal, mapInfo);
-        }
-      });
+          container.style.width = "100%";
+          container.style.height = "100%";
+          container.style.margin = "0";
 
-      // 聚焦楼层改变事件
-      this.map3d.on("levelChanged", function (event) {
-        if (that.showAllGround) return;
-        if (that.websockNum != 0) {
-          that.websock.close();
-        }
-        that.layerList.forEach((item) => {
-          item.remove();
-        });
+          var mapOpation = {
+            container: container,
+            level: ground,
+            visibleLevels: that.showAllGround ? newGroundList : [ground],
+            appName: appname,
+            key: mapkey,
+            mapID: that.fmapId,
+            themeID: that.themeId,
+            highlightPicker: ["hover"],
+            floorSpace: 5,
+            zoomRange: [1, 25],
+            buildingOptions: {
+              level: ground,
+              floorSpace: 5,
+            },
+            decoderURL: FENGMAP_DECODER_URL,
+          };
+          that.map3d = markRaw(new fengmap.FMMap(mapOpation));
+          that.map3dReady = false;
+          that.map3d.on("loaded", function () {
+            if (loadToken !== that.map3dLoadToken) {
+              return;
+            }
+            that.map3dReady = true;
+            console.log("地图加载完成");
+            try {
+              if (that.showAllGround) {
+                let bound = that.map3d.getBound();
+                that.map3d.setFitView(bound);
+              } else {
+                const level = that.map3d.getLevel() || ground || 1;
+                let bound = that.map3d.getFloor(level).getBound();
+                that.map3d.setFitView(bound);
+              }
+            } catch (e) {
+              // ignore fit view errors
+            }
+            that.loading.close();
+            that.loadScrollFloorCtrl();
+            if (projectid) {
+              that.getData();
+              if (that.intoProjectType == 1) {
+                that.getDevGpsLocation3D(that.groundid, that.map3d.getLevel());
+              } else if (that.intoProjectType == 2) {
+                that.getBeaconGpss3D(that.groundid, that.map3d.getLevel());
+              }
+            }
 
-        let focusGroupID = that.groundListCopy.find(function (item) {
-          return item.newground == that.map3d.getLevel();
-        });
-        that.groundVals = focusGroupID.ground;
+            that.groundListCopy.forEach((item) => {
+              if (mapInfo && item.ground == mapInfo.ground) {
+                mapInfo.newground = item.newground;
+              }
+            });
+            if (mapInfo && that.searchLists.perDeveui) {
+              that.addMarker(groundVal, mapInfo);
+            } else if (mapInfo && that.searchLists.assetDeveui) {
+              that.addAsset(groundVal, mapInfo);
+            } else if (mapInfo && that.searchLists.tboxDeveui) {
+              that.addTBox(groundVal, mapInfo);
+            }
+          });
 
-        let bound = that.map3d.getFloor(focusGroupID.newground).getBound();
-        that.map3d.setFitView(bound, {
-          animate: true,
-          finish: function () {
-            that.getBuildGroundListsAll(that.groundVals, that.building);
-            that.getData();
-          },
-        });
-      });
+          that.map3d.on("levelChanged", function (event) {
+            if (that.showAllGround) return;
+            if (that.websockNum != 0) {
+              that.websock.close();
+            }
+            that.layerList.forEach((item) => {
+              item.remove();
+            });
 
-      // 鼠标左键单击事件
-      this.map3d.on("click", function (event) {
-        // if (event.nodeType == 31) {
-        //event.nodeType=31表示图片标注
-        if (event.targets[0].type == "64" || event.targets[0].type == "8") {
-          // 64: "TEXT_MARKER",
-          //   8: "IMAGE_MARKER",
-          that.setNewMarker = false;
-          if (event.mouseEvent.button == 0) {
-            //左键点击
-            that.addPopInfoWindowLeft(event.targets[0]);
-          }
-        }
+            let focusGroupID = that.groundListCopy.find(function (item) {
+              return item.newground == that.map3d.getLevel();
+            });
+            if (!focusGroupID) {
+              return;
+            }
+            that.groundVals = focusGroupID.ground;
+
+            let bound = that.map3d.getFloor(focusGroupID.newground).getBound();
+            that.map3d.setFitView(bound, {
+              animate: true,
+              finish: function () {
+                that.getBuildGroundListsAll(that.groundVals, that.building);
+                that.getData();
+              },
+            });
+          });
+
+          that.map3d.on("click", function (event) {
+            if (
+              event.targets[0] &&
+              (event.targets[0].type == "64" || event.targets[0].type == "8")
+            ) {
+              that.setNewMarker = false;
+              if (event.mouseEvent.button == 0) {
+                that.addPopInfoWindowLeft(event.targets[0]);
+              }
+            }
+          });
+        });
       });
     },
 
@@ -4173,6 +4193,7 @@ export default {
             that.worktype = res.data.member.worktype;
             that.username = res.data.member.username;
             that.gpstime = that.formatDate(marker.selfAttr.gpstime);
+            that.battery = marker.selfAttr.battery || "";
             that.imagePer = res.data.member.filename
               ? host.host + "profile/" + res.data.member.filename
               : res.data.member.sex == "1"
@@ -4257,7 +4278,7 @@ export default {
         getTboxOne(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
           (res) => {
             if (res.code == 1001) {
-              that.battery = feature.values_.battery;
+              that.battery = marker.selfAttr.battery || "";
               that.tboxName = res.data.sn;
               that.tboxType = res.data.type;
               that.tboxMaplabel = res.data.maplabel;
@@ -4299,6 +4320,17 @@ export default {
       this.destroyFengmapFloorToolbar();
       this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
+      this.$nextTick(() => {
+        const groups = document.querySelectorAll(
+          "#fengMap .fm-control-groups, .mapConentD .fm-control-groups"
+        );
+        groups.forEach((el) => {
+          el.style.zIndex = "30";
+          el.style.pointerEvents = "auto";
+          el.style.marginLeft = "0";
+          el.style.marginRight = "0";
+        });
+      });
     },
 
     //获取楼层详情
@@ -5260,7 +5292,8 @@ li {
   justify-content: flex-start;
   height: 100%;
   width: 100%;
-  margin-left: 0%;
+  max-width: 100%;
+  margin: 0 !important;
   background-color: #0e2232;
 }
 
@@ -5430,7 +5463,11 @@ a {
   background-color: #f2f2f2;
 }
 .containers {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
 }
 .fullscreen_containers {
   display: flex;
@@ -5438,6 +5475,7 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  margin: 0 !important;
 }
 
 .fullscreen_containers .mapConent .allmap,
@@ -5449,23 +5487,51 @@ a {
 .fengMap {
   position: relative;
   z-index: 1;
+  margin: 0 !important;
 }
 .fullscreen {
   background-color: #fff !important;
 }
 
 .mapConentD {
-  display: flex;
+  display: block;
   height: 100%;
   width: 100%;
-  margin-left: 0%;
+  max-width: 100%;
+  margin: 0 !important;
+  position: relative;
+  background-color: #0e2232;
 }
 
-#fengMap {
-  width: 100%;
-  height: 100%;
-  display: flex;
+#fengMap,
+.mapConentD #fengMap,
+.mapConentD .fengMap {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  /* 与蜂鸟默认一致用 flex，勿改 block，否则 WebGL 易黑屏 */
+  display: flex !important;
+  position: relative !important;
   z-index: 11;
+  margin: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 只清 margin，不改 canvas 的 position/left/top，避免破坏蜂鸟渲染 */
+.mapConentD #fengMap canvas,
+#fengMap canvas {
+  margin: 0 !important;
+}
+
+/* 蜂鸟楼层控件：避免被 canvas / 全局 margin:0 auto 挤掉或盖住 */
+.mapConentD #fengMap .fm-control-groups,
+.mapConentD .fm-control-groups {
+  position: absolute !important;
+  z-index: 30 !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
 }
 .scrollbar {
   max-height: 250px;

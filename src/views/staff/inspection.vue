@@ -103,6 +103,7 @@
                     z-index: 1;
                   "
                   border
+                  max-height="650"
                   highlight-current-row
                 >
                   <!-- <el-table-column type="selection" width="55">
@@ -328,6 +329,7 @@
                       </el-dropdown>
 
                       <el-tooltip
+                        v-if="scope.row.states == 2"
                         class="item"
                         effect="dark"
                         :content="$t('inspection.start')"
@@ -337,13 +339,13 @@
                           type="danger"
                           class="icon_button"
                           @click="onTask(scope.$index, 1)"
-                          v-show="scope.row.states == 2"
                           :disabled="showButton(scope.row)"
                           ><img src="../../../static/start1.png"
                         /></el-button>
                       </el-tooltip>
 
                       <el-tooltip
+                        v-if="scope.row.states != 2"
                         class="item"
                         effect="dark"
                         :content="$t('inspection.stop')"
@@ -354,7 +356,6 @@
                           size="small"
                           class="icon_button"
                           @click="onTask(scope.$index, 2)"
-                          v-show="scope.row.states !== 2"
                           :disabled="showButton(scope.row)"
                           ><img src="../../../static/stop.png"
                         /></el-button>
@@ -501,6 +502,7 @@
               <div class="checkHistory">
                 <el-table
                   ref="multipleTableHis"
+                  class="inspection-history-table"
                   :data="tableDataHis"
                   @selection-change="handleSelectionChangeHis"
                   @row-click="handleRowClick"
@@ -511,6 +513,7 @@
                     z-index: 1;
                   "
                   border
+                  max-height="650"
                   highlight-current-row
                 >
                   <el-table-column type="selection" width="55">
@@ -759,162 +762,156 @@
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            :show-close="false"
+            append-to-body
             @close="closeTaskInfoHis"
-            class="setInspection"
+            @opened="handleSetInspectionDialogOpened"
+            class="arrangeDialog setInspection"
           >
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 0"
-            >
-              <el-button
-                type="primary"
-                round
-                @click="closeTaskInfoHisCancle()"
-                style="width: 90px; height: 30px; text-align: left"
-                size="small"
-               
-                ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
+            <div class="arrange-dialog-inner">
+              <div class="searchArrange">
+                <el-form class="demo-form-inline">
+                  <el-button
+                    type="primary"
+                    round
+                    @click="closeTaskInfoHisCancle()"
+                    style="width: 90px; height: 30px; text-align: left"
+                    size="small"
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
-              <el-form-item
-                :label="$t('inspection.Building')"
-                style="display: flex; margin-left: 2%; margin-right: 0"
-              >
-                <el-select
-                  clearable
-                  filterable
-                  v-model="isactive"
-                  @change="getGroundsHis(isactive)"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in buildingListHis"
-                    :key="item.buildid"
-                    :label="item.building"
-                    :value="item.buildid"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <div v-show="mapTypes" class="mapConent">
-              <div id="allmapHis" ref="map" class="allmap"></div>
-              <div class="selectGround">
-                <div
-                  class="fm-control-groups"
-                  style="
-                    width: 42px;
-                    background-color: white;
-                    box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
-                    border-radius: 2px;
-                  "
-                >
-                  <div style="overflow: hidden" class="fm-layer-list">
-                    <div
-                      v-for="(item, index) in groundListHis"
-                      :key="item"
-                      @click="getBuildGroundLists(item)"
-                      :class="isactiveGround == item ? 'addclass' : ''"
+                  <el-form-item :label="$t('inspection.Building')">
+                    <el-select
+                      clearable
+                      filterable
+                      v-model="isactive"
+                      @change="getGroundsHis(isactive)"
+                      :placeholder="$t('terminal.choose')"
                     >
-                      <label
-                        data-gid="2"
-                        id="gid_24.99322021/3/1/11:04:43"
-                        style="
-                          display: inline-block;
-                          text-align: center;
-                          width: 42px;
-                          height: 42px;
-                          line-height: 42px;
-                          margin: 0px;
-                          cursor: pointer;
-                          font-size: 0.8em;
-                          font-weight: bold;
-                          color: rgb(102, 102, 102);
-                        "
-                      >
-                        <span v-if="item > 0">F{{ item }}</span>
-                        <span v-if="item < 0">B{{ -item }}</span>
-                      </label>
-                      <hr
-                        v-show="
-                          grounds.length > 1 && index !== grounds.length - 1
-                        "
-                        style="
-                          height: 1px;
-                          border-top: 1px solid rgba(153, 153, 153, 0.45);
-                          border-right: none;
-                          border-bottom: none;
-                          border-left: none;
-                          border-image: initial;
-                          width: 60%;
-                          margin: 0px 20%;
-                        "
-                      />
+                      <el-option
+                        v-for="item in buildingListHis"
+                        :key="item.buildid"
+                        :label="item.building"
+                        :value="item.buildid"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="arrange-map-row">
+                <div v-if="mapTypes" class="mapContent inspection-map-content">
+                  <div id="allmapHis" ref="map" class="allmap"></div>
+                  <div class="selectGround">
+                    <div
+                      class="fm-control-groups"
+                      style="
+                        width: 42px;
+                        background-color: white;
+                        box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
+                        border-radius: 2px;
+                      "
+                    >
+                      <div style="overflow: hidden" class="fm-layer-list">
+                        <div
+                          v-for="(item, index) in groundListHis"
+                          :key="item"
+                          @click="getBuildGroundLists(item)"
+                          :class="isactiveGround == item ? 'addclass' : ''"
+                        >
+                          <label
+                            data-gid="2"
+                            id="gid_24.99322021/3/1/11:04:43"
+                            style="
+                              display: inline-block;
+                              text-align: center;
+                              width: 42px;
+                              height: 42px;
+                              line-height: 42px;
+                              margin: 0px;
+                              cursor: pointer;
+                              font-size: 0.8em;
+                              font-weight: bold;
+                              color: rgb(102, 102, 102);
+                            "
+                          >
+                            <span v-if="item > 0">F{{ item }}</span>
+                            <span v-if="item < 0">B{{ -item }}</span>
+                          </label>
+                          <hr
+                            v-show="
+                              groundListHis.length > 1 &&
+                              index !== groundListHis.length - 1
+                            "
+                            style="
+                              height: 1px;
+                              border-top: 1px solid rgba(153, 153, 153, 0.45);
+                              border-right: none;
+                              border-bottom: none;
+                              border-left: none;
+                              border-image: initial;
+                              width: 60%;
+                              margin: 0px 20%;
+                            "
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <div class="groundControl">
+                    <el-button-group>
+                      <el-button
+                        type="primary"
+                        :disabled="lastBuilding"
+                        @click="lastBuildings"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="lastGroup"
+                        @click="lastGroups"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextGroup"
+                        @click="nextGroups"
+                        >{{ $t("inspection.Nextlevel")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextBuilding"
+                        @click="nextBuildings"
+                        >{{ $t("inspection.nextbuilding")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                    </el-button-group>
+                  </div>
                 </div>
-              </div>
-              <div class="groundControl">
-                <el-button-group>
-                  <el-button
-                    type="primary"
-                   
-                    :disabled="lastBuilding"
-                    @click="lastBuildings"
-                    ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
-                  <el-button
-                    type="primary"
-                   
-                    :disabled="lastGroup"
-                    @click="lastGroups"
-                    ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
-                  <el-button
-                    type="primary"
-                    :disabled="nextGroup"
-                    @click="nextGroups"
-                    >{{ $t("inspection.Nextlevel")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-                  <el-button
-                    type="primary"
-                    :disabled="nextBuilding"
-                    @click="nextBuildings"
-                    >{{ $t("inspection.nextbuilding")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-                </el-button-group>
-              </div>
-            </div>
 
-            <div v-show="!mapTypes" class="mapConentD">
-              <div id="fengMapHis">
-                <div class="groundControl3D">
-                  <el-button-group>
-                    <el-button
-                      type="primary"
-                     
-                      :disabled="lastBuilding"
-                      @click="lastBuildings"
-                      style="z-index: 1"
-                      ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
-                    <el-button
-                      type="primary"
-                     
-                      :disabled="lastGroup3D"
-                      @click="lastGroups3D"
-                      style="z-index: 1"
-                      ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
-                    <el-button
-                      type="primary"
-                      :disabled="nextGroup3D"
-                      @click="nextGroups3D"
-                      style="z-index: 1"
-                      >{{ $t("inspection.Nextlevel")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-                    <el-button
-                      type="primary"
-                      :disabled="nextBuilding"
-                      @click="nextBuildings"
-                      style="z-index: 1"
-                      >{{ $t("inspection.nextbuilding")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-                  </el-button-group>
+                <div v-if="!mapTypes" class="mapConentD inspection-map-3d">
+                  <div id="fengMapHis"></div>
+                  <div class="groundControl3D">
+                    <el-button-group>
+                      <el-button
+                        type="primary"
+                        :disabled="lastBuilding"
+                        @click="lastBuildings"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="lastGroup3D"
+                        @click="lastGroups3D"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextGroup3D"
+                        @click="nextGroups3D"
+                        >{{ $t("inspection.Nextlevel")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextBuilding"
+                        @click="nextBuildings"
+                        >{{ $t("inspection.nextbuilding")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                    </el-button-group>
+                  </div>
                 </div>
               </div>
             </div>
@@ -926,111 +923,112 @@
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            :show-close="false"
+            append-to-body
             @close="closeInspection"
-            class="setInspection"
+            @opened="handleSetInspectionDialogOpened"
+            class="arrangeDialog setInspection"
           >
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 0"
-            >
-              <el-button
-                type="primary"
-                round
-                @click="inspectioncancel()"
-                style="width: 90px; height: 30px; text-align: left"
-                size="small"
-               
-                ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
+            <div class="arrange-dialog-inner">
+              <div class="searchArrange">
+                <el-form class="demo-form-inline">
+                  <el-button
+                    type="primary"
+                    round
+                    @click="inspectioncancel()"
+                    style="width: 90px; height: 30px; text-align: left"
+                    size="small"
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
-              <el-form-item
-                :label="$t('inspection.Building')"
-                style="display: flex; margin-left: 2%; margin-right: 0"
-              >
-                <el-select
-                  clearable
-                  filterable
-                  v-model="isactive"
-                  @change="getGrounds(isactive)"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in buildingList"
-                    :key="item.id"
-                    :label="item.building"
-                    :value="item.id"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item style="margin-left: 0">
-                <el-button
-                  type="primary"
-                  @click="updateTaskManagementDetailsTrue()"
-                  class="reset"
-                  >{{ $t("inspection.preservation") }}</el-button>
-              </el-form-item>
-            </el-form>
-            <div v-show="mapTypes" class="mapConent">
-              <div id="allmap" ref="map" class="allmap"></div>
-              <div class="selectGround">
-                <div
-                  class="fm-control-groups"
-                  style="
-                    width: 42px;
-                    background-color: white;
-                    box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
-                    border-radius: 2px;
-                  "
-                >
-                  <div style="overflow: hidden" class="fm-layer-list">
-                    <div
-                      v-for="(item, index) in grounds"
-                      :key="item"
-                      @click="getBuildGroundLists(item)"
-                      :class="isactiveGround == item ? 'addclass' : ''"
+                  <el-form-item :label="$t('inspection.Building')">
+                    <el-select
+                      clearable
+                      filterable
+                      v-model="isactive"
+                      @change="getGrounds(isactive)"
+                      :placeholder="$t('terminal.choose')"
                     >
-                      <label
-                        data-gid="2"
-                        id="gid_24.99322021/3/1/11:04:43"
-                        style="
-                          display: inline-block;
-                          text-align: center;
-                          width: 42px;
-                          height: 42px;
-                          line-height: 42px;
-                          margin: 0px;
-                          cursor: pointer;
-                          font-size: 0.8em;
-                          font-weight: bold;
-                          color: rgb(102, 102, 102);
-                        "
-                      >
-                        <span v-if="item > 0">F{{ item }}</span>
-                        <span v-if="item < 0">B{{ -item }}</span>
-                      </label>
-                      <hr
-                        v-show="
-                          grounds.length > 1 && index !== grounds.length - 1
-                        "
-                        style="
-                          height: 1px;
-                          border-top: 1px solid rgba(153, 153, 153, 0.45);
-                          border-right: none;
-                          border-bottom: none;
-                          border-left: none;
-                          border-image: initial;
-                          width: 60%;
-                          margin: 0px 20%;
-                        "
-                      />
+                      <el-option
+                        v-for="item in buildingList"
+                        :key="item.id"
+                        :label="item.building"
+                        :value="item.id"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button
+                      type="primary"
+                      @click="updateTaskManagementDetailsTrue()"
+                      class="reset"
+                      >{{ $t("inspection.preservation") }}</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="arrange-map-row">
+                <div v-if="mapTypes" class="mapContent inspection-map-content">
+                  <div id="allmap" ref="map" class="allmap"></div>
+                  <div class="selectGround">
+                    <div
+                      class="fm-control-groups"
+                      style="
+                        width: 42px;
+                        background-color: white;
+                        box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
+                        border-radius: 2px;
+                      "
+                    >
+                      <div style="overflow: hidden" class="fm-layer-list">
+                        <div
+                          v-for="(item, index) in grounds"
+                          :key="item"
+                          @click="getBuildGroundLists(item)"
+                          :class="isactiveGround == item ? 'addclass' : ''"
+                        >
+                          <label
+                            data-gid="2"
+                            id="gid_24.99322021/3/1/11:04:43"
+                            style="
+                              display: inline-block;
+                              text-align: center;
+                              width: 42px;
+                              height: 42px;
+                              line-height: 42px;
+                              margin: 0px;
+                              cursor: pointer;
+                              font-size: 0.8em;
+                              font-weight: bold;
+                              color: rgb(102, 102, 102);
+                            "
+                          >
+                            <span v-if="item > 0">F{{ item }}</span>
+                            <span v-if="item < 0">B{{ -item }}</span>
+                          </label>
+                          <hr
+                            v-show="
+                              grounds.length > 1 && index !== grounds.length - 1
+                            "
+                            style="
+                              height: 1px;
+                              border-top: 1px solid rgba(153, 153, 153, 0.45);
+                              border-right: none;
+                              border-bottom: none;
+                              border-left: none;
+                              border-image: initial;
+                              width: 60%;
+                              margin: 0px 20%;
+                            "
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div v-show="!mapTypes" class="mapConentD">
-              <div id="fengMap"></div>
-              <div v-show="!mapTypes" class="mapConentD"></div>
+                <div v-if="!mapTypes" class="mapConentD inspection-map-3d">
+                  <div id="fengMap"></div>
+                </div>
+              </div>
             </div>
           </el-dialog>
 
@@ -1413,7 +1411,12 @@
   </div>
 </template>
 <script>
+import { markRaw } from "vue";
 import { resolveElTab } from '../../utils/elementTab'
+import fengmap from "fengmap/build/fengmap.map.min";
+import "fengmap/build/fengmap.plugin.ui.min";
+import "fengmap/build/fengmap.plugin.markers.min";
+import "fengmap/build/toolBarStyle.css";
 import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
 import host from "../../host";
 import Menu from "../../components/menu/Menu";
@@ -1466,6 +1469,36 @@ import {
   removeTaskManagementDetails,
 } from "../../axios/api";
 import util from "../../common/util";
+
+// Vue3 下 FMCompositeMarker 图片 onload 时 getRenderNode 可能取到无 center 的节点，需与 Arrange3dMap 同样补丁
+function patchFengmapRenderNode(marker) {
+  if (
+    !marker ||
+    marker.__patchedRenderNode ||
+    typeof marker.getRenderNode !== "function"
+  ) {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
+
 export default {
   components: {
     Menu,
@@ -2087,14 +2120,9 @@ export default {
       this.isactive = "";
       this.buildingList = [];
       this.grounds = "";
-      if (this.map) {
-        this.map.setTarget("nnnnnn");
-        this.map = null;
-      }
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap2D(this.mapName);
+      this.disposeMap3D();
+      this.mapTypes = true;
       this.inspectionName = this.tableData[index].name;
       this.inspectionId = this.tableData[index].id;
       if (this.tableData[index].details) {
@@ -2137,6 +2165,59 @@ export default {
       });
     },
 
+    disposeMap2D(targetId) {
+      try {
+        if (this.map) {
+          this.map.setTarget(null);
+          this.map = null;
+        }
+      } catch (e) {
+        this.map = null;
+      }
+      const mapEl = document.getElementById(targetId || this.mapName);
+      if (mapEl) {
+        mapEl.innerHTML = "";
+      }
+    },
+
+    disposeMap3D() {
+      if (this.layerList.length > 0) {
+        this.layerList.forEach((item) => {
+          try {
+            item.remove();
+          } catch (e) {
+            // ignore marker remove errors
+          }
+        });
+        this.layerList = [];
+      }
+      try {
+        if (
+          this.scrollFloorControl &&
+          typeof this.scrollFloorControl.remove === "function"
+        ) {
+          this.scrollFloorControl.remove();
+        }
+      } catch (e) {
+        // ignore toolbar remove errors
+      }
+      this.scrollFloorControl = null;
+      try {
+        if (this.map3d && typeof this.map3d.dispose === "function") {
+          this.map3d.dispose();
+        }
+      } catch (e) {
+        // ignore map dispose errors
+      }
+      this.map3d = null;
+      ["fengMap", "fengMapHis"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerHTML = "";
+        }
+      });
+    },
+
     //获取楼栋号的下拉框
     getBuildings(buildingId, ground) {
       var that = this;
@@ -2160,11 +2241,16 @@ export default {
               return item.id == buildingId;
             });
             if (found.buildtype == 1) {
+              that.disposeMap3D();
               that.mapTypes = true;
               that.getGroundLists(buildingId, ground);
             } else if (found.buildtype == 2) {
+              that.disposeMap2D(that.mapName);
+              that.grounds = [];
               that.mapTypes = false;
-              that.getGroundLists3D(buildingId, ground);
+              that.$nextTick(() => {
+                that.getGroundLists3D(buildingId, ground);
+              });
             }
           }
         }
@@ -2178,15 +2264,17 @@ export default {
         return item.id == val;
       });
       if (found.buildtype == 1) {
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.disposeMap3D();
         this.mapTypes = true;
         this.getGroundLists(val);
       } else if (found.buildtype == 2) {
+        that.disposeMap2D(that.mapName);
+        this.grounds = [];
+        this.featureArrs = [];
         this.mapTypes = false;
-        that.getGroundLists3D(val);
+        this.$nextTick(() => {
+          that.getGroundLists3D(val);
+        });
       }
     },
 
@@ -2245,14 +2333,11 @@ export default {
         if (that.groundListHis.length == 1) {
           that.lastGroup = true;
           that.nextGroup = true;
-        } else if (that.groundListHis.length > 1) {
+        } else         if (that.groundListHis.length > 1) {
           that.lastGroup = true;
           that.nextGroup = false;
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.disposeMap3D();
         this.mapTypes = true;
         this.getBuildGroundLists(
           this.groundListHis[this.groundListHis.length - 1]
@@ -2265,8 +2350,11 @@ export default {
           that.lastGroup3D = true;
           that.nextGroup3D = false;
         }
+        that.disposeMap2D(that.mapNameHis);
         this.mapTypes = false;
-        that.getGroundLists3D(val, arrData[0].ground);
+        this.$nextTick(() => {
+          that.getGroundLists3D(val, arrData[0].ground);
+        });
       }
     },
     // 巡检历史页面，上一栋
@@ -2325,6 +2413,7 @@ export default {
     getGroundLists(val, ground) {
       var that = this;
       this.featureArrs = [];
+      this.disposeMap3D();
       this.isactive = val;
       let data = {
         buildid: val,
@@ -2353,10 +2442,8 @@ export default {
       that.groundListCopy = [];
       this.isactive = build;
       this.building = build;
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap3D();
+      this.disposeMap2D(this.taskHis ? this.mapNameHis : this.mapName);
 
       let data = {
         buildid: build,
@@ -2374,7 +2461,7 @@ export default {
             }
             that.fmapId = res.data[0].filename;
             that.themeId = res.data[0].filetype;
-            setTimeout(() => {
+            that.$nextTick(() => {
               let gound;
               if (ground) {
                 let focusGroupID = that.groundListCopy.find(function (item) {
@@ -2397,7 +2484,7 @@ export default {
                   res.data[0].mapkey
                 );
               }
-            }, 1);
+            });
           }
         }
       );
@@ -2414,8 +2501,13 @@ export default {
         return false;
       };
       var that = this;
+      const container = document.getElementById("fengMap");
+      if (!container) {
+        return;
+      }
+      this.disposeMap3D();
       var mapOpation = {
-        container: document.getElementById("fengMap"),
+        container: container,
         level: ground,
         visibleLevels: [ground],
         appName: appname,
@@ -2429,7 +2521,7 @@ export default {
         // themeURL: "/data/theme/",
       };
 
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
         console.log("地图加载完成");
         that.loadScrollFloorCtrl();
@@ -2515,8 +2607,13 @@ export default {
         return false;
       };
       var that = this;
+      const container = document.getElementById("fengMapHis");
+      if (!container) {
+        return;
+      }
+      this.disposeMap3D();
       var mapOpation = {
-        container: document.getElementById("fengMapHis"),
+        container: container,
         level: ground, //默认聚焦楼层
         visibleLevels: [ground], //初始显示楼层ID数组
         appName: appname,
@@ -2529,7 +2626,7 @@ export default {
         // themeURL: "/data/theme/",
       };
 
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
         console.log("地图加载完成");
         let focusGroupID = that.groundListCopy.find(function (item) {
@@ -2642,7 +2739,9 @@ export default {
           y: 20,
         },
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.scrollFloorControl = keepFengmapRaw(
+        new fengmap.FMToolbar(scrollFloorCtlOpt)
+      );
       this.scrollFloorControl.addTo(this.map3d);
     },
 
@@ -2767,7 +2866,7 @@ export default {
       }
       if (this.intoProjectType == 1) {
         if (mapinfo.inspection) {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2798,9 +2897,9 @@ export default {
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
             height: 2,
-          });
+          }));
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2831,11 +2930,11 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       } else if (this.intoProjectType == 2) {
         if (mapinfo.inspection) {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2866,9 +2965,9 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2899,13 +2998,19 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       }
 
       this.layer.selfAttr = info;
+      if (!this.map3d || !this.layer) {
+        return;
+      }
       var level = this.map3d.getLevel();
       var group = this.map3d.getFloor(level);
+      if (!group) {
+        return;
+      }
       this.layer.addTo(group);
       this.layerList.push(this.layer);
     },
@@ -2960,7 +3065,7 @@ export default {
                 icon = item;
               }
             });
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3000,9 +3105,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3033,10 +3138,10 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -3067,12 +3172,12 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       } else if (this.intoProjectType == 2) {
         if (mapinfo.inspection) {
           if (that.inspectionInfodetails.includes(info.beaconid)) {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3103,9 +3208,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3136,10 +3241,10 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -3170,13 +3275,19 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       }
 
       this.layer.selfAttr = info;
+      if (!this.map3d || !this.layer) {
+        return;
+      }
       var level = this.map3d.getLevel();
       var group = this.map3d.getFloor(level);
+      if (!group) {
+        return;
+      }
       this.layer.addTo(group);
       this.layerList.push(this.layer);
     },
@@ -3263,10 +3374,7 @@ export default {
     },
 
     mapInit(x, y) {
-      if (this.map) {
-        this.map.setTarget("masssss");
-        this.map = null;
-      }
+      this.disposeMap2D(this.mapName);
       var that = this;
       var extent = [0, 0, x, y];
       var projection = new Projection({
@@ -3289,8 +3397,12 @@ export default {
         xx = x;
         yy = y;
       }
-      this.$refs.map.style.width = "100%";
-      this.$refs.map.style.height = "100%";
+      const mapEl = document.getElementById(this.mapName);
+      if (!mapEl) {
+        return;
+      }
+      mapEl.style.width = "100%";
+      mapEl.style.height = "100%";
       this.map = new Map({
         layers: [
           new ImageLayer({
@@ -3310,13 +3422,11 @@ export default {
         }),
       });
       this.mapClick();
+      this.refreshInspectionMapSize();
       // }, 0);
     },
     mapInitHis(x, y) {
-      if (this.map) {
-        this.map.setTarget("masssss");
-        this.map = null;
-      }
+      this.disposeMap2D(this.mapNameHis);
       var that = this;
       var extent = [0, 0, x, y];
       var projection = new Projection({
@@ -3338,8 +3448,12 @@ export default {
         xx = x;
         yy = y;
       }
-      this.$refs.map.style.width = "100%";
-      this.$refs.map.style.height = "100%";
+      const mapEl = document.getElementById(this.mapNameHis);
+      if (!mapEl) {
+        return;
+      }
+      mapEl.style.width = "100%";
+      mapEl.style.height = "100%";
       this.map = new Map({
         layers: [
           new ImageLayer({
@@ -3358,6 +3472,7 @@ export default {
           maxZoom: 6,
         }),
       });
+      this.refreshInspectionMapSize();
     },
 
     //反向项目获取地图上已布置的设备
@@ -3917,14 +4032,30 @@ export default {
       this.setInspectionMap = false;
     },
 
+    handleSetInspectionDialogOpened() {
+      this.refreshInspectionMapSize();
+    },
+
+    refreshInspectionMapSize() {
+      this.$nextTick(() => {
+        if (this.map) {
+          this.map.updateSize();
+        }
+        setTimeout(() => {
+          if (this.map) {
+            this.map.updateSize();
+          }
+        }, 350);
+      });
+    },
+
     //关闭设置巡检详情关闭回调
     closeInspection() {
       this.showInspection = false;
       this.getTaskManagementLists();
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap2D(this.mapName);
+      this.disposeMap2D(this.mapNameHis);
+      this.disposeMap3D();
     },
     //是否禁用启动、终止按钮
     showButton(row) {
@@ -4827,14 +4958,10 @@ export default {
           this.buildingListHis = [];
 
           this.grounds = "";
-          if (this.map) {
-            this.map.setTarget("nnnnnn");
-            this.map = null;
-          }
-          if (this.map3d) {
-            this.map3d.dispose();
-            this.map3d = null;
-          }
+          this.disposeMap2D(this.mapName);
+          this.disposeMap2D(this.mapNameHis);
+          this.disposeMap3D();
+          this.mapTypes = true;
           this.inspectionName = this.currentRowHis.name;
           this.inspectionId = this.currentRowHis.id;
           if (this.currentRowHis.details) {
@@ -4975,16 +5102,16 @@ export default {
     },
 
     //关闭巡检历史页面巡检详情关闭回调
+    closeTaskInfoHisCancle() {
+      this.taskHisInfo = false;
+    },
+
     closeTaskInfoHis() {
       this.taskHisInfo = false;
       this.getTaskInfoLists();
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
-    },
-    closeTaskInfoHisCancle() {
-      this.taskHisInfo = false;
+      this.disposeMap2D(this.mapNameHis);
+      this.disposeMap3D();
+      this.mapTypes = true;
     },
 
     getMemberNameIds() {
@@ -5161,6 +5288,12 @@ export default {
 .el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
+.inspection-history-table :deep(.el-table__row td) {
+  padding: 8px 0 !important;
+}
+.inspection-history-table :deep(.el-table__header th) {
+  padding: 10px 0 !important;
+}
 .el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
@@ -5312,20 +5445,6 @@ export default {
   margin-left: 0;
   margin-right: 0;
   cursor: pointer;
-}
-.setInspection {
-  background-color: #f1f5f7 !important;
-}
-.setInspection :deep(.el-dialog) {
-  background-color: #f1f5f7 !important;
-}
-
-.setInspection :deep(.el-dialog__header) {
-  display: none;
-}
-.setInspection :deep(.el-dialog__body) {
-  width: 100%;
-  height: 100%;
 }
 #floors {
   position: absolute;
