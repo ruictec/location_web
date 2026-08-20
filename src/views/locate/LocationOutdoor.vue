@@ -95,8 +95,9 @@
       v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
       @close="clearInfo()"
-      class="Info_dialog"
+      class="Info_dialog outdoor-info-dialog"
       :modal="false"
+      append-to-body
     >
       <!-- 左键显示内容的 -->
       <div id="popup" class="ol-popup">

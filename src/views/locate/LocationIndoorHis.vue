@@ -1,20 +1,15 @@
 <template>
-  <div class="content">
+  <div class="indoor-his-page">
     <div class="project_input">
       <el-form
-        class="demo-form-inline"
+        class="demo-form-inline indoor-his-search"
         :model="searchList"
-        style="display: flex; white-space: nowrap; margin-left: 1%"
       >
-        <el-form-item
-          :label="$t('inspection.Building')"
-          style="display: flex; margin-left: 2%; margin-right: 0"
-        >
+        <el-form-item :label="$t('inspection.Building')">
           <el-select
             clearable
             filterable
             v-model="searchList.buildid"
-            style="float: left"
             @change="getGroundLists"
             :placeholder="$t('LocationIndoorHis.text1')"
           >
@@ -26,15 +21,11 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item
-          :label="$t('LocationIndoorHis.floor')"
-          style="display: flex; margin-left: 2%; margin-right: 0"
-        >
+        <el-form-item :label="$t('LocationIndoorHis.floor')">
           <el-select
             clearable
             filterable
             v-model="searchList.groundid"
-            style="width: 80%; float: left"
             :placeholder="$t('LocationIndoorHis.text1')"
           >
             <el-option
@@ -47,39 +38,33 @@
         </el-form-item>
         <el-form-item
           :label="$t('LocationIndoorHis.time')"
-          style="display: flex; margin-left: 0%; margin-right: 0"
+          class="time-form-item"
         >
-          <el-date-picker
-            v-model="tasktime"
-            type="datetimerange"
-            :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
-            :range-separator="$t('LocationIndoorHis.to')"
-            :start-placeholder="$t('LocationIndoorHis.starttime')"
-            :end-placeholder="$t('LocationIndoorHis.endtime')"
-            style="width: 85%; margin-left: -15%"
-          ></el-date-picker>
-          <el-tooltip
-            class="item"
-            effect="light"
-            placement="right-start"
-            style="
-              position: absolute;
-              font-size: 130%;
-              top: 50%;
-              transform: translateY(-50%);
-              margin-left: 5px;
-            "
-          >
-            <template #content><div>
-              <p>
-                {{ $t("LocationIndoorHis.text3") }} <br />
-                {{ $t("LocationIndoorHis.text4") }}
-              </p>
-            </div></template>
-            <i class="el-icon-question" />
-          </el-tooltip>
+          <div class="time-field-group">
+            <el-date-picker
+              v-model="tasktime"
+              type="datetimerange"
+              :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
+              :range-separator="$t('LocationIndoorHis.to')"
+              :start-placeholder="$t('LocationIndoorHis.starttime')"
+              :end-placeholder="$t('LocationIndoorHis.endtime')"
+            ></el-date-picker>
+            <el-tooltip
+              class="time-tip"
+              effect="light"
+              placement="right-start"
+            >
+              <template #content><div>
+                <p>
+                  {{ $t("LocationIndoorHis.text3") }} <br />
+                  {{ $t("LocationIndoorHis.text4") }}
+                </p>
+              </div></template>
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </div>
         </el-form-item>
-        <el-form-item style="margin-left: 0%">
+        <el-form-item>
           <el-button type="primary" class="querry" @click="searchInfo()">{{
             $t("terminal.search")
           }}</el-button>
@@ -91,11 +76,10 @@
     </div>
 
     <!-- 展示 -->
-    <div>
+    <div class="content_project">
       <el-table
         class="tableData"
         :data="tableData"
-        style="width: 97%; text-align: center"
         border
         max-height="660"
         highlight-current-row
@@ -146,10 +130,7 @@
         >
         </el-table-column>
       </el-table>
-      <div
-        class="block"
-        style="text-align: center; width: 100%; margin-top: 1%"
-      >
+      <div class="block pagination-wrap">
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -544,6 +525,78 @@ export default {
 };
 </script>
 <style scoped>
+.indoor-his-page {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 20px 2% 0;
+}
+
+.project_input {
+  margin-bottom: 12px;
+}
+
+.content_project {
+  overflow-x: hidden;
+}
+
+.indoor-his-page :deep(.indoor-his-search > .el-form-item) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.indoor-his-page :deep(.indoor-his-search .el-form-item__content) {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.indoor-his-page :deep(.indoor-his-search .el-date-editor) {
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+}
+
+.time-field-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.time-field-group :deep(.el-date-editor) {
+  width: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.time-field-group :deep(.el-icon-question) {
+  position: static !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.time-form-item :deep(.time-tip) {
+  position: static !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  font-size: 130%;
+  line-height: 1;
+  cursor: help;
+}
+
+.tableData {
+  width: 100% !important;
+  text-align: center;
+}
+
+.pagination-wrap {
+  text-align: center;
+  width: 100%;
+  margin-top: 1%;
+}
+
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);

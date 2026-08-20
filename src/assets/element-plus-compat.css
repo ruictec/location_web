@@ -181,6 +181,38 @@ body .el-table th,
   right: 0 !important;
 }
 
+/* 室内定位 3D：抵消 * { margin:0 auto }，避免地图只占右半屏；勿强改 canvas 定位以免 WebGL 黑屏 */
+.containers .mapConent,
+.containers .mapConentD,
+.containers #fengMap,
+.containers .fengMap,
+.mapConentD #fengMap,
+.mapConentD .fengMap,
+.mapConentD #fengMap canvas,
+#fengMap canvas {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.containers .mapConent,
+.containers .mapConentD {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.containers .mapConentD {
+  display: block !important;
+}
+
+.mapConentD #fengMap,
+.mapConentD .fengMap {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  position: relative !important;
+}
+
 .mapConent .statistics > *,
 .mapConentD .statistics.statistics3d > * {
   margin-left: 0 !important;
@@ -204,29 +236,54 @@ body .el-table th,
   margin-right: 0 !important;
 }
 
-/* 室内定位 - 地图标记详情弹框（append-to-body，需全局样式） */
-.el-dialog.Info_dialog {
+/* 室内定位详情弹框（深色半透明，对齐 Vue2） */
+.el-dialog.Info_dialog.indoor-info-dialog {
   border-radius: 20px !important;
   background: rgba(0, 0, 0, 0.5) !important;
   --el-dialog-bg-color: rgba(0, 0, 0, 0.5);
   box-shadow: none;
 }
 
-.el-dialog.Info_dialog .el-dialog__body {
+.el-dialog.Info_dialog.indoor-info-dialog .el-dialog__body {
   color: #fff !important;
   padding: 10px 16px 16px !important;
 }
 
-.el-dialog.Info_dialog .el-dialog__header {
+.el-dialog.Info_dialog.indoor-info-dialog .el-dialog__header {
   padding: 8px 12px 0 !important;
   margin-right: 0 !important;
 }
 
-.el-dialog.Info_dialog .el-divider--horizontal {
+.el-dialog.Info_dialog.indoor-info-dialog .el-divider--horizontal {
   border-top-color: rgba(255, 255, 255, 0.25);
 }
 
-.el-dialog.Info_dialog .goDev a {
+.el-dialog.Info_dialog.indoor-info-dialog .goDev a {
+  color: #409eff;
+}
+
+/* 室外定位详情弹框（白底，对齐 Vue2） */
+.el-dialog.Info_dialog.outdoor-info-dialog {
+  border-radius: 20px !important;
+  overflow: hidden;
+  background: #fff !important;
+  --el-dialog-bg-color: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .el-dialog__body {
+  color: #303133 !important;
+  background: #fff !important;
+  border-radius: 20px;
+  padding: 10px 16px 16px !important;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .el-dialog__header {
+  padding: 8px 12px 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .goDev a {
   color: #409eff;
 }
 
@@ -848,6 +905,143 @@ body .el-table th,
   display: block !important;
 }
 
+/* 巡检管理：设置路线 / 巡检详情全屏弹窗（对齐 Vue2 arrangeDialog 布局） */
+.el-dialog.arrangeDialog.setInspection .inspection-map-content,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .allmap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content #allmap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content #allmapHis,
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d,
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d #fengMap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d #fengMapHis,
+.el-dialog.arrangeDialog.setInspection .mapConent,
+.el-dialog.arrangeDialog.setInspection .mapConentD {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .arrange-map-row {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  display: flex !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-content {
+  display: flex !important;
+  flex: none !important;
+  align-self: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 80% !important;
+  max-width: 80% !important;
+  height: 80% !important;
+  margin: 2% 0 0 10% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  overflow: visible !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .allmap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content #allmap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content #allmapHis {
+  display: flex !important;
+  flex: 1 1 0% !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
+  max-width: none !important;
+  height: 100% !important;
+  margin: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .selectGround {
+  flex: 0 0 auto !important;
+  margin: 0 0 0 20px !important;
+  align-self: flex-start !important;
+  position: relative !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .selectGround > *,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .selectGround label,
+.el-dialog.arrangeDialog.setInspection .inspection-map-content .selectGround .fm-layer-list > div {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d,
+.el-dialog.arrangeDialog.setInspection .mapConent,
+.el-dialog.arrangeDialog.setInspection .mapConentD {
+  flex: none !important;
+  align-self: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 80% !important;
+  max-width: 80% !important;
+  height: 80% !important;
+  margin: 2% 0 0 10% !important;
+  padding: 0 !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  display: flex !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d #fengMap,
+.el-dialog.arrangeDialog.setInspection .inspection-map-3d #fengMapHis,
+.el-dialog.arrangeDialog.setInspection #fengMap,
+.el-dialog.arrangeDialog.setInspection #fengMapHis {
+  flex: 1 1 0 !important;
+  align-self: stretch !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  margin: 0 !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .groundControl {
+  position: absolute !important;
+  right: 5% !important;
+  bottom: 2% !important;
+  margin: 0 !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .groundControl3D {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+.el-dialog.arrangeDialog.setInspection .allmap .ol-viewport,
+.el-dialog.arrangeDialog.setInspection .allmap .ol-overlaycontainer,
+.el-dialog.arrangeDialog.setInspection .allmap .ol-overlaycontainer-stopevent {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
 /* 3D 布置弹窗：去掉动画 transform，避免 WebGL canvas 被初始化成 0x0 */
 .arrange-3d-overlay,
 .arrange-3d-overlay.dialog-fade-enter-active,
@@ -1010,29 +1204,51 @@ body .el-table th,
   flex-wrap: nowrap;
   align-items: center;
   white-space: nowrap;
+  justify-content: flex-start !important;
+  gap: 10px;
 }
 
 .demo-form-inline > .el-form-item {
   width: auto !important;
-  flex: 0 0 auto;
+  flex: 0 0 auto !important;
   float: none !important;
-  margin-bottom: 12px;
+  margin: 0 0 12px 0 !important;
 }
 
 .demo-form-inline > .el-form-item .el-form-item__content {
-  flex: 0 1 auto;
+  flex: 0 0 auto !important;
   width: auto;
+  margin: 0 !important;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-select,
+.demo-form-inline .el-form-item .el-form-item__content > .el-input,
+.demo-form-inline .el-form-item .el-form-item__content > .el-date-editor {
+  width: auto;
+  max-width: none;
+  flex: none;
+  display: inline-flex;
 }
 
 .demo-form-inline .el-form-item .el-form-item__content > .el-select,
 .demo-form-inline .el-form-item .el-form-item__content > .el-input {
-  width: auto;
   min-width: 140px;
-  flex: none;
 }
 
 .demo-form-inline .el-form-item .el-form-item__content .el-select__wrapper {
   min-width: 140px;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-tooltip {
+  flex: 0 0 auto;
+  position: static;
+}
+
+.demo-form-inline .el-form-item .el-form-item__content > .el-tooltip .el-icon-question {
+  position: static !important;
+  left: auto !important;
+  transform: none !important;
+  margin-left: 0 !important;
 }
 
 .demo-form-inline .el-form-item .el-form-item__content {
