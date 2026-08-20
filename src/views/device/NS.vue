@@ -268,16 +268,15 @@
                   :placeholder="$t('ns.addnsrules31')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('usercenter.usermail1')" prop="">
+              <el-form-item :label="$t('usercenter.usermail1')" prop="emails">
                 <el-input
                   v-model="addData.emails"
                   :placeholder="$t('register.enterEmail')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.cert')" prop="">
+              <el-form-item :label="$t('ns.cert')" prop="cert">
                 <el-select
                   v-model="addData.cert"
-                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -365,16 +364,15 @@
                   :placeholder="$t('ns.addnsrules31')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('usercenter.usermail1')" prop="">
+              <el-form-item :label="$t('usercenter.usermail1')" prop="emails">
                 <el-input
                   v-model="editData.emails"
                   :placeholder="$t('register.enterEmail')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.cert')" prop="">
+              <el-form-item :label="$t('ns.cert')" prop="cert">
                 <el-select
                   v-model="editData.cert"
-                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -427,6 +425,19 @@ export default {
   },
   name: "NS",
   data() {
+    var isEmail = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error(this.$t("tips.emails")));
+        return;
+      }
+      const reg =
+        /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+      if (!reg.test(value)) {
+        callback(new Error(this.$t("tips.email")));
+      } else {
+        callback();
+      }
+    };
     return {
       i8n: this.$store.state.i18n,
       contrForPrionum: this.$store.state.userInfo.prionum,
@@ -516,6 +527,20 @@ export default {
             required: true,
             message: this.$t("ns.text3"),
             trigger: "blur",
+          },
+        ],
+        emails: [
+          {
+            required: true,
+            validator: isEmail,
+            trigger: "blur",
+          },
+        ],
+        cert: [
+          {
+            required: true,
+            message: this.$t("warning.text3"),
+            trigger: "change",
           },
         ],
       },
