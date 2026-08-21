@@ -73,13 +73,8 @@ Create a `.env.local` file in the project root:
 VUE_APP_API_BASE=http://localhost:14001/v1
 VUE_APP_WS_BASE=ws://localhost:14001/websocket
 
-# Static resource addresses (role images, etc.)
-VUE_APP_ASSET_BASE=http://localhost:8079
-
-# Document addresses (Navbar.vue online documentation and FAQ)
+# Document / help addresses
 VUE_APP_DOC_BASE=http://localhost:8078
-
-# Help documentation addresses (Menu.vue help documentation)
 VUE_APP_HELP_BASE=http://localhost:8079
 
 # Map tile addresses
@@ -114,10 +109,9 @@ Modify the addresses in `config/prod.env.js` or set server environment variables
 | **Backend Service Addresses** | | |
 | `VUE_APP_API_BASE` | `http://localhost:14001/v1` | Backend API base address for API calls, file uploads, etc. (corresponds to host.host) |
 | `VUE_APP_WS_BASE` | `ws://localhost:14001/websocket` | WebSocket base address for real-time communication (corresponds to host.ws) |
-| **Static Resource Addresses** | | |
-| `VUE_APP_ASSET_BASE` | `http://localhost:8079` | Static resource/image base address for role images, etc. (e.g., role images in StaffManagement.vue) |
+| **Document Addresses** | | |
 | `VUE_APP_DOC_BASE` | `http://localhost:8078` | Document/FAQ base address for Navbar.vue online documentation and FAQ |
-| `VUE_APP_HELP_BASE` | `http://localhost:8079` | Help documentation base address for Menu.vue help documentation |
+| `VUE_APP_HELP_BASE` | `http://localhost:8079` | Help documentation base address for Menu.vue help documentation and project guide links |
 | **Map Service Addresses** | | |
 | `VUE_APP_TILE_URL_TEMPLATE` | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | OSM tile URL template for OpenLayers map tile display |
 | `VUE_APP_FENGMAP_IMG_BASE` | `https://developer.fengmap.com/fmAPI/images` | Fengmap example image base address for Fengmap-related image resources |

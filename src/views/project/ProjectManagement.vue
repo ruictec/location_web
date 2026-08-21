@@ -521,7 +521,7 @@
                     <p>
                       {{ $t("project.tet5") }}
                       <a
-                        :href="assetBase + '/guide/dataforward.html'"
+                        :href="helpBase + '/guide/dataforward.html'"
                         target="_blank"
                         >{{ $t("project.tet6") }}</a
                       >
@@ -1362,7 +1362,7 @@ import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 import host from "../../host";
-import { MQTT_BROKER_URL } from "../../config/index.js";
+import { MQTT_BROKER_URL, HELP_BASE } from "../../config/index.js";
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -1421,6 +1421,7 @@ export default {
     return {
       i8n: this.$store.state.i18n,
       mqttBrokerUrl: MQTT_BROKER_URL,
+      helpBase: HELP_BASE,
       outdoorBaseLayers: [],
       projectName: "",
       groundNum: "",

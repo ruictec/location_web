@@ -1058,11 +1058,7 @@
                 >
                 <el-image
                   style="width: 32px; height: 32px; cursor: pointer"
-                  :src="
-                    assetBase + '/image/' +
-                    item.colour +
-                    '.png'
-                  "
+                  :src="'../../../static/' + item.colour + '.png'"
                   fit="fill"
                   @click.native="changeIcon(item)"
                 ></el-image>
@@ -1276,7 +1272,6 @@ import Menu from "../../components/menu/Menu";
 import Asset from "../../components/asset/asset";
 import host from "../../host";
 import util from "../../common/util";
-import { ASSET_BASE } from "../../config/index.js";
 import {
   getMemberList,
   getMemberName,
@@ -1318,7 +1313,6 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      assetBase: ASSET_BASE,
       //时间选择限制
       pickerOptions: {
         shortcuts: [

@@ -19,7 +19,6 @@ function pickConfig(key, fallback) {
 
 export const API_BASE = process.env.VUE_APP_API_BASE
 export const WS_BASE = process.env.VUE_APP_WS_BASE
-export const ASSET_BASE = process.env.VUE_APP_ASSET_BASE
 export const DOC_BASE = process.env.VUE_APP_DOC_BASE
 export const HELP_BASE = process.env.VUE_APP_HELP_BASE
 export const MAP_PROVIDER = pickConfig('VUE_APP_MAP_PROVIDER', 'osm')

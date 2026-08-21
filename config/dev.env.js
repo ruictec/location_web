@@ -18,7 +18,6 @@ module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
   VUE_APP_API_BASE: defineEnv('VUE_APP_API_BASE'),
   VUE_APP_WS_BASE: defineEnv('VUE_APP_WS_BASE'),
-  VUE_APP_ASSET_BASE: defineEnv('VUE_APP_ASSET_BASE'),
   VUE_APP_DOC_BASE: defineEnv('VUE_APP_DOC_BASE'),
   VUE_APP_HELP_BASE: defineEnv('VUE_APP_HELP_BASE'),
   VUE_APP_MAP_PROVIDER: defineEnv('VUE_APP_MAP_PROVIDER'),

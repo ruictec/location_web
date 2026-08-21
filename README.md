@@ -96,7 +96,6 @@ VUE_APP_API_BASE=http://localhost:14001/v1
 VUE_APP_WS_BASE=ws://localhost:14001/websocket
 
 # 静态资源与文档
-VUE_APP_ASSET_BASE=http://localhost:8079
 VUE_APP_DOC_BASE=http://localhost:8078
 VUE_APP_HELP_BASE=http://localhost:8079
 

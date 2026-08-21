@@ -863,6 +863,7 @@ import {
   getCountNum,
   getWarnNumList,
 } from "../../axios/api";
+import { worktypeIconUrl } from "../../utils/worktypeIcon";
 
 // 布置相关
 import "ol/ol.css";
@@ -2393,7 +2394,7 @@ export default {
             anchor: [0.5, 1],
             // 说明：图片地址改为从环境变量读取基础地址，默认使用你当前线上地址，便于本地调试
             src: info.colour
-              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
+              ? worktypeIconUrl(info.colour)
               : "../../../static/user1.png",
             scale: 1,
           }),
@@ -3124,7 +3125,7 @@ export default {
           src = "../../../static/user1down.png";
         } else if (info.colour) {
           // 说明：图片地址改为从环境变量读取基础地址
-          src = `${process.env.VUE_APP_ASSET_BASE}/image/${info.colour}.png`;
+          src = worktypeIconUrl(info.colour);
         } else {
           src = "../../../static/user1.png";
         }
@@ -3408,7 +3409,7 @@ export default {
             anchor: [0.5, 1],
             // 说明：图片地址改为从环境变量读取基础地址
             src: info.colour
-              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
+              ? worktypeIconUrl(info.colour)
               : "../../../static/user1.png",
             scale: 1,
           }),

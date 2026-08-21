@@ -694,6 +694,7 @@ import Feature from "ol/Feature";
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
+import { rankIconUrl } from "../../utils/worktypeIcon";
 
 export default {
   mixins: [mapStyleMixin],
@@ -1087,21 +1088,16 @@ export default {
       for (let i = 0; i < that.rankingData.length; i++) {
         switch (i) {
           case 0:
-            // 说明：示例图片地址改为从环境变量读取基础地址
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/1.png";
+            that.rankingData[i].picurl = rankIconUrl("1.png");
             break;
           case 1:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/2.png";
+            that.rankingData[i].picurl = rankIconUrl("2.png");
             break;
           case 2:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/3.png";
+            that.rankingData[i].picurl = rankIconUrl("3.png");
             break;
           default:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/badge.svg";
+            that.rankingData[i].picurl = rankIconUrl("badge.svg");
             break;
         }
       }
