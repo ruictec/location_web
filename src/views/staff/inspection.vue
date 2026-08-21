@@ -10,16 +10,14 @@
           <el-tabs v-model="activeName" @tab-click="changeTab">
             <!-- 巡检任务 -->
             <el-tab-pane :label="$t('inspection.Inspectiontasks')" name="first">
-              <div class="checkwork_input">
+              <div class="checkwork_input terminal-filter-flow" :class="filterLangClass">
                 <el-form
-                  class="demo-form-inline"
-                  style="display: flex; white-space: nowrap"
+                  class="demo-form-inline terminal-filter-form"
                   :model="searchList"
                 >
                   <el-form-item
                     :label="$t('inspection.state')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
-                  >
+                   class="terminal-filter-item">
                     <el-select
                       v-model="searchList.states"
                       :placeholder="$t('inspection.title')"
@@ -37,8 +35,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.time')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
-                  >
+                   class="terminal-filter-item">
                     <el-date-picker
                       v-model="tasktime"
                       type="datetimerange"
@@ -48,7 +45,7 @@
                       :end-placeholder="$t('checkwork.endtime')"
                     ></el-date-picker>
                   </el-form-item>
-                  <el-form-item style="margin-left: 1%">
+                  <el-form-item class="terminal-toolbar-item">
                     <el-button
                       type="primary"
                       class="querry"
@@ -386,20 +383,14 @@
               :label="$t('inspection.Inspectionhistory')"
               name="second"
             >
-              <div class="taskHis">
+              <div class="taskHis terminal-filter-flow" :class="filterLangClass">
                 <el-form
-                  class="demo-form-inline"
-                  style="display: flex; white-space: nowrap"
+                  class="demo-form-inline terminal-filter-form"
                   :model="searchListHis"
                 >
                   <el-form-item
                     :label="$t('inspection.Name')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 12%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.userid"
@@ -417,12 +408,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.Taskname')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 12%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.taskid"
@@ -440,12 +426,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.Taskstatus')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 14%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.taskstatus"
@@ -464,7 +445,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.time')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
+                    class="terminal-filter-item"
                   >
                     <el-date-picker
                       v-model="searchListHis.taskdate"
@@ -473,7 +454,7 @@
                       :placeholder="$t('inspection.Selectdate')"
                     ></el-date-picker>
                   </el-form-item>
-                  <el-form-item style="z-index: 1; margin-left: 1%">
+                  <el-form-item class="terminal-toolbar-item">
                     <el-button
                       type="primary"
                       class="querry"
@@ -1968,6 +1949,12 @@ export default {
       groundListHis: [], //楼层数组，巡检历史巡检详情
       taskHis: false, //判断是否为巡检历史页面
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     // 巡检历史里面根据状态设置表格样式
@@ -5449,4 +5436,227 @@ export default {
 #floors {
   position: absolute;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

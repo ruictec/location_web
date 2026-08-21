@@ -8,29 +8,20 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
-          <div class="beacon_input">
+          <div
+            class="beacon_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
             <!-- 第一行 -->
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                z-index: 1;
-              "
             >
               <el-form-item
                 :label="$t('beacon.beaconid1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.beaconid"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
@@ -38,15 +29,9 @@
 
               <el-form-item
                 :label="$t('beacon.major1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.major"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
@@ -54,152 +39,20 @@
 
               <el-form-item
                 :label="$t('beacon.minor1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.minor"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
               </el-form-item>
 
-              <!-- 隐藏显示所有按钮 -->
-              <el-form-item
-                class="search-actions"
-                style="display: flex; margin-left: 10px"
-                v-show="seen"
-              >
-                <!-- 高级 -->
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.more") }}
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-
-                <el-button type="primary" class="query" @click="searchInfo()">
-                  {{ $t("beacon.search") }}
-                </el-button>
-                <el-button type="primary" class="reset" @click="clearBtn()">
-                  {{ $t("beacon.reset") }}
-                </el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="importExcel()"
-                  v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.import") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="exportExcel()"
-                  v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                  >{{ $t("terminal.export") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="addBeacon"
-                  @click="addBeacons()"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                  >{{ $t("beacon.addbeacon") }}</el-button>
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("beacon.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        class="editBeacons"
-                        @click="editBeacons()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="assignBeacons()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="removeBeacons()"
-                        v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="dels"
-                        size="small"
-                        @click="deleteBeacons()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 3 ||
-                          delprio == 1
-                        "
-                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-              </el-form-item>
-
               <el-form-item
                 :label="$t('beacon.inuse')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inuse"
                   :placeholder="$t('terminal.choose')"
                   clearable
@@ -216,15 +69,8 @@
 
               <el-form-item
                 v-if="show"
-                type="hidden"
                 :label="$t('beacon.workstate')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  z-index: 1;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.workstate"
@@ -245,17 +91,10 @@
                 v-if="show"
                 id="item1"
                 :label="$t('beacon.type')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  z-index: 1;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   :placeholder="$t('terminal.choose')"
-                  style="width: 95%; float: left"
                   v-model="searchList.type"
                   clearable
                   filterable
@@ -271,18 +110,10 @@
             </el-form>
 
             <!-- 第二行 -->
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 1%"
-            >
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('beacon.battery')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="
                   (contrForPrionum == 5 ||
                     contrForPrionum == 3 ||
@@ -294,7 +125,6 @@
               >
                 <el-select
                   :placeholder="$t('terminal.choose')"
-                  style="width: 95%; float: left"
                   v-model="batterys"
                   clearable
                   filterable
@@ -310,12 +140,7 @@
 
               <el-form-item
                 :label="$t('terminal.Assignmentstatus')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="
                   (contrForPrionum == 3 ||
                     contrForPrionum == 4 ||
@@ -325,7 +150,6 @@
                 "
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inallot"
                   clearable
                   filterable
@@ -342,16 +166,10 @@
 
               <el-form-item
                 :label="$t('terminal.Project1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.projectid"
                   clearable
                   filterable
@@ -368,16 +186,10 @@
 
               <el-form-item
                 :label="$t('beacon.company')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -391,18 +203,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('beacon.tet')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="devtimes"
                   clearable
                   filterable
@@ -420,18 +227,14 @@
               <el-form-item
                 v-if="show"
                 :label="$t('beacon.regtime')"
-                style="
-                  display: flex;
-                  width: 27%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-date-picker
-                  style="width: 95%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
-                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
+                  :shortcuts="pickerOptions.shortcuts"
+                  :disabled-date="pickerOptions.disabledDate"
+                  @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('beacon.to')"
                   :start-placeholder="$t('beacon.starttime')"
                   :end-placeholder="$t('beacon.endtime')"
@@ -439,47 +242,23 @@
                 >
                 </el-date-picker>
               </el-form-item>
-              <el-form-item
-                class="search-actions"
-                v-show="seen1 && contrForPrionum == 5"
-                style="display: flex; margin-left: 10px; margin-right: 0"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-
-                <el-button type="primary" class="query" @click="searchInfo()">{{
-                  $t("beacon.search")
-                }}</el-button>
-                <el-button type="primary" class="reset" @click="clearBtn()">{{
-                  $t("beacon.reset")
-                }}</el-button>
-              </el-form-item>
             </el-form>
 
             <!-- 第三行 -->
             <el-form
-              v-show="
-                seen1 &&
+              v-if="
+                show &&
                 (contrForPrionum == 1 ||
                   contrForPrionum == 2 ||
                   contrForPrionum == 3 ||
                   contrForPrionum == 4)
               "
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 1%"
+              class="demo-form-inline terminal-filter-form"
             >
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-                class="memo"
+                class="terminal-filter-item memo"
                 :label="$t('beacon.sysmemo1')"
-                v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
               >
                 <el-popover placement="bottom" trigger="click" class="chose">
                   <el-switch
@@ -489,25 +268,19 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <template #reference><el-input
-                    style="width: 95%; float: left"
-                    v-model="selectMemo"
-                    :placeholder="$t('beacon.please')"
-                   
-                  ></el-input></template>
+                  <template #reference
+                    ><el-input
+                      v-model="selectMemo"
+                      :placeholder="$t('beacon.please')"
+                    ></el-input
+                  ></template>
                 </el-popover>
               </el-form-item>
 
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-                class="memo"
+                class="terminal-filter-item memo"
                 :label="$t('beacon.memo1')"
-                v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
+                v-if="contrForPrionum == 3 || contrForPrionum == 4"
               >
                 <el-popover placement="bottom" trigger="click" class="chose">
                   <el-switch
@@ -517,24 +290,25 @@
                     @change="choseMemo"
                   >
                   </el-switch>
-                  <template #reference><el-input
-                    style="width: 95%; float: left"
-                    v-model="selectMemo"
-                    :placeholder="$t('beacon.please')"
-                   
-                  ></el-input></template>
+                  <template #reference
+                    ><el-input
+                      v-model="selectMemo"
+                      :placeholder="$t('beacon.please')"
+                    ></el-input
+                  ></template>
                 </el-popover>
               </el-form-item>
-              <el-form-item
-                class="search-actions"
-                style="display: flex; margin-left: 10px; margin-right: 0"
-              >
-                <!-- 高级 -->
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
+            </el-form>
 
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
+                <span class="terminal-filter-more" @click="changeItem()">
+                  {{ show ? $t("beacon.putAway") : $t("beacon.more") }}
+                  <i
+                    :class="show ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                    class="el-icon--right"
+                  ></i>
+                </span>
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("beacon.search")
                 }}</el-button>
@@ -544,14 +318,12 @@
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="importExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
                   >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="exportExcel()"
                   v-if="contrForPrionum == 3 || contrForPrionum == 4"
                   >{{ $t("terminal.export") }}</el-button>
@@ -567,7 +339,6 @@
                   "
                   >{{ $t("beacon.addbeacon") }}</el-button>
                 <el-dropdown
-                  size="small"
                   type="primary"
                   trigger="hover"
                   v-if="
@@ -578,76 +349,75 @@
                   "
                 >
                   <span class="el-dropdown-link">
-                  <el-button
-                    type="primary"
-                    size="small"
-                    style="margin-left: 5%"
-                  >
-                    {{ $t("beacon.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
+                    <el-button type="primary">
+                      {{ $t("beacon.batch")
+                      }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
                   </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
+                  <template #dropdown>
+                    <el-dropdown-menu
+                      style="background-color: rgb(219, 222, 231)"
+                      class="selects"
                     >
-                      <el-button
-                        class="editBeacons"
-                        @click="editBeacons()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
                         "
-                        >{{ $t("beacon.edit") }}</el-button></el-dropdown-item>
-
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="assignBeacons()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="removeBeacons()"
-                        v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="dels"
-                        size="small"
-                        @click="deleteBeacons()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 3 ||
-                          delprio == 1
+                      >
+                        <el-button
+                          class="editBeacons"
+                          @click="editBeacons()"
+                          v-if="
+                            contrForPrionum == 1 ||
+                            contrForPrionum == 2 ||
+                            contrForPrionum == 3 ||
+                            contrForPrionum == 4
+                          "
+                          >{{ $t("beacon.edit") }}</el-button></el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
                         "
-                        >{{ $t("beacon.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
+                        ><el-button
+                          class="delBeacons"
+                          @click="assignBeacons()"
+                          v-if="contrForPrionum == 3 || contrForPrionum == 4"
+                          >{{ $t("beacon.assign") }}</el-button></el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
+                        "
+                        ><el-button
+                          class="delBeacons"
+                          @click="removeBeacons()"
+                          v-if="contrForPrionum == 3 || delprio == 1"
+                          >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
+                        "
+                        ><el-button
+                          class="dels"
+                          @click="deleteBeacons()"
+                          v-if="
+                            contrForPrionum == 1 ||
+                            contrForPrionum == 3 ||
+                            delprio == 1
+                          "
+                          >{{ $t("beacon.delete") }}</el-button></el-dropdown-item
+                      >
+                    </el-dropdown-menu>
+                  </template>
                 </el-dropdown>
-              </el-form-item>
-            </el-form>
+              </div>
+            </div>
           </div>
 
           <!-- beacon展示 -->
@@ -1045,7 +815,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -2452,6 +2222,12 @@ export default {
       },
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     // 导入
     importExcel() {
@@ -3046,17 +2822,9 @@ export default {
 
       this.changeMinor = !this.changeMinor;
     },
-    //显示隐藏输入框
+    //显示隐藏高级筛选（不切换操作按钮）
     changeItem() {
-      if (this.show == false && this.seen == true && this.seen1 == false) {
-        this.show = true;
-        this.seen = false;
-        this.seen1 = true;
-      } else {
-        this.show = false;
-        this.seen = true;
-        this.seen1 = false;
-      }
+      this.show = !this.show;
     },
     //分页
     handleCurrentChange(val) {
@@ -4587,7 +4355,8 @@ export default {
   flex-shrink: 0;
 }
 
-.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button) {
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button),
+.terminal-toolbar-row :deep(.el-dropdown .el-button) {
   height: 28px !important;
   padding: 7px 15px !important;
   font-size: 12px !important;
@@ -4619,4 +4388,213 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.beacon_input.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.beacon_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.beacon_input.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.beacon_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.beacon_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.beacon_input.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

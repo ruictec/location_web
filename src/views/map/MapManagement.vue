@@ -23,17 +23,15 @@
               }}</el-breadcrumb-item>
             </el-breadcrumb>
 
-            <div class="map-search-row">
+            <div class="map-search-row terminal-filter-flow" :class="filterLangClass">
             <el-form
-              class="demo-form-inline map-search-form"
+              class="demo-form-inline map-search-form terminal-filter-form"
               :model="searchList"
             >
               <el-form-item
-                style="display: flex; margin-right: 0"
                 :label="$t('mapmanagements.Mapnumber')"
-              >
+               class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -53,7 +51,7 @@
                       >{{ item.maplabel }}</span></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item class="search-actions" style="display: flex">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("mapmanagements.search")
                 }}</el-button>
@@ -188,30 +186,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagement.statusstr1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
-              >
-                <el-select
-                  style="width: 95%; float: left"
-                  v-model="searchList.status"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in searchStatus"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item style="margin-left: 1%">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("terminal.search")
@@ -260,23 +234,7 @@
                 min-width="100"
                 align="center"
               ></el-table-column>
-              <el-table-column
-                property="statusstr"
-                :label="$t('mapmanagements.ApprovalStatus')"
-                show-overflow-tooltip
-                min-width="77"
-                align="center"
-              ></el-table-column>
-
-              <el-table-column
-                property="instruction"
-                :label="$t('mapmanagements.Auditopinion')"
-                show-overflow-tooltip
-                min-width="95"
-                align="center"
-              ></el-table-column>
-
-              <el-table-column
+<el-table-column
                 property="maptypestr"
                 :label="$t('mapmanagements.mapdimension')"
                 show-overflow-tooltip
@@ -407,16 +365,7 @@
                 min-width="115"
                 align="center"
               ></el-table-column>
-              <el-table-column
-                property="audittime"
-                :label="$t('mapmanagements.mapreviewtime')"
-                show-overflow-tooltip
-                :formatter="formatDateAudittime"
-                min-width="115"
-                align="center"
-              ></el-table-column>
-
-              <el-table-column
+<el-table-column
                 property="sysmemo"
                 :label="$t('mapmanagement.sysmemo')"
                 show-overflow-tooltip
@@ -499,17 +448,6 @@
                             contrForPrionum == 5
                           "
                           >{{ $t("mapmanagements.delete") }}</el-button></el-dropdown-item>
-                      <el-dropdown-item
-                        style="
-                          margin-top: 4%;
-                          background-color: rgb(219, 222, 231);
-                        "
-                        ><el-button
-                          size="small"
-                          class="dels"
-                          @click="checkMap(scope.$index)"
-                          v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                          >{{ $t("mapmanagements.examine") }}</el-button></el-dropdown-item>
                     </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
@@ -524,10 +462,10 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 v-model:current-page="currentPage1"
+                v-model:page-size="pageCount"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
               >
               </el-pagination>
             </div>
@@ -714,9 +652,6 @@
               <el-button type="primary" @click="addTrue2D('addData')">{{
                 $t("warning.Sure")
               }}</el-button>
-              <el-button type="primary" @click="auditTrue2D('addData')">{{
-                $t("mapmanagements.Submitreview")
-              }}</el-button>
             </div></template>
           </el-dialog>
 
@@ -868,9 +803,6 @@
               <el-button type="primary" @click="addTrue3D('addData')">{{
                 $t("warning.Sure")
               }}</el-button>
-              <el-button type="primary" @click="auditTrue3D('addData')">{{
-                $t("mapmanagements.Submitreview")
-              }}</el-button>
             </div></template>
           </el-dialog>
 
@@ -960,20 +892,6 @@
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.activity')">
                 <el-input v-model="delData.active" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="delData.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
               </el-form-item>
               <el-form-item :label="$t('mapmanagements.remark')">
                 <el-input
@@ -1141,20 +1059,6 @@
                     :key="item.projectid"
                     :label="item.name"
                     :value="item.projectid"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="editData.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -1357,20 +1261,6 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                <el-select
-                  v-model="editDatas.status"
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item
                 :label="$t('mapmanagement.sysmemo1')"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
@@ -1402,11 +1292,6 @@
               <el-button type="primary" @click="editTrues('editDatas')">{{
                 $t("warning.Sure")
               }}</el-button>
-              <el-button
-                type="primary"
-                @click="auditTrues('editDatas')"
-                v-if="auditBtn"
-                >{{ $t("mapmanagements.Submitreview") }}</el-button>
             </div></template>
           </el-dialog>
 
@@ -1538,20 +1423,6 @@
                       ></el-option>
                     </el-select>
                   </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Auditstatus')">
-                    <el-select
-                      v-model="editData.status"
-                      disabled
-                      :placeholder="$t('terminal.choose')"
-                    >
-                      <el-option
-                        v-for="item in statusList"
-                        :key="item.index"
-                        :label="item.value"
-                        :value="item.index"
-                      ></el-option>
-                    </el-select>
-                  </el-form-item>
                   <el-form-item
                     :label="$t('mapmanagement.sysmemo1')"
                     v-if="contrForPrionum == 1 || contrForPrionum == 2"
@@ -1575,251 +1446,28 @@
                     ></el-input>
                   </el-form-item>
                 </el-form>
+                <div class="edit-3d-actions">
+                  <el-button @click="closeCheck('editData')">{{
+                    $t("warning.Cancel")
+                  }}</el-button>
+                  <el-button type="primary" @click="editTrue3D('editData')">{{
+                    $t("warning.Sure")
+                  }}</el-button>
+                </div>
               </div>
               <div class="check_3d_map">
                 <div
                   id="fengMap"
+                  ref="fengMap"
                   v-loading="loading"
                   v-if="edit3D"
                   :element-loading-text="$t('mapmanagements.text19')"
                 ></div>
               </div>
             </div>
-            <template #footer>
-              <div class="dialog-footer">
-                <el-button @click="closeCheck('editData')">{{
-                  $t("warning.Cancel")
-                }}</el-button>
-                <el-button type="primary" @click="editTrue3D('editData')">{{
-                  $t("warning.Sure")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  @click="auditTrues3D('editData')"
-                  v-if="auditBtn"
-                >
-                  {{ $t("mapmanagements.Submitreview") }}
-                </el-button>
-              </div>
-            </template>
           </el-dialog>
 
-          <!-- 审核 -->
-          <el-dialog
-            :title="$t('mapmanagements.text20')"
-            width="30%"
-            v-model="check"
-            style="text-align: center"
-            @close="checkCancle('checkData')"
-          >
-            <div class="imageSize">
-              <el-image
-                style="width: 100px; height: 100px"
-                :src="imgUrl"
-                :preview-src-list="srcList"
-              >
-              </el-image>
-            </div>
-            <el-form
-              :model="checkData"
-              label-width="150px"
-              ref="checkData"
-              style="text-align: left; margin-top: 4%"
-              :rules="addRules"
-            >
-              <el-form-item :label="$t('mapmanagements.Mapname')">
-                <el-input v-model="checkData.mapname" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.imagewidth')">
-                <el-input v-model="imageInfo.height" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.imagelength')">
-                <el-input v-model="imageInfo.width" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Actualwidth')">
-                <el-input v-model="checkData.realwidth" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Actuallength')">
-                <el-input v-model="checkData.reallength" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.sensitivity')">
-                <el-input v-model="checkData.distance" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.activity')">
-                <el-input v-model="checkData.active" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Projectname')" prop="">
-                <el-input v-model="checkData.projectname" disabled></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Projectid')" prop="">
-                <el-input v-model="checkData.projectid" disabled></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.Auditstatus')"
-                prop="status"
-              >
-                <el-select
-                  v-model="checkData.status"
-                  clearable
-                  filterable
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in statusList"
-                    :key="item.index"
-                    :label="item.value"
-                    :value="item.index"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Reviewcomments')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="255"
-                  v-model="checkData.instruction"
-                ></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.Systemremarks')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="checkData.sysmemo"
-                  disabled
-                ></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.remark')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="checkData.memo"
-                  disabled
-                ></el-input>
-              </el-form-item>
-            </el-form>
 
-            <template #footer><div class="dialog-footer">
-              <el-button @click="checkCancle('checkData')">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="checkTrue('checkData')">{{
-                $t("warning.Sure")
-              }}</el-button>
-            </div></template>
-          </el-dialog>
-
-          <!-- 审核3D -->
-          <el-dialog
-            :title="$t('mapmanagements.text20')"
-            width="60%"
-            v-model="check3D"
-            @opened="onmap()"
-            @close="closeCheck('checkData')"
-            style="text-align: center"
-          >
-            <div class="check_3d_box">
-              <div class="check_3d_info">
-                <el-form
-                  :model="checkData"
-                  label-width="150px"
-                  ref="checkData"
-                  style="text-align: left; margin-top: 4%"
-                  :rules="addRules"
-                >
-                  <el-form-item :label="$t('mapmanagements.Mapname')">
-                    <el-input v-model="checkData.mapname" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Mapnumber')">
-                    <el-input v-model="checkData.mapid" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.sensitivity')">
-                    <el-input v-model="checkData.distance" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.activity')">
-                    <el-input v-model="checkData.active" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagements.Projectname')"
-                    prop=""
-                  >
-                    <el-input
-                      v-model="checkData.projectname"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Projectid')" prop="">
-                    <el-input v-model="checkData.projectid" disabled></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('mapmanagements.Auditstatus')"
-                    prop="status"
-                  >
-                    <el-select
-                      v-model="checkData.status"
-                      clearable
-                      filterable
-                      :placeholder="$t('terminal.choose')"
-                    >
-                      <el-option
-                        v-for="item in statusList"
-                        :key="item.index"
-                        :label="item.value"
-                        :value="item.index"
-                      ></el-option>
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Reviewcomments')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="255"
-                      v-model="checkData.instruction"
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.Systemremarks')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="64"
-                      v-model="checkData.sysmemo"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.remark')">
-                    <el-input
-                      type="textarea"
-                      show-word-limit
-                      maxlength="64"
-                      v-model="checkData.memo"
-                      disabled
-                    ></el-input>
-                  </el-form-item>
-                </el-form>
-              </div>
-              <div class="check_3d_map">
-                <div
-                  id="fengMap"
-                  v-if="check3D"
-                  v-loading="loading"
-                  :element-loading-text="$t('mapmanagements.text19')"
-                ></div>
-              </div>
-            </div>
-            <template #footer>
-              <div class="dialog-footer">
-                <el-button @click="closeCheck('checkData')">{{
-                  $t("warning.Cancel")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  :disabled="clickTrue"
-                  @click="checkTrue('checkData')"
-                  >{{ $t("warning.Sure") }}</el-button>
-              </div>
-            </template>
-          </el-dialog>
         </el-main>
       </el-container>
     </div>
@@ -1867,7 +1515,6 @@ import {
   delMapInfo,
   updateMapInfo,
   getProjectListByTenantid,
-  auditMapInfo,
   addMapInfo,
 } from "../../axios/api";
 export default {
@@ -1893,7 +1540,6 @@ export default {
       tableData: [],
       searchList: {
         mapid: "",
-        status: "",
         page: 1,
         count: 20,
         projectid: this.$store.state.projectid,
@@ -2017,13 +1663,6 @@ export default {
             trigger: "blur",
           },
         ],
-        status: [
-          {
-            required: true,
-            message: this.$t("mapmanagement.selectmap"),
-            trigger: "change",
-          },
-        ],
       },
 
       projectList: [],
@@ -2057,12 +1696,10 @@ export default {
       editCompany2D: false,
       changeImg: false, //判断地图是否可以更换以及是否只能编辑备注，如果地图处于使用状态，就不可更换地图,
       editData: {
-        status: "",
         mapname: "",
         mapid: "",
         width: "",
         length: "",
-        instruction: "",
         memo: "",
         sysmemo: "",
         projectid: "",
@@ -2073,12 +1710,10 @@ export default {
         scale: "",
       },
       editDatas: {
-        status: "",
         mapname: "",
         mapid: "",
         width: "",
         length: "",
-        instruction: "",
         memo: "",
         sysmemo: "",
         projectid: "",
@@ -2094,8 +1729,7 @@ export default {
       // projectEdit: false, //企业级别的管理员在地图已使用的时候不可以修改所属项目
       del: false,
       delData: {},
-      check: false,
-      check3D: false,
+
       clickTrue: true,
       map3d: null,
       themeId: "", //3D地图主题id
@@ -2104,57 +1738,11 @@ export default {
       fmapName: "",
       loading: true,
       scrollFloorControl: "",
-      checkData: {},
-
-      auditBtn: "", //编辑页面是否显示提交审核的按钮
 
       imgUrl: "",
-      imageInfo: {}, //原始图片的分辨率，用来审核用户添加的长宽比例
+      imageInfo: {}, //原始图片的分辨率，用于校验实际宽高比例
       srcList: [],
-      searchStatus: [
-        {
-          index: 1,
-          value: "Draft",
-        },
-        {
-          index: 2,
-          value: "Audit",
-        },
-        {
-          index: 3,
-          value: "Pass",
-        },
-        {
-          index: 4,
-          value: "Fail",
-        },
-        {
-          index: 5,
-          value: "Lock",
-        },
-      ],
-      statusList: [
-        {
-          index: 1,
-          value: "Draft",
-        },
-        {
-          index: 2,
-          value: "Audit",
-        },
-        {
-          index: 3,
-          value: "Pass",
-        },
-        {
-          index: 4,
-          value: "Fail",
-        },
-        {
-          index: 5,
-          value: "Lock",
-        },
-      ],
+
       mapIdList: [],
       featureNum: 0,
       actualrange: "",
@@ -2169,6 +1757,12 @@ export default {
   created() {
     this.map = null;
     this.mapClickEvent = null;
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     resolveUploadImageUrl(file) {
@@ -2569,14 +2163,7 @@ export default {
     },
 
     // 时间转换
-    formatDateAudittime(row, column) {
-      if (row.audittime == null || row.audittime == 0) {
-        return "";
-      }
-      let date = new Date(parseInt(row.audittime) * 1000);
-      let date2 = date.toUTCString();
-      return this.datetimecut(date2);
-    },
+
 
     myHeaderd() {
       let d = new Date();
@@ -2808,7 +2395,6 @@ export default {
           this.userIdForPic.reallength = this.addData.reallength;
           this.userIdForPic.distance = this.addData.distance;
           this.userIdForPic.active = this.addData.active;
-          this.userIdForPic.status = 1;
           this.$refs.upload.submit();
         } else {
           return false;
@@ -2821,7 +2407,6 @@ export default {
         if (valid) {
           this.addData.filetype = this.themeId;
           this.addData.maptype = 2;
-          this.addData.status = 1;
           addMapInfo(
             this.addData,
             this.tenantkey_A,
@@ -2845,64 +2430,7 @@ export default {
         }
       });
     },
-    auditTrue2D(addData) {
-      this.$refs[addData].validate((valid) => {
-        if (valid) {
-          if (
-            !this.validateRealSizeRatio(
-              this.addData.realwidth,
-              this.addData.reallength
-            )
-          ) {
-            return;
-          }
-          this.addData.maptype = 1;
-          this.userIdForPic.tenantid = this.addData.tenantid;
-          this.userIdForPic.maptype = this.addData.maptype;
-          this.userIdForPic.memo = this.addData.memo;
-          this.userIdForPic.mapname = this.addData.mapname;
-          this.userIdForPic.projectid = this.addData.projectid;
-          this.userIdForPic.realwidth = this.addData.realwidth;
-          this.userIdForPic.reallength = this.addData.reallength;
-          this.userIdForPic.distance = this.addData.distance;
-          this.userIdForPic.active = this.addData.active;
-          this.userIdForPic.status = 2;
-          this.$refs.upload.submit();
-        } else {
-          return false;
-        }
-      });
-    },
-    auditTrue3D(addData) {
-      var that = this;
-      this.$refs[addData].validate((valid) => {
-        if (valid) {
-          this.addData.filetype = this.themeId;
-          this.addData.maptype = 2;
-          this.addData.status = 2;
-          addMapInfo(
-            this.addData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.$message({
-                message: that.$t("mapmanagement.Submittedsuccessfully"),
-                type: "warning",
-              });
-              that.getMapInfoLists();
-              that.add3D = false;
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        }
-      });
-    },
+
     //获取地图信息
     getMapInfoLists() {
       getMapInfoList(
@@ -3016,7 +2544,6 @@ export default {
       ) {
         this.searchList = {
           mapid: "",
-          status: "",
           page: 1,
           count: this.pageCount,
           projectid: "",
@@ -3028,7 +2555,6 @@ export default {
       ) {
         this.searchList = {
           mapid: "",
-          status: "",
           page: 1,
           count: this.pageCount,
           projectid: this.$store.state.intoProjectid,
@@ -3044,50 +2570,12 @@ export default {
       var that = this;
       this.changeImg = this.tableData[index].inuseNum > 0;
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
-        if (this.tableData[index].inuseNum > 0) {
-          this.statusList = [
-            {
-              index: 3,
-              value: "Pass",
-            },
-            {
-              index: 5,
-              value: "Lock",
-            },
-          ];
-        } else {
-          this.statusList = [
-            {
-              index: 1,
-              value: "Draft",
-            },
-            {
-              index: 2,
-              value: "Audit",
-            },
-            {
-              index: 3,
-              value: "Pass",
-            },
-            {
-              index: 4,
-              value: "Fail",
-            },
-            {
-              index: 5,
-              value: "Lock",
-            },
-          ];
-        }
-
         this.passEdit = true;
 
         this.editData.mapid = this.tableData[index].mapid;
-        this.editData.status = this.tableData[index].status;
         this.editData.mapname = this.tableData[index].mapname;
         this.editData.width = this.tableData[index].width;
         this.editData.length = this.tableData[index].length;
-        this.editData.instruction = this.tableData[index].instruction;
         this.editData.memo = this.tableData[index].memo;
         this.editData.sysmemo = this.tableData[index].sysmemo;
         this.editData.projectid = this.tableData[index].projectid;
@@ -3121,22 +2609,12 @@ export default {
       } else {
         // changeImg
         this.changeImg = this.tableData[index].inuseNum > 0;
-        // 判断是否为草稿状态、失败状态，编辑窗口有“提交审核”的按钮
-        if (
-          this.tableData[index].status == 1 ||
-          this.tableData[index].status == 4
-        ) {
-          that.auditBtn = true;
-        } else {
-          that.auditBtn = false;
-        }
+
 
         this.editDatas.mapid = this.tableData[index].mapid;
-        this.editDatas.status = this.tableData[index].status;
         this.editDatas.mapname = this.tableData[index].mapname;
         this.editDatas.width = this.tableData[index].width;
         this.editDatas.length = this.tableData[index].length;
-        this.editDatas.instruction = this.tableData[index].instruction;
         this.editDatas.memo = this.tableData[index].memo;
         this.editDatas.sysmemo = this.tableData[index].sysmemo;
         this.editDatas.projectid = this.tableData[index].projectid;
@@ -3160,9 +2638,7 @@ export default {
           this.editCompany2D = true;
         } else {
           this.editData.mapid = this.tableData[index].mapid;
-          this.editData.status = this.tableData[index].status;
           this.editData.mapname = this.tableData[index].mapname;
-          this.editData.instruction = this.tableData[index].instruction;
           this.editData.memo = this.tableData[index].memo;
           this.editData.sysmemo = this.tableData[index].sysmemo;
           this.editData.projectid = this.tableData[index].projectid;
@@ -3227,7 +2703,6 @@ export default {
       var that = this;
       this.editData.filetype = this.themeId;
       this.$refs[editData].validate((valid) => {
-        // this.editData.status = 1;
         if (valid) {
           updateMapInfo(
             this.editData,
@@ -3255,38 +2730,7 @@ export default {
         }
       });
     },
-    // 3D地图提交审核
-    auditTrues3D(editData) {
-      var that = this;
-      this.$refs[editData].validate((valid) => {
-        if (valid) {
-          this.editData.status = 2;
-          updateMapInfo(
-            this.editData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.edit3D = false;
-              that.getMapInfoLists();
-              that.getSearchMapInfoList();
-              that.$message({
-                message: that.$t("mapmanagement.Submittedsuccessfully"),
-                type: "success",
-              });
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        } else {
-          return false;
-        }
-      });
-    },
+
 
     //判断有没有更换地图，从而选择接口
     choseApi(file, fileList) {
@@ -3311,7 +2755,6 @@ export default {
             this.userIdForPicEdit.projectid = this.editDatas.projectid;
             this.userIdForPicEdit.mapid = this.editDatas.mapid;
             this.userIdForPicEdit.mapname = this.editDatas.mapname;
-            this.userIdForPicEdit.status = 1;
             this.userIdForPicEdit.width = this.editDatas.width;
             this.userIdForPicEdit.length = this.editDatas.length;
             this.userIdForPicEdit.memo = this.editDatas.memo;
@@ -3321,9 +2764,6 @@ export default {
             this.userIdForPicEdit.active = this.editDatas.active;
             this.$refs.upload.submit();
           } else {
-            if (this.changeImg == false) {
-              this.editDatas.status = 1;
-            }
             updateMapInfo(
               this.editDatas,
               this.tenantkey_A,
@@ -3349,59 +2789,7 @@ export default {
         }
       });
     },
-    // 提交审核
-    auditTrues(editDatas) {
-      var that = this;
-      this.$refs[editDatas].validate((valid) => {
-        if (valid) {
-          if (
-            !this.validateRealSizeRatio(
-              this.editDatas.realwidth,
-              this.editDatas.reallength
-            )
-          ) {
-            return;
-          }
-          if (this.choseApiEdit) {
-            this.userIdForPicEdit.projectid = this.editDatas.projectid;
-            this.userIdForPicEdit.mapid = this.editDatas.mapid;
-            this.userIdForPicEdit.mapname = this.editDatas.mapname;
-            this.userIdForPicEdit.status = 2;
-            this.userIdForPicEdit.width = this.editDatas.width;
-            this.userIdForPicEdit.length = this.editDatas.length;
-            this.userIdForPicEdit.memo = this.editDatas.memo;
-            this.userIdForPicEdit.realwidth = this.editDatas.realwidth;
-            this.userIdForPicEdit.reallength = this.editDatas.reallength;
-            this.userIdForPicEdit.distance = this.editDatas.distance;
-            this.userIdForPicEdit.active = this.editDatas.active;
-            this.$refs.upload.submit();
-          } else {
-            this.editDatas.status = 2;
-            updateMapInfo(
-              this.editDatas,
-              this.tenantkey_A,
-              this.tenantid_A,
-              this.userName
-            ).then((res) => {
-              if (res.code == 1001) {
-                that.editCompany2D = false;
-                that.getMapInfoLists();
-                that.getSearchMapInfoList();
-                that.$message({
-                  message: that.$t("mapmanagement.Submittedsuccessfully"),
-                  type: "success",
-                });
-              } else {
-                that.$message({
-                  message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                  type: "error",
-                });
-              }
-            });
-          }
-        }
-      });
-    },
+
 
     //删除
     delMap(index) {
@@ -3420,28 +2808,7 @@ export default {
       var that = this;
       if (this.tableData[index].inuseNum < 1) {
         //未使用
-        that.statusList = [
-          {
-            index: 1,
-            value: "Draft",
-          },
-          {
-            index: 2,
-            value: "Audit",
-          },
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 4,
-            value: "Fail",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
+
         that.imgUrl = "";
         that.srcList = [];
         that.delData = that.tableData[index];
@@ -3483,162 +2850,143 @@ export default {
       );
     },
 
-    //审核
-    checkMap(index) {
-      var that = this;
-      if (this.tableData[index].status == 1) {
-        that.$message({
-          message: this.$t("mapmanagement.tit2"),
-          type: "warning",
-        });
-        return;
-      } else if (this.tableData[index].status == 4) {
-        that.$message({
-          message: this.$t("mapmanagement.tit3"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.tableData[index].inuseNum > 0) {
-        this.statusList = [
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
-      } else {
-        this.statusList = [
-          {
-            index: 1,
-            value: "Draft",
-          },
-          {
-            index: 2,
-            value: "Audit",
-          },
-          {
-            index: 3,
-            value: "Pass",
-          },
-          {
-            index: 4,
-            value: "Fail",
-          },
-          {
-            index: 5,
-            value: "Lock",
-          },
-        ];
-      }
-
-      this.checkData = this.tableData[index];
-      if (this.tableData[index].maptype == 1) {
-        this.imgUrl = "";
-        this.srcList = [];
-        this.imgUrl = (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype;
-        this.srcList.push(
-          (host.host && host.host.endsWith('/') ? host.host : (host.host + '/')) + "indoormap/" + this.tableData[index].filetype
-        );
-
-        //获取图片的宽高
-        let img = new Image();
-        img.src = this.imgUrl;
-        img.onload = function () {
-          that.imageInfo["width"] = img.width;
-          that.imageInfo["height"] = img.height;
-        };
-
-        this.check = true;
-      } else {
-        this.fmapId = this.tableData[index].filename;
-        this.fmapKey = this.tableData[index].mapkey;
-        this.themeId = this.tableData[index].filetype;
-        this.fmapName = this.tableData[index].appname;
-        this.clickTrue = true;
-        this.check3D = true;
-        this.loading = true;
-      }
-    },
     onmap() {
       var that = this;
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
-        level: 1, //默认聚焦楼层
-        visibleLevels: [1], //初始显示楼层ID数组
-        focusAlphaMode: false, //是否对不可见图层启用透明设置，默认true
-        focusAlpha: 0.1,
-        appName: that.fmapName,
-        key: that.fmapKey,
-        mapID: that.fmapId,
-        defaultControlsPose: 0, //角度值
-        modelSelectedEffect: false, //支持单击模型高亮，false为单击时模型不高亮
-        defaultViewMode: fengmap.FMViewMode.MODE_3D, //设置地图2d/3d显示
-        themeID: that.themeId,
-        decoderURL: FENGMAP_DECODER_URL,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
-      this.map3d = new fengmap.FMMap(mapOpation);
-      // this.map3d.openMapById(this.fmapId, function (error) {
-      //   that.$message({
-      //     message: error.data.error_msg,
-      //     type: "error",
-      //   });
-      // });
-
-      this.map3d.on("loaded", function () {
-        // if (that.edit3D) {
-        //   if (
-        //     (that.editData.width == "" || that.editData.width == 0) &&
-        //     (that.editData.length == "" || that.editData.length == 0) &&
-        //     (that.editData.realwidth == "" || that.editData.realwidth == 0) &&
-        //     (that.editData.reallength == "" || that.editData.reallength == 0)
-        //   ) {
-        //     let data = {
-        //       mapid: that.editData.mapid,
-        //       filename: that.editData.filename,
-        //       width: that.map3d.minY,
-        //       length: that.map3d.minX,
-        //       realwidth: that.map3d.maxY,
-        //       reallength: that.map3d.maxX,
-        //     };
-        //     // updateMapInfo(
-        //     //   data,
-        //     //   that.tenantkey_A,
-        //     //   that.tenantid_A,
-        //     //   that.userName
-        //     // ).then((res) => {});
-        //   }
-        // }
-        if (that.check3D) {
-          if (
-            (that.checkData.width == "" || that.checkData.width == 0) &&
-            (that.checkData.length == "" || that.checkData.length == 0) &&
-            (that.checkData.realwidth == "" || that.checkData.realwidth == 0) &&
-            (that.checkData.reallength == "" || that.checkData.reallength == 0)
-          ) {
-            that.checkData.width = that.map3d.getBound().min.y;
-            that.checkData.length = that.map3d.getBound().min.x;
-            that.checkData.realwidth = that.map3d.getBound().max.y;
-            that.checkData.reallength = that.map3d.getBound().max.x;
-            that.clickTrue = false;
-          } else {
-            that.clickTrue = false;
+      var tryInit = function (remain) {
+        var container = that.$refs.fengMap || document.getElementById("fengMap");
+        if (!container) {
+          if (remain > 0) {
+            setTimeout(function () {
+              tryInit(remain - 1);
+            }, 50);
           }
+          return;
         }
-        that.loading = false;
-        that.loadScrollFloorCtrl();
+        var width = Math.floor(container.clientWidth || container.offsetWidth);
+        var height = Math.floor(container.clientHeight || container.offsetHeight);
+        if (width < 10 || height < 10) {
+          // 弹窗动画未完成时容器可能为 0，稍后重试
+          if (remain > 0) {
+            setTimeout(function () {
+              tryInit(remain - 1);
+            }, 50);
+          }
+          return;
+        }
+        if (!that.fmapId || !that.fmapKey || !that.fmapName) {
+          that.loading = false;
+          that.$message({
+            message: that.$t("mapmanagements.Please3dmapkey"),
+            type: "warning",
+          });
+          return;
+        }
+        if (that.map3d && typeof that.map3d.dispose === "function") {
+          try {
+            that.map3d.dispose();
+          } catch (e) {}
+          that.map3d = null;
+        }
+        container.style.margin = "0";
+        container.style.width = "100%";
+        container.style.height = "100%";
+        container.style.display = "flex";
+
+        var mapOpation = {
+          container: container,
+          level: 1,
+          visibleLevels: [1],
+          focusAlphaMode: false,
+          focusAlpha: 0.1,
+          appName: that.fmapName,
+          key: that.fmapKey,
+          mapID: that.fmapId,
+          defaultControlsPose: 0,
+          modelSelectedEffect: false,
+          defaultViewMode: fengmap.FMViewMode.MODE_3D,
+          themeID: that.themeId,
+          decoderURL: FENGMAP_DECODER_URL,
+        };
+        that.map3d = markRaw(new fengmap.FMMap(mapOpation));
+        that._fengMapLastWidth = 0;
+        that._fengMapLastHeight = 0;
+
+        that.map3d.on("loaded", function () {
+          that.loading = false;
+          that.loadScrollFloorCtrl();
+          that.resizeFengMap();
+          that.observeFengMapResize();
+          // 再延后一次，覆盖弹窗动画结束
+          setTimeout(function () {
+            that.resizeFengMap();
+          }, 120);
+        });
+      };
+      this.$nextTick(function () {
+        tryInit(20);
       });
     },
+    resizeFengMap() {
+      var container = this.$refs.fengMap || document.getElementById("fengMap");
+      var map = this.map3d;
+      if (!container || !map) {
+        return;
+      }
+      var width = Math.floor(container.clientWidth || container.offsetWidth);
+      var height = Math.floor(container.clientHeight || container.offsetHeight);
+      if (width < 10 || height < 10) {
+        return;
+      }
+      if (
+        width === this._fengMapLastWidth &&
+        height === this._fengMapLastHeight
+      ) {
+        return;
+      }
+      this._fengMapLastWidth = width;
+      this._fengMapLastHeight = height;
+      // 必须传宽高；无参 resize 会把画布设成无效尺寸导致白屏
+      if (typeof map.resize === "function") {
+        map.resize(width, height);
+      }
+    },
+    observeFengMapResize() {
+      this.unobserveFengMapResize();
+      var target =
+        document.querySelector(".check_3d_map") ||
+        document.getElementById("fengMap");
+      if (!target || typeof ResizeObserver === "undefined") {
+        return;
+      }
+      var that = this;
+      this._fengMapResizeObserver = new ResizeObserver(function () {
+        clearTimeout(that._fengMapResizeTimer);
+        that._fengMapResizeTimer = setTimeout(function () {
+          that.resizeFengMap();
+        }, 80);
+      });
+      this._fengMapResizeObserver.observe(target);
+    },
+    unobserveFengMapResize() {
+      clearTimeout(this._fengMapResizeTimer);
+      this._fengMapResizeTimer = null;
+      if (this._fengMapResizeObserver) {
+        this._fengMapResizeObserver.disconnect();
+        this._fengMapResizeObserver = null;
+      }
+    },
     closeCheck(rule) {
-      this.map3d.dispose();
-      this.check3D = false;
+      this.unobserveFengMapResize();
+      if (this.map3d && typeof this.map3d.dispose === "function") {
+        try {
+          this.map3d.dispose();
+        } catch (e) {}
+      }
+      this.map3d = null;
       this.edit3D = false;
-      this.$refs[rule].resetFields();
+      if (this.$refs[rule] && typeof this.$refs[rule].resetFields === "function") {
+        this.$refs[rule].resetFields();
+      }
     },
     //加载滚动楼层控制
     loadScrollFloorCtrl() {
@@ -3653,54 +3001,10 @@ export default {
         floorModeControl: true,
         needAllLayerBtn: false,
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
     },
-    checkCancle(checkData) {
-      this.check = false;
-      this.$refs[checkData].resetFields();
-    },
-    checkTrue(checkData) {
-      let that = this;
-      this.$refs[checkData].validate((valid) => {
-        if (valid) {
-          let data = {
-            mapid: this.checkData.mapid,
-            status: this.checkData.status,
-            instruction: this.checkData.instruction,
-            width: this.checkData.width,
-            length: this.checkData.length,
-            realwidth: this.checkData.realwidth,
-            reallength: this.checkData.reallength,
-          };
-          auditMapInfo(
-            data,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.check = false;
-              that.check3D = false;
-              that.getMapInfoLists();
-              that.getSearchMapInfoList();
-              that.$message({
-                message: that.$t("mapmanagement.checksuccess"),
-                type: "success",
-              });
-              that.$refs[checkData].resetFields();
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
-        } else {
-          return false;
-        }
-      });
-    },
+
 
     //调整操作栏宽度
     autoWidth() {
@@ -3789,7 +3093,6 @@ export default {
     ) {
       this.searchList = {
         mapid: "",
-        status: "",
         page: 1,
         count: 20,
         projectid: "",
@@ -3924,7 +3227,7 @@ export default {
   box-sizing: border-box;
   width: 98% !important;
   max-width: 98% !important;
-  margin: 0 0 0 2% !important;
+  margin: 0 0 16px 2% !important;
   display: flex !important;
   justify-content: flex-end !important;
 }
@@ -3957,24 +3260,51 @@ export default {
 /* .move {
   transform: translateX(4px);
 } */
+.edit-3d-actions {
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 8px;
+}
 .check_3d_box {
   display: flex;
-  height: 100%;
+  position: relative;
+  width: 100%;
+  height: 520px;
+  min-height: 520px;
+  margin: 0 !important;
 }
 .check_3d_info {
   width: 40%;
-  margin-left: 0;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  position: relative;
+  z-index: 2;
+  overflow: auto;
+  box-sizing: border-box;
 }
 .check_3d_map {
-  position: absolute;
-  right: 1%;
-  width: 59%;
-  height: 80%;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  left: auto !important;
+  width: 59% !important;
+  height: 520px !important;
+  margin: 0 !important;
+  z-index: 1;
+  overflow: hidden;
+  background: #0e2232;
 }
 #fengMap {
-  width: 100%;
-  height: 100%;
-  display: flex;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  position: relative !important;
+  margin: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+  background: #0e2232;
 }
 .mapview :deep(.el-dialog) {
   margin-top: 0 !important;
@@ -4086,4 +3416,282 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 编辑3D弹窗：固定地图区域尺寸，并抵消 App.vue *{margin:0 auto} */
+.check_3d_box {
+  display: flex !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 520px !important;
+  min-height: 520px !important;
+  margin: 0 !important;
+}
+.check_3d_info {
+  width: 40% !important;
+  margin: 0 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+.check_3d_map {
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  left: auto !important;
+  width: 59% !important;
+  height: 520px !important;
+  margin: 0 !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+  background: #0e2232 !important;
+}
+.check_3d_map #fengMap,
+#fengMap {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  display: flex !important;
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+  background: #0e2232 !important;
+}
+.check_3d_map #fengMap canvas,
+#fengMap canvas {
+  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  display: block !important;
+}
+.edit-3d-actions {
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+</style>
+

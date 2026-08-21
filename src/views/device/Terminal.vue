@@ -8,29 +8,19 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
-          <div class="ter_input">
+          <div
+            class="ter_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
             <!-- 第一行 -->
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                z-index: 1;
-              "
             >
               <el-form-item
                 :label="$t('terminal.deveui')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.deveui"
                 ></el-input>
               </el-form-item>
@@ -38,15 +28,8 @@
               <el-form-item
                 v-if="show"
                 :label="$t('terminal.alias')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.alias"
                 ></el-input>
               </el-form-item>
@@ -54,15 +37,8 @@
               <el-form-item
                 v-if="show && contrForPrionum != 5"
                 :label="$t('terminal.scheme')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.scheme"
                   clearable
                   filterable
@@ -80,15 +56,8 @@
               <el-form-item
                 v-if="show && contrForPrionum != 5"
                 :label="$t('terminal.posttype')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.postype"
                   clearable
                   filterable
@@ -106,15 +75,8 @@
               <el-form-item
                 v-if="show && contrForPrionum != 5"
                 :label="$t('terminal.joinmode')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.joinmode"
                   clearable
                   filterable
@@ -131,16 +93,9 @@
 
               <el-form-item
                 :label="$t('terminal.country')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="show && (contrForPrionum == 1 || contrForPrionum == 2)"
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.country"
                   clearable
                   filterable
@@ -157,21 +112,14 @@
 
               <el-form-item
                 :label="$t('terminal.inuse')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="
                   (contrForPrionum == 3 ||
                     contrForPrionum == 4 ||
                     contrForPrionum == 5) &&
                   show
                 "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inuse"
                   clearable
                   filterable
@@ -190,15 +138,8 @@
               <el-form-item
                 v-if="show && contrForPrionum == 5"
                 :label="$t('terminal.workstate')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.workstate"
                   clearable
                   filterable
@@ -216,10 +157,8 @@
               <el-form-item
                 v-if="show && contrForPrionum == 5"
                 :label="$t('terminal.chosetime')"
-                style="margin-left: 1%; display: flex"
-              >
+                class="terminal-filter-item">
                 <el-date-picker
-                  style="width: 100%; float: left; z-index: 1"
                   type="datetimerange"
                   :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('terminal.to')"
@@ -231,369 +170,13 @@
                 </el-date-picker>
               </el-form-item>
 
-              <!-- 按钮 更多-->
-              <el-form-item v-if="seen" class="search-actions" style="display: flex; margin-left: 10px">
-                <!-- 高级 -->
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("terminal.more")
-                  }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="searchInfo()"
-                  style="margin-right: 0"
-                  >{{ $t("terminal.search") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="previousDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="nextDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="clearBtn()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.reset") }}</el-button>
-
-                <el-button
-                  type="primary"
-                  class="export"
-                  @click="importExcel()"
-                  v-if="contrForPrionum != 5"
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.import") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="export"
-                  @click="exportExcel()"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.export") }}</el-button>
-
-                <el-button
-                  type="primary"
-                  class="addTer"
-                  @click="addTer()"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                  style="margin-left: 0"
-                  >{{ $t("terminal.addterminal") }}</el-button>
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("terminal.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        class="editTers"
-                        @click="editTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="configTers"
-                        @click="configTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
-
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="devToNs()"
-                        v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                        >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="configTers"
-                        @click="extendTerminals()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="assignTers()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="removeTers()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels1"
-                        @click="delTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4 ||
-                    contrForPrionum == 5
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("terminal.command")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <template #content><div>
-                    <p v-show="contrForPrionum != 5">
-                      {{ $t("terminal.title") }}
-                    </p>
-                    <p>{{ $t("terminal.context") }}</p>
-                    <p>
-                      {{ $t("terminal.context1") }}
-                    </p>
-                    <p>
-                      {{ $t("terminal.context2") }}
-                    </p>
-                    <p v-if="contrForPrionum != 5">
-                      {{ $t("terminal.title1") }}
-                    </p>
-                    <p v-if="contrForPrionum != 5">
-                      {{ $t("terminal.title2") }}
-                    </p>
-                    <p v-if="contrForPrionum != 5">
-                      {{ $t("terminal.title3") }}
-                    </p>
-                    <p v-if="contrForPrionum == 3 || contrForPrionum == 4">
-                      {{ $t("terminal.title4") }}
-                    </p>
-                  </div></template>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
             </el-form>
             <!-- 第二行 -->
             <el-form
-              class="demo-form-inline"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                z-index: 1;
-              "
+              class="demo-form-inline terminal-filter-form"
             >
               <el-form-item
                 :label="$t('terminal.Hardwaretype')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="
                   (contrForPrionum == 3 ||
                     contrForPrionum == 4 ||
@@ -601,9 +184,8 @@
                     contrForPrionum == 1) &&
                   show
                 "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.devtype"
                   clearable
                   filterable
@@ -619,12 +201,6 @@
               </el-form-item>
               <el-form-item
                 :label="$t('terminal.Assignmentstatus')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="
                   (contrForPrionum == 3 ||
                     contrForPrionum == 4 ||
@@ -632,9 +208,8 @@
                     contrForPrionum == 1) &&
                   show
                 "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inallot"
                   clearable
                   filterable
@@ -650,12 +225,6 @@
               </el-form-item>
               <el-form-item
                 :label="$t('terminal.onlinestatus')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="
                   (contrForPrionum == 5 ||
                     contrForPrionum == 3 ||
@@ -664,9 +233,8 @@
                     contrForPrionum == 1) &&
                   show
                 "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.hbstatus"
                   clearable
                   filterable
@@ -682,12 +250,6 @@
               </el-form-item>
               <el-form-item
                 :label="$t('terminal.battery')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="
                   (contrForPrionum == 5 ||
                     contrForPrionum == 3 ||
@@ -696,9 +258,8 @@
                     contrForPrionum == 1) &&
                   show
                 "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="batterys"
                   clearable
                   filterable
@@ -714,16 +275,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('terminal.Project1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.projectid"
                   clearable
                   filterable
@@ -738,174 +292,11 @@
                 </el-select>
               </el-form-item>
 
-              <!-- 按钮 权限5 -->
-              <el-form-item
-                v-if="show && contrForPrionum == 5"
-                style="margin-left: 0%"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("terminal.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="searchInfo()"
-                  style="margin-right: 0"
-                  >{{ $t("terminal.search") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="previousDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="nextDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="clearBtn()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.reset") }}</el-button>
-
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4 ||
-                    contrForPrionum == 5
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("terminal.command")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item><el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-              </el-form-item>
-
               <el-form-item
                 v-if="show && contrForPrionum != 5"
                 :label="$t('terminal.workstate')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.workstate"
                   clearable
                   filterable
@@ -922,16 +313,9 @@
 
               <el-form-item
                 :label="$t('terminal.inuse')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inuse"
                   clearable
                   filterable
@@ -948,7 +332,7 @@
             </el-form>
             <!-- 第三行 -->
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               v-if="
                 show &&
                 (contrForPrionum == 1 ||
@@ -956,21 +340,9 @@
                   contrForPrionum == 3 ||
                   contrForPrionum == 4)
               "
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                z-index: 1;
-              "
             >
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-                class="memo"
+                class="terminal-filter-item memo"
                 :label="$t('beacon.sysmemo1')"
                 v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
               >
@@ -983,7 +355,6 @@
                   >
                   </el-switch>
                   <template #reference><el-input
-                    style="width: 95%; float: left"
                    
                     v-model="selectMemo"
                     :placeholder="$t('terminal.Pleaseenter')"
@@ -992,13 +363,7 @@
               </el-form-item>
 
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-                class="memo"
+                class="terminal-filter-item memo"
                 :label="$t('beacon.memo11')"
                 v-if="
                   contrForPrionum != 1 &&
@@ -1016,7 +381,6 @@
                   >
                   </el-switch>
                   <template #reference><el-input
-                    style="width: 95%; float: left"
                    
                     v-model="selectMemo"
                     :placeholder="$t('terminal.Pleaseenter')"
@@ -1025,16 +389,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('beacon.company')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
                 v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
-              >
+                class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -1051,10 +408,8 @@
               <el-form-item
                 v-if="show && contrForPrionum != 5"
                 :label="$t('terminal.chosetime')"
-                style="display: flex; margin-left: 1%; margin-right: 0"
-              >
+                class="terminal-filter-item">
                 <el-date-picker
-                  style="width: 100%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
                   :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
@@ -1066,644 +421,77 @@
                 </el-date-picker>
               </el-form-item>
 
-              <!-- 按钮 权限3和4 -->
-              <el-form-item
-                style="display: flex; margin-left: 1%"
-                v-if="show && (contrForPrionum == 3 || contrForPrionum == 4)"
-              >
-                <span
-                  v-if="show && (contrForPrionum == 3 || contrForPrionum == 4)"
-                  style="margin: left"
-                >
-                  <el-form-item style="margin-left: 0%">
-                    <span class="el-dropdown-link" @click="changeItem()">
-                      {{ $t("terminal.putAway")
-                      }}<i class="el-icon-arrow-up el-icon--right"></i>
-                    </span>
-                    <el-button
-                      type="primary"
-                      class="query"
-                      @click="searchInfo()"
-                      style="margin-right: 0"
-                      >{{ $t("terminal.search") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="query"
-                      @click="previousDevice()"
-                      style="margin-left: 0"
-                      >{{ $t("terminal.previous") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="query"
-                      @click="nextDevice()"
-                      style="margin-left: 0"
-                      >{{ $t("terminal.next") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="reset"
-                      @click="clearBtn()"
-                      style="margin-left: 0"
-                      >{{ $t("terminal.reset") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="export"
-                      @click="importExcel()"
-                      v-if="contrForPrionum != 5"
-                      style="margin-left: 0%"
-                      >{{ $t("terminal.import") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="export"
-                      @click="exportExcel()"
-                      v-if="contrForPrionum != 5"
-                      style="margin-left: 0%"
-                      >{{ $t("terminal.export") }}</el-button>
-                    <el-button
-                      type="primary"
-                      class="addTer"
-                      @click="addTer()"
-                      v-if="contrForPrionum != 5"
-                      >{{ $t("terminal.addterminal") }}</el-button>
-                    <!-- 批量操作 -->
-                    <el-dropdown
-                      size="small"
-                      type="primary"
-                      trigger="hover"
-                      v-if="contrForPrionum != 5"
-                    >
-                      <span class="el-dropdown-link">
-                      <el-button type="primary" size="small">
-                        {{ $t("terminal.batch")
-                        }}<i class="el-icon-arrow-down el-icon--right"></i>
-                      </el-button>
-                      </span>
-<template #dropdown><el-dropdown-menu
-                       
-                        style="background-color: rgb(219, 222, 231)"
-                        class="selects"
-                      >
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                        >
-                          <el-button
-                            class="editTers"
-                            @click="editTers()"
-                            v-if="
-                              contrForPrionum == 1 ||
-                              contrForPrionum == 2 ||
-                              contrForPrionum == 3 ||
-                              contrForPrionum == 4
-                            "
-                            >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            class="configTers"
-                            @click="configTers()"
-                            v-if="
-                              contrForPrionum == 1 ||
-                              contrForPrionum == 2 ||
-                              contrForPrionum == 3 ||
-                              contrForPrionum == 4
-                            "
-                            >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
-
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            class="delTers"
-                            @click="devToNs()"
-                            v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                            >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            size="small"
-                            class="configTers"
-                            @click="extendTerminals()"
-                            v-if="
-                              contrForPrionum == 1 ||
-                              contrForPrionum == 2 ||
-                              contrForPrionum == 3 ||
-                              contrForPrionum == 4
-                            "
-                            >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
-
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            class="delTers"
-                            @click="assignTers()"
-                            v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                            >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            class="delTers"
-                            @click="removeTers()"
-                            v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                            >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels1"
-                            @click="delTers()"
-                            v-if="
-                              contrForPrionum == 1 ||
-                              contrForPrionum == 2 ||
-                              contrForPrionum == 3 ||
-                              contrForPrionum == 4
-                            "
-                            >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                      </el-dropdown-menu></template>
-                    </el-dropdown>
-                    <!-- 批量命令 -->
-                    <el-dropdown size="small" type="primary" trigger="hover">
-                      <span class="el-dropdown-link">
-                      <el-button type="primary" size="small">
-                        {{ $t("terminal.command")
-                        }}<i class="el-icon-arrow-down el-icon--right"></i>
-                      </el-button>
-                      </span>
-<template #dropdown><el-dropdown-menu
-                       
-                        style="background-color: rgb(219, 222, 231)"
-                        class="selects"
-                      >
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4 ||
-                            contrForPrionum == 5
-                          "
-                        >
-                          <el-button
-                            size="small"
-                            class="edits"
-                            @click="sendDownLinks(1)"
-                            >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4 ||
-                            contrForPrionum == 5
-                          "
-                        >
-                          <el-button
-                            size="small"
-                            class="edits"
-                            @click="sendDownLinks(2)"
-                            >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4 ||
-                            contrForPrionum == 5
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(3)"
-                            >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4 ||
-                            contrForPrionum == 5
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(4)"
-                            >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4 ||
-                            contrForPrionum == 5
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(0)"
-                            >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(5)"
-                            >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(6)"
-                            >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(7)"
-                            >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
-                        <el-dropdown-item
-                          style="
-                            margin-top: 4%;
-                            background-color: rgb(219, 222, 231);
-                          "
-                          v-if="
-                            contrForPrionum == 1 ||
-                            contrForPrionum == 2 ||
-                            contrForPrionum == 3 ||
-                            contrForPrionum == 4
-                          "
-                          ><el-button
-                            size="small"
-                            class="dels"
-                            @click="sendDownLinks(8)"
-                            >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
-                      </el-dropdown-menu></template>
-                    </el-dropdown>
-                  </el-form-item>
-                </span>
-              </el-form-item>
-              <!-- 按钮 权限1和2 -->
-              <el-form-item
-                style="display: flex; margin-left: 0%"
-                v-if="show && (contrForPrionum == 1 || contrForPrionum == 2)"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("terminal.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="searchInfo()"
-                  style="margin-right: 0%"
-                  >{{ $t("terminal.search") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="previousDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.previous") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="query"
-                  @click="nextDevice()"
-                  style="margin-left: 0"
-                  >{{ $t("terminal.next") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="clearBtn()"
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.reset") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="export"
-                  @click="importExcel()"
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.import") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="export"
-                  @click="exportExcel()"
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.export") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="addTer"
-                  @click="addTer()"
-                  v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                  style="margin-left: 0%"
-                  >{{ $t("terminal.addterminal") }}</el-button>
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("terminal.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        class="editTers"
-                        @click="editTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.edit") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="configTers"
-                        @click="configTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.deploy") }}</el-button></el-dropdown-item>
-
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="devToNs()"
-                        v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                        >{{ $t("terminal.synchronization") }}</el-button></el-dropdown-item>
-
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="configTers"
-                        @click="extendTerminals()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.Extend") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="assignTers()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delTers"
-                        @click="removeTers()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels1"
-                        @click="delTers()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 2 ||
-                          contrForPrionum == 3 ||
-                          contrForPrionum == 4
-                        "
-                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4 ||
-                    contrForPrionum == 5
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("terminal.command")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(1)"
-                        >{{ $t("terminal.Remotereboot") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                    >
-                      <el-button
-                        size="small"
-                        class="edits"
-                        @click="sendDownLinks(2)"
-                        >{{ $t("terminal.Remoteshutdown") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(3)"
-                        >{{ $t("terminal.Remotesearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(4)"
-                        >{{ $t("terminal.Cancelsearch") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(0)"
-                        >{{ $t("terminal.Requestlocation") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(5)"
-                        >{{ $t("terminal.Positioningbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(6)"
-                        >{{ $t("terminal.Assetbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(7)"
-                        >{{ $t("terminal.Transparentbeacon") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      v-if="contrForPrionum != 5"
-                      ><el-button
-                        size="small"
-                        class="dels"
-                        @click="sendDownLinks(8)"
-                        >{{ $t("terminal.Confirmationbeacon") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-              </el-form-item>
             </el-form>
+
+              <div class="search-actions terminal-toolbar-item">
+                <div class="terminal-toolbar-row">
+                  <span class="terminal-filter-more" @click="changeItem()">
+                    {{ show ? $t("terminal.putAway") : $t("terminal.more") }}
+                    <i :class="show ? 'el-icon-arrow-up' : 'el-icon-arrow-down'" class="el-icon--right"></i>
+                  </span>
+                  <el-button type="primary" class="query" @click="searchInfo()">{{ $t("terminal.search") }}</el-button>
+                  <el-button type="primary" class="reset" @click="clearBtn()">{{ $t("terminal.reset") }}</el-button>
+                  <el-button v-if="isAdminPrio" type="primary" class="addTer" @click="addTer()">{{ $t("terminal.addterminal") }}</el-button>
+                  <el-dropdown trigger="click">
+                    <el-button type="primary">{{ $t("terminal.moreActions") }}<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu class="terminal-action-menu">
+                        <el-dropdown-item v-if="contrForPrionum != 5" @click="importExcel()">{{ $t("terminal.import") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="isAdminPrio" @click="exportExcel()">{{ $t("terminal.export") }}</el-dropdown-item>
+                        <el-dropdown-item @click="previousDevice()">{{ $t("terminal.previous") }}</el-dropdown-item>
+                        <el-dropdown-item @click="nextDevice()">{{ $t("terminal.next") }}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                  <el-dropdown v-if="isAdminPrio" trigger="click" :disabled="!multipleSelection.length">
+                    <el-button type="primary" :disabled="!multipleSelection.length">{{ $t("terminal.batch") }}<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu class="terminal-action-menu">
+                        <el-dropdown-item @click="editTers()">{{ $t("terminal.edit") }}</el-dropdown-item>
+                        <el-dropdown-item @click="configTers()">{{ $t("terminal.deploy") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum == 1 || contrForPrionum == 2" @click="devToNs()">{{ $t("terminal.synchronization") }}</el-dropdown-item>
+                        <el-dropdown-item @click="extendTerminals()">{{ $t("terminal.Extend") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum == 3 || contrForPrionum == 4" @click="assignTers()">{{ $t("terminal.assign") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum == 3 || contrForPrionum == 4" @click="removeTers()">{{ $t("terminal.recovery") }}</el-dropdown-item>
+                        <el-dropdown-item @click="delTers()">{{ $t("terminal.delete") }}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                  <el-dropdown trigger="click">
+                    <el-button type="primary">{{ $t("terminal.command") }}<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu class="terminal-action-menu">
+                        <el-dropdown-item @click="sendDownLinks(1)">{{ $t("terminal.Remotereboot") }}</el-dropdown-item>
+                        <el-dropdown-item @click="sendDownLinks(2)">{{ $t("terminal.Remoteshutdown") }}</el-dropdown-item>
+                        <el-dropdown-item @click="sendDownLinks(3)">{{ $t("terminal.Remotesearch") }}</el-dropdown-item>
+                        <el-dropdown-item @click="sendDownLinks(4)">{{ $t("terminal.Cancelsearch") }}</el-dropdown-item>
+                        <el-dropdown-item @click="sendDownLinks(0)">{{ $t("terminal.Requestlocation") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum != 5" @click="sendDownLinks(5)">{{ $t("terminal.Positioningbeacon") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum != 5" @click="sendDownLinks(6)">{{ $t("terminal.Assetbeacon") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum != 5" @click="sendDownLinks(7)">{{ $t("terminal.Transparentbeacon") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="contrForPrionum != 5" @click="sendDownLinks(8)">{{ $t("terminal.Confirmationbeacon") }}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                  <el-tooltip effect="light" placement="bottom-start">
+                    <template #content>
+                      <div class="terminal-help-tip">
+                        <p v-if="contrForPrionum != 5">{{ $t("terminal.title") }}</p>
+                        <p>{{ $t("terminal.context") }}</p>
+                        <p>{{ $t("terminal.context1") }}</p>
+                        <p>{{ $t("terminal.context2") }}</p>
+                        <p v-if="contrForPrionum != 5">{{ $t("terminal.title1") }}</p>
+                        <p v-if="contrForPrionum != 5">{{ $t("terminal.title2") }}</p>
+                        <p v-if="contrForPrionum != 5">{{ $t("terminal.title3") }}</p>
+                        <p v-if="contrForPrionum == 3 || contrForPrionum == 4">{{ $t("terminal.title4") }}</p>
+                        <p v-if="isAdminPrio">{{ $t("terminal.batchNeedSelect") }}</p>
+                      </div>
+                    </template>
+                    <i class="el-icon-question terminal-help-icon"></i>
+                  </el-tooltip>
+                </div>
+              </div>
+
           </div>
           <!-- 设备展示 -->
           <div class="terminal_div">
@@ -2736,7 +1524,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -8611,6 +7399,16 @@ export default {
       ],
     };
   },
+  computed: {
+    isAdminPrio() {
+      const p = Number(this.contrForPrionum);
+      return p === 1 || p === 2 || p === 3 || p === 4;
+    },
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || this.$i18n.locale;
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     //导出
     exportExcel() {
@@ -9312,17 +8110,9 @@ export default {
         ];
       }
     },
-    //显示隐藏输入框
+    //显示隐藏高级筛选（不切换操作按钮）
     changeItem() {
-      if (this.show == false && this.seen == true && this.seen1 == false) {
-        this.show = true;
-        this.seen = false;
-        this.seen1 = true;
-      } else {
-        this.show = false;
-        this.seen = true;
-        this.seen1 = false;
-      }
+      this.show = !this.show;
     },
     //分页
     handleCurrentChange(val) {
@@ -12721,8 +11511,131 @@ export default {
   margin-top: 50px;
   width: auto !important;
 }
-.ter_input {
+.ter_input.terminal-filter-flow {
   z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+}
+/* 让各行筛选表单项与操作按钮进入同一流，按钮跟在最后一个筛选项后 */
+.ter_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.ter_input.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.ter_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+/* 统一标签占位与控件宽度；英文加宽，避免被 max-width 裁切遮挡 */
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.ter_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.ter_input.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown),
+.terminal-toolbar-row :deep(.el-tooltip__),
+.terminal-toolbar-row :deep(.el-only-child__) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+  float: none !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.terminal-help-icon {
+  font-size: 16px;
+  color: #909399;
+  cursor: help;
+  margin: 0 !important;
+}
+.terminal-help-tip p {
+  margin: 4px 0;
+  max-width: 360px;
+  line-height: 1.4;
+}
+.terminal-action-menu .el-dropdown-menu__item {
+  line-height: 28px;
 }
 .el-dropdown-link {
   cursor: pointer;
@@ -12777,7 +11690,8 @@ export default {
   margin-left: 0 !important;
 }
 
-.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button) {
+.demo-form-inline :deep(.el-form-item .el-form-item__content > .el-dropdown .el-button),
+.terminal-toolbar-row :deep(.el-dropdown .el-button) {
   height: 28px !important;
   padding: 7px 15px !important;
   font-size: 12px !important;
@@ -12912,4 +11826,120 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+</style>
+
+<style>
+/* 对抗 App.vue 的 * { margin: 0 auto }，避免操作按钮被横向拉开 */
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .el-tooltip,
+.terminal-toolbar-row > .terminal-filter-more,
+.terminal-toolbar-row > .el-only-child__ {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 </style>

@@ -1421,22 +1421,6 @@ export const updateMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //�
     }).then(res => res)
 };
 
-export const auditMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //审核地图信息
-    let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/auditMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
-    return service({
-        url: "map/auditMapInfo",
-        method: 'put',
-        headers: {
-            ts: time_A,
-            siginfo: sha_A,
-            tenantid: tenantid_A,
-            username: username
-        },
-        data: datas
-    }).then(res => res)
-};
-
 
 export const updateMap = (datas, tenantkey_A, tenantid_A, username) => { //编辑地图信息
     let time_A = getTime()

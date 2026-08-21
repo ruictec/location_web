@@ -8,6 +8,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
+          <!-- 权限 1-4 始终展示；权限 5 才按项目功能配置判断 -->
           <el-tabs @tab-click="changeTab" v-if="hasAnyDevice">
             <el-tab-pane name="0" :label="$t('otherDev.aoaGateway')" v-if="aoagw">
               <AOA ref="aoa" />
@@ -18,18 +19,19 @@
             <el-tab-pane name="2" :label="$t('otherDev.burglarAlarm')" v-if="alertor">
               <BurglarAlarm ref="burglaralarm" />
             </el-tab-pane>
-            <el-tab-pane name="3"
+            <el-tab-pane
+              name="3"
               :label="$t('otherDev.bluetoothSensor')"
               v-if="blesensor"
             >
-              <Ble ref="ble"
-            /></el-tab-pane>
+              <Ble ref="ble" />
+            </el-tab-pane>
             <el-tab-pane name="4" :label="$t('otherDev.camera')" v-if="camera">
-              <Camera ref="camera"
-            /></el-tab-pane>
+              <Camera ref="camera" />
+            </el-tab-pane>
           </el-tabs>
-          <div v-else class="no-device-message">
-            <el-empty :description="$t('common.noDeviceAvailable') || '暂无可用设备'"></el-empty>
+          <div v-else-if="isUserPrio" class="no-device-message">
+            <el-empty :description="$t('common.noDeviceAvailable')"></el-empty>
           </div>
         </el-main>
       </el-container>
@@ -37,7 +39,7 @@
   </div>
 </template>
 <script>
-import { resolveElTab } from '../../utils/elementTab'
+import { resolveElTab } from "../../utils/elementTab";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Devicemanagement from "../../components/devicemanagement/devicemanagement";
@@ -46,6 +48,10 @@ import Ble from "./Ble.vue";
 import BurglarAlarm from "./BurglarAlarm.vue";
 import Camera from "./Camera.vue";
 import SmokeSensation from "./SmokeSensation.vue";
+
+function isPartEnabled(v) {
+  return v === true || v === 1 || v === "1" || v === "true";
+}
 
 export default {
   components: {
@@ -61,49 +67,97 @@ export default {
   data() {
     return {
       contrForPrionum: this.$store.state.userInfo.prionum,
-      aoagw: this.$store.state.functionParts.aoagw,
-      smoke: this.$store.state.functionParts.smoke,
-      alertor: this.$store.state.functionParts.alertor,
-      blesensor: this.$store.state.functionParts.blesensor,
-      camera: this.$store.state.functionParts.camera,
     };
   },
   computed: {
+    prionum() {
+      return Number(this.contrForPrionum || this.$store.state.userInfo.prionum);
+    },
+    // 管理员/客户侧 1-4：安全管理页直接可用，不依赖项目 functionParts
+    isAdminPrio() {
+      const p = this.prionum;
+      return p === 1 || p === 2 || p === 3 || p === 4;
+    },
+    // 普通用户 5：按项目配置判断可见设备类型
+    isUserPrio() {
+      return this.prionum === 5;
+    },
+    functionParts() {
+      return this.$store.state.functionParts || {};
+    },
+    aoagw() {
+      return this.isAdminPrio || isPartEnabled(this.functionParts.aoagw);
+    },
+    smoke() {
+      return this.isAdminPrio || isPartEnabled(this.functionParts.smoke);
+    },
+    alertor() {
+      return this.isAdminPrio || isPartEnabled(this.functionParts.alertor);
+    },
+    blesensor() {
+      return this.isAdminPrio || isPartEnabled(this.functionParts.blesensor);
+    },
+    camera() {
+      return this.isAdminPrio || isPartEnabled(this.functionParts.camera);
+    },
     hasAnyDevice() {
-      return this.aoagw || this.smoke || this.alertor || this.blesensor || this.camera;
-    }
+      if (this.isAdminPrio) return true;
+      return (
+        this.aoagw ||
+        this.smoke ||
+        this.alertor ||
+        this.blesensor ||
+        this.camera
+      );
+    },
+  },
+  watch: {
+    hasAnyDevice: {
+      immediate: true,
+      handler(val) {
+        if (!val) return;
+        this.$nextTick(() => {
+          this.triggerDefaultSearch();
+        });
+      },
+    },
   },
   methods: {
+    triggerDefaultSearch() {
+      if (this.aoagw && this.$refs.aoa) {
+        this.$refs.aoa.search();
+      } else if (this.smoke && this.$refs.smokesensation) {
+        this.$refs.smokesensation.search();
+      } else if (this.alertor && this.$refs.burglaralarm) {
+        this.$refs.burglaralarm.search();
+      } else if (this.blesensor && this.$refs.ble) {
+        this.$refs.ble.search();
+      } else if (this.camera && this.$refs.camera) {
+        this.$refs.camera.search();
+      }
+    },
     changeTab(tab) {
       var that = this;
       switch (resolveElTab(tab).name) {
         case "0":
-          that.$refs.aoa.search();
+          that.$refs.aoa && that.$refs.aoa.search();
           break;
         case "1":
-          that.$refs.smokesensation.search();
+          that.$refs.smokesensation && that.$refs.smokesensation.search();
           break;
         case "2":
-          that.$refs.burglaralarm.search();
+          that.$refs.burglaralarm && that.$refs.burglaralarm.search();
           break;
         case "3":
-          that.$refs.ble.search();
+          that.$refs.ble && that.$refs.ble.search();
           break;
         case "4":
-          that.$refs.camera.search();
+          that.$refs.camera && that.$refs.camera.search();
           break;
         default:
           break;
       }
     },
-  },
-  mounted() {
-    // 延迟执行，确保组件已渲染
-    this.$nextTick(() => {
-      if (this.aoagw && this.$refs.aoa) {
-        this.$refs.aoa.search();
-      }
-    });
   },
 };
 </script>

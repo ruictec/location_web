@@ -8,19 +8,20 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
-          <div class="gateway_input">
+          <div
+            class="gateway_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
             <el-form
-              class="demo-form-inline gateway-search-form"
+              class="demo-form-inline terminal-filter-form gateway-search-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; margin-left: 1%; z-index: 1"
             >
               <el-form-item
                 :label="$t('gateway.company')"
-                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
               >
                 <el-select
-                  style="width: 100%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -37,10 +38,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.deveui')"
-                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 100%; float: left"
                   v-model="searchList.deveui"
                   clearable
                   filterable
@@ -56,10 +56,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.scheme')"
-                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 100%; float: left"
                   v-model="searchList.scheme"
                   clearable
                   filterable
@@ -75,10 +74,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.Online')"
-                style="display: flex; width: 20%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 100%; float: left"
                   v-model="searchList.hbstatus"
                   clearable
                   filterable
@@ -94,11 +92,10 @@
               </el-form-item>
               <el-form-item
                 :label="$t('terminal.Project1')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
                 v-if="contrForPrionum == 3 || contrForPrionum == 4"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.projectid"
                   clearable
                   filterable
@@ -112,7 +109,9 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 2%">
+            </el-form>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
                 <el-button type="primary" class="query" @click="searchGateway()">{{
                   $t('gateway.search')
                 }}</el-button>
@@ -136,8 +135,8 @@
                   @click="GwToNs()"
                   v-if="contrForPrionum == 1 || contrForPrionum == 2"
                   >{{ $t('gateway.Batchsynchronization') }}</el-button>
-              </el-form-item>
-            </el-form>
+              </div>
+            </div>
           </div>
 
           <!-- gateway展示 -->
@@ -335,6 +334,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 v-model:current-page="currentPage1"
+                v-model:page-size="pageCount"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -1009,6 +1009,12 @@ export default {
       echarts1: true,
       echarts2: true, //当两个echarts折线图渲染完成后才会触发点击事件
     }
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //批量同步
@@ -2122,15 +2128,9 @@ export default {
   line-height: 34px;
 }
 
-.gateway-search-form :deep(.el-form-item .el-form-item__content) {
-  flex: 1;
+.terminal-filter-flow .gateway-search-form :deep(.el-form-item .el-form-item__content) {
+  flex: 0 0 auto;
   min-width: 0;
-}
-
-.gateway-search-form :deep(.el-select),
-.gateway-search-form :deep(.el-select .el-select__wrapper) {
-  width: 100% !important;
-  min-width: 140px;
 }
 
 /* 地图 */
@@ -2197,4 +2197,228 @@ a {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.query,
+.reset,
+.add,
+.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+
