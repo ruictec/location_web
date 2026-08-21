@@ -1530,10 +1530,16 @@ export default {
       that.map.addInteraction(select);
 
       select.on("select", (e) => {
-        if (window.event.ctrlKey) {
-          if (select.getFeatures().array_.length == 0) return;
-          if (!select.getFeatures().array_[0].values_.alias) {
-            select.getFeatures().array_[0].setStyle(
+        const selectedFeatures =
+          (select.getFeatures() &&
+            (typeof select.getFeatures().getArray === "function"
+              ? select.getFeatures().getArray()
+              : select.getFeatures().array_)) ||
+          [];
+        if (window.event && window.event.ctrlKey) {
+          if (selectedFeatures.length == 0 || !selectedFeatures[0]) return;
+          if (!selectedFeatures[0].values_ || !selectedFeatures[0].values_.alias) {
+            selectedFeatures[0].setStyle(
               new OlStyleStyle({
                 fill: new Fill({
                   color: "rgba(255, 255, 255, 0.3)",
@@ -1553,9 +1559,10 @@ export default {
           }
           return;
         }
-        that.currentFeature = select.getFeatures().array_;
+        that.currentFeature = selectedFeatures;
         if (e.selected.length == 0) return;
         that.currentFeature.forEach((item, index) => {
+          if (!item || !item.values_) return;
           if (e.selected[0] && e.selected[0].ol_uid === item.ol_uid) {
             let image;
             if (item.values_.alias) {
@@ -1990,10 +1997,16 @@ export default {
         // 单击选中
         that.select.on("select", (e) => {
           // if(that.select==null)return
+          const selectedFeatures =
+            (that.select.getFeatures() &&
+              (typeof that.select.getFeatures().getArray === "function"
+                ? that.select.getFeatures().getArray()
+                : that.select.getFeatures().array_)) ||
+            [];
           if (window.event && window.event.ctrlKey) {
-            if (that.select.getFeatures().array_.length == 0) return;
-            if (!that.select.getFeatures().array_[0].values_.alias) {
-              that.select.getFeatures().array_[0].setStyle(
+            if (selectedFeatures.length == 0 || !selectedFeatures[0]) return;
+            if (!selectedFeatures[0].values_ || !selectedFeatures[0].values_.alias) {
+              selectedFeatures[0].setStyle(
                 new OlStyleStyle({
                   fill: new Fill({
                     color: "rgba(255, 255, 255, 0.3)",
@@ -2013,9 +2026,10 @@ export default {
             }
             return;
           }
-          that.currentFeature = that.select.getFeatures().array_;
+          that.currentFeature = selectedFeatures;
           if (e.selected.length == 0) return;
           that.currentFeature.forEach((item, index) => {
+            if (!item || !item.values_) return;
             if (e.selected[0] && e.selected[0].ol_uid === item.ol_uid) {
               let image;
               if (item.values_.alias) {
@@ -2071,18 +2085,29 @@ export default {
         translate.on("translatestart", (e) => {
           let list = that.map.getLayers().getArray();
           //获取选中的点信息 用于判断线的移动端点
-          let feature = e.features.array_[0].values_;
+          const featureList =
+            (e.features &&
+              (typeof e.features.getArray === "function"
+                ? e.features.getArray()
+                : e.features.array_)) ||
+            [];
+          const targetFeature = featureList.find((f) => f && f.values_) || null;
+          if (!targetFeature) {
+            return;
+          }
+          let feature = targetFeature.values_;
           if (feature.xy) {
             differX = e.coordinate[0] - feature.xy[0];
             differY = e.coordinate[1] - feature.xy[1];
           }
-          currentFeature = e.features.array_[0];
+          currentFeature = targetFeature;
           oldFeature = feature;
           let LayerArrays = [];
           //获选中点相关的线集合
           list.forEach((item) => {
             if (
               !item.getSource().image_ &&
+              item.getSource().getFeatures()[0] &&
               item.getSource().getFeatures()[0].values_
             ) {
               if (feature.id) {
@@ -2116,12 +2141,14 @@ export default {
               .getGeometry().flatCoordinates;
             //为了判断端点移动 线需要移动的端点坐标设为0
             if (
+              oldFeature.xy &&
               flatCoordinates[0] === oldFeature.xy[0] &&
               flatCoordinates[1] === oldFeature.xy[1]
             ) {
               xy.push([0, 0, flatCoordinates[2], flatCoordinates[3]]);
             }
             if (
+              oldFeature.xy &&
               flatCoordinates[2] === oldFeature.xy[0] &&
               flatCoordinates[3] === oldFeature.xy[1]
             ) {
@@ -2134,6 +2161,7 @@ export default {
         translate.on("translating", function (e) {
           //遍历该点的相关线
           lines.forEach((item, index) => {
+            if (!xy[index] || !item.getSource().getFeatures()[0]) return;
             //移动线，端点坐标为0的就设置为移动中的坐标
             item
               .getSource()
@@ -2163,6 +2191,21 @@ export default {
         //移动结束
         translate.on("translateend", function (e) {
           // if (window.event.ctrlKey) return;
+          const endFeatures =
+            (e.features &&
+              (typeof e.features.getArray === "function"
+                ? e.features.getArray()
+                : e.features.array_)) ||
+            [];
+          const endFeature =
+            endFeatures.find((f) => f && f.values_) || null;
+          if (!endFeature) {
+            old = [];
+            lines = [];
+            oldFeature = "";
+            xy = [];
+            return;
+          }
           //没有移动点就不执行
           if (
             old[0] === e.mapBrowserEvent.coordinate[0] &&
@@ -2181,14 +2224,18 @@ export default {
             background: "rgba(256, 256, 256, 0.7)",
           });
           let moveTimes = 0;
+          const endValues = endFeature.values_ || {};
           function updatePoints() {
             moveTimes += 1;
             let clearMarker = true;
             let data = {
               groundid: that.groundid,
               pointid:
-                e.features.array_[0].values_.id ||
-                e.features.array_[0].values_.features[0].values_.id,
+                endValues.id ||
+                (endValues.features &&
+                  endValues.features[0] &&
+                  endValues.features[0].values_ &&
+                  endValues.features[0].values_.id),
               nodeX: e.mapBrowserEvent.coordinate[0] - differX,
               nodeY: e.mapBrowserEvent.coordinate[1] - differY,
             };
@@ -2246,8 +2293,11 @@ export default {
               projectid: that.intoProjectid,
               groundid: that.groundid,
               deveui:
-                e.features.array_[0].values_.deveui ||
-                e.features.array_[0].values_.features[0].values_.deveui,
+                endValues.deveui ||
+                (endValues.features &&
+                  endValues.features[0] &&
+                  endValues.features[0].values_ &&
+                  endValues.features[0].values_.deveui),
               longi: e.mapBrowserEvent.coordinate[0] - differX,
               lati: e.mapBrowserEvent.coordinate[1] - differY,
               falg: true,
@@ -2264,8 +2314,8 @@ export default {
               }
             }, 5000);
 
-            if (e.features.array_[0].values_.devtype) {
-              data.devtype = e.features.array_[0].values_.devtype;
+            if (endValues.devtype) {
+              data.devtype = endValues.devtype;
               updateDevOtherPosOne(
                 data,
                 that.tenantkey_A,
@@ -2399,20 +2449,20 @@ export default {
             return;
           }
           if (
-            (e.features.array_[0].values_ &&
-              e.features.array_[0].values_.point) ||
-            (e.features.array_[0].values_.features &&
-              e.features.array_[0].values_.features[0].values_ &&
-              e.features.array_[0].values_.features[0].values_.point)
+            (endValues && endValues.point) ||
+            (endValues.features &&
+              endValues.features[0] &&
+              endValues.features[0].values_ &&
+              endValues.features[0].values_.point)
           ) {
             updatePoints();
           }
           if (
-            (e.features.array_[0].values_ &&
-              e.features.array_[0].values_.alias) ||
-            (e.features.array_[0].values_.features &&
-              e.features.array_[0].values_.features[0].values_ &&
-              e.features.array_[0].values_.features[0].values_.alias)
+            (endValues && endValues.alias) ||
+            (endValues.features &&
+              endValues.features[0] &&
+              endValues.features[0].values_ &&
+              endValues.features[0].values_.alias)
           ) {
             updateBeaconPosOnes();
           }
@@ -2420,10 +2470,12 @@ export default {
           lines = [];
           oldFeature = "";
           xy = [];
-          currentFeature.set("xy", [
-            e.mapBrowserEvent.coordinate[0],
-            e.mapBrowserEvent.coordinate[1],
-          ]);
+          if (currentFeature && currentFeature.set) {
+            currentFeature.set("xy", [
+              e.mapBrowserEvent.coordinate[0],
+              e.mapBrowserEvent.coordinate[1],
+            ]);
+          }
         });
         const overviewMapControl = new OverviewMap({
           layers: [
@@ -3212,18 +3264,29 @@ export default {
       translate1.on("translatestart", (e) => {
         let list = that.map.getLayers().getArray();
         //获取选中的点信息 用于判断线的移动端点
-        let feature = e.features.array_[0].values_;
+        const featureList =
+          (e.features &&
+            (typeof e.features.getArray === "function"
+              ? e.features.getArray()
+              : e.features.array_)) ||
+          [];
+        const targetFeature = featureList.find((f) => f && f.values_) || null;
+        if (!targetFeature) {
+          return;
+        }
+        let feature = targetFeature.values_;
         if (feature.xy) {
           differX = e.coordinate[0] - feature.xy[0];
           differY = e.coordinate[1] - feature.xy[1];
         }
-        currentFeature = e.features.array_[0];
+        currentFeature = targetFeature;
         oldFeature = feature;
         let LayerArrays = [];
         //获选中点相关的线集合
         list.forEach((item) => {
           if (
             !item.getSource().image_ &&
+            item.getSource().getFeatures()[0] &&
             item.getSource().getFeatures()[0].values_
           ) {
             if (feature.id) {
@@ -3247,7 +3310,7 @@ export default {
             }
           }
         });
-        old = e.mapBrowserEvent.coordinate[0];
+        old = e.mapBrowserEvent.coordinate;
         lines = LayerArrays;
         //获取线的坐标集合
         lines.forEach((item, index) => {
@@ -3257,12 +3320,14 @@ export default {
             .getGeometry().flatCoordinates;
           //为了判断端点移动 线需要移动的端点坐标设为0
           if (
+            oldFeature.xy &&
             flatCoordinates[0] === oldFeature.xy[0] &&
             flatCoordinates[1] === oldFeature.xy[1]
           ) {
             xy.push([0, 0, flatCoordinates[2], flatCoordinates[3]]);
           }
           if (
+            oldFeature.xy &&
             flatCoordinates[2] === oldFeature.xy[0] &&
             flatCoordinates[3] === oldFeature.xy[1]
           ) {
@@ -3274,6 +3339,7 @@ export default {
       translate1.on("translating", function (e) {
         //遍历该点的相关线
         lines.forEach((item, index) => {
+          if (!xy[index] || !item.getSource().getFeatures()[0]) return;
           //移动线，端点坐标为0的就设置为移动中的坐标
           item
             .getSource()
@@ -3303,8 +3369,30 @@ export default {
       //移动结束
       translate1.on("translateend", function (e) {
         // if (window.event.ctrlKey) return;
+        const endFeatures =
+          (e.features &&
+            (typeof e.features.getArray === "function"
+              ? e.features.getArray()
+              : e.features.array_)) ||
+          [];
+        const endFeature =
+          endFeatures.find((f) => f && f.values_) || null;
+        if (!endFeature) {
+          old = "";
+          lines = [];
+          oldFeature = "";
+          xy = [];
+          return;
+        }
+        const endValues = endFeature.values_ || {};
         //没有移动点就不执行
-        if (old === e.mapBrowserEvent.coordinate[0]) {
+        if (
+          !old ||
+          (Array.isArray(old)
+            ? old[0] === e.mapBrowserEvent.coordinate[0] &&
+              old[1] === e.mapBrowserEvent.coordinate[1]
+            : old === e.mapBrowserEvent.coordinate[0])
+        ) {
           old = "";
           lines = [];
           oldFeature = "";
@@ -3324,8 +3412,11 @@ export default {
           let data = {
             groundid: that.groundid,
             pointid:
-              e.features.array_[0].values_.id ||
-              e.features.array_[0].values_.features[0].values_.id,
+              endValues.id ||
+              (endValues.features &&
+                endValues.features[0] &&
+                endValues.features[0].values_ &&
+                endValues.features[0].values_.id),
             nodeX: e.mapBrowserEvent.coordinate[0] - differX,
             nodeY: e.mapBrowserEvent.coordinate[1] - differY,
           };
@@ -3354,10 +3445,12 @@ export default {
                 type: "success",
               });
               //移动完成重新设置该点xy信息
-              currentFeature.set("xy", [
-                e.mapBrowserEvent.coordinate[0] - differX,
-                e.mapBrowserEvent.coordinate[1] - differY,
-              ]);
+              if (currentFeature && currentFeature.set) {
+                currentFeature.set("xy", [
+                  e.mapBrowserEvent.coordinate[0] - differX,
+                  e.mapBrowserEvent.coordinate[1] - differY,
+                ]);
+              }
               setTimeout(() => {
                 loading.close();
               }, 500);
@@ -3382,8 +3475,11 @@ export default {
             projectid: that.intoProjectid,
             groundid: that.groundid,
             deveui:
-              e.features.array_[0].values_.deveui ||
-              e.features.array_[0].values_.features[0].values_.deveui,
+              endValues.deveui ||
+              (endValues.features &&
+                endValues.features[0] &&
+                endValues.features[0].values_ &&
+                endValues.features[0].values_.deveui),
             longi: e.mapBrowserEvent.coordinate[0] - differX,
             lati: e.mapBrowserEvent.coordinate[1] - differY,
             falg: true,
@@ -3400,8 +3496,8 @@ export default {
             }
           }, 5000);
 
-          if (e.features.array_[0].values_.devtype) {
-            data.devtype = e.features.array_[0].values_.devtype;
+          if (endValues.devtype) {
+            data.devtype = endValues.devtype;
             updateDevOtherPosOne(
               data,
               that.tenantkey_A,
@@ -3535,20 +3631,20 @@ export default {
           return;
         }
         if (
-          (e.features.array_[0].values_ &&
-            e.features.array_[0].values_.point) ||
-          (e.features.array_[0].values_.features &&
-            e.features.array_[0].values_.features[0].values_ &&
-            e.features.array_[0].values_.features[0].values_.point)
+          (endValues && endValues.point) ||
+          (endValues.features &&
+            endValues.features[0] &&
+            endValues.features[0].values_ &&
+            endValues.features[0].values_.point)
         ) {
           updatePoints();
         }
         if (
-          (e.features.array_[0].values_ &&
-            e.features.array_[0].values_.alias) ||
-          (e.features.array_[0].values_.features &&
-            e.features.array_[0].values_.features[0].values_ &&
-            e.features.array_[0].values_.features[0].values_.alias)
+          (endValues && endValues.alias) ||
+          (endValues.features &&
+            endValues.features[0] &&
+            endValues.features[0].values_ &&
+            endValues.features[0].values_.alias)
         ) {
           updateBeaconPosOnes();
         }
@@ -3556,10 +3652,12 @@ export default {
         lines = [];
         oldFeature = "";
         xy = [];
-        currentFeature.set("xy", [
-          e.mapBrowserEvent.coordinate[0],
-          e.mapBrowserEvent.coordinate[1],
-        ]);
+        if (currentFeature && currentFeature.set) {
+          currentFeature.set("xy", [
+            e.mapBrowserEvent.coordinate[0],
+            e.mapBrowserEvent.coordinate[1],
+          ]);
+        }
       });
     },
     delNear(feature, menu_overlay1) {
@@ -3659,40 +3757,47 @@ export default {
       map.addOverlay(menu_overlay1);
       $(map.getViewport()).on("contextmenu", function (event) {
         event.preventDefault();
+        that.removeClick();
         // 书写事件触发后的函数
         var pixel = map.getEventPixel(event.originalEvent);
         var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
           return feature;
         });
-        if (feature) {
+        if (feature && feature.values_) {
           var coordinate = map.getEventCoordinate(event.originalEvent);
           //右键非信标
           if (feature.values_.point) {
-            // if (that.currentAdj && that.currentAdj.values_.point) {
             menu_overlay1.setPosition(coordinate);
-            $("#polygonMenu-closer").on("click", function (event) {
-              //移除之前添加的事件 防止多次添加
-              that.removeClick();
-              event.preventDefault();
-              menu_overlay1.setPosition(undefined);
-            }); // 点击关闭的按钮
-            $("#delPolygon").click(function () {
-              that.delPolygon(feature, menu_overlay1);
-              // menu_overlay1.setPosition(undefined);
-            }); //点击删除
-            $("#editNear").click(function () {
-              that.delNear(feature, menu_overlay1);
-              // menu_overlay1.setPosition(undefined);
-            }); //点击删除
+            that.$nextTick(() => {
+              $("#polygonMenu-closer")
+                .off("click")
+                .on("click", function (event) {
+                  that.removeClick();
+                  event.preventDefault();
+                  menu_overlay1.setPosition(undefined);
+                });
+              $("#delPolygon")
+                .off("click")
+                .on("click", function () {
+                  that.delPolygon(feature, menu_overlay1);
+                });
+              $("#editNear")
+                .off("click")
+                .on("click", function () {
+                  that.delNear(feature, menu_overlay1);
+                });
+            });
           }
           if (feature.values_.x && feature.values_.alias) {
             if (
-              feature.values_.type == 1 && feature.values_.clockin == 2
+              feature.values_.type == 1 &&
+              feature.values_.clockin == 2
             ) {
               that.clock = true;
               that.caecelClock = false;
             } else if (
-              feature.values_.type == 1 && feature.values_.clockin == 1
+              feature.values_.type == 1 &&
+              feature.values_.clockin == 1
             ) {
               that.caecelClock = true;
               that.clock = false;
@@ -3717,9 +3822,10 @@ export default {
             } else {
               that.showOther = false;
             }
+            that.clearBeaconList = false;
             that.pointLists.forEach((item) => {
               if (item.pointid == feature.values_.deveui) {
-                if (item.list.length > 0) {
+                if (item.list && item.list.length > 0) {
                   that.clearBeaconList = true;
                 } else {
                   that.clearBeaconList = false;
@@ -3728,65 +3834,69 @@ export default {
             });
 
             menu_overlay.setPosition(coordinate);
-            $("#popup-closer").on("click", function (event) {
-              that.removeClick();
-              event.preventDefault();
-              menu_overlay.setPosition(undefined);
-            }); // 点击关闭的按钮
-            $("#del").click(function () {
-              that.delFeature(feature, menu_overlay);
-            }); //点击删除
-
-            $("#calculatingDistance").click(function () {
-              that.calculatingDistance(feature, menu_overlay);
-            }); //点击计算距离
-            $("#edit").click(function () {
-              that.editFeature(feature, menu_overlay);
-            }); //点击编辑
-            // $("#cancelNear").click(function () {
-            //   that.cancelNear(feature, menu_overlay);
-            // }); //点击删除相邻信标
-            $("#cancelNearList").click(function () {
-              that.cancelNearList(feature, menu_overlay);
-            }); //点击删除相邻信标
-            $("#setClock").click(function () {
-              that.setClock(feature, menu_overlay);
-            }); //点击设为打卡点
-            $("#cancelClock").click(function () {
-              that.cancelClock(feature, menu_overlay);
-            }); //取消打卡点
-            $("#setTranche").click(function () {
-              that.updateTranche(feature, menu_overlay);
-            }); //点击设置区域
-
-            // $("#removeTranche").click(function () {
-            //   that.removeTranche(feature, menu_overlay);
-            // });//解除区域
-            // 设置相邻信标
-            $("#setAdjoinBeacon").click(function () {
-              that.setAdjoinBeacon(feature, menu_overlay);
-            });
-
-            // 设置信标扫描的范围
-            $("#setArea").click(function () {
-              that.setArea(feature, menu_overlay);
+            // v-show 变更后需等 DOM 更新再绑定，否则 #del 等按钮点击无响应
+            that.$nextTick(() => {
+              $("#popup-closer")
+                .off("click")
+                .on("click", function (event) {
+                  that.removeClick();
+                  event.preventDefault();
+                  menu_overlay.setPosition(undefined);
+                });
+              $("#del")
+                .off("click")
+                .on("click", function () {
+                  that.delFeature(feature, menu_overlay);
+                });
+              $("#calculatingDistance")
+                .off("click")
+                .on("click", function () {
+                  that.calculatingDistance(feature, menu_overlay);
+                });
+              $("#edit")
+                .off("click")
+                .on("click", function () {
+                  that.editFeature(feature, menu_overlay);
+                });
+              $("#cancelNearList")
+                .off("click")
+                .on("click", function () {
+                  that.cancelNearList(feature, menu_overlay);
+                });
+              $("#setClock")
+                .off("click")
+                .on("click", function () {
+                  that.setClock(feature, menu_overlay);
+                });
+              $("#cancelClock")
+                .off("click")
+                .on("click", function () {
+                  that.cancelClock(feature, menu_overlay);
+                });
+              $("#setTranche")
+                .off("click")
+                .on("click", function () {
+                  that.updateTranche(feature, menu_overlay);
+                });
+              $("#setAdjoinBeacon")
+                .off("click")
+                .on("click", function () {
+                  that.setAdjoinBeacon(feature, menu_overlay);
+                });
+              $("#setArea")
+                .off("click")
+                .on("click", function () {
+                  that.setArea(feature, menu_overlay);
+                });
             });
           }
         }
       });
     },
     removeClick() {
-      console.log(111);
-      $("#edit").unbind("click");
-      $("#del").unbind("click");
-      $("#setClock").unbind("click");
-      $("#setArea").unbind("setArea");
-      $("#cancelClock").unbind("click");
-      $("#cancelNearList").unbind("click");
-      $("#setTranche").unbind("click");
-      $("#setAdjoinBeacon").unbind("click");
-      $("#editNear").unbind("click");
-      $("#calculatingDistance").off("calculatingDistance");
+      $(
+        "#edit, #del, #delPolygon, #setClock, #setArea, #cancelClock, #cancelNearList, #setTranche, #setAdjoinBeacon, #editNear, #calculatingDistance, #popup-closer, #polygonMenu-closer"
+      ).off("click");
     },
     updateTrancheCancel() {
       this.trancheShow = false;
@@ -4956,15 +5066,20 @@ export default {
           }
         )
         .then(() => {
-          let num;
+          that.removeClick();
+          let num = -1;
           let LayerArrays = that.map.getLayers().getArray();
           for (let i = 1; i < LayerArrays.length; i++) {
-            if (
-              e.values_.x ==
-                LayerArrays[i].getSource().getFeatures()[0].values_.x &&
-              e.values_.y ==
-                LayerArrays[i].getSource().getFeatures()[0].values_.y
-            ) {
+            const source =
+              LayerArrays[i].getSource && LayerArrays[i].getSource();
+            const feat =
+              source && source.getFeatures && source.getFeatures()[0];
+            if (!feat || !feat.values_) continue;
+            const samePos =
+              e.values_.x == feat.values_.x && e.values_.y == feat.values_.y;
+            const sameDev =
+              e.values_.deveui && feat.values_.deveui === e.values_.deveui;
+            if (samePos || sameDev) {
               num = i;
               break;
             }
@@ -4976,6 +5091,20 @@ export default {
             longi: e.values_.x,
             lati: e.values_.y,
             falg: false,
+          };
+          const removeLayerByNum = () => {
+            if (num < 0 || !LayerArrays[num]) {
+              that.clearArranges();
+              return;
+            }
+            LayerArrays[num]
+              .getSource()
+              .getFeatures()
+              .forEach(function (feature) {
+                LayerArrays[num].getSource().removeFeature(feature);
+              });
+            menu_overlay.setPosition(undefined);
+            that.map.removeLayer(LayerArrays[num]);
           };
           if (e.values_.devtype) {
             data.devtype = e.values_.devtype;
@@ -4990,20 +5119,10 @@ export default {
                   message: that.$t("buildingmanagement.deletesuccess"),
                   type: "success",
                 });
-                LayerArrays[num]
-                  .getSource()
-                  .getFeatures()
-                  .forEach(function (feature) {
-                    LayerArrays[num].getSource().removeFeature(feature);
-                  });
-
-                menu_overlay.setPosition(undefined);
-                that.map.removeLayer(LayerArrays[num]);
+                removeLayerByNum();
                 if (that.activeMenu) {
                   that.menuClick(that.activeMenu, that.currentPage2);
                 }
-                // that.getBeaconPos(that.intoProjectid, that.currentPage2);
-                // that.resetNear();
               } else {
                 that.$message({
                   message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -5024,15 +5143,7 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  LayerArrays[num]
-                    .getSource()
-                    .getFeatures()
-                    .forEach(function (feature) {
-                      LayerArrays[num].getSource().removeFeature(feature);
-                    });
-
-                  menu_overlay.setPosition(undefined);
-                  that.map.removeLayer(LayerArrays[num]);
+                  removeLayerByNum();
                   that.getBeaconPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
                 } else {
@@ -5055,16 +5166,7 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  LayerArrays[num]
-                    .getSource()
-                    .getFeatures()
-                    .forEach(function (feature) {
-                      LayerArrays[num].getSource().removeFeature(feature);
-                    });
-
-                  menu_overlay.setPosition(undefined);
-                  that.map.removeLayer(LayerArrays[num]);
-
+                  removeLayerByNum();
                   that.getGatewayPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
                 } else {
@@ -5079,7 +5181,9 @@ export default {
           }
         })
         .catch(() => {
-          that.menu_overlay.setPosition(undefined);
+          if (menu_overlay) {
+            menu_overlay.setPosition(undefined);
+          }
           that.removeClick();
         });
     },
