@@ -1785,6 +1785,7 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Devicemanagement from "../../components/devicemanagement/devicemanagement";
@@ -2254,7 +2255,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -2726,8 +2726,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeader;

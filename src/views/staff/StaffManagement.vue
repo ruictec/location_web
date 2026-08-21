@@ -7,7 +7,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Asset /></el-aside>
         <el-main>
-          <div class="terminal-filter-flow" :class="filterLangClass">
+          <div class="terminal-filter-flow staff-filter-flow" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -88,57 +88,43 @@
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("staff.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button>
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("staff.Addemployees")
               }}</el-button>
-            </el-form-item>
-          </el-form>
-
-          <el-form
-            class="demo-form-inline terminal-filter-form"
-          >
-            <el-form-item
-             class="terminal-toolbar-item">
-              <el-button
-                type="danger"
-                class="add move"
-                @click="removeStaffs()"
-                >{{ $t("staff.unbind") }}</el-button>
-              <el-button
-                type="primary"
-                class="add move"
-                @click="goSetDepart()"
-                >{{ $t("staff.DepartmentSettings") }}</el-button>
-              <el-button
-                type="primary"
-                class="add move"
-                @click="goSetWorktype()"
-                >{{ $t("staff.Tradesettings") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="importExcelWorktype()"
-                >{{ $t("staff.importWorktype") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcelWorkType()"
-                >{{ $t("staff.exportWorktype") }}</el-button>
+              <el-button type="danger" class="add" @click="removeStaffs()">{{
+                $t("staff.unbind")
+              }}</el-button>
+              <el-button type="primary" class="add" @click="goSetDepart()">{{
+                $t("staff.DepartmentSettings")
+              }}</el-button>
+              <el-button type="primary" class="add" @click="goSetWorktype()">{{
+                $t("staff.Tradesettings")
+              }}</el-button>
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="staff-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.export")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item divided @click="importExcelWorktype()">{{
+                      $t("staff.importWorktype")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelWorkType()">{{
+                      $t("staff.exportWorktype")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </el-form-item>
           </el-form>
           </div>
@@ -1493,7 +1479,7 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
+          import("xlsx").then((XLSX) => {
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1533,6 +1519,7 @@ export default {
               $("#articleImageFile").val("");
             }
           });
+          });
         };
         reader.readAsArrayBuffer(f);
       };
@@ -1566,7 +1553,7 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
+          import("xlsx").then((XLSX) => {
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1604,6 +1591,7 @@ export default {
               });
               $("#articleWorktypeFile").val("");
             }
+          });
           });
         };
         reader.readAsArrayBuffer(f);
@@ -1769,9 +1757,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
-        //表头
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
         let list = tableData;
@@ -1916,9 +1902,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
-        //表头
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
         let list = tableData;
@@ -3775,13 +3759,13 @@ export default {
   width: auto !important;
   min-width: 0 !important;
 }
-.terminal-filter-flow .terminal-filter-item :deep(.el-input),
-.terminal-filter-flow .terminal-filter-item :deep(.el-select),
-.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
-.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
+.staff-filter-flow .terminal-filter-item :deep(.el-input),
+.staff-filter-flow .terminal-filter-item :deep(.el-select),
+.staff-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.staff-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
   float: none !important;
   margin: 0 !important;
   flex: none !important;
@@ -3797,27 +3781,23 @@ export default {
 .terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
   width: 100% !important;
 }
-.terminal-toolbar-item {
+/* 按钮拆开参与同一行流式换行，避免整组掉到下一行造成空档 */
+.staff-filter-flow .terminal-toolbar-item {
+  display: contents !important;
   width: auto !important;
   flex: 0 0 auto !important;
   margin: 0 !important;
   float: none !important;
-  order: 999;
 }
-.terminal-toolbar-item :deep(.el-form-item__content) {
-  display: inline-flex !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: auto !important;
-  margin: 0 !important;
+.staff-filter-flow .terminal-toolbar-item :deep(.el-form-item__content) {
+  display: contents !important;
 }
-.terminal-toolbar-item :deep(.el-button),
-.terminal-toolbar-item :deep(.el-dropdown),
-.terminal-toolbar-item :deep(.el-popover__),
-.terminal-toolbar-item :deep(.el-tooltip__),
-.terminal-toolbar-item :deep(.el-popover),
-.terminal-toolbar-item :deep(.el-tooltip) {
+.staff-filter-flow .terminal-toolbar-item :deep(.el-button),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-dropdown),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-popover__),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-tooltip__),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-popover),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-tooltip) {
   margin: 0 !important;
   flex: 0 0 auto !important;
 }
@@ -3911,6 +3891,13 @@ export default {
   margin: 0 !important;
   float: none !important;
 }
+.staff-filter-flow .terminal-filter-item .el-input,
+.staff-filter-flow .terminal-filter-item .el-select,
+.staff-filter-flow .terminal-filter-item .el-cascader {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+}
 .terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
 .terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
 .terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
@@ -3931,9 +3918,20 @@ export default {
   gap: 8px !important;
   margin: 0 !important;
 }
+.staff-filter-flow .terminal-toolbar-item {
+  display: contents !important;
+  order: unset !important;
+}
+.staff-filter-flow .terminal-toolbar-item .el-form-item__content {
+  display: contents !important;
+}
 .terminal-toolbar-item .el-button,
 .terminal-toolbar-item .el-dropdown {
   margin: 0 !important;
+}
+.staff-filter-flow .terminal-toolbar-item .el-button,
+.staff-filter-flow .terminal-toolbar-item .el-dropdown {
+  flex: 0 0 auto !important;
 }
 /* unified-filter-toolbar-btn-size */
 .terminal-toolbar-row .el-button,
