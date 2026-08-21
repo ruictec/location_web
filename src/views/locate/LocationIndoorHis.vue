@@ -138,7 +138,7 @@
           :page-sizes="[10, 20, 30, 40, 50]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          :page-size="20"
+          v-model:page-size="pageCount"
         >
         </el-pagination>
       </div>

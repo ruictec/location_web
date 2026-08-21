@@ -8,22 +8,16 @@
       <el-container class="asi">
         <el-aside><Devicemanagement /></el-aside>
         <el-main>
-          <div class="device_input">
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
-            >
+                    <div
+            class="device_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.state')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.status"
                   clearable
                   filterable
@@ -37,10 +31,12 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-         
-              <el-form-item style="margin-left: 2%">
+            </el-form>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
                 <el-button type="primary" class="query" @click="searchInfo()">
-                  {{ $t("nsconfig.search") }}</el-button><el-button type="primary" class="reset" @click="clearBtn()">
+                  {{ $t("nsconfig.search") }}</el-button>
+                <el-button type="primary" class="reset" @click="clearBtn()">
                   {{ $t("nsconfig.reset") }}</el-button>
                 <el-button
                   type="primary"
@@ -48,8 +44,8 @@
                   @click="addNS()"
                   v-if="contrForPrionum == 1"
                   >{{ $t("ns.addns") }}</el-button>
-              </el-form-item>
-            </el-form>
+              </div>
+            </div>
           </div>
 
           <!-- NS 展示 -->
@@ -206,7 +202,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -263,16 +259,15 @@
                   :placeholder="$t('ns.addnsrules31')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('usercenter.usermail1')" prop="">
+              <el-form-item :label="$t('usercenter.usermail1')" prop="emails">
                 <el-input
                   v-model="addData.emails"
                   :placeholder="$t('register.enterEmail')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.cert')" prop="">
+              <el-form-item :label="$t('ns.cert')" prop="cert">
                 <el-select
                   v-model="addData.cert"
-                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -360,16 +355,15 @@
                   :placeholder="$t('ns.addnsrules31')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('usercenter.usermail1')" prop="">
+              <el-form-item :label="$t('usercenter.usermail1')" prop="emails">
                 <el-input
                   v-model="editData.emails"
                   :placeholder="$t('register.enterEmail')"
                 ></el-input>
               </el-form-item>
-              <el-form-item :label="$t('ns.cert')" prop="">
+              <el-form-item :label="$t('ns.cert')" prop="cert">
                 <el-select
                   v-model="editData.cert"
-                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -421,6 +415,19 @@ export default {
   },
   name: "NS",
   data() {
+    var isEmail = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error(this.$t("tips.emails")));
+        return;
+      }
+      const reg =
+        /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/;
+      if (!reg.test(value)) {
+        callback(new Error(this.$t("tips.email")));
+      } else {
+        callback();
+      }
+    };
     return {
       i8n: this.$store.state.i18n,
       contrForPrionum: this.$store.state.userInfo.prionum,
@@ -512,6 +519,20 @@ export default {
             trigger: "blur",
           },
         ],
+        emails: [
+          {
+            required: true,
+            validator: isEmail,
+            trigger: "blur",
+          },
+        ],
+        cert: [
+          {
+            required: true,
+            message: this.$t("warning.text3"),
+            trigger: "change",
+          },
+        ],
       },
       edit: false,
       editData: {
@@ -527,6 +548,12 @@ export default {
         cert: "",
       },
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     // utc转本地
@@ -846,4 +873,168 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.device_input.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.device_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.device_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.query,
+.reset,
+.add {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item {
+  order: 999;
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

@@ -7,23 +7,17 @@
     <div class="content">
       <el-container>
         <el-main>
-          <div class="warning_input">
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
-            >
+          <div
+            class="warning_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('ns.Name')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.name"
-                  style="width: 95%; float: left"
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -35,7 +29,9 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 2%">
+            </el-form>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
                 <el-button type="primary" class="reset" @click="searchInfo()">{{
                   $t("beacon.search")
                 }}</el-button>
@@ -56,23 +52,20 @@
                   <div style="display: flex; gap: 10px; padding: 5px 0;">
                     <el-button
                       type="primary"
-                      size="small"
                       @click="handleOutdoorFence()"
                     >{{ $t("warning.outdoorFence") }}</el-button>
                     <el-button
                       type="primary"
-                      size="small"
                       @click="handleIndoorFence()"
                     >{{ $t("warning.indoorFence") }}</el-button>
                   </div>
                   <template #reference><el-button
                     type="primary"
                     class="reset"
-                   
                   >{{ $t("warning.add") }}</el-button></template>
                 </el-popover>
-              </el-form-item>
-            </el-form>
+              </div>
+            </div>
           </div>
           <!-- 展示 -->
           <div>
@@ -192,7 +185,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -209,52 +202,44 @@
             >
               <el-form
                 :model="mapData"
-                style="white-space: nowrap; display: flex"
+                class="fence-map-form"
+                label-width="auto"
                 ref="mapData"
               >
                 <el-form-item
                   :label="$t('ns.Name')"
                   v-if="add || edit"
-                  style="
-                    display: flex;
-                    width: 20%;
-                    margin-left: 1%;
-                    margin-right: 0;
-                  "
+                  class="fence-name-color-item"
                 >
-                  <el-input
-                    v-model="mapData.name"
-                    style="width: 95%; float: left"
-                  ></el-input>
-                  <!-- 添加和编辑时都显示颜色选择器 -->
-                  <input
-                    v-if="add || edit"
-                    type="color"
-                    v-model="fillColor"
-                    :style="{
-                      width: '40px',
-                      height: '30px',
-                      marginLeft: '10px',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      verticalAlign: 'middle'
-                    }"
-                    :title="fillColor || '#FF0000'"
-                  />
-                </el-form-item>
-                <el-form-item v-if="add" style="display: flex; margin-left: 2%">
-                  <el-button @click="clearFence" type="primary">
-                    {{ $t("warning.Redraw") }}</el-button>
-                </el-form-item>
-                <!-- 编辑时显示保存按钮 -->
-                <el-form-item v-if="edit" style="display: flex; margin-left: 2%">
-                  <el-button
-                    type="primary"
-                    :loading="loading"
-                    @click="mapTrue(mapData)"
-                  >
-                    {{ $store.state.i18n == "zh" ? "保存" : "Save" }}</el-button>
+                  <div class="fence-name-color">
+                    <el-input
+                      v-model="mapData.name"
+                      class="fence-name-input"
+                    ></el-input>
+                    <!-- 添加和编辑时都显示颜色选择器 -->
+                    <input
+                      v-if="add || edit"
+                      type="color"
+                      v-model="fillColor"
+                      class="fence-color-input"
+                      :title="fillColor || '#FF0000'"
+                    />
+                    <el-button
+                      v-if="add"
+                      @click="clearFence"
+                      type="primary"
+                    >
+                      {{ $t("warning.Redraw") }}
+                    </el-button>
+                    <el-button
+                      v-if="edit"
+                      type="primary"
+                      :loading="loading"
+                      @click="mapTrue(mapData)"
+                    >
+                      {{ $store.state.i18n == "zh" ? "保存" : "Save" }}
+                    </el-button>
+                  </div>
                 </el-form-item>
               </el-form>
               <div class="mapConent" style="position: relative">
@@ -585,6 +570,12 @@ export default {
       deviceVectorLayer: null,
       deviceMarkers3d: [],
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //分页
@@ -3863,6 +3854,77 @@ export default {
   height: calc(100vh - 120px);
   position: relative;
 }
+
+/* 室外围栏弹框：名称 / 颜色 / 操作同一行，间距统一 */
+.fence-map-form {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  white-space: nowrap;
+  margin-bottom: 8px;
+}
+.fence-map-form > .el-form-item {
+  width: auto !important;
+  margin: 0 !important;
+  flex: 0 0 auto;
+}
+.fence-map-form :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 6px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  line-height: 32px;
+}
+.fence-map-form :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+.fence-name-color-item {
+  flex: 0 0 auto !important;
+}
+.fence-name-color-item :deep(.el-form-item__content) {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  gap: 0 !important;
+}
+.fence-name-color {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: auto;
+  min-width: 0;
+}
+.fence-name-color .fence-name-input {
+  flex: 0 0 180px;
+  width: 180px !important;
+  min-width: 180px;
+  max-width: 180px;
+  display: inline-flex !important;
+  margin: 0 !important;
+}
+.fence-name-color :deep(.el-input__wrapper) {
+  width: 100%;
+}
+.fence-name-color :deep(.el-button) {
+  margin: 0 !important;
+  flex: 0 0 auto;
+}
+.fence-color-input {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
 </style>
 <style>
 /* 右键菜单按钮样式（参考Arrange3dMap） */
@@ -3887,4 +3949,217 @@ export default {
 #fengMap >>> .hiddenclock {
   display: none;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.query,
+.reset,
+.add,
+.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

@@ -56,21 +56,20 @@
           }}</el-button>
         </el-form-item>
         <el-form-item
-          style="display: block; width: 35%; margin-left: 0%"
+          class="historical-speed-item"
           :label="$t('locationoutdoorh.speed')"
         >
           <div class="block">
-            <div style="width: 80%">
-              <el-slider v-model="speed" :step="1" :max="10" :min="1">
-              </el-slider>
+            <div class="speed-slider">
+              <el-slider v-model="speed" :step="1" :max="10" :min="1" />
             </div>
-
             <el-button
               type="primary"
               class="start"
               plain
               @click="handlerPlay"
-              >{{ textContent }}</el-button><el-checkbox
+              >{{ textContent }}</el-button>
+            <el-checkbox
               v-model="showLine"
               @change="changeShow()"
               :disabled="showTime"
@@ -942,7 +941,63 @@ export default {
   z-index: 1;
 }
 .showline {
-  margin-left: 20px;
+  margin-left: 0;
+}
+/* 速度区：全局 demo-form-inline 会把表单项压成 auto，百分比宽度滑块在 flex 里会塌成 0 */
+.demo-form-inline > .historical-speed-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin-left: 8px !important;
+  margin-bottom: 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.demo-form-inline > .historical-speed-item :deep(.el-form-item__label) {
+  height: 32px !important;
+  line-height: 32px !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  align-self: center;
+}
+.demo-form-inline > .historical-speed-item :deep(.el-form-item__content) {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 32px !important;
+  min-height: 32px;
+}
+.block {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  width: auto;
+  min-width: 0;
+  height: 32px;
+}
+.speed-slider {
+  flex: 0 0 160px;
+  width: 160px;
+  min-width: 160px;
+  margin: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+.speed-slider :deep(.el-slider) {
+  width: 100%;
+  height: 32px;
+  margin: 0;
+}
+.speed-slider :deep(.el-slider__runway) {
+  margin: 14px 0;
+}
+.historical-speed-item :deep(.el-checkbox) {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0;
 }
 .demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
@@ -1053,9 +1108,6 @@ a {
   background-size: 100% 30px;
 }
 .el-form-item .el-button {
-  margin-left: 4px !important;
-}
-.block {
-  display: flex;
+  margin-left: 0 !important;
 }
 </style>

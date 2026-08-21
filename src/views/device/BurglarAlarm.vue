@@ -3,29 +3,20 @@
     <div class="content">
       <el-container>
         <el-main>
-          <div class="aoa_input">
+          <div
+            class="aoa_input terminal-filter-flow"
+            :class="filterLangClass"
+          >
             <!-- 第一行 -->
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 0;
-                z-index: 1;
-              "
             >
               <el-form-item
                 :label="$t('terminal.deveui')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 0;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.deveui"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
@@ -33,15 +24,9 @@
 
               <el-form-item
                 :label="$t('terminal.alias')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.alias"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
@@ -49,16 +34,10 @@
 
               <el-form-item
                 :label="$t('beacon.company')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 1 || contrForPrionum == 2) && show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -73,110 +52,12 @@
                 </el-select>
               </el-form-item>
 
-              <!-- 隐藏显示所有按钮 -->
-              <el-form-item
-                style="display: flex; margin-left: 2%"
-                v-show="seen"
-              >
-                <!-- 高级 -->
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.more") }}
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-
-                <el-button type="primary" class="query" @click="searchInfo()">
-                  {{ $t("beacon.search") }}
-                </el-button>
-
-                <el-button type="primary" class="reset" @click="clearBtn()">
-                  {{ $t("beacon.reset") }}
-                </el-button>
-
-                <el-button
-                  type="primary"
-                  class="addBeacon"
-                  @click="addAoas()"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                  >{{ $t("index.add") }}</el-button>
-
-                <el-dropdown
-                  size="small"
-                  type="primary"
-                  trigger="hover"
-                  v-if="
-                    contrForPrionum == 1 ||
-                    contrForPrionum == 2 ||
-                    contrForPrionum == 3 ||
-                    contrForPrionum == 4
-                  "
-                >
-                  <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("beacon.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
-                  </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="assignAoas()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="removeAoas()"
-                        v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="dels"
-                        size="small"
-                        @click="deleteAoas()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 3 ||
-                          delprio == 1
-                        "
-                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
-                </el-dropdown>
-              </el-form-item>
-
               <el-form-item
                 :label="$t('beacon.project1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.projectid"
                   clearable
                   filterable
@@ -191,14 +72,10 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('floormanagement.floor1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
               >
                 <el-select
@@ -215,14 +92,10 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('terminal.Assignmentstatus')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="
                   (contrForPrionum == 3 ||
                     contrForPrionum == 4 ||
@@ -232,7 +105,6 @@
                 "
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inallot"
                   clearable
                   filterable
@@ -246,18 +118,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('terminal.inuse')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="show"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.inuse"
                   :placeholder="$t('terminal.choose')"
                   clearable
@@ -271,14 +138,10 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('terminal.workstate')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="
                   (contrForPrionum == 1 ||
                     contrForPrionum == 2 ||
@@ -300,50 +163,23 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('gateway.memo')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  z-index: 1;
-                "
+                class="terminal-filter-item"
                 v-if="contrForPrionum == 5 && show"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.memo"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
-              </el-form-item>
-              <el-form-item
-                v-show="contrForPrionum == 5 && seen1"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  z-index: 1;
-                "
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-button type="primary" class="query" @click="searchInfo()">{{
-                  $t("beacon.search")
-                }}</el-button>
-                <el-button type="primary" class="reset" @click="clearBtn()">{{
-                  $t("beacon.reset")
-                }}</el-button>
               </el-form-item>
             </el-form>
 
             <!-- 第二行 -->
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; margin-left: 0"
               v-if="
                 contrForPrionum == 1 ||
                 contrForPrionum == 2 ||
@@ -353,12 +189,7 @@
             >
               <el-form-item
                 :label="$t('terminal.workstate')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 0;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="(contrForPrionum == 3 || contrForPrionum == 4) && show"
               >
                 <el-select
@@ -375,30 +206,27 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
                 :label="$t('gateway.memo')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
                 v-if="show"
               >
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.memo"
                   :placeholder="$t('beacon.please')"
                 ></el-input>
               </el-form-item>
+            </el-form>
 
-              <el-form-item
-                v-show="seen1"
-                style="display: flex; margin-left: 1%; margin-right: 0"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
+                <span class="terminal-filter-more" @click="changeItem()">
+                  {{ show ? $t("beacon.putAway") : $t("beacon.more") }}
+                  <i
+                    :class="show ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                    class="el-icon--right"
+                  ></i>
                 </span>
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("beacon.search")
@@ -416,10 +244,8 @@
                     contrForPrionum == 3 ||
                     contrForPrionum == 4
                   "
-                  >{{ $t("floormanagement.Add") }}</el-button>
-
+                  >{{ $t("index.add") }}</el-button>
                 <el-dropdown
-                  size="small"
                   type="primary"
                   trigger="hover"
                   v-if="
@@ -430,55 +256,58 @@
                   "
                 >
                   <span class="el-dropdown-link">
-                  <el-button type="primary" size="small">
-                    {{ $t("beacon.batch")
-                    }}<i class="el-icon-arrow-down el-icon--right"></i>
-                  </el-button>
+                    <el-button type="primary">
+                      {{ $t("beacon.batch")
+                      }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
                   </span>
-<template #dropdown><el-dropdown-menu
-                   
-                    style="background-color: rgb(219, 222, 231)"
-                    class="selects"
-                  >
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="assignAoas()"
-                        v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                        >{{ $t("beacon.assign") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="delBeacons"
-                        @click="removeAoas()"
-                        v-if="contrForPrionum == 3 || delprio == 1"
-                        >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item>
-                    <el-dropdown-item
-                      style="
-                        margin-top: 4%;
-                        background-color: rgb(219, 222, 231);
-                      "
-                      ><el-button
-                        class="dels"
-                        size="small"
-                        @click="deleteAoas()"
-                        v-if="
-                          contrForPrionum == 1 ||
-                          contrForPrionum == 3 ||
-                          delprio == 1
+                  <template #dropdown>
+                    <el-dropdown-menu
+                      style="background-color: rgb(219, 222, 231)"
+                      class="selects"
+                    >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
                         "
-                        >{{ $t("terminal.delete") }}</el-button></el-dropdown-item>
-                  </el-dropdown-menu></template>
+                        ><el-button
+                          class="delBeacons"
+                          @click="assignAoas()"
+                          v-if="contrForPrionum == 3 || contrForPrionum == 4"
+                          >{{ $t("beacon.assign") }}</el-button></el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
+                        "
+                        ><el-button
+                          class="delBeacons"
+                          @click="removeAoas()"
+                          v-if="contrForPrionum == 3 || delprio == 1"
+                          >{{ $t("terminal.recovery") }}</el-button></el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        style="
+                          margin-top: 4%;
+                          background-color: rgb(219, 222, 231);
+                        "
+                        ><el-button
+                          class="dels"
+                          @click="deleteAoas()"
+                          v-if="
+                            contrForPrionum == 1 ||
+                            contrForPrionum == 3 ||
+                            delprio == 1
+                          "
+                          >{{ $t("terminal.delete") }}</el-button></el-dropdown-item
+                      >
+                    </el-dropdown-menu>
+                  </template>
                 </el-dropdown>
-              </el-form-item>
-            </el-form>
+              </div>
+            </div>
           </div>
 
           <!-- 烟感展示 -->
@@ -488,7 +317,7 @@
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="width: 100%; text-align: center; margin-left: 0; z-index: 1"
-              max-height="670"
+              max-height="650"
               border
               highlight-current-row
             >
@@ -744,7 +573,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -924,7 +753,7 @@
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
-              max-height="660"
+              max-height="650"
               stripe
             >
               <el-table-column
@@ -1115,7 +944,7 @@
             <el-table
               :data="removeDatas"
               style="width: 100%; text-align: left"
-              max-height="660"
+              max-height="650"
               stripe
             >
               <el-table-column
@@ -1331,6 +1160,12 @@ export default {
       removeDatas: [],
       removeAoa: false,
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || this.$i18n.locale;
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     search() {
@@ -2190,17 +2025,9 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    //显示隐藏输入框
+    //显示隐藏高级筛选（不切换操作按钮）
     changeItem() {
-      if (this.show == false && this.seen == true && this.seen1 == false) {
-        this.show = true;
-        this.seen = false;
-        this.seen1 = true;
-      } else {
-        this.show = false;
-        this.seen = true;
-        this.seen1 = false;
-      }
+      this.show = !this.show;
     },
   },
   watch: {
@@ -2337,10 +2164,241 @@ export default {
   height: 34px;
   line-height: 34px;
 }
-.el-form-item .el-button {
-  margin-left: 4px !important;
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
+
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.aoa_input.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 16px;
+}
+.aoa_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.aoa_input.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.aoa_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.aoa_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.aoa_input.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: auto !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+  float: none !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.query,
+.reset,
+.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+</style>
+
+<style>
+/* 对抗 App.vue 的 * { margin: 0 auto }，统一筛选间距 */
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 </style>

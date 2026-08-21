@@ -7,10 +7,10 @@
       <el-container class="asi">
         <el-aside><Project /></el-aside>
         <el-main>
-          <div class="project_input">
+          <div class="project_input location-search-bar">
             <el-breadcrumb
               separator="/"
-              style="margin-left: 0"
+              class="location-breadcrumb"
               v-if="contrForPrionum == 3 || contrForPrionum == 4"
             >
               <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
@@ -21,58 +21,64 @@
                 $t("Breadcrumb.Locationdata")
               }}</el-breadcrumb-item>
             </el-breadcrumb>
-            <el-form
-              class="demo-form-inline"
-              :model="searchList"
-              style="display: flex; white-space: nowrap; justify-content: end"
+            <div
+              class="location-search-row terminal-filter-flow"
+              :class="filterLangClass"
             >
-              <el-form-item
-                :label="$t('floormanagement.device')"
-                style="display: flex; margin-right: 2%"
+              <el-form
+                class="demo-form-inline terminal-filter-form"
+                :model="searchList"
               >
-                <el-input
-                  v-model="searchList.deveui"
-                  :placeholder="$t('staffmanagement.text')"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('floormanagement.Floornumber')"
-                style="display: flex; margin-right: 2%"
-              >
-                <el-input
-                  v-model="searchList.groundid"
-                  :placeholder="$t('staffmanagement.text')"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('locationoutdoor.time')"
-                style="display: flex; margin-right: 2%"
-              >
-                <el-date-picker
-                  v-model="tasktime"
-                  type="datetimerange"
-                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
-                  :range-separator="$t('locationoutdoorh.to')"
-                  :start-placeholder="$t('locationoutdoorh.starttime')"
-                  :end-placeholder="$t('locationoutdoorh.endtime')"
-                ></el-date-picker>
-              </el-form-item>
-              <el-form-item style="margin-left: 0">
-                <el-button
-                  type="primary"
-                  class="querry"
-                  @click="searchInfo()"
-                  >{{ $t("locationoutdoorh.search") }}</el-button>
-                <el-button type="primary" class="reset" @click="clearBtn()">{{
-                  $t("locationoutdoorh.reset")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="delDevGpsList()"
-                  >{{ $t("inspection.batchdeletion") }}</el-button>
-              </el-form-item>
-            </el-form>
+                <el-form-item
+                  :label="$t('floormanagement.device')"
+                  class="terminal-filter-item"
+                >
+                  <el-input
+                    v-model="searchList.deveui"
+                    :placeholder="$t('staffmanagement.text')"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  :label="$t('floormanagement.Floornumber')"
+                  class="terminal-filter-item"
+                >
+                  <el-input
+                    v-model="searchList.groundid"
+                    :placeholder="$t('staffmanagement.text')"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  :label="$t('locationoutdoor.time')"
+                  class="terminal-filter-item"
+                >
+                  <el-date-picker
+                    v-model="tasktime"
+                    type="datetimerange"
+                    :shortcuts="pickerOptions.shortcuts"
+                    :disabled-date="pickerOptions.disabledDate"
+                    @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
+                    :range-separator="$t('locationoutdoorh.to')"
+                    :start-placeholder="$t('locationoutdoorh.starttime')"
+                    :end-placeholder="$t('locationoutdoorh.endtime')"
+                  ></el-date-picker>
+                </el-form-item>
+                <el-form-item class="terminal-toolbar-item">
+                  <el-button
+                    type="primary"
+                    class="querry"
+                    @click="searchInfo()"
+                    >{{ $t("locationoutdoorh.search") }}</el-button>
+                  <el-button type="primary" class="reset" @click="clearBtn()">{{
+                    $t("locationoutdoorh.reset")
+                  }}</el-button>
+                  <el-button
+                    type="primary"
+                    class="reset"
+                    @click="delDevGpsList()"
+                    >{{ $t("inspection.batchdeletion") }}</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
           </div>
 
           <!-- 展示 -->
@@ -191,7 +197,7 @@
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -340,6 +346,15 @@ export default {
       loading: false,
       deleteData: [],
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang =
+        this.i8n ||
+        this.$store.state.i18n ||
+        (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //返回项目管理
@@ -670,6 +685,85 @@ export default {
   line-height: 34px;
 }
 
+.location-search-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+.location-breadcrumb {
+  margin: 0 0 12px 2% !important;
+  align-self: flex-start;
+}
+.location-search-row.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+  margin-left: 2%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.location-search-row.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  margin: 0 !important;
+}
+
 .backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
@@ -684,6 +778,62 @@ export default {
   overflow: hidden;
 }
 .el-form-item .el-button {
-  margin-left: 4px !important;
+  margin-left: 0 !important;
 }
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+</style>
+
+<style>
+.location-search-row.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.location-breadcrumb {
+  margin: 0 0 12px 2% !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 </style>

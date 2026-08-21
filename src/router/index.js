@@ -547,7 +547,8 @@ export const userRoutes = [
           {
             path: 'historical',
             component: Historical,
-            name: 'historical',
+            // Vue Router 4：同名路由后注册会顶掉先注册的记录；室内外不可共用 name
+            name: 'outdoorHistorical',
             meta: { title: 'router.historicalTrack', noCache: true },
 
           }]
@@ -568,7 +569,7 @@ export const userRoutes = [
           {
             path: 'historical',
             component: LocationIndoorHis,
-            name: 'historical',
+            name: 'indoorHistorical',
             meta: { title: 'router.dataAnalysis', noCache: true },
 
           }]
