@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, markRaw } from 'vue'
 import App from './App.vue'
 import router from './router/index.js'
 import './router/permission'
@@ -38,7 +38,7 @@ axios.defaults.withCredentials = true
 axios.defaults.baseURL = process.env.VUE_APP_API_BASE
 app.config.globalProperties.$axios = axios
 app.config.globalProperties.qs = qs
-app.config.globalProperties.$echarts = echarts
+app.config.globalProperties.$echarts = markRaw(echarts)
 app.config.globalProperties.$EventBus = eventBus
 app.config.globalProperties.Velocity = Velocity
 app.config.globalProperties.$set = (target, key, val) => {

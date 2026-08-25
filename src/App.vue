@@ -51,7 +51,7 @@
               }}</el-dropdown-item>
             </el-dropdown-menu></template>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V1.15</span>
+          <span @click="showVer()" class="show_ver">V2.0</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
@@ -75,9 +75,9 @@
 
     <el-dialog :title="$t('versions.title')" v-model="showVersion">
       <div class="version">
-        <el-timeline :reverse="reverse">
+        <el-timeline :reverse="false">
           <el-timeline-item
-            v-for="(activity, index) in activities"
+            v-for="(activity, index) in versionActivities"
             :key="index"
             :timestamp="activity.timestamp"
           >
@@ -377,6 +377,31 @@ export default {
           ],
           timestamp: this.$t("versions.timestamp16"),
         },
+        {
+          content: [
+            this.$t("versions.content99"),
+            this.$t("versions.content100"),
+            this.$t("versions.content101"),
+            this.$t("versions.content102"),
+            this.$t("versions.content103"),
+            this.$t("versions.content104"),
+            this.$t("versions.content105"),
+            this.$t("versions.content106"),
+            this.$t("versions.content107"),
+            this.$t("versions.content108"),
+            this.$t("versions.content109"),
+            this.$t("versions.content110"),
+            this.$t("versions.content111"),
+            this.$t("versions.content112"),
+            this.$t("versions.content113"),
+            this.$t("versions.content114"),
+            this.$t("versions.content115"),
+            this.$t("versions.content116"),
+            this.$t("versions.content117"),
+            this.$t("versions.content118"),
+          ],
+          timestamp: this.$t("versions.timestamp17"),
+        },
       ],
       showVersion: false,
       showlargr: true,
@@ -454,6 +479,12 @@ export default {
     },
     showWarningDialog() {
       return this.$store.state.showWarningDialog;
+    },
+    // 版本信息：最新版本显示在最上方
+    versionActivities() {
+      return Array.isArray(this.activities)
+        ? this.activities.slice().reverse()
+        : [];
     },
   },
   watch: {
