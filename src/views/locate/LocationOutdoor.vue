@@ -321,6 +321,7 @@ import {
   getAssetOne,
   getDevGpsList,
   getFenceManageAndPointList,
+  getBuildingList,
   // getFenceManageWhiteList,
   // getFenceManageWhiteNum,
 } from "../../axios/api";
@@ -934,6 +935,7 @@ export default {
             that.addIconMarkers(that.map, that.mapInfo[i]);
           }
         }
+        that.loadBuildings();
         that.mapClick();
         that.addLine(that.map);
         // that.initializePopup(that.map);
@@ -941,6 +943,80 @@ export default {
           that.recreateFences();
         });
       }, 0);
+    },
+
+    // 加载项目下全部楼栋到地图
+    loadBuildings() {
+      var that = this;
+      if (!this.map) {
+        return;
+      }
+      getBuildingList(
+        { projectid: this.$store.state.projectid },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001 && res.data && res.data.length > 0) {
+          for (let i = 0; i < res.data.length; i++) {
+            that.addBuildingMarker(that.map, res.data[i]);
+          }
+        }
+      });
+    },
+
+    addBuildingMarker(map, info) {
+      if (!map || !info) {
+        return;
+      }
+      const longi = Number(info.longi);
+      const lati = Number(info.lati);
+      if (
+        Number.isNaN(longi) ||
+        Number.isNaN(lati) ||
+        (longi === 0 && lati === 0)
+      ) {
+        return;
+      }
+      const mercatorCoord = fromLonLat([longi, lati]);
+      const buildingName =
+        info.buildtype == 1 || info.buildtype == null
+          ? info.building
+          : info.building + "(3D)";
+      const features = new OlFeature({
+        longi: longi,
+        lati: lati,
+        src: info.src,
+        projectid: info.projectid,
+        building: info.building,
+        id: info.id,
+        buildtype: info.buildtype,
+        isBuilding: true,
+        geometry: new OlGeomPoint(mercatorCoord),
+      });
+      const style = new OlStyleStyle({
+        image: new OlStyleIcon({
+          anchor: [0.5, 1],
+          src: info.src || "../../../static/坐标.png",
+          scale: 1,
+        }),
+        text: new Text({
+          text: buildingName || "",
+          font: "12px font-size",
+          fill: new Fill({
+            color: "white",
+          }),
+          offsetY: 10,
+        }),
+      });
+      const vectorLayer = new OlLayerVector({
+        source: new OlSourceVector({
+          features: [features],
+        }),
+        style: style,
+        zIndex: 5,
+      });
+      map.addLayer(vectorLayer);
     },
 
     // 测试获取新奥数据
@@ -1249,6 +1325,9 @@ export default {
 
         that.battery = "";
         if (feature) {
+          if (feature.values_.isBuilding) {
+            return;
+          }
           if (feature.values_.devtype == 1 || feature.values_.devtype == 2) {
             let data = {
               maplabel: feature.values_.deveui,
@@ -1688,7 +1767,11 @@ export default {
             return;
           }
           if (layer.getSource().getFeatures().length > 0) {
-            if (e.deveui == layer.getSource().getFeatures()[0].values_.deveui) {
+            const firstFeature = layer.getSource().getFeatures()[0];
+            if (firstFeature.values_ && firstFeature.values_.isBuilding) {
+              return;
+            }
+            if (e.deveui == firstFeature.values_.deveui) {
               layer
                 .getSource()
                 .getFeatures()
