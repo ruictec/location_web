@@ -96,7 +96,7 @@ import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 import util from "../../common/util";
 
-import { getMemberNameId, getTboxSnId, getDevGpsList } from "../../axios/api";
+import { getMemberNameId, getTboxSnId, getDevGpsList, getBuildingList } from "../../axios/api";
 
 import { createOutdoorBaseLayers, refreshBaseTiles } from "../../utils/mapSource";
 import { boundingExtent, buffer as extentBuffer } from "ol/extent";
@@ -415,10 +415,82 @@ export default {
         this.mapClick();
         this.addLayers();
         this.addLine(this.map);
+        this.loadBuildings();
         this.$nextTick(() => {
           if (this.map) this.map.updateSize();
         });
       }, 0);
+    },
+    // 加载项目下全部楼栋到地图
+    loadBuildings() {
+      var that = this;
+      if (!this.map) {
+        return;
+      }
+      getBuildingList(
+        { projectid: this.$store.state.projectid },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001 && res.data && res.data.length > 0) {
+          for (let i = 0; i < res.data.length; i++) {
+            that.addBuildingMarker(that.map, res.data[i]);
+          }
+        }
+      });
+    },
+    addBuildingMarker(map, info) {
+      if (!map || !info) {
+        return;
+      }
+      const longi = Number(info.longi);
+      const lati = Number(info.lati);
+      if (
+        Number.isNaN(longi) ||
+        Number.isNaN(lati) ||
+        (longi === 0 && lati === 0)
+      ) {
+        return;
+      }
+      const buildingName =
+        info.buildtype == 1 || info.buildtype == null
+          ? info.building
+          : info.building + "(3D)";
+      const feature = new Feature({
+        longi: longi,
+        lati: lati,
+        src: info.src,
+        projectid: info.projectid,
+        building: info.building,
+        id: info.id,
+        buildtype: info.buildtype,
+        isBuilding: true,
+        geometry: new Point([longi, lati]),
+      });
+      const style = new Style({
+        image: new Icon({
+          anchor: [0.5, 1],
+          src: info.src || "../../../static/坐标.png",
+          scale: 1,
+        }),
+        text: new Text({
+          text: buildingName || "",
+          font: "12px font-size",
+          fill: new Fill({
+            color: "white",
+          }),
+          offsetY: 10,
+        }),
+      });
+      const vectorLayer = new VectorLayer({
+        source: new VectorSource({
+          features: [feature],
+        }),
+        style: style,
+        zIndex: 5,
+      });
+      map.addLayer(vectorLayer);
     },
     /**
      * 删除图层
