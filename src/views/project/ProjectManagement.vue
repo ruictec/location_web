@@ -677,32 +677,6 @@
               </el-form-item>
 
               <el-form-item
-                :label="$t('project.Offtime')"
-                prop="offtime"
-                style="margin-right: 2%"
-              >
-                <el-input v-model="addData.offtime"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("project.OfftimeTip") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
-              <el-form-item
                 :label="$t('project.Affiliatedcompany1')"
                 prop="tenantid"
               >
@@ -995,6 +969,33 @@
                 ></el-input>
               </el-form-item>
 
+              <el-form-item
+                :label="$t('project.Offtime')"
+                prop="offtime"
+                style="margin-right: 2%"
+              >
+                <el-input v-model="addData.offtime"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <div slot="content">
+                    <p>
+                      {{ $t("project.OfftimeTip") }}
+                    </p>
+                  </div>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+
               <el-form-item :label="$t('ns.memo1')" style="margin-right: 2%">
                 <el-input
                   type="textarea"
@@ -1039,32 +1040,6 @@
                   v-model="editData.name"
                   :placeholder="$t('project.tet8')"
                 ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('project.Offtime')"
-                prop="offtime"
-                style="margin-right: 2%"
-              >
-                <el-input v-model="editData.offtime"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("project.OfftimeTip") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
               </el-form-item>
               <el-form-item
                 :label="$t('project.Datatime')"
@@ -1317,6 +1292,33 @@
                 </el-tooltip>
               </el-form-item>
 
+              <el-form-item
+                :label="$t('project.Offtime')"
+                prop="offtime"
+                style="margin-right: 2%"
+              >
+                <el-input v-model="editData.offtime"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <div slot="content">
+                    <p>
+                      {{ $t("project.OfftimeTip") }}
+                    </p>
+                  </div>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+
               <el-form-item :label="$t('project.memo1')">
                 <el-input
                   type="textarea"
@@ -1468,7 +1470,7 @@ export default {
         downtopic: "",
         scheme: "",
         url: "",
-        offtime: "",
+        offtime: 30,
         datatime: "",
       },
 
@@ -2735,7 +2737,7 @@ export default {
         downtopic: "",
         scheme: "",
         url: "",
-        offtime: "",
+        offtime: 30,
         datatime: "",
       };
       this.selectScheme();
