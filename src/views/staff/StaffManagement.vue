@@ -3781,16 +3781,21 @@ export default {
 .terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
   width: 100% !important;
 }
-/* 按钮拆开参与同一行流式换行，避免整组掉到下一行造成空档 */
+/* 按钮组保持横向排列并保留间距 */
 .staff-filter-flow .terminal-toolbar-item {
-  display: contents !important;
+  display: inline-flex !important;
   width: auto !important;
   flex: 0 0 auto !important;
   margin: 0 !important;
   float: none !important;
+  align-items: center !important;
 }
 .staff-filter-flow .terminal-toolbar-item :deep(.el-form-item__content) {
-  display: contents !important;
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
 }
 .staff-filter-flow .terminal-toolbar-item :deep(.el-button),
 .staff-filter-flow .terminal-toolbar-item :deep(.el-dropdown),
@@ -3919,11 +3924,16 @@ export default {
   margin: 0 !important;
 }
 .staff-filter-flow .terminal-toolbar-item {
-  display: contents !important;
+  display: inline-flex !important;
   order: unset !important;
+  align-items: center !important;
 }
 .staff-filter-flow .terminal-toolbar-item .el-form-item__content {
-  display: contents !important;
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
 }
 .terminal-toolbar-item .el-button,
 .terminal-toolbar-item .el-dropdown {
@@ -3932,6 +3942,7 @@ export default {
 .staff-filter-flow .terminal-toolbar-item .el-button,
 .staff-filter-flow .terminal-toolbar-item .el-dropdown {
   flex: 0 0 auto !important;
+  margin: 0 !important;
 }
 /* unified-filter-toolbar-btn-size */
 .terminal-toolbar-row .el-button,

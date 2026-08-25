@@ -8,10 +8,25 @@
 ## [未发布]
 
 ### 计划中
-- Vue 3.x 升级
-- 现代构建工具集成
-- TypeScript 支持
-- 全面安全审计
+- TypeScript 逐步支持（可选）
+- 全面安全审计与依赖治理
+- Vue 3 分支与 Vue 2 分支功能持续对齐
+
+## [2.0.0-vue3] - 2026-08-25
+
+> 对应远程分支：`Tianditu-vue3`
+
+### 新增 / 变更
+- 🚀 迁移至 Vue 3.4 + Vue Router 4 + Vuex 4
+- ⚡ 构建工具由 Webpack 切换为 Vite 5
+- 🎨 UI 由 Element UI 切换为 Element Plus
+- 🗺️ 同步天地图能力与 Tianditu 分支业务改动（楼栋坐标布置、室外定位楼栋展示等）
+- 📊 ECharts 升级至 5.x，并通过 `echartsLegacy` 兼容旧图表行为
+- 🧩 增加 fengmap Vite shim，修复生产构建与首页图表 Proxy 问题
+
+### 文档
+- 更新 `README.md` / `README_EN.md` 为 Vue 3 技术栈说明
+- 明确分支：`Tianditu`（Vue2）与 `Tianditu-vue3`（Vue3）
 
 ## [1.0.0] - 2025-09-12
 

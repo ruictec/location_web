@@ -1,14 +1,13 @@
 <template>
   <div class="content">
-    <div class="inputContent">
+    <div class="inputContent outdoor-filter-flow terminal-filter-flow" :class="filterLangClass">
       <el-form
-        class="demo-form-inline"
-        style="display: flex; white-space: nowrap; margin-left: 0%"
+        class="demo-form-inline terminal-filter-form"
         :model="searchList"
       >
         <el-form-item
           :label="$t('staffmanagement.username1')"
-          style="display: flex; margin-left: 0%; margin-right: 2%"
+          class="terminal-filter-item"
         >
           <el-select
             clearable
@@ -17,7 +16,6 @@
             :remote-method="remoteUserMethod"
             v-model="perDeveui"
             :placeholder="$t('staffmanagement.text')"
-            style="width: 120%"
           >
             <el-option
               v-for="item in userOptions"
@@ -34,7 +32,7 @@
         </el-form-item>
         <el-form-item
           :label="$t('car.Numberplate')"
-          style="display: flex; margin-left: 1%; margin-right: 2%"
+          class="terminal-filter-item"
           v-if="intoProjectType == 1"
         >
           <el-select
@@ -44,7 +42,6 @@
             :remote-method="remoteTBoxMethod"
             v-model="tboxDeveui"
             :placeholder="$t('staffmanagement.text')"
-            style="width: 120%"
           >
             <el-option
               v-for="item in tboxOptions"
@@ -59,7 +56,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="display: flex; margin-left: 2%">
+        <el-form-item class="terminal-toolbar-item">
           <el-button type="primary" class="query" @click="searchInfo()">{{
             $t("floormanagement.search")
           }}</el-button>
@@ -2072,6 +2069,9 @@ export default {
     show1() {
       return this.$store.state.show;
     },
+    filterLangClass() {
+      return this.$store.state.i18n === "en" ? "is-en" : "is-zh";
+    },
   },
   watch: {
     show1(val) {
@@ -2236,15 +2236,92 @@ export default {
   width: 98%;
   height: 90%;
 }
-.inputContent {
-  height: 7%;
+.inputContent.outdoor-filter-flow.terminal-filter-flow {
+  height: auto;
   width: 100%;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.outdoor-filter-flow.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.outdoor-filter-flow.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item :deep(.el-button) {
+  margin: 0 !important;
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
 }
 .mapConent {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 93%;
+  height: calc(100% - 56px);
   margin-bottom: 20px;
 }
 #map {
@@ -2307,8 +2384,8 @@ a {
 .backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
-.el-form-item .el-button {
-  margin-left: 4px !important;
+.outdoor-filter-flow.terminal-filter-flow .el-form-item .el-button {
+  margin-left: 0 !important;
 }
 
 .ol-popup-num {

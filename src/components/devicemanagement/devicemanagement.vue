@@ -97,7 +97,7 @@
           placement="right"
           :disabled="open"
         >
-          <i class="el-icon-setting"></i>
+          <i class="el-icon-setting menu-side-icon"></i>
         </el-tooltip>
         <span v-show="show">{{ $t("list.NSconfiguration") }}</span>
       </el-menu-item>
@@ -191,6 +191,16 @@ export default {
   display: inline-block;
   background-color: #909399;
 }
+.menu-side-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+}
 .icon.terminal {
   mask: url("../../assets/terminal.svg");
   mask-size: contain;
@@ -210,6 +220,11 @@ export default {
 .icon.ns {
   mask: url("../../assets/ns.svg");
   mask-size: contain;
+}
+.is-active .icon,
+.is-active .menu-side-icon {
+  color: #409eff;
+  background-color: transparent;
 }
 .is-active .icon {
   background-color: #409eff;

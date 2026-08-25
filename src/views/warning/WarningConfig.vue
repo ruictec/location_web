@@ -218,20 +218,22 @@
                 </el-select>
               </el-form-item>
               <el-form-item :label="$t('warningVoice.chooseSound')">
-                <el-select
-                  v-model="addData.voice"
-                  :placeholder="$t('warningVoice.select')"
-                >
-                  <el-option
-                    v-for="item in voiceList"
-                    :key="item.index"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
-                <el-button type="primary" @click="muiscPlay">{{
-                  buttonText
-                }}</el-button>
+                <div class="voice-audition-row">
+                  <el-select
+                    v-model="addData.voice"
+                    :placeholder="$t('warningVoice.select')"
+                  >
+                    <el-option
+                      v-for="item in voiceList"
+                      :key="item.index"
+                      :label="item.label"
+                      :value="item.value"
+                    ></el-option>
+                  </el-select>
+                  <el-button type="primary" @click="muiscPlay">{{
+                    buttonText
+                  }}</el-button>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('warningVoice.warningTime')">
                 <el-select
@@ -366,20 +368,22 @@
               </el-form-item>
 
               <el-form-item :label="$t('warningVoice.chooseSound')">
-                <el-select
-                  v-model="editData.voice"
-                  :placeholder="$t('warningVoice.select')"
-                >
-                  <el-option
-                    v-for="item in voiceList"
-                    :key="item.index"
-                    :label="item.label"
-                    :value="item.value"
-                  ></el-option>
-                </el-select>
-                <el-button type="primary" @click="muiscPlay">{{
-                  buttonText
-                }}</el-button>
+                <div class="voice-audition-row">
+                  <el-select
+                    v-model="editData.voice"
+                    :placeholder="$t('warningVoice.select')"
+                  >
+                    <el-option
+                      v-for="item in voiceList"
+                      :key="item.index"
+                      :label="item.label"
+                      :value="item.value"
+                    ></el-option>
+                  </el-select>
+                  <el-button type="primary" @click="muiscPlay">{{
+                    buttonText
+                  }}</el-button>
+                </div>
               </el-form-item>
 
               <el-form-item :label="$t('warningVoice.warningTime')">
@@ -1188,6 +1192,23 @@ export default {
 
 .el-form-item .el-button {
   margin-left: 4px !important;
+}
+.voice-audition-row {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: 100%;
+}
+.voice-audition-row :deep(.el-select) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+.voice-audition-row :deep(.el-button) {
+  flex: 0 0 auto;
+  margin-left: 0 !important;
+  white-space: nowrap;
 }
 
 .terminal-filter-flow {
