@@ -335,7 +335,8 @@
                   >
                     <el-button
                       type="danger"
-                      class="dels"
+                      size="small"
+                      class="dels icon_button"
                       @click="delTer(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -987,9 +988,6 @@ export default {
 .el-aside {
   margin-top: 50px;
   width: auto !important;
-}
-.dels {
-  padding: 2px 16px !important;
 }
 /* 改变按钮颜色 */
 .dels:hover {

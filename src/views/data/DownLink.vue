@@ -201,7 +201,8 @@
                   >
                     <el-button
                       type="danger"
-                      class="edits"
+                      size="small"
+                      class="edits icon_button"
                       @click="DelDevCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -765,9 +766,6 @@ export default {
 }
 .el-message {
   display: -webkit-box !important;
-}
-.edits {
-  padding: 2px 16px !important;
 }
 /* 改变按钮颜色 */
 .edits:hover {

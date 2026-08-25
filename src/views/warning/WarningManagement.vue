@@ -233,7 +233,7 @@
                     <el-button
                       type="danger"
                       size="small"
-                      class="edits"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.row)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -1189,10 +1189,6 @@ export default {
 /* 改变按钮颜色 */
 .edits:hover {
   background-color: rgb(196, 27, 27);
-}
-.icon_button,
-.edits {
-  padding: 2px 16px !important;
 }
 .icon_button:hover {
   background-color: rgb(25, 86, 201);

@@ -714,45 +714,24 @@
               <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
             </el-dialog>
             <el-form
-              class="demo-form-inline"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                width: 100%;
-              "
+              class="demo-form-inline action-filter-form"
               :model="actionData"
             >
               <el-form-item
+                class="action-filter-item action-filter-name"
                 :label="$t('staff.name1')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 1%;
-                  width: 16%;
-                "
               >
                 <el-input v-model="actionData.username"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-maplabel"
                 :label="$t('staff.Workcardnumber1')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 2%;
-                  width: 30%;
-                "
               >
                 <el-input v-model="actionData.maplabel"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-time"
                 :label="$t('staff.time')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  width: 40%;
-                "
               >
                 <el-date-picker
                   v-model="actionTime"
@@ -763,7 +742,7 @@
                   :end-placeholder="$t('terminal.enddate')"
                 ></el-date-picker>
               </el-form-item>
-              <el-form-item style="margin-left: 1%; width: 20%">
+              <el-form-item class="action-filter-item action-filter-actions">
                 <el-button
                   type="primary"
                   class="query"
@@ -3694,6 +3673,83 @@ export default {
 
 .action .demo-form-inline .el-form-item .el-form-item__content {
   width: 100%;
+}
+
+/* 轨迹筛选：单行不换行，按弹框宽度等比压缩，避免溢出 */
+.action-filter-form {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+  margin: 0 0 8px !important;
+  padding: 0 8px !important;
+  overflow: hidden !important;
+}
+.action-filter-form .action-filter-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+}
+.action-filter-form .action-filter-name {
+  flex: 1.1 1 0 !important;
+}
+.action-filter-form .action-filter-maplabel {
+  flex: 1.4 1 0 !important;
+}
+.action-filter-form .action-filter-time {
+  flex: 2.2 1 0 !important;
+}
+.action-filter-form .action-filter-actions {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+}
+.action-filter-form .action-filter-item :deep(.el-form-item__label) {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 6px 0 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  line-height: 32px;
+}
+.action-filter-form .action-filter-item :deep(.el-form-item__content) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin-left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.action-filter-form .action-filter-item :deep(.el-input),
+.action-filter-form .action-filter-item :deep(.el-date-editor) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+.action-filter-form .action-filter-item :deep(.el-input__wrapper),
+.action-filter-form .action-filter-item :deep(.el-date-editor.el-input__wrapper),
+.action-filter-form .action-filter-item :deep(.el-range-editor.el-input__wrapper) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.action-filter-form .action-filter-actions :deep(.el-form-item__content) {
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+.action-filter-form .action-filter-actions .el-button {
+  flex-shrink: 0;
+  margin-left: 0 !important;
 }
 /* .move {
   transform: translateX(4px);
