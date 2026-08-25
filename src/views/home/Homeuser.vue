@@ -1299,7 +1299,7 @@ export default {
                   res.data.gpstime == 0
                 ) {
                   that.$message({
-                    message: that.$t("LocationIndoor.tet3"),
+                    message: i18n.global.t("LocationIndoor.tet3"),
                     type: "warning",
                   });
                 } else {
@@ -1399,7 +1399,7 @@ export default {
         that.warnNumList[index].warn_status2_num == 0
       ) {
         that.$message({
-          message: that.$t("homepage.noData"),
+          message: i18n.global.t("homepage.noData"),
           type: "error",
         });
         return;
@@ -1449,7 +1449,7 @@ export default {
           if (res.code == 1001) {
             if (res.data.length == 0) {
               that.$message({
-                message: that.$t("buildingmanagement.nodata"),
+                message: i18n.global.t("buildingmanagement.nodata"),
                 type: "warning",
               });
               return;
@@ -2150,13 +2150,13 @@ export default {
             styleCache[size] = style;
           } else {
             let devnum = feature.values_.features[0].values_.devnum
-              ? feature.values_.features[0].values_.devnum + that.$t("homepage.P")
+              ? feature.values_.features[0].values_.devnum + i18n.global.t("homepage.P")
               : "";
             let assetnum = feature.values_.features[0].values_.assetnum
-              ? feature.values_.features[0].values_.assetnum + that.$t("homepage.A")
+              ? feature.values_.features[0].values_.assetnum + i18n.global.t("homepage.A")
               : "";
             let tboxnum = feature.values_.features[0].values_.tboxnum
-              ? feature.values_.features[0].values_.tboxnum + that.$t("homepage.C")
+              ? feature.values_.features[0].values_.tboxnum + i18n.global.t("homepage.C")
               : "";
             let text;
             if (devnum == "" && assetnum == "" && tboxnum == "") {
@@ -2245,7 +2245,7 @@ export default {
           return;
         }
         const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet2")) {
+        if (params.name == i18n.global.t("home.tet2")) {
           that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
           that.$router.push({
             path: "/staff/staffmanagement",
@@ -2255,7 +2255,7 @@ export default {
               flag: true,
             },
           });
-        } else if (params.name == that.$t("home.tet3")) {
+        } else if (params.name == i18n.global.t("home.tet3")) {
           that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
           that.$router.push({
             path: "/staff/staffmanagement",
@@ -2303,7 +2303,7 @@ export default {
           return;
         }
         const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet5")) {
+        if (params.name == i18n.global.t("home.tet5")) {
           that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
           that.$router.push({
             path: "/staff/assetManagement",
@@ -2313,7 +2313,7 @@ export default {
               flag: true,
             },
           });
-        } else if (params.name == that.$t("home.tet6")) {
+        } else if (params.name == i18n.global.t("home.tet6")) {
           that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
           that.$router.push({
             path: "/staff/assetManagement",
@@ -2361,7 +2361,7 @@ export default {
           return;
         }
         const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet8")) {
+        if (params.name == i18n.global.t("home.tet8")) {
           that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
           that.$router.push({
             path: "/staff/tboxManagement",
@@ -2371,7 +2371,7 @@ export default {
               flag: true,
             },
           });
-        } else if (params.name == that.$t("home.tet9")) {
+        } else if (params.name == i18n.global.t("home.tet9")) {
           that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
           that.$router.push({
             path: "/staff/tboxManagement",
@@ -2550,31 +2550,31 @@ export default {
       option && this.myChart1.setOption(option);
       this.myChart1.on("click", function (param) {
         switch (param.name) {
-          case that.$t("home.Used"):
+          case i18n.global.t("home.Used"):
             that.$router.push({
               path: "/device/terminal",
               query: { inuse: 1 },
             });
             break;
-          case that.$t("home.Unused"):
+          case i18n.global.t("home.Unused"):
             that.$router.push({
               path: "/device/terminal",
               query: { inuse: 2 },
             });
             break;
-          case that.$t("home.tet10"):
+          case i18n.global.t("home.tet10"):
             that.$router.push({
               path: "/device/terminal",
               query: { endbat: 20 },
             });
             break;
-          case that.$t("home.tet11"):
+          case i18n.global.t("home.tet11"):
             that.$router.push({
               path: "/device/terminal",
               query: { beginbat: 20, endbat: 60 },
             });
             break;
-          case that.$t("home.tet12"):
+          case i18n.global.t("home.tet12"):
             that.$router.push({
               path: "/device/terminal",
               query: { beginbat: 60 },
@@ -2825,19 +2825,19 @@ export default {
       that.myChartBeacon.off("click");
       that.myChartBeacon.on("click", function (param) {
         switch (param.name) {
-          case that.$t("home.Scanneddays"):
+          case i18n.global.t("home.Scanneddays"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 1 },
             });
             break;
-          case that.$t("home.scannedwithin"):
+          case i18n.global.t("home.scannedwithin"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 2 },
             });
             break;
-          case that.$t("home.Neverscanned"):
+          case i18n.global.t("home.Neverscanned"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 3 },

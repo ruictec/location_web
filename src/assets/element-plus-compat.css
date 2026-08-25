@@ -1558,6 +1558,100 @@ body .el-table th,
   min-width: 110px;
 }
 
+/* 员工管理「轨迹」行为弹框：筛选单行自适应宽度，不换行、不溢出 */
+.el-dialog.action .el-dialog__body {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.el-dialog.action .action-filter-form {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+  margin: 0 0 8px !important;
+  padding: 0 8px !important;
+  overflow: hidden !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  padding-right: 0 !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-name {
+  flex: 1.1 1 0 !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-maplabel {
+  flex: 1.4 1 0 !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-time {
+  flex: 2.2 1 0 !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-actions {
+  flex: 0 1 auto !important;
+  width: auto !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-item .el-form-item__label {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 6px 0 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  line-height: 32px;
+}
+
+.el-dialog.action .action-filter-form .action-filter-item .el-form-item__content {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin-left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-item .el-input,
+.el-dialog.action .action-filter-form .action-filter-item .el-date-editor {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-item .el-input__wrapper,
+.el-dialog.action .action-filter-form .action-filter-item .el-date-editor.el-input__wrapper,
+.el-dialog.action .action-filter-form .action-filter-item .el-range-editor.el-input__wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-actions .el-form-item__content {
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+
+.el-dialog.action .action-filter-form .action-filter-actions .el-button {
+  flex-shrink: 0;
+  margin-left: 0 !important;
+}
+
 /* 员工/资产「查看轨迹」弹窗：append-to-body 后 scoped 选不中，需全局撑开宽高 */
 .el-dialog.trajectory {
   height: 85vh !important;

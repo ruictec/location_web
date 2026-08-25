@@ -29,6 +29,7 @@
 
     <div class="mapContent" style="position: relative">
       <MapLayerSwitcher
+        v-if="outDoor"
         :map="map"
         bottom="10px"
         right="10px"
@@ -358,7 +359,7 @@ export default {
             if (this.actionTableData.length == 1) {
               pathOneArr = [];
               if (that.actionTableData[0].list.length > 1) {
-                let lists = that.actionTableData[0].list.reverse();
+                let lists = that.actionTableData[0].list.slice().reverse();
                 let newGPSTime;
                 let gpstimeValue;
                 let xValue;
@@ -415,10 +416,13 @@ export default {
               }
               pathAll = [...pathAll, ...pathOneArr];
             } else {
-              for (let k = 0; k < this.actionTableData.length-1; k++) {
+              for (let k = 0; k < this.actionTableData.length; k++) {
                 pathOneArr = [];
-                if (that.actionTableData[k].list.length > 1) {
-                  let lists = that.actionTableData[k].list.reverse();
+                const stayList = Array.isArray(that.actionTableData[k].list)
+                  ? that.actionTableData[k].list
+                  : [];
+                if (stayList.length > 1) {
+                  let lists = stayList.slice().reverse();
                   let newGPSTime;
                   let gpstimeValue;
                   let xValue;
@@ -466,6 +470,11 @@ export default {
 
                   pathAll = [...pathAll, ...pathOneArr];
                 }
+                // 最后一段停留点：列表已在上方处理；同 eui 回访（C==A）交给后面按「访问顺序」补齐
+                if (k >= this.actionTableData.length - 1) {
+                  continue;
+                }
+                let linkedToNext = false;
                 for (let l = 0; l < that.graphData.length; l++) {
                   if (
                     that.actionTableData[k].eui == that.graphData[l].pointid &&
@@ -483,7 +492,7 @@ export default {
                     pathOneArr = pathOne.split("->");
                     pathOneArr.forEach((item, index) => {
                       if (index === 0) {
-                        if (that.actionTableData[k].list.length < 2) {
+                        if (stayList.length < 2) {
                           pathOneArr[index] = {
                             gpstime: that.actionTableData[k].gpstime,
                             remaintime: that.actionTableData[k].remaintime,
@@ -492,21 +501,13 @@ export default {
                           };
                         } else {
                           let remaintime =
-                            that.actionTableData[k].list[
-                              that.actionTableData[k].list.length - 1
-                            ].gpstime -
-                            that.actionTableData[k].list[0].gpstime +
-                            that.actionTableData[k].list[
-                              that.actionTableData[k].list.length - 1
-                            ].remaintime;
+                            stayList[stayList.length - 1].gpstime -
+                            stayList[0].gpstime +
+                            stayList[stayList.length - 1].remaintime;
                           pathOneArr[index] = {
                             gpstime: that.formatDatetimeGps(
-                              that.actionTableData[k].list[
-                                that.actionTableData[k].list.length - 1
-                              ].gpstime +
-                                that.actionTableData[k].list[
-                                  that.actionTableData[k].list.length - 1
-                                ].remaintime
+                              stayList[stayList.length - 1].gpstime +
+                                stayList[stayList.length - 1].remaintime
                             ),
                             remaintime:
                               that.actionTableData[k].remaintime - remaintime,
@@ -524,28 +525,79 @@ export default {
                       pathOneArr[pathOneArr.length - 1] = {
                         gpstime: that.actionTableData[k + 1].gpstime,
                         remaintime: that.actionTableData[k + 1].remaintime,
-                        anglimit: that.actionTableData[k].anglimit,
+                        anglimit: that.actionTableData[k + 1].anglimit,
                         pointid: pathOneArr[pathOneArr.length - 1].pointid,
                       };
                     }
 
                     pathAll = [...pathAll, ...pathOneArr];
+                    linkedToNext = true;
                   } else if (
                     that.actionTableData[k].eui == that.graphData[l].pointid &&
                     that.graphData[l].list.length === 0
                   ) {
-                    let One = [
-                      {
-                        gpstime: that.actionTableData[k].gpstime,
-                        remaintime: that.actionTableData[k].remaintime,
-                        pointid: that.actionTableData[k].eui,
-                        anglimit: that.actionTableData[k].anglimit, //扫描角度，15表示360°，判断是否走一半
-                      },
-                    ];
-                    pathAll = pathAll.concat(One);
+                    // 仅有当前点、无邻接边：只加入当前点，不能当作已连到下一点
+                    if (
+                      stayList.length <= 1 &&
+                      !pathAll.some(
+                        (p, idx) =>
+                          p &&
+                          idx >= pathAll.length - 1 &&
+                          String(p.pointid) ===
+                            String(that.actionTableData[k].eui)
+                      )
+                    ) {
+                      // 若当前点尚未作为「最近一次」出现，则追加
+                      const last = pathAll[pathAll.length - 1];
+                      if (
+                        !last ||
+                        String(last.pointid) !==
+                          String(that.actionTableData[k].eui)
+                      ) {
+                        pathAll.push({
+                          gpstime: that.actionTableData[k].gpstime,
+                          remaintime: that.actionTableData[k].remaintime,
+                          pointid: that.actionTableData[k].eui,
+                          anglimit: that.actionTableData[k].anglimit,
+                          beacon: 1,
+                        });
+                      }
+                    }
+                  }
+                }
+                // 未真正连到下一点时，补当前点 + 直连下一点（支持回到同一 beacon）
+                if (!linkedToNext && that.actionTableData[k].eui) {
+                  const cur = that.actionTableData[k];
+                  const next = that.actionTableData[k + 1];
+                  const last = pathAll[pathAll.length - 1];
+                  if (
+                    stayList.length <= 1 &&
+                    (!last || String(last.pointid) !== String(cur.eui))
+                  ) {
+                    pathAll.push({
+                      gpstime: cur.gpstime,
+                      remaintime: cur.remaintime,
+                      pointid: cur.eui,
+                      anglimit: cur.anglimit,
+                      beacon: 1,
+                    });
+                  }
+                  if (next && next.eui) {
+                    pathAll.push({
+                      gpstime: next.gpstime,
+                      remaintime: next.remaintime,
+                      pointid: next.eui,
+                      anglimit: next.anglimit,
+                      beacon: 1,
+                    });
                   }
                 }
               }
+              // 按停留「访问顺序」补齐（同一 eui 可多次出现，如 A→B→A）
+              pathAll = that.ensureStayVisitsInOrder(
+                pathAll,
+                that.actionTableData
+              );
             }
             //给每个点都加上时间
 
@@ -643,6 +695,50 @@ export default {
           });
         }
       });
+    },
+    /**
+     * 按停留访问顺序补齐轨迹点。
+     * 同一 beacon 可能被访问多次（如 A→B→A），不能用「eui 是否已出现」判断。
+     */
+    ensureStayVisitsInOrder(pathAll, stays) {
+      const result = Array.isArray(pathAll) ? pathAll.slice() : [];
+      let searchFrom = 0;
+      (stays || []).forEach((stay) => {
+        if (!stay || stay.eui == null || stay.eui === "") return;
+        const eui = String(stay.eui);
+        let foundAt = -1;
+        for (let i = searchFrom; i < result.length; i++) {
+          if (result[i] && String(result[i].pointid) === eui) {
+            foundAt = i;
+            break;
+          }
+        }
+        if (foundAt >= 0) {
+          result[foundAt] = {
+            ...result[foundAt],
+            gpstime: stay.gpstime || result[foundAt].gpstime,
+            remaintime:
+              stay.remaintime != null
+                ? stay.remaintime
+                : result[foundAt].remaintime,
+            anglimit:
+              stay.anglimit != null ? stay.anglimit : result[foundAt].anglimit,
+            beacon: 1,
+            pointid: stay.eui,
+          };
+          searchFrom = foundAt + 1;
+        } else {
+          result.splice(searchFrom, 0, {
+            gpstime: stay.gpstime,
+            remaintime: stay.remaintime,
+            pointid: stay.eui,
+            anglimit: stay.anglimit,
+            beacon: 1,
+          });
+          searchFrom += 1;
+        }
+      });
+      return result;
     },
     unique(arr) {
       let hash = {};
@@ -776,7 +872,15 @@ export default {
       clearTimeout(this.timeout);
       this.restartLine = true;
       this.goTimeOut = true;
-      this.actionTableDataArr[0][0].list.reverse();
+      // 回放时翻转列表，使用拷贝避免污染原始停留点顺序
+      if (
+        this.actionTableDataArr[0] &&
+        this.actionTableDataArr[0][0] &&
+        Array.isArray(this.actionTableDataArr[0][0].list)
+      ) {
+        this.actionTableDataArr[0][0].list =
+          this.actionTableDataArr[0][0].list.slice().reverse();
+      }
       this.search(
         this.actionTableDataArr,
         this.beTime,
@@ -871,12 +975,52 @@ export default {
           type: "end",
           geometry: new Point(that.routeCoords[that.routeLength - 1]),
         });
+        // 中间停留点也画标记（原先只画起终点，三条数据看起来像只有两个点）
+        const stayFeatures = [];
+        if (
+          !that.outerDoor &&
+          Array.isArray(that.actionTableData) &&
+          that.actionTableData.length > 2
+        ) {
+          for (let i = 1; i < that.actionTableData.length - 1; i++) {
+            const stay = that.actionTableData[i];
+            if (!stay || !stay.eui) continue;
+            let xy = null;
+            const matched = (that.searchInfoArr || []).find(
+              (p) => p && String(p.pointid) === String(stay.eui)
+            );
+            if (matched && matched.x != null && matched.y != null) {
+              xy = [parseFloat(matched.x), parseFloat(matched.y)];
+            } else if (
+              Array.isArray(stay.list) &&
+              stay.list.length &&
+              stay.list[0].x != null
+            ) {
+              xy = [parseFloat(stay.list[0].x), parseFloat(stay.list[0].y)];
+            } else {
+              const g = (that.graphData || []).find(
+                (p) => p && String(p.pointid) === String(stay.eui)
+              );
+              if (g && g.nodeX != null && g.nodeY != null) {
+                xy = [parseFloat(g.nodeX), parseFloat(g.nodeY)];
+              }
+            }
+            if (!xy || Number.isNaN(xy[0]) || Number.isNaN(xy[1])) continue;
+            stayFeatures.push(
+              new Feature({
+                type: "icon",
+                geometry: new Point(xy),
+              })
+            );
+          }
+        }
         that.vectorLayer = new VectorLayer({
           source: new VectorSource({
             features: [
               that.routeFeature,
               // that.geoMarker,
               that.startMarker,
+              ...stayFeatures,
               that.endMarker,
             ],
             // 线、标记、开始标记、结束标记
