@@ -132,7 +132,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="editss"
                       @click="openEdit(scope.row)"
                       ><img src="../../../static/edit2.png"

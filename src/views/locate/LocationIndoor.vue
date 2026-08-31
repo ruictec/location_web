@@ -407,7 +407,7 @@
           </transition>
         </div>
         <!-- 楼层选择 -->
-        <div class="selectGround" style="z-index: 1">
+        <div class="selectGround">
           <div
             style="
               width: 42px;
@@ -830,7 +830,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import { markRaw } from "vue";
 import host from "../../host";
 import { component as Fullscreen } from "vue-fullscreen";
@@ -880,6 +880,7 @@ import {
   getMapidByBuildid,
   getCountNum,
   getWarnNumList,
+  getFenceManageAndPointListByPage,
 } from "../../axios/api";
 
 // 布置相关
@@ -904,6 +905,8 @@ import * as echarts from "echarts";
 // 用来添加相关文字描述的
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
+import Polygon from "ol/geom/Polygon";
 
 // 控制
 import { defaults as defaultControls } from "ol/control";
@@ -1055,6 +1058,12 @@ export default {
       layer2: null,
       setNewMarker: true, //标注
       groundVals: "",
+      fenceManageList: [],
+      fenceVectorSource: null,
+      fenceVectorLayer: null,
+      fenceFeatures2d: [],
+      fencePolygonMarkers: [],
+      fenceNameMarkers3d: [],
 
       gl: "",
       timer: null,
@@ -2878,11 +2887,270 @@ export default {
         }
       });
     },
+    hexToRgba(hex, opacity) {
+      if (!hex) {
+        return `rgba(255, 0, 0, ${opacity})`;
+      }
+      let color = String(hex).replace("#", "");
+      if (color.length === 3) {
+        color = color
+          .split("")
+          .map((item) => item + item)
+          .join("");
+      }
+      const rgb = parseInt(color, 16);
+      const r = (rgb >> 16) & 0xff;
+      const g = (rgb >> 8) & 0xff;
+      const b = rgb & 0xff;
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    },
+    escapeFenceName(name) {
+      return String(name || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
+    getFencePolygonCenter(points) {
+      if (!points || points.length === 0) {
+        return { x: 0, y: 0 };
+      }
+      var validPoints = points;
+      if (
+        points.length > 1 &&
+        (points[0].x || points[0].pointX) ===
+          (points[points.length - 1].x || points[points.length - 1].pointX) &&
+        (points[0].y || points[0].pointY) ===
+          (points[points.length - 1].y || points[points.length - 1].pointY)
+      ) {
+        validPoints = points.slice(0, -1);
+      }
+      var centerX = 0;
+      var centerY = 0;
+      validPoints.forEach(function (point) {
+        centerX += point.x || point.pointX || 0;
+        centerY += point.y || point.pointY || 0;
+      });
+      return {
+        x: centerX / validPoints.length,
+        y: centerY / validPoints.length,
+      };
+    },
+    ensureFenceLayer2d() {
+      if (!this.map) {
+        return;
+      }
+      if (this.fenceVectorLayer) {
+        var onMap =
+          this.map.getLayers().getArray().indexOf(this.fenceVectorLayer) !== -1;
+        if (onMap) {
+          return;
+        }
+        this.fenceVectorLayer = null;
+        this.fenceVectorSource = null;
+      }
+      this.fenceVectorSource = new OlSourceVector();
+      this.fenceVectorLayer = new OlLayerVector({
+        source: this.fenceVectorSource,
+        zIndex: 2,
+      });
+      this.fenceVectorLayer.set("isElectronicFenceLayer", true);
+      this.map.addLayer(this.fenceVectorLayer);
+    },
+    clearIndoorFences2d() {
+      if (this.fenceVectorSource) {
+        this.fenceVectorSource.clear();
+      }
+      this.fenceFeatures2d = [];
+      this.fenceManageList = [];
+      if (this.fenceVectorLayer && this.map) {
+        this.map.removeLayer(this.fenceVectorLayer);
+      }
+      this.fenceVectorLayer = null;
+      this.fenceVectorSource = null;
+    },
+    clearIndoorFences3d() {
+      this.fencePolygonMarkers.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏标记失败:", e);
+        }
+      });
+      this.fencePolygonMarkers = [];
+      this.fenceNameMarkers3d.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏名称标记失败:", e);
+        }
+      });
+      this.fenceNameMarkers3d = [];
+    },
+    loadIndoorFences() {
+      var that = this;
+      if (!that.groundid || !that.intoProjectid) {
+        return;
+      }
+      getFenceManageAndPointListByPage(
+        {
+          projectid: that.intoProjectid,
+          groundid: that.groundid,
+        },
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.fenceManageList = res.data.list || [];
+          if (that.mapTypes) {
+            that.renderIndoorFences2d();
+          } else {
+            that.renderIndoorFences3d();
+          }
+        }
+      });
+    },
+    renderIndoorFences2d() {
+      var that = this;
+      if (!that.map) {
+        return;
+      }
+      that.ensureFenceLayer2d();
+      that.fenceFeatures2d.forEach(function (feature) {
+        that.fenceVectorSource.removeFeature(feature);
+      });
+      that.fenceFeatures2d = [];
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      that.fenceManageList.forEach(function (fence) {
+        if (!fence.list || fence.list.length < 3) {
+          return;
+        }
+        var polygonCoords = fence.list.map(function (point) {
+          return [point.pointX || point.x, point.pointY || point.y];
+        });
+        polygonCoords.push(polygonCoords[0]);
+        var polygon = new Polygon([polygonCoords]);
+        var feature = new OlFeature(polygon);
+        var color = fence.colour || "#FF0000";
+        var fenceName = fence.name || "";
+        feature.setStyle(
+          new OlStyleStyle({
+            fill: new Fill({
+              color: that.hexToRgba(color, 0.3),
+            }),
+            stroke: new Stroke({
+              color: color,
+              width: 2,
+            }),
+            text: fenceName
+              ? new Text({
+                  text: fenceName,
+                  font: "bold 13px Microsoft YaHei, sans-serif",
+                  fill: new Fill({
+                    color: "#333333",
+                  }),
+                  stroke: new Stroke({
+                    color: "#ffffff",
+                    width: 3,
+                  }),
+                  overflow: true,
+                  textAlign: "center",
+                  textBaseline: "middle",
+                })
+              : undefined,
+          })
+        );
+        feature.set("isElectronicFence", true);
+        that.fenceVectorSource.addFeature(feature);
+        that.fenceFeatures2d.push(feature);
+      });
+    },
+    renderIndoorFences3d() {
+      var that = this;
+      if (!that.map3d || !that.map3dReady) {
+        return;
+      }
+      that.clearIndoorFences3d();
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      try {
+        var level = that.map3d.getLevel();
+        var group = that.map3d.getFloor(level);
+        that.fenceManageList.forEach(function (fence) {
+          if (!fence.list || fence.list.length < 3) {
+            return;
+          }
+          var polygonPoints = fence.list.map(function (point) {
+            return {
+              x: point.pointX || point.x,
+              y: point.pointY || point.y,
+              z: 0.2,
+            };
+          });
+          polygonPoints.push({
+            x: polygonPoints[0].x,
+            y: polygonPoints[0].y,
+            z: 0.2,
+          });
+          var polygonMarker = new fengmap.FMPolygonMarker({
+            points: polygonPoints,
+            color: fence.colour || "#FF0000",
+            alpha: 0.3,
+            lineWidth: 2,
+            lineColor: fence.colour || "#FF0000",
+          });
+          polygonMarker.selfAttr = {
+            fenceId: fence.id,
+            fenceName: fence.name,
+            isElectronicFence: true,
+          };
+          polygonMarker.addTo(group);
+          that.fencePolygonMarkers.push(polygonMarker);
+          var fenceName = fence.name || "";
+          if (fenceName) {
+            var center = that.getFencePolygonCenter(polygonPoints);
+            var borderColor = fence.colour || "#FF0000";
+            var nameHtml =
+              '<div style="padding:2px 8px;background:rgba(255,255,255,0.92);border:1px solid ' +
+              borderColor +
+              ';border-radius:4px;color:#333;font-size:12px;line-height:18px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2);">' +
+              that.escapeFenceName(fenceName) +
+              "</div>";
+            var nameMarker = new fengmap.FMDomMarker({
+              x: center.x,
+              y: center.y,
+              height: 2,
+              anchor: fengmap.FMMarkerAnchor.CENTER,
+              collision: false,
+              domWidth: Math.min(220, Math.max(48, fenceName.length * 14 + 20)),
+              domHeight: 28,
+              content: nameHtml,
+            });
+            nameMarker.selfAttr = {
+              fenceId: fence.id,
+              fenceName: fenceName,
+              isNameLabel: true,
+            };
+            nameMarker.addTo(group);
+            that.fenceNameMarkers3d.push(nameMarker);
+          }
+        });
+      } catch (e) {
+        console.error("渲染电子围栏失败:", e);
+      }
+    },
 
     mapInit(x, y, maxX, maxY, mapInfo) {
       document.oncontextmenu = function (e) {
         return false;
       };
+      this.clearIndoorFences2d();
+      this.clearIndoorFences3d();
       if (this.map) {
         this.map.setTarget("sss");
       }
@@ -2938,6 +3206,7 @@ export default {
           }),
         });
 
+        that.AllLayer.setZIndex(10);
         that.map.addLayer(that.AllLayer);
         that.AllFeatures = {};
         this.featureMap = { person: {}, asset: {}, tbox: {} };
@@ -2949,14 +3218,24 @@ export default {
         };
 
         this.layerMap = {
-          person: new OlLayerVector({ source: this.sourceMap.person }),
-          asset: new OlLayerVector({ source: this.sourceMap.asset }),
-          tbox: new OlLayerVector({ source: this.sourceMap.tbox }),
+          person: new OlLayerVector({
+            source: this.sourceMap.person,
+            zIndex: 12,
+          }),
+          asset: new OlLayerVector({
+            source: this.sourceMap.asset,
+            zIndex: 12,
+          }),
+          tbox: new OlLayerVector({
+            source: this.sourceMap.tbox,
+            zIndex: 12,
+          }),
         };
 
         this.map.addLayer(this.layerMap.person);
         this.map.addLayer(this.layerMap.asset);
         this.map.addLayer(this.layerMap.tbox);
+        this.loadIndoorFences();
 
         if (mapInfo && this.searchLists.perDeveui) {
           // this.addIconMarker(this.map, mapInfo);
@@ -3173,13 +3452,29 @@ export default {
       });
     },
 
+    isFenceHit(feature, layer) {
+      if (layer && layer.get && layer.get("isElectronicFenceLayer")) {
+        return true;
+      }
+      if (feature && feature.get && feature.get("isElectronicFence")) {
+        return true;
+      }
+      return false;
+    },
+    getClickableFeatureAtPixel(map, pixel) {
+      var that = this;
+      return map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+        if (that.isFenceHit(feature, layer)) {
+          return undefined;
+        }
+        return feature;
+      });
+    },
     //鼠标经过图标改变鼠标样式
     userMapMouse(map) {
       var that = this;
       map.on("pointermove", function (evt) {
-        var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-          return feature;
-        });
+        var feature = that.getClickableFeatureAtPixel(map, evt.pixel);
         if (feature) {
           if (feature.values_.x != "" || feature.values_.x != null) {
             map.getTargetElement().style.cursor = "pointer";
@@ -3194,12 +3489,7 @@ export default {
     mapClick() {
       var that = this;
       this.map.on("click", (evt) => {
-        var feature = this.map.forEachFeatureAtPixel(
-          evt.pixel,
-          function (feature) {
-            return feature;
-          }
-        );
+        var feature = that.getClickableFeatureAtPixel(this.map, evt.pixel);
 
         that.battery = "";
         if (feature) {
@@ -3754,6 +4044,7 @@ export default {
     },
     destroyMap3d() {
       this.map3dReady = false;
+      this.clearIndoorFences3d();
       this.destroyFengmapFloorToolbar();
       try {
         if (this.map3d && typeof this.map3d.dispose === "function") {
@@ -4082,7 +4373,7 @@ export default {
           container.style.height = "100%";
           container.style.margin = "0";
 
-          var mapOpation = {
+          var mapOpation = applyFengmapLocalLoad({
             container: container,
             level: ground,
             visibleLevels: that.showAllGround ? newGroundList : [ground],
@@ -4097,8 +4388,7 @@ export default {
               level: ground,
               floorSpace: 5,
             },
-            decoderURL: FENGMAP_DECODER_URL,
-          };
+          });
           that.map3d = markRaw(new fengmap.FMMap(mapOpation));
           that.map3dReady = false;
           that.map3d.on("loaded", function () {
@@ -4121,6 +4411,7 @@ export default {
             }
             that.loading.close();
             that.loadScrollFloorCtrl();
+            that.loadIndoorFences();
             if (projectid) {
               that.getData();
               if (that.intoProjectType == 1) {
@@ -4172,13 +4463,23 @@ export default {
           });
 
           that.map3d.on("click", function (event) {
-            if (
-              event.targets[0] &&
-              (event.targets[0].type == "64" || event.targets[0].type == "8")
-            ) {
+            var targets = event.targets || [];
+            var marker = targets.find(function (item) {
+              if (!item) {
+                return false;
+              }
+              if (
+                item.selfAttr &&
+                (item.selfAttr.isElectronicFence || item.selfAttr.isNameLabel)
+              ) {
+                return false;
+              }
+              return item.type == "64" || item.type == "8";
+            });
+            if (marker) {
               that.setNewMarker = false;
               if (event.mouseEvent.button == 0) {
-                that.addPopInfoWindowLeft(event.targets[0]);
+                that.addPopInfoWindowLeft(marker);
               }
             }
           });
@@ -4884,6 +5185,7 @@ export default {
           //反向项目
           that.getBeaconGpss3D(that.groundid, found.ground);
         }
+        that.loadIndoorFences();
       });
     },
 
@@ -5150,6 +5452,8 @@ export default {
   beforeUnmount() {
     clearInterval(this.timeOut);
     this.timeOut = null;
+    this.clearIndoorFences2d();
+    this.clearIndoorFences3d();
     if (this.map) {
       this.map.setTarget("sss");
       this.map = null;
@@ -5275,6 +5579,16 @@ export default {
 }
 .selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
+}
+.selectGround {
+  position: relative;
+  z-index: 1002;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+.selectGround label,
+.selectGround .fm-layer-list > div {
+  pointer-events: auto;
 }
 .selectBuild {
   width: 100%;

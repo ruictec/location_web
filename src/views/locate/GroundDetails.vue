@@ -191,7 +191,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import { markRaw } from "vue";
 
 import {
@@ -872,7 +872,7 @@ export default {
       }
       this.destroyMap3d();
       this.prepareMap3dContainer();
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: container,
         level: ground ? ground : 1, //默认聚焦楼层
         visibleLevels: ground ? [ground] : [1], //初始显示楼层ID数组
@@ -882,10 +882,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        decoderURL: FENGMAP_DECODER_URL,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = markRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {

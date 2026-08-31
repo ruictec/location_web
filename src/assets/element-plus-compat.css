@@ -170,6 +170,19 @@ body .el-table th,
   z-index: 10050 !important;
 }
 
+/* 室内定位 2D：楼层切换控件置于地图控件之上，且可点击 */
+.mapConent .selectGround {
+  position: relative;
+  z-index: 1002 !important;
+  pointer-events: auto !important;
+  flex-shrink: 0;
+}
+.mapConent .selectGround label,
+.mapConent .selectGround .fm-layer-list > div {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
 /* 室内定位 - 查看详情统计面板：按内容宽度，不撑满地图 */
 .mapConent .statistics,
 .mapConentD .statistics.statistics3d {
@@ -1596,6 +1609,27 @@ body .el-table th,
 .el-pagination .el-select {
   width: 110px;
   min-width: 110px;
+}
+
+/* 员工/资产/车辆「轨迹」行为弹框：时间线内容左对齐，避免继承 dialog text-align:center */
+.el-dialog.action .actionDetails {
+  text-align: left !important;
+}
+.el-dialog.action .actionDetails .el-timeline {
+  text-align: left !important;
+  margin-right: 0 !important;
+}
+.el-dialog.action .actionDetails .el-timeline-item__wrapper,
+.el-dialog.action .actionDetails .el-timeline-item__content {
+  text-align: left !important;
+}
+.el-dialog.action .actionDetails .el-timeline-item__content p,
+.el-dialog.action .actionDetails .el-timeline-item__content .time,
+.el-dialog.action .actionDetails .el-timeline-item__content .content {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  text-align: left !important;
 }
 
 /* 员工管理「轨迹」行为弹框：筛选单行自适应宽度，不换行、不溢出 */

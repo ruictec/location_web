@@ -1398,7 +1398,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import host from "../../host";
 import Menu from "../../components/menu/Menu";
 import basecard from "../../components/card/base-card";
@@ -2493,7 +2493,7 @@ export default {
         return;
       }
       this.disposeMap3D();
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: container,
         level: ground,
         visibleLevels: [ground],
@@ -2503,10 +2503,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        decoderURL: FENGMAP_DECODER_URL,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
@@ -2599,7 +2596,7 @@ export default {
         return;
       }
       this.disposeMap3D();
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: container,
         level: ground, //默认聚焦楼层
         visibleLevels: [ground], //初始显示楼层ID数组
@@ -2608,10 +2605,7 @@ export default {
         viewMode: fengmap.FMViewMode.MODE_2D, //设置地图2d显示
         mapID: that.fmapId,
         themeID: that.themeId,
-        decoderURL: FENGMAP_DECODER_URL,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const staticDir = path.resolve(__dirname, 'static')
+const fengmapDataDir = path.resolve(__dirname, 'data')
 const fengmapBuildDir = path.resolve(__dirname, 'node_modules/fengmap/build')
 const fengmapDracoFiles = new Set([
   'draco_decoder.js',
@@ -58,10 +59,16 @@ function fengmapStaticPlugin() {
     name: 'fengmap-static',
     configureServer(server) {
       server.middlewares.use('/static/fengmap', express.static(fengmapBuildDir))
+      if (fs.existsSync(fengmapDataDir)) {
+        server.middlewares.use('/data', express.static(fengmapDataDir))
+      }
       server.middlewares.use(serveFengmapBuild)
     },
     configurePreviewServer(server) {
       server.middlewares.use('/static/fengmap', express.static(fengmapBuildDir))
+      if (fs.existsSync(fengmapDataDir)) {
+        server.middlewares.use('/data', express.static(fengmapDataDir))
+      }
       server.middlewares.use(serveFengmapBuild)
     },
     writeBundle(options) {
@@ -103,6 +110,8 @@ function buildProcessEnvDefines(mode) {
     VUE_APP_TIANDITU_KEY: env.VUE_APP_TIANDITU_KEY || '',
     VUE_APP_TILE_URL_TEMPLATE: env.VUE_APP_TILE_URL_TEMPLATE || 'https://www.edwei.cn:8443/osm/{z}/{x}/{y}.png',
     VUE_APP_FENGMAP_IMG_BASE: env.VUE_APP_FENGMAP_IMG_BASE || 'https://developer.fengmap.com/fmAPI/images',
+    VUE_APP_FENGMAP_MAP_URL: env.VUE_APP_FENGMAP_MAP_URL || '',
+    VUE_APP_FENGMAP_THEME_URL: env.VUE_APP_FENGMAP_THEME_URL || '',
     VUE_APP_ENABLE_BAIDU_ANALYTICS: env.VUE_APP_ENABLE_BAIDU_ANALYTICS || 'false',
     VUE_APP_BAIDU_HM_ID: env.VUE_APP_BAIDU_HM_ID || '',
     VUE_APP_MQTT_BROKER_URL: env.VUE_APP_MQTT_BROKER_URL || '',

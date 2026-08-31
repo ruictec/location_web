@@ -2539,15 +2539,26 @@ export default {
 }
 
 .actionDetails {
-  /* height: 50px; */
   max-height: 500px;
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  text-align: left;
 }
-.actionDetails :deep(.ivu-timeline) {
+.actionDetails :deep(.el-timeline) {
   width: 23%;
   margin-left: 2%;
+  margin-right: 0;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__wrapper),
+.actionDetails :deep(.el-timeline-item__content) {
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__content) p {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
   text-align: left;
 }
 .action .el-dialog__body .el-form .el-form-item {
