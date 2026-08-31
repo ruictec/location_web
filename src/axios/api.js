@@ -2770,6 +2770,22 @@ export const delDevOta = (datas, tenantkey_A, tenantid_A, username) => { //删�
     }).then(res => res)
 };
 
+export const updateDevOta = (datas, tenantkey_A, tenantid_A, username) => { //编辑OTA文件
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/user/updateDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "user/updateDevOta",
+        method: 'put',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
 export const getDevOtaMapFileList = (query) => { //分页查询OTA文件
     return service({
         url: "user/getDevOtaMapFileList",

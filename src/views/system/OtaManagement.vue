@@ -7,41 +7,61 @@
       <el-container class="asi">
         <el-aside><System /></el-aside>
         <el-main>
-                    <div class="terminal-filter-flow" :class="filterLangClass">
-<el-form
-            class="demo-form-inline terminal-filter-form"
-            :model="searchList"
-          >
-            <el-form-item
-              :label="$t('otamanagement.devtype')"
-             class="terminal-filter-item">
-              <el-select
-                v-model="searchList.devtype"
-                clearable
-                filterable
-                :placeholder="$t('otamanagement.devtypeplaceholder')"
+          <div class="terminal-filter-flow" :class="filterLangClass">
+            <el-form
+              class="demo-form-inline terminal-filter-form"
+              :model="searchList"
+            >
+              <el-form-item
+                :label="$t('otamanagement.devtype')"
+                class="terminal-filter-item"
               >
-                <el-option
-                  v-for="item in devTypeList"
-                  :key="item.index"
-                  :label="item.value"
-                  :value="item.index"
-                ></el-option>
-              </el-select>
-            </el-form-item>
+                <el-select
+                  v-model="searchList.devtype"
+                  clearable
+                  filterable
+                  :placeholder="$t('otamanagement.devtypeplaceholder')"
+                >
+                  <el-option
+                    v-for="item in devTypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
 
-            <el-form-item class="terminal-toolbar-item">
-              <el-button type="primary" class="query" @click="searchInfo()">{{
-                $t("heartbeat.search")
-              }}</el-button>
-              <el-button type="primary" class="reset" @click="clearBtn()">{{
-                $t("heartbeat.reset")
-              }}</el-button>
-              <el-button type="primary" class="uploadBtn" @click="openUpload()">{{
-                $t("otamanagement.upload")
-              }}</el-button>
-            </el-form-item>
-          </el-form>
+              <el-form-item
+                :label="$t('otamanagement.status1')"
+                class="terminal-filter-item"
+              >
+                <el-select
+                  v-model="searchList.status"
+                  clearable
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item class="terminal-toolbar-item">
+                <el-button type="primary" class="query" @click="searchInfo()">{{
+                  $t("heartbeat.search")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="clearBtn()">{{
+                  $t("heartbeat.reset")
+                }}</el-button>
+                <el-button type="primary" class="uploadBtn" @click="openUpload()">{{
+                  $t("otamanagement.upload")
+                }}</el-button>
+              </el-form-item>
+            </el-form>
           </div>
 
           <div class="content_user">
@@ -82,6 +102,14 @@
                 min-width="150"
               ></el-table-column>
               <el-table-column
+                property="status"
+                :label="$t('otamanagement.status')"
+                show-overflow-tooltip
+                align="center"
+                min-width="110"
+                :formatter="formatStatus"
+              ></el-table-column>
+              <el-table-column
                 property="time"
                 :label="$t('otamanagement.time')"
                 show-overflow-tooltip
@@ -93,9 +121,23 @@
                 :label="$t('otamanagement.control')"
                 align="center"
                 fixed="right"
-                min-width="70"
+                min-width="110"
               >
                 <template #default="scope">
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('warning.edit')"
+                    placement="top"
+                  >
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      class="editss"
+                      @click="openEdit(scope.row)"
+                      ><img src="../../../static/edit2.png"
+                    /></el-button>
+                  </el-tooltip>
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -164,6 +206,21 @@
                   maxlength="128"
                 ></el-input>
               </el-form-item>
+              <el-form-item :label="$t('otamanagement.status1')">
+                <el-select
+                  v-model="uploadForm.status"
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item :label="$t('otamanagement.file')" prop="file">
                 <el-upload
                   ref="upload"
@@ -193,6 +250,53 @@
               }}</el-button>
             </div></template>
           </el-dialog>
+
+          <el-dialog
+            :title="$t('otamanagement.edittitle')"
+            v-model="editVisible"
+            width="32%"
+            @close="resetEdit()"
+          >
+            <el-form
+              :model="editForm"
+              ref="editForm"
+              label-width="100px"
+              :rules="editRules"
+            >
+              <el-form-item :label="$t('otamanagement.description')">
+                <el-input
+                  v-model="editForm.description"
+                  type="textarea"
+                  maxlength="128"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('otamanagement.status1')" prop="status">
+                <el-select
+                  v-model="editForm.status"
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <template #footer>
+              <div class="dialog-footer">
+                <el-button @click="editVisible = false">{{
+                  $t("terminal.cancel")
+                }}</el-button>
+                <el-button type="primary" @click="submitEdit()">{{
+                  $t("terminal.confirm")
+                }}</el-button>
+              </div>
+            </template>
+          </el-dialog>
         </el-main>
       </el-container>
     </div>
@@ -206,6 +310,7 @@ import {
   getDevOtaMapFileList,
   addDevOtaMapFile,
   delDevOta,
+  updateDevOta,
 } from "../../axios/api";
 
 export default {
@@ -224,15 +329,18 @@ export default {
       pageCount: 20,
       searchList: {
         devtype: null,
+        status: null,
         page: 1,
         count: 20,
       },
       currentPage1: 1,
       total: 0,
       uploadVisible: false,
+      editVisible: false,
       uploadForm: {
         devtype: null,
         description: "",
+        status: 1,
         file: null,
       },
       uploadRules: {
@@ -247,6 +355,20 @@ export default {
           {
             required: true,
             message: this.$t("otamanagement.filerule"),
+            trigger: "change",
+          },
+        ],
+      },
+      editForm: {
+        id: null,
+        description: "",
+        status: 1,
+      },
+      editRules: {
+        status: [
+          {
+            required: true,
+            message: this.$t("otamanagement.status2"),
             trigger: "change",
           },
         ],
@@ -266,6 +388,12 @@ export default {
         { index: 4, value: this.$t("otamanagement.devtype_vehicle") },
         { index: 5, value: this.$t("otamanagement.devtype_helmet") },
         { index: 6, value: this.$t("otamanagement.devtype_vehicle_4G") },
+      ];
+    },
+    statusList() {
+      return [
+        { index: 0, value: this.$t("otamanagement.statusDisabled") },
+        { index: 1, value: this.$t("otamanagement.statusEnabled") },
       ];
     },
   },
@@ -310,6 +438,12 @@ export default {
       const item = this.devTypeList.find((type) => type.index == row.devtype);
       return item ? item.value : row.devtype;
     },
+    formatStatus(row) {
+      if (row.status === 1 || row.status === "1") {
+        return this.$t("otamanagement.statusEnabled");
+      }
+      return this.$t("otamanagement.statusDisabled");
+    },
     hasDeletePermission() {
       return !(
         (this.$store.state.userInfo.prionum == 5 &&
@@ -325,6 +459,9 @@ export default {
       };
       if (this.searchList.devtype !== null && this.searchList.devtype !== "") {
         params.devtype = this.searchList.devtype;
+      }
+      if (this.searchList.status !== null && this.searchList.status !== "") {
+        params.status = this.searchList.status;
       }
       return params;
     },
@@ -355,6 +492,7 @@ export default {
     clearBtn() {
       this.searchList = {
         devtype: null,
+        status: null,
         page: 1,
         count: this.pageCount,
       };
@@ -363,6 +501,61 @@ export default {
     },
     openUpload() {
       this.uploadVisible = true;
+    },
+    openEdit(row) {
+      this.editForm = {
+        id: row.id,
+        description: row.description || "",
+        status:
+          row.status === 1 || row.status === "1"
+            ? 1
+            : 0,
+      };
+      this.editVisible = true;
+    },
+    resetEdit() {
+      this.editForm = {
+        id: null,
+        description: "",
+        status: 1,
+      };
+      if (this.$refs.editForm) {
+        this.$refs.editForm.resetFields();
+      }
+    },
+    submitEdit() {
+      var that = this;
+      this.$refs.editForm.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        const data = {
+          id: that.editForm.id,
+          status: that.editForm.status,
+          description: that.editForm.description || "",
+        };
+        updateDevOta(
+          data,
+          this.tenantkey_A,
+          this.tenantid_A,
+          this.userName
+        ).then((res) => {
+          if (res.code == 1001) {
+            that.editVisible = false;
+            that.resetEdit();
+            that.getOtaList();
+            that.$message({
+              message: that.$t("otamanagement.editsuccess"),
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+          }
+        });
+      });
     },
     handleFileChange(file) {
       this.uploadForm.file = file.raw;
@@ -381,6 +574,7 @@ export default {
       this.uploadForm = {
         devtype: null,
         description: "",
+        status: 1,
         file: null,
       };
       if (this.$refs.upload) {
@@ -407,6 +601,7 @@ export default {
         formData.append("file", that.uploadForm.file);
         // formData.append("devtype", that.uploadForm.devtype);
         formData.append("description", that.uploadForm.description || "");
+        formData.append("status", that.uploadForm.status);
         addDevOtaMapFile(formData).then((res) => {
           if (res.code == 1001) {
             that.uploadVisible = false;
@@ -502,6 +697,12 @@ export default {
 }
 .dels:hover {
   background-color: rgb(196, 27, 27);
+}
+.editss {
+  padding: 2px 16px !important;
+}
+.editss:hover {
+  background-color: rgb(25, 86, 201);
 }
 .el-message--success {
   display: -webkit-box !important;
