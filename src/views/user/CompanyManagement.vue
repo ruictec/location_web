@@ -162,6 +162,14 @@
                 align="center"
               ></el-table-column>
               <el-table-column
+                property="functype"
+                :label="$t('companymanagement.functype')"
+                min-width="100"
+                align="center"
+                :formatter="formatFunctype"
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+              ></el-table-column>
+              <el-table-column
                 property="projectnum"
                 :label="$t('companymanagement.item')"
                 min-width="140"
@@ -433,6 +441,25 @@
                 ></el-input>
               </el-form-item>
               <el-form-item
+                :label="$t('companymanagement.functype1')"
+                prop=""
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+              >
+                <el-select
+                  v-model="addData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('companymanagement.functype2')"
+                >
+                  <el-option
+                    v-for="item in functypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item
                 :label="$t('companymanagement.Logopermission')"
                 prop=""
               >
@@ -612,6 +639,25 @@
                   v-model="editData.devnum"
                   :placeholder="$t('companymanagement.Numberequipment1')"
                 ></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('companymanagement.functype1')"
+                prop=""
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+              >
+                <el-select
+                  v-model="editData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('companymanagement.functype2')"
+                >
+                  <el-option
+                    v-for="item in functypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
               </el-form-item>
               <el-form-item
                 :label="$t('companymanagement.Logopermission')"
@@ -831,6 +877,7 @@ export default {
         superid: "",
         level: 2,
         devnum: "",
+        functype: 0,
       },
       addSchemes: "",
       editSchemes: "",
@@ -887,6 +934,16 @@ export default {
         ],
       },
 
+      functypeList: [
+        {
+          index: 0,
+          value: this.$t("companymanagement.functypeFormal"),
+        },
+        {
+          index: 1,
+          value: this.$t("companymanagement.functypeTest"),
+        },
+      ],
       logoprioList: [
         {
           index: 1,
@@ -1157,6 +1214,7 @@ export default {
         logoprio: "",
         accprio: "",
         devnum: "",
+        functype: 0,
       },
       editBtnDis: false,
       deleBtnDis: false,
@@ -1599,6 +1657,15 @@ export default {
       return this.datetimecut(date2);
     },
 
+    formatFunctype(row) {
+      if (row.functype === 0 || row.functype === "0") {
+        return this.$t("companymanagement.functypeFormal");
+      }
+      if (row.functype === 1 || row.functype === "1") {
+        return this.$t("companymanagement.functypeTest");
+      }
+    },
+
     //获取客户信息
     getCustomerLists() {
       var that = this;
@@ -1678,6 +1745,7 @@ export default {
         superid: "",
         level: 2,
         devnum: "",
+        functype: 0,
       };
       getNsAllName({}, this.tenantkey_A, this.tenantid_A, this.userName).then(
         (res) => {
@@ -1858,6 +1926,8 @@ export default {
       this.editData.validtime = row.validtime;
       this.editData.mapnum = row.mapnum;
       this.editData.projectnum = row.projectnum;
+      this.editData.functype =
+        row.functype == 0 || row.functype == 1 ? Number(row.functype) : -1;
       this.editData.schemes = "";
       this.edit = true;
     },

@@ -427,7 +427,7 @@ export default {
     clearBtn() {
       this.currentPage1 = 1;
       this.tasktime = [];
-      if (this.$store.state.intoProjectprojectType == 1) {
+      if (this.$store.state.intoProjectType == 1) {
         this.searchList = {
           projectid: this.$store.state.intoProjectid,
           deveui: "",
@@ -439,7 +439,7 @@ export default {
           page: 1,
           count: 20,
         };
-      } else if (this.$store.state.intoProjectprojectType == 2) {
+      } else if (this.$store.state.intoProjectType == 2) {
         this.searchList = {
           projectid: this.$store.state.intoProjectid,
           deveui: "",
@@ -563,7 +563,7 @@ export default {
     },
   },
   beforeMount() {
-    if (this.$store.state.intoProjectprojectType == 1) {
+    if (this.$store.state.intoProjectType == 1) {
       this.searchList = {
         projectid: this.$store.state.intoProjectid,
         deveui: "",
@@ -575,7 +575,7 @@ export default {
         page: 1,
         count: 20,
       };
-    } else if (this.$store.state.intoProjectprojectType == 2) {
+    } else if (this.$store.state.intoProjectType == 2) {
       this.searchList = {
         projectid: this.$store.state.intoProjectid,
         deveui: "",

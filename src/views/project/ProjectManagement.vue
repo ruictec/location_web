@@ -209,6 +209,14 @@
                 align="center"
               ></el-table-column>
               <el-table-column
+                property="functype"
+                :label="$t('project.functype')"
+                show-overflow-tooltip
+                align="center"
+                min-width="100"
+                :formatter="formatFunctype"
+              ></el-table-column>
+              <el-table-column
                 property="scheme"
                 :label="$t('terminal.Standard')"
                 show-overflow-tooltip
@@ -794,6 +802,21 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item :label="$t('project.functype1')" prop="">
+                <el-select
+                  v-model="addData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('project.functype2')"
+                >
+                  <el-option
+                    v-for="item in functypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item :label="$t('project.time')" prop="timeZone">
                 <el-select
                   v-model="addData.timeZone"
@@ -1040,6 +1063,21 @@
                   v-model="editData.name"
                   :placeholder="$t('project.tet8')"
                 ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('project.functype1')" prop="">
+                <el-select
+                  v-model="editData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('project.functype2')"
+                >
+                  <el-option
+                    v-for="item in functypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
               </el-form-item>
               <el-form-item
                 :label="$t('project.Datatime')"
@@ -1472,6 +1510,7 @@ export default {
         url: "",
         offtime: 30,
         datatime: "",
+        functype: 0,
       },
 
       tenantidData: [],
@@ -1602,6 +1641,7 @@ export default {
         url: "",
         offtime: "",
         datatime: "",
+        functype: 0,
       },
 
       edit: false,
@@ -1666,6 +1706,16 @@ export default {
         { index: 10, value: this.$t("home.constructionsite") },
         { index: 11, value: this.$t("home.Tunnel") },
         { index: 12, value: this.$t("home.other") },
+      ],
+      functypeList: [
+        {
+          index: 0,
+          value: this.$t("project.functypeFormal"),
+        },
+        {
+          index: 1,
+          value: this.$t("project.functypeTest"),
+        },
       ],
 
       timezoneList: [
@@ -1752,6 +1802,12 @@ export default {
     };
   },
   methods: {
+    formatFunctype(row) {
+      if (row.functype === 1 || row.functype === "1") {
+        return this.$t("project.functypeTest");
+      }
+      return this.$t("project.functypeFormal");
+    },
     // 删除FBX模型
     removeFbx(index) {
       var that = this;
@@ -2739,6 +2795,7 @@ export default {
         url: "",
         offtime: 30,
         datatime: "",
+        functype: 0,
       };
       this.selectScheme();
       this.showNS = false;
@@ -2880,6 +2937,7 @@ export default {
       this.editData.uptopic = row.uptopic;
       this.editData.scheme = row.scheme;
       this.editData.url = row.url;
+      this.editData.functype = row.functype == 1 ? 1 : 0;
       this.showEditDatatime = row.type === 2;
       this.editData.datatime =
         row.type === 2 && row.datatime !== "" && row.datatime != null

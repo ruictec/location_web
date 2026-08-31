@@ -31,6 +31,7 @@
 
     <div class="mapContent" style="position: relative">
       <MapLayerSwitcher
+        v-if="outDoor"
         :map="map"
         bottom="10px"
         right="10px"

@@ -1019,7 +1019,7 @@ export default {
           features: [features],
         }),
         style: style,
-        zIndex: 5,
+        zIndex: 2,
       });
       map.addLayer(vectorLayer);
     },
@@ -1090,6 +1090,7 @@ export default {
         this.vectorLayer = new OlLayerVector({
           source: this.source,
           style: style,
+          zIndex: 10,
         });
         map.addLayer(this.vectorLayer);
       }
@@ -1158,6 +1159,7 @@ export default {
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
@@ -1206,6 +1208,7 @@ export default {
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
@@ -1275,6 +1278,7 @@ export default {
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
