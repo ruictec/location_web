@@ -219,11 +219,14 @@
             </div>
           </ul>
 
-          <ul v-show="devTBox">
-            <el-image
-              style="width: 150px; height: 150px"
-              :src="imageTBox"
-            ></el-image>
+          <ul v-show="devTBox" class="tbox-info">
+            <div class="tbox-image-wrap">
+              <el-image
+                class="tbox-image"
+                fit="contain"
+                :src="imageTBox"
+              ></el-image>
+            </div>
             <li>{{ $t("locationoutdoor.carnumber") }}{{ tboxName }}</li>
             <el-divider class="divider"></el-divider>
             <li>{{ $t("locationoutdoor.Vehicletype") }}{{ tboxType }}</li>
@@ -319,6 +322,8 @@ import {
   getDevGpsList,
   getFenceManageAndPointList,
   getBuildingList,
+  getGroundList,
+  getGround,
   // getFenceManageWhiteList,
   // getFenceManageWhiteNum,
 } from "../../axios/api";
@@ -997,14 +1002,7 @@ export default {
           src: info.src || "../../../static/坐标.png",
           scale: 1,
         }),
-        text: new Text({
-          text: buildingName || "",
-          font: "12px font-size",
-          fill: new Fill({
-            color: "white",
-          }),
-          offsetY: 10,
-        }),
+        text: this.createMarkerText(buildingName || ""),
       });
       const vectorLayer = new OlLayerVector({
         source: new OlSourceVector({
@@ -1068,15 +1066,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
 
         this.vectorLayer = new OlLayerVector({
@@ -1117,15 +1107,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       } else {
         style = new OlStyleStyle({
@@ -1135,15 +1117,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       }
 
@@ -1184,15 +1158,7 @@ export default {
           scale: 1,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text: mapInfo.username, // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(mapInfo.username),
       });
 
       this.vectorLayer = new OlLayerVector({
@@ -1234,15 +1200,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       } else {
         style = new OlStyleStyle({
@@ -1252,15 +1210,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       }
 
@@ -1307,6 +1257,40 @@ export default {
       return this.datetimecut(date2);
     },
 
+    // 点击楼栋：有楼层则确认后跳转室内定位查询
+    handleBuildingClick(buildingFeature) {
+      var that = this;
+      const buildid = buildingFeature.values_.id;
+      const buildtype = buildingFeature.values_.buildtype;
+      const is3D = buildtype != 1 && buildtype != null;
+      const data = { buildid: buildid };
+      const fetchFloors = is3D
+        ? getGround(data, that.tenantkey_A, that.tenantid_A, that.userName)
+        : getGroundList(data, that.tenantkey_A, that.tenantid_A, that.userName);
+
+      fetchFloors.then((res) => {
+        if (res.code == 1001 && res.data && res.data.length > 0) {
+          that.$confirm(
+            that.$t("locationoutdoor.text6"),
+            that.$t("Building.tips"),
+            {
+              confirmButtonText: that.$t("terminal.confirm"),
+              cancelButtonText: that.$t("terminal.cancel"),
+              type: "warning",
+              callback: (action) => {
+                if (action === "confirm") {
+                  that.$router.push({
+                    path: "/location/indoor/locationindoor",
+                    query: { id: buildid },
+                  });
+                }
+              },
+            }
+          );
+        }
+      });
+    },
+
     //单击事件
     mapClick() {
       var that = this;
@@ -1323,6 +1307,7 @@ export default {
         that.battery = "";
         if (feature) {
           if (feature.values_.isBuilding) {
+            that.handleBuildingClick(feature);
             return;
           }
           if (feature.values_.devtype == 1 || feature.values_.devtype == 2) {
@@ -1737,15 +1722,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: that.editData.building, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: that.createMarkerText(that.editData.building),
         })
       );
 
@@ -2140,6 +2117,32 @@ export default {
   flex: 1 1 40%; /* 左上部分图片宽度为40% */
 }
 
+.tbox-info {
+  padding: 10px;
+  margin: 0;
+}
+
+.tbox-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 10px;
+}
+
+.tbox-image-wrap :deep(.tbox-image),
+.tbox-image-wrap :deep(.el-image) {
+  width: 150px;
+  height: 150px;
+  display: block;
+  margin: 0 auto;
+}
+
+.tbox-image-wrap :deep(.el-image__inner) {
+  object-fit: contain;
+  margin: 0 auto;
+}
+
 .right-top {
   flex: 1 1 60%; /* 右上部分宽度为60% */
   display: flex;
@@ -2160,8 +2163,13 @@ export default {
 }
 
 .goDev a {
-  text-decoration: null;
-  color: #409eff; /* 链接颜色 */
+  text-decoration: none;
+  color: #409eff;
+  cursor: pointer !important;
+}
+.goDev a:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 .bracelet_title {
   text-align: left;
@@ -2353,6 +2361,10 @@ export default {
   list-style: none;
   text-align: left;
   cursor: default;
+}
+#popup-content li.goDev,
+#popup-content li.goDev a {
+  cursor: pointer !important;
 }
 #popup-contents .goDev {
   cursor: pointer;

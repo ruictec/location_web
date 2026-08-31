@@ -93,21 +93,25 @@
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("asset.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button>
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="asset-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.exportSelected")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("asset.Addassets")
               }}</el-button><el-button type="danger" class="add" @click="removeStaffs()">{{
@@ -142,21 +146,25 @@
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("asset.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button>
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="asset-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.exportSelected")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("asset.Addassets")
               }}</el-button><el-button type="danger" class="add" @click="removeStaffs()">{{
@@ -373,19 +381,27 @@
                 <el-input v-model="addData.name" maxlength="32"></el-input>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetType2')" prop="">
-                <el-select
-                  v-model="addData.type"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in assetList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="addData.type"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in assetList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.assetTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetModel2')" prop="model">
                 <el-input v-model="addData.model" maxlength="32"></el-input>
@@ -408,19 +424,27 @@
                 </el-select>
               </el-form-item>
               <el-form-item :label="$t('asset.Department2')">
-                <el-select
-                  v-model="addData.depart"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="addData.depart"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.Tagnumber2')">
                 <el-select
@@ -508,19 +532,27 @@
                 <el-input v-model="editData.name" disabled></el-input>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetType2')" prop="">
-                <el-select
-                  v-model="editData.type"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in assetList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="editData.type"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in assetList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.assetTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetModel2')" prop="model">
                 <el-input v-model="editData.model" maxlength="32"></el-input>
@@ -543,19 +575,27 @@
                 </el-select>
               </el-form-item>
               <el-form-item :label="$t('asset.Department2')">
-                <el-select
-                  v-model="editData.depart"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="editData.depart"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.Tagnumber2')">
                 <el-select
@@ -2204,6 +2244,26 @@ export default {
 <style scoped>
 #articleImageFile {
   display: none;
+}
+.field-with-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.field-with-tip :deep(.el-select) {
+  flex: 1;
+  min-width: 0;
+}
+.field-tip-icon {
+  cursor: pointer;
+  color: #909399;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.field-tip-icon:hover {
+  color: #409eff;
 }
 .home {
   height: 100%;

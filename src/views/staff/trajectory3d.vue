@@ -63,6 +63,7 @@ import "fengmap/build/fengmap.plugin.export.min"; //打印/出图包
 import "fengmap/build/fengmap.plugin.layers.min"; //附加图层包
 import "fengmap/build/fengmap.plugin.debug.min"; //性能监控包
 import "fengmap/build/toolBarStyle.css";
+import { markRaw } from "vue";
 
 export default {
   name: "trajectorys",
@@ -83,8 +84,8 @@ export default {
       tenantkey_A: this.$store.state.userInfo.tenantkey,
       userName: this.$store.state.userInfo.username,
       intoProjectType: this.$store.state.intoProjectType,
-      map: "",
-      tracksPlayer: "", //轨迹回放类
+      map: null,
+      tracksPlayer: null, //轨迹回放类
       speed: 1, //默认速度
       speedMultiple: 1, //默认倍速
       sliderIns: "", //滑块实例
@@ -100,10 +101,13 @@ export default {
       graphData: "",
       g: "",
       groundLength: 0,
+      nextMapTimer: null,
+      disposed: false,
     };
   },
   methods: {
     search(arr, begintime, endtime, devtype) {
+      this.disposed = false;
       var that = this;
       if (devtype == 1) {
         this.iconImagSrc = "../../../static/user1.png";
@@ -515,23 +519,82 @@ export default {
         }
       });
     },
-    mapOut() {
-      // 更改上一次选中状态
-      var preDom = document.getElementById(`speed_${this.speedMultiple}`);
-      preDom.classList.remove("active");
-      // 选中当前倍速
-      var curDom = document.getElementById(`speed_1`);
-      curDom.classList.add("active");
-      this.speedMultiple = 1;
-      this.map.dispose();
+    disposeTracksPlayer() {
+      const player = this.tracksPlayer;
+      this.tracksPlayer = null;
+      if (!player) return;
+      try {
+        if (typeof player.pause === "function") player.pause();
+      } catch (e) {
+        /* ignore */
+      }
+      try {
+        if (typeof player.stop === "function") player.stop();
+      } catch (e) {
+        /* ignore */
+      }
+      try {
+        if (typeof player.dispose === "function") player.dispose();
+        else if (typeof player.destroy === "function") player.destroy();
+        else if (typeof player.clear === "function") player.clear();
+      } catch (e) {
+        /* ignore */
+      }
+    },
+    disposeCoordMarkers() {
+      if (this.coordMarkers && this.coordMarkers.length) {
+        this.coordMarkers.forEach((m) => {
+          try {
+            if (m && typeof m.remove === "function") m.remove();
+          } catch (e) {
+            /* ignore */
+          }
+        });
+      }
+      this.coordMarkers = [];
+    },
+    disposeMap() {
+      const map = this.map;
       this.map = null;
+      if (!map) return;
+      try {
+        if (typeof map.dispose === "function") map.dispose();
+      } catch (e) {
+        /* Vue Proxy / 半销毁场景下 dispose 可能读 index 报错 */
+      }
+      const el = document.getElementById("fengmap");
+      if (el) el.innerHTML = "";
+    },
+    mapOut() {
+      this.disposed = true;
+      if (this.nextMapTimer) {
+        clearTimeout(this.nextMapTimer);
+        this.nextMapTimer = null;
+      }
+      // 必须先停播放器，再 dispose 地图，否则 location 插件 rAF 会持续 getFloor(null)
+      this.disposeTracksPlayer();
+      this.disposeCoordMarkers();
+      this.disposeMap();
+
+      try {
+        var preDom = document.getElementById(`speed_${this.speedMultiple}`);
+        if (preDom) preDom.classList.remove("active");
+        var curDom = document.getElementById("speed_1");
+        if (curDom) curDom.classList.add("active");
+      } catch (e) {
+        /* ignore */
+      }
+      this.speedMultiple = 1;
+      this.percentage = 0;
+      this.isPause = false;
+      this.isComplete = false;
     },
     mapInit(appName, key, mapID, level, arr) {
       var that = this;
-      if (this.map) {
-        that.map.dispose();
-        that.map = null;
-      }
+      this.disposed = false;
+      this.disposeTracksPlayer();
+      this.disposeCoordMarkers();
+      this.disposeMap();
       var options = {
         container: document.getElementById("fengmap"),
         appName: appName,
@@ -544,23 +607,23 @@ export default {
         // mapURL: "/data/",
         // themeURL: "/data/theme/",
       };
-      this.map = new fengmap.FMMap(options);
+      this.map = markRaw(new fengmap.FMMap(options));
       this.map.on("loaded", function () {
-        console.log("加载完成1");
+        if (that.disposed) return;
         that.addTracks(arr);
       });
-      // this.map.on("loadComplete", function () {
-      //   console.log("加载完成");
-      // });
     },
 
     // 渲染轨迹回放数据
     addTracks(arr) {
       var that = this;
+      if (this.disposed || !this.map) return;
+      this.disposeTracksPlayer();
+      this.disposeCoordMarkers();
       // 自行添加起终点marker
       that.addStartAndEndMarker(arr);
-      // 初始化轨迹播放插件
-      that.tracksPlayer = new fengmap.FMTracksPlayer(that.map);
+      // 初始化轨迹播放插件（勿被 Vue Proxy 包装）
+      that.tracksPlayer = markRaw(new fengmap.FMTracksPlayer(that.map));
       // 设置路劲轨迹数据
       that.tracksPlayer.setTracks(arr);
       // 设置线的样式
@@ -596,29 +659,29 @@ export default {
       // 播放中的回调函数
       this.onHandlePlayBtn("play");
       that.tracksPlayer.on("playing", function (params) {
+        if (that.disposed || !that.tracksPlayer) return;
         var progress = params.progress; // 当前播放进度时间戳
-        var level = params.level; // 所在楼层
         // 设置进度条
-        var curValue = progress - that.startValue;
         that.percentage =
           ((progress - that.startValue) / (that.endValue - that.startValue)) *
           100;
-        // that.sliderIns.setValue(curValue);
       });
       // 轨迹播放完成回调函数
       that.tracksPlayer.on("complete", function () {
+        if (that.disposed) return;
         that.isComplete = true;
         that.nextMAp();
-        // 更改播放按钮状态
-        // var dom = document.getElementById("playBtn");
-        // dom.classList.remove("icon-zanting");
-        // dom.classList.add("icon-yunhang");
         that.isPause = false;
       });
     },
     nextMAp() {
       let that = this;
-      setTimeout(() => {
+      if (this.nextMapTimer) {
+        clearTimeout(this.nextMapTimer);
+      }
+      this.nextMapTimer = setTimeout(() => {
+        this.nextMapTimer = null;
+        if (that.disposed) return;
         this.groundLength += 1;
         // this.restartLine = false;
         if (that.actionTableDataArr.length > that.groundLength) {
@@ -632,26 +695,38 @@ export default {
               that.tenantid_A,
               that.userName
             ).then((res) => {
+              if (that.disposed) return;
               if (res.code == 1001) {
                 if (res.data.list[0].maptype == 2) {
                   // 更改上一次选中状态
                   var preDom = document.getElementById(
                     `speed_${that.speedMultiple}`
                   );
-                  preDom.classList.remove("active");
+                  if (preDom) preDom.classList.remove("active");
                   // 选中当前倍速
                   var curDom = document.getElementById(`speed_1`);
-                  curDom.classList.add("active");
+                  if (curDom) curDom.classList.add("active");
                   that.speedMultiple = 1;
                   // 有楼层id，开始室内轨迹
                   that.getPointAndNearLists(
                     that.actionTableDataArr[that.groundLength]
                   );
                 } else {
-                  that.$emit("closePopup2d", "test");
+                  that.$message({
+                    message: that.$t("trajectory.switchTo2d"),
+                    type: "warning",
+                  });
+                  that.$emit("closePopup3d", "test");
                 }
               }
             });
+          } else {
+            // 下一段无楼层 → 室外，无法在 3D 弹窗内续播
+            that.$message({
+              message: that.$t("trajectory.switchTo2d"),
+              type: "warning",
+            });
+            that.$emit("closePopup3d", "test");
           }
         } else {
           that.percentage = 100;
@@ -668,24 +743,11 @@ export default {
         that.onHandleBtn("pause");
         that.isPause = true;
       }
-      // var dom = document.getElementById("playBtn");
-      // if (dom.classList.contains("icon-yunhang")) {
-      //   // 开始、继续播放
-      //   onHandleBtn("play");
-      //   dom.classList.remove("icon-yunhang");
-      //   dom.classList.add("icon-zanting");
-      //   that.isPause = false;
-      // } else {
-      //   // 暂停播放
-      //   onHandleBtn("pause");
-      //   dom.classList.remove("icon-zanting");
-      //   dom.classList.add("icon-yunhang");
-      //   that.isPause = true;
-      // }
     },
     /* 按钮操作 */
     onHandleBtn(type, value) {
       var that = this;
+      if (!that.tracksPlayer || that.disposed) return;
       switch (type) {
         case "play":
           if (that.isComplete) {
@@ -705,8 +767,6 @@ export default {
         case "stop":
           // 轨迹播放到最后
           that.tracksPlayer.stop();
-          // 设置进度条
-          // that.sliderIns.setValue(that.endValue);
           break;
         case "speed":
           // 设置播放速度
@@ -726,6 +786,7 @@ export default {
     /* 添加起终点marker */
     addStartAndEndMarker(arr) {
       var that = this;
+      if (!that.map) return;
       var coords = [
         {
           x: arr[0].x,
@@ -742,16 +803,18 @@ export default {
       ];
       for (var i = 0; i < coords.length; i++) {
         var coord = coords[i];
-        var im = new fengmap.FMImageMarker({
-          x: coord.x,
-          y: coord.y,
-          url: coord.url,
-          size: 32,
-          height: 0.2,
-          anchor: fengmap.FMMarkerAnchor.BOTTOM,
-          depth: false,
-          collision: true,
-        });
+        var im = markRaw(
+          new fengmap.FMImageMarker({
+            x: coord.x,
+            y: coord.y,
+            url: coord.url,
+            size: 32,
+            height: 0.2,
+            anchor: fengmap.FMMarkerAnchor.BOTTOM,
+            depth: false,
+            collision: true,
+          })
+        );
         var floor = that.map.getFloor(coord.level);
         im.addTo(floor);
         that.coordMarkers.push(im);
@@ -763,10 +826,10 @@ export default {
       var that = this;
       // 更改上一次选中状态
       var preDom = document.getElementById(`speed_${that.speedMultiple}`);
-      preDom.classList.remove("active");
+      if (preDom) preDom.classList.remove("active");
       // 选中当前倍速
       var curDom = document.getElementById(`speed_${value}`);
-      curDom.classList.add("active");
+      if (curDom) curDom.classList.add("active");
       that.speedMultiple = value;
     },
     // utc转本地
@@ -813,6 +876,9 @@ export default {
       let date2 = date.toUTCString();
       return this.datetimecut(date2, true);
     },
+  },
+  unmounted() {
+    this.mapOut();
   },
 };
 </script>

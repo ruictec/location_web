@@ -544,6 +544,7 @@ const en = {
         unknown: 'Unknown',
         Pleasecheck: 'Please check the device',
         export: 'Export',
+        exportSelected: 'Export Selected',
         exportAll: 'Export All',
         exportArea: 'Area',
         import: 'Import',
@@ -1845,6 +1846,7 @@ const en = {
     staff: {
         importWorktype: 'Import Role',
         exportWorktype: 'Export Role',
+        exportStaff: 'Export Staff',
         icon: 'Icon',
         birthday: 'birthday',
         selectStaff: 'Please select employee!',
@@ -1943,6 +1945,8 @@ const en = {
         AssetModel2: 'Asset model：',
         User2: 'User：',
         Department2: 'Department：',
+        departTip: 'Departments are configured in People Management - Staff Management.',
+        assetTypeTip: 'Asset types are configured in Asset settings.',
         Tagnumber2: 'Label SN：',
         Remark2: 'Remark：',
         Assetempty: 'Asset type cannot be empty！',
@@ -1993,6 +1997,8 @@ const en = {
         Carnumber1: 'License plate：',
         Vehicletype1: 'Vehicle type：',
         Department2: 'Department：',
+        departTip: 'Departments are configured in People Management - Staff Management.',
+        vehicleTypeTip: 'Vehicle types are configured in Vehicle settings.',
         Tagnumber: 'Label SN：',
         Remark1: 'Remark：',
         text3: 'Edit Asset Information',
@@ -2481,6 +2487,7 @@ const en = {
         text3: 'Please input the key words to query！',
         text4: 'No location information！',
         text5: 'The query result is indoor. Are you sure to jump to the indoor positioning page?',
+        text6: 'This building has floor information. Are you sure to go to the indoor location query page?',
 
     },
     locationoutdoorh: {
@@ -2613,7 +2620,8 @@ const en = {
         Speed: 'Speed：',
         Showroute: 'Show route',
         Trackplayback: 'Playback',
-
+        switchTo3d: 'Next segment requires a 3D map. 2D/outdoor playback has ended.',
+        switchTo2d: 'Next segment requires a 2D or outdoor map. 3D playback has ended.',
     },
     //列表
     list: {

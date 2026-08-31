@@ -260,6 +260,13 @@ body .el-table th,
 
 .el-dialog.Info_dialog.indoor-info-dialog .goDev a {
   color: #409eff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.el-dialog.Info_dialog.indoor-info-dialog .goDev a:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 
 /* 室外定位详情弹框（白底，对齐 Vue2） */
@@ -285,6 +292,39 @@ body .el-table th,
 
 .el-dialog.Info_dialog.outdoor-info-dialog .goDev a {
   color: #409eff;
+  cursor: pointer !important;
+  text-decoration: none;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .goDev a:hover {
+  color: #66b1ff;
+  text-decoration: underline;
+}
+
+/* 室外定位车辆详情：图片水平居中 */
+.el-dialog.Info_dialog.outdoor-info-dialog .tbox-info {
+  padding: 10px;
+  margin: 0;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .tbox-image-wrap {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 0 0 10px !important;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .tbox-image-wrap .el-image {
+  width: 150px !important;
+  height: 150px !important;
+  display: block !important;
+  margin: 0 auto !important;
+}
+
+.el-dialog.Info_dialog.outdoor-info-dialog .tbox-image-wrap .el-image__inner {
+  object-fit: contain !important;
+  margin: 0 auto !important;
 }
 
 /* ---------- 输入框 / 选择器（Element Plus 边框在 wrapper 上） ---------- */

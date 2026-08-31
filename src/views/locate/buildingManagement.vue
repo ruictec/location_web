@@ -1072,18 +1072,11 @@ export default {
           rotation: 0,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text:
-            mapInfo.buildtype == 1
-              ? mapInfo.building
-              : mapInfo.building + "(3D)", // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(
+          mapInfo.buildtype == 1
+            ? mapInfo.building
+            : mapInfo.building + "(3D)"
+        ),
       });
 
       this.vectorLayer = new OlLayerVector({
@@ -1220,15 +1213,7 @@ export default {
           scale: 1,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text: buildingName, // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(buildingName),
       });
 
       this.vectorLayer = new OlLayerVector({
@@ -1545,15 +1530,7 @@ export default {
                     scale: 1,
                   }),
                   // 设置图片下面显示字体的样式和内容
-                  text: new Text({
-                    text: feature.values_.building + "(3D)", // 添加文字描述
-                    font: "12px font-size", // 设置字体大小
-                    fill: new Fill({
-                      // 设置字体颜色
-                      color: "white",
-                    }),
-                    offsetY: 10, // 设置文字偏移量
-                  }),
+                  text: that.createMarkerText(feature.values_.building + "(3D)"),
                 })
               );
             } else {
@@ -1608,15 +1585,7 @@ export default {
                     scale: 1,
                   }),
                   // 设置图片下面显示字体的样式和内容
-                  text: new Text({
-                    text: feature.values_.building, // 添加文字描述
-                    font: "12px font-size", // 设置字体大小
-                    fill: new Fill({
-                      // 设置字体颜色
-                      color: "white",
-                    }),
-                    offsetY: 10, // 设置文字偏移量
-                  }),
+                  text: that.createMarkerText(feature.values_.building),
                 })
               );
             } else {
@@ -1909,18 +1878,11 @@ export default {
                 scale: 1,
               }),
               // 设置图片下面显示字体的样式和内容
-              text: new Text({
-                text:
-                  that.editFeatureInfo.values_.buildtype == 1
-                    ? that.editData.building
-                    : that.editData.building + "(3D)", // 添加文字描述
-                font: "12px font-size", // 设置字体大小
-                fill: new Fill({
-                  // 设置字体颜色
-                  color: "white",
-                }),
-                offsetY: 10, // 设置文字偏移量
-              }),
+              text: that.createMarkerText(
+                that.editFeatureInfo.values_.buildtype == 1
+                  ? that.editData.building
+                  : that.editData.building + "(3D)"
+              ),
             })
           );
 

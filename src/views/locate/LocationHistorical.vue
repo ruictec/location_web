@@ -478,7 +478,7 @@ export default {
           text: buildingName || "",
           font: "12px font-size",
           fill: new Fill({
-            color: "white",
+            color: this.getMarkerTextColor(),
           }),
           offsetY: 10,
         }),
