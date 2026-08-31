@@ -317,6 +317,21 @@
                       ><img src="../../../static/location.png"
                     /></el-button>
                   </el-tooltip>
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('staffmanagement.trajectory')"
+                    placement="top"
+                  >
+                    <el-button
+                      type="primary"
+                      size="mini"
+                      class="edits icon_button"
+                      style="margin-left: 0"
+                      @click="assetAction(scope.row)"
+                      ><img src="../../../static/trajectory2.png"
+                    /></el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
@@ -637,6 +652,139 @@
             </div></template>
           </el-dialog>
 
+          <!-- 行为分析 / 轨迹 -->
+          <el-dialog
+            :visible.sync="actions"
+            width="60%"
+            style="text-align: center"
+            :close-on-click-modal="false"
+            class="action"
+            @close="closeAction"
+          >
+            <el-dialog
+              :visible.sync="trajectory"
+              width="80%"
+              style="text-align: center"
+              :close-on-click-modal="false"
+              class="trajectory"
+              append-to-body
+              @close="closetrajectoryAction"
+            >
+              <Trajectory ref="trajectory" @closePopup2d="closePopup" />
+            </el-dialog>
+            <el-dialog
+              :visible.sync="trajectory3d"
+              width="80%"
+              style="text-align: center"
+              :close-on-click-modal="false"
+              class="trajectory"
+              append-to-body
+              @close="closetrajectoryAction3d"
+            >
+              <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
+            </el-dialog>
+            <el-form
+              class="demo-form-inline"
+              style="
+                display: flex;
+                white-space: nowrap;
+                margin-left: 1%;
+                width: 100%;
+              "
+              :model="actionData"
+            >
+              <el-form-item
+                :label="$t('asset.AssetName')"
+                class="action-asset-name"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 1%;
+                  width: 24%;
+                "
+              >
+                <el-input v-model="actionData.username"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('asset.Tagnumber2')"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 2%;
+                  width: 26%;
+                "
+              >
+                <el-input v-model="actionData.maplabel"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('staff.time')"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 0;
+                  width: 40%;
+                "
+              >
+                <el-date-picker
+                  v-model="actionTime"
+                  type="datetimerange"
+                  :picker-options="pickerOptions"
+                  :range-separator="$t('terminal.to')"
+                  :start-placeholder="$t('terminal.startdate')"
+                  :end-placeholder="$t('terminal.enddate')"
+                ></el-date-picker>
+              </el-form-item>
+              <el-form-item style="margin-left: 1%; width: 20%">
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="searchAction()"
+                  >{{ $t("staff.search") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="showTrajectory()"
+                  >{{ $t("staff.Viewtrack") }}</el-button
+                >
+              </el-form-item>
+            </el-form>
+            <div class="actionDetails">
+              <Timeline v-for="item in actionTableData" :key="item.id">
+                <TimelineItem v-if="item.postype == 1">
+                  <p class="time">
+                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+                  </p>
+                  <p class="content">
+                    {{ $t("LocationIndoorHis.Building") }}{{ item.building }}
+                  </p>
+                  <p class="content">
+                    {{ $t("LocationIndoorHis.floor") }}{{ item.groundname }}
+                  </p>
+                  <p class="content">
+                    {{ $t("warning.area1") }}{{ item.tranche }}
+                  </p>
+                  <p class="content">
+                    {{ $t("tet.Residencetime")
+                    }}{{ formatSeconds(item.remaintime) }}
+                  </p>
+                </TimelineItem>
+                <TimelineItem v-if="item.postype == 2">
+                  <p class="time">
+                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+                  </p>
+                  <p class="content">
+                    {{ $t("warning.area1") }}{{ item.tranche }}
+                  </p>
+                  <p class="content">
+                    {{ $t("tet.Residencetime")
+                    }}{{ formatSeconds(item.remaintime) }}
+                  </p>
+                </TimelineItem>
+              </Timeline>
+            </div>
+          </el-dialog>
+
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('staff.text4')"
@@ -797,6 +945,7 @@
 import * as XLSX from "xlsx";
 import Menu from "../../components/menu/Menu";
 import host from "../../host";
+import util from "../../common/util";
 import {
   delAsset,
   getBeaconid,
@@ -813,17 +962,54 @@ import {
   getAssetByEuis,
   getDevOtherList,
   importAsset,
+  getDevGpsAction,
+  getBuildGroundList,
 } from "../../axios/api";
 import Asset from "../../components/asset/asset.vue";
+import Trajectory from "../staff/trajectory.vue";
+import Trajectorys from "../staff/trajectory3d.vue";
 export default {
   components: {
     Menu,
     Asset,
+    Trajectory,
+    Trajectorys,
   },
   name: "AssetManagement",
   data() {
     return {
       i8n: this.$store.state.i18n,
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: this.$t("staffmanagement.Lasthour1"),
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 1);
+              picker.$emit("pick", [start, end]);
+            },
+          },
+          {
+            text: this.$t("staffmanagement.Lasthour3"),
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 3);
+              picker.$emit("pick", [start, end]);
+            },
+          },
+          {
+            text: this.$t("staffmanagement.Lasthour6"),
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 6);
+              picker.$emit("pick", [start, end]);
+            },
+          },
+        ],
+      },
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -831,6 +1017,18 @@ export default {
       intoProjectType: this.$store.state.intoProjectType,
       show: false, //用来判断搜索栏是否展开
       loading: false,
+      trajectory: false,
+      trajectory3d: false,
+      actions: false,
+      actionData: {
+        projectid: "",
+        maplabel: "",
+        username: "",
+      },
+      actionTableData: [],
+      actionTableDataArr: [],
+      actionTime: "",
+      isSearchAction: false,
       searchList: {
         name: "", //资产名称
         type: "", //资产类型
@@ -896,7 +1094,7 @@ export default {
           },
           {
             min: 1,
-            max: 10,
+            max: 32,
             message: this.$t("asset.Length"),
             trigger: "blur",
           },
@@ -2182,6 +2380,392 @@ export default {
         }
       });
     },
+    //行为分析 / 轨迹
+    assetAction(row) {
+      this.actionData.projectid = row.projectid;
+      this.actionData.maplabel = row.beaconid;
+      this.actionData.username = row.name;
+      if (row.beaconid == "" || row.beaconid == null) {
+        this.$message({
+          message: this.$t("asset.Pleasebinding"),
+          type: "warning",
+        });
+        return;
+      }
+      this.actions = true;
+    },
+    showTrajectory() {
+      this.isSearchAction = true;
+      this.actionTableData = [];
+      this.searchActions();
+    },
+    showTrajectorys() {
+      var that = this;
+      that.actionTableDataArr = [];
+      let newArr = [];
+      let list = JSON.parse(JSON.stringify(that.actionTableData));
+      let node = list[0];
+      list.forEach((item, i) => {
+        if (item.groundid === node.groundid) {
+          newArr.push(item);
+        } else {
+          that.actionTableDataArr.push(newArr);
+          node = item;
+          newArr = [];
+          newArr.push(item);
+        }
+        if (i == list.length - 1) {
+          that.actionTableDataArr.push(newArr);
+        }
+      });
+      if (that.actionTableDataArr.length > 0) {
+        let begintime, endtime;
+        if (that.actionTime == null || that.actionTime.length == 0) {
+          begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+          endtime = Date.parse(new Date()) / 1000;
+        } else {
+          let begingTime = that.actionTime[0];
+          let endTime = that.actionTime[1];
+
+          begingTime =
+            !begingTime || begingTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(begingTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          endTime =
+            !endTime || endTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(endTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          if (begingTime.length > 0 && endTime.length > 0) {
+            begingTime = Date.parse(new Date(begingTime)) / 1000;
+            endTime = Date.parse(new Date(endTime)) / 1000;
+          }
+          begintime = begingTime;
+          endtime = endTime;
+        }
+
+        this.isSearchAction = false;
+        if (that.actionTableDataArr[0][0].groundid) {
+          let data = {
+            groundid: that.actionTableDataArr[0][0].groundid,
+          };
+          getBuildGroundList(
+            data,
+            this.tenantkey_A,
+            this.tenantid_A,
+            this.userName
+          ).then((res) => {
+            if (res.code == 1001) {
+              if (res.data.list[0].maptype == 2) {
+                that.trajectory3d = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectorys.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    2
+                  );
+                });
+              } else {
+                that.trajectory = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectory.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    1
+                  );
+                });
+              }
+            }
+          });
+        } else {
+          that.trajectory = true;
+          that.$nextTick(() => {
+            that.$refs.trajectory.search(
+              that.actionTableDataArr,
+              begintime,
+              endtime,
+              1
+            );
+          });
+        }
+      }
+    },
+    closePopup() {
+      this.trajectory = false;
+    },
+    closePopup3d() {
+      this.trajectory3d = false;
+    },
+    datetimecut(UTCDateString) {
+      if (!UTCDateString) {
+        return "-";
+      }
+      function formatFunc(str) {
+        return str > 9 ? str : "0" + str;
+      }
+      var date2 = new Date(UTCDateString);
+      var year = date2.getFullYear();
+      var mon = formatFunc(date2.getMonth() + 1);
+      var day = formatFunc(date2.getDate());
+      var hour =
+        date2.getHours() < 10 ? "0" + date2.getHours() : date2.getHours();
+      var min = formatFunc(date2.getMinutes());
+      var sec = formatFunc(date2.getSeconds());
+      return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec;
+    },
+    formatDatetime(row) {
+      if (row == null || row == 0) {
+        return "";
+      }
+      let date = new Date(parseInt(row) * 1000);
+      let date2 = date.toUTCString();
+      return this.datetimecut(date2);
+    },
+    formatSeconds(value) {
+      let result = parseInt(value);
+      let h =
+        Math.floor(result / 3600) < 10
+          ? "0" + Math.floor(result / 3600)
+          : Math.floor(result / 3600);
+      let m =
+        Math.floor((result / 60) % 60) < 10
+          ? "0" + Math.floor((result / 60) % 60)
+          : Math.floor((result / 60) % 60);
+      let s =
+        Math.floor(result % 60) < 10
+          ? "0" + Math.floor(result % 60)
+          : Math.floor(result % 60);
+      let res = "";
+      if (h !== "00") res += `${h}h`;
+      if (m !== "00") res += ` ${m}min`;
+      res += ` ${s}s`;
+      return res;
+    },
+    searchAction() {
+      var that = this;
+      let data = {
+        projectid: this.actionData.projectid,
+        deveui: this.actionData.maplabel,
+        username: this.actionData.username,
+        begintime: "",
+        endtime: "",
+        devtype: this.$store.state.intoProjectType == 1 ? 1 : 2,
+        timezone: this.$store.state.intoProjectTimezone,
+      };
+      if (this.actionTime) {
+        if (
+          this.actionTime[1].getTime() - this.actionTime[0].getTime() >
+          86400000
+        ) {
+          that.$message({
+            message: this.$t("staffmanagement.Thehours"),
+            type: "warning",
+          });
+          return;
+        }
+        let begingTime = that.actionTime[0];
+        let endTime = that.actionTime[1];
+
+        begingTime =
+          !begingTime || begingTime == ""
+            ? ""
+            : util.formatDate.format(
+                new Date(begingTime),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+        endTime =
+          !endTime || endTime == ""
+            ? ""
+            : util.formatDate.format(new Date(endTime), "yyyy-MM-dd hh:mm:ss");
+
+        if (begingTime.length > 0 && endTime.length > 0) {
+          begingTime = Date.parse(new Date(begingTime)) / 1000;
+          endTime = Date.parse(new Date(endTime)) / 1000;
+        }
+        data.begintime = begingTime;
+        data.endtime = endTime;
+      } else {
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+        data.endtime = Date.parse(new Date()) / 1000;
+      }
+      if (
+        this.actionData.maplabel == "" ||
+        this.actionData.maplabel == null ||
+        this.actionData.username == "" ||
+        this.actionData.username == null
+      ) {
+        this.$message({
+          message: this.$t("staffmanagement.cardtime"),
+          type: "warning",
+        });
+      }
+      const loading = this.$loading({
+        lock: true,
+        text: this.$t("tet.Loading"),
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+        target: document.querySelector(".action"),
+      });
+
+      getDevGpsAction(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          if (res.data.tranchelist.length == 0) {
+            that.$message({
+              message: that.$t("staffmanagement.Nodata"),
+              type: "warning",
+            });
+            that.actionTableData = [];
+            loading.close();
+            return;
+          } else {
+            that.actionTableData = res.data.tranchelist.reverse();
+          }
+          for (let i = 0; i < that.actionTableData.length; i++) {
+            that.actionTableData[i].gpstime = that.formatDatetime(
+              that.actionTableData[i].gpstime
+            );
+          }
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+        }
+        loading.close();
+      });
+    },
+    searchActions() {
+      var that = this;
+      let data = {
+        projectid: this.actionData.projectid,
+        deveui: this.actionData.maplabel,
+        username: this.actionData.username,
+        begintime: "",
+        endtime: "",
+        devtype: this.$store.state.intoProjectType == 1 ? 1 : 2,
+        timezone: this.$store.state.intoProjectTimezone,
+        postype: 1,
+      };
+      if (this.actionTime) {
+        if (
+          this.actionTime[1].getTime() - this.actionTime[0].getTime() >
+          86400000
+        ) {
+          that.$message({
+            message: this.$t("staffmanagement.Thehours"),
+            type: "warning",
+          });
+          return;
+        }
+        let begingTime = that.actionTime[0];
+        let endTime = that.actionTime[1];
+
+        begingTime =
+          !begingTime || begingTime == ""
+            ? ""
+            : util.formatDate.format(
+                new Date(begingTime),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+        endTime =
+          !endTime || endTime == ""
+            ? ""
+            : util.formatDate.format(new Date(endTime), "yyyy-MM-dd hh:mm:ss");
+
+        if (begingTime.length > 0 && endTime.length > 0) {
+          begingTime = Date.parse(new Date(begingTime)) / 1000;
+          endTime = Date.parse(new Date(endTime)) / 1000;
+        }
+        data.begintime = begingTime;
+        data.endtime = endTime;
+      } else {
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+        data.endtime = Date.parse(new Date()) / 1000;
+      }
+      if (
+        this.actionData.maplabel == "" ||
+        this.actionData.maplabel == null ||
+        this.actionData.username == "" ||
+        this.actionData.username == null
+      ) {
+        this.$message({
+          message: this.$t("staffmanagement.cardtime"),
+          type: "warning",
+        });
+        return;
+      }
+      const loading = this.$loading({
+        lock: true,
+        text: this.$t("tet.Loading"),
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+        target: document.querySelector(".action"),
+      });
+
+      getDevGpsAction(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          if (res.data.tranchelist.length == 0) {
+            that.$message({
+              message: that.$t("staffmanagement.Nodata"),
+              type: "warning",
+            });
+            that.actionTableData = [];
+            loading.close();
+            return;
+          } else {
+            that.actionTableData = res.data.tranchelist.reverse();
+          }
+          for (let i = 0; i < that.actionTableData.length; i++) {
+            that.actionTableData[i].gpstime = that.formatDatetime(
+              that.actionTableData[i].gpstime
+            );
+          }
+          that.showTrajectorys();
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+        }
+        loading.close();
+      });
+    },
+    closeAction() {
+      this.actionTableData = [];
+    },
+    closetrajectoryAction() {
+      this.$nextTick(() => {
+        if (this.$refs.trajectory) {
+          this.$refs.trajectory.stop(true);
+          this.$refs.trajectory.closeTime();
+          this.$refs.trajectory.removeVectorLayer();
+        }
+      });
+    },
+    closetrajectoryAction3d() {
+      this.$nextTick(() => {
+        if (this.$refs.trajectorys) {
+          this.$refs.trajectorys.mapOut();
+        }
+      });
+    },
     //点击跳转到定位页面
     goLocation(row) {
       if (row.beaconid == "" || row.beaconid == null) {
@@ -2351,133 +2935,6 @@ export default {
 .el-form-item .el-button.add2 {
   margin-left: 8px !important;
 }
-
-.terminal-filter-flow {
-  z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px 16px;
-  margin-left: 1%;
-  margin-right: 1%;
-  margin-bottom: 16px;
-}
-.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
-  display: contents !important;
-}
-.terminal-filter-flow .terminal-filter-item {
-  width: auto !important;
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-  float: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-}
-.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
-  width: auto !important;
-  min-width: auto !important;
-  max-width: none !important;
-  padding: 0 8px 0 0 !important;
-  margin: 0 !important;
-  justify-content: flex-end !important;
-  text-align: right !important;
-  line-height: 32px;
-  box-sizing: border-box;
-  white-space: nowrap !important;
-  overflow: visible !important;
-  flex: 0 0 auto !important;
-}
-.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
-  width: auto !important;
-  min-width: auto !important;
-  flex: 0 0 auto !important;
-}
-.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
-  margin-left: 0 !important;
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-}
-.terminal-filter-flow .terminal-filter-item :deep(.el-input),
-.terminal-filter-flow .terminal-filter-item :deep(.el-select),
-.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
-.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
-  float: none !important;
-  margin: 0 !important;
-  flex: none !important;
-}
-.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
-.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
-.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
-  width: 320px !important;
-  min-width: 320px !important;
-  max-width: 320px !important;
-}
-.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
-.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
-  width: 100% !important;
-}
-.terminal-toolbar-item {
-  width: auto !important;
-  flex: 0 0 auto !important;
-  margin: 0 !important;
-  float: none !important;
-  order: 999;
-}
-.terminal-toolbar-item :deep(.el-form-item__content) {
-  display: inline-flex !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: auto !important;
-  margin: 0 !important;
-}
-.terminal-toolbar-item :deep(.el-button),
-.terminal-toolbar-item :deep(.el-dropdown),
-.terminal-toolbar-item :deep(.el-popover__),
-.terminal-toolbar-item :deep(.el-tooltip__),
-.terminal-toolbar-item :deep(.el-popover),
-.terminal-toolbar-item :deep(.el-tooltip) {
-  margin: 0 !important;
-  flex: 0 0 auto !important;
-}
-.terminal-filter-flow .query,
-.terminal-filter-flow .reset,
-.terminal-filter-flow .add,
-.terminal.terminal-filter-flow .del,
-.terminal-filter-flow .del,
-.terminal-filter-flow .export,
-.terminal-filter-flow .addTer,
-.terminal-filter-flow .addBeacon {
-  height: 28px !important;
-  padding: 7px 15px !important;
-  font-size: 12px !important;
-  box-sizing: border-box !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  line-height: 1 !important;
-}
-/* unified-filter-toolbar-btn-size */
-.terminal-toolbar-row :deep(.el-button) {
-  height: 28px !important;
-  padding: 7px 15px !important;
-  font-size: 12px !important;
-  box-sizing: border-box !important;
-  line-height: 1 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-.terminal-toolbar-item :deep(.el-button) {
-  height: 28px !important;
-  padding: 7px 15px !important;
-  font-size: 12px !important;
-  box-sizing: border-box !important;
-  line-height: 1 !important;
-}
 .search-actions :deep(.el-button) {
   height: 28px !important;
   padding: 7px 15px !important;
@@ -2486,6 +2943,43 @@ export default {
   line-height: 1 !important;
 }
 
+.actionDetails {
+  max-height: 500px;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+}
+.actionDetails :deep(.ivu-timeline) {
+  width: 23%;
+  margin-left: 2%;
+  text-align: left;
+}
+.action .el-dialog__body .el-form .el-form-item {
+  padding-right: 0px !important;
+}
+.action .demo-form-inline .el-form-item .el-form-item__content {
+  width: 100%;
+}
+.action .action-asset-name {
+  min-width: 220px;
+}
+.action .action-asset-name :deep(.el-input) {
+  width: 100%;
+}
+.trajectory :deep(.el-dialog) {
+  height: 85%;
+  margin-top: 2% !important;
+}
+.trajectory :deep(.el-dialog__header) {
+  height: 4%;
+}
+.trajectory :deep(.el-dialog__headerbtn) {
+  top: 1% !important;
+}
+.trajectory :deep(.el-dialog__body) {
+  height: 96%;
+  padding-top: 10px !important;
+}
 </style>
 
 <style>
