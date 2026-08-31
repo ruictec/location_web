@@ -1871,11 +1871,10 @@ export default {
                         color: "rgba(256,256,256,1)",
                       }),
                       fill: new Fill({
-                        // 设置字体颜色
-                        color:
-                          e.values_.devnum == 0 && e.values_.assetnum == 0
-                            ? "white"
-                            : "red",
+                        color: that.getBuildingLabelColor(
+                          e.values_.devnum,
+                          e.values_.assetnum
+                        ),
                       }),
                       offsetY: 10, // 设置文字偏移量
                     }),
@@ -2186,14 +2185,11 @@ export default {
                 text: text,
                 font: "12px font-size", // 设置字体大小
                 fill: new Fill({
-                  // 设置字体颜色
-                  color:
-                    feature.values_.features[0].values_.devnum == 0 &&
-                    feature.values_.features[0].values_.assetnum == 0 &&
-                    (feature.values_.features[0].values_.tboxnum == 0 ||
-                      feature.values_.features[0].values_.tboxnum == null)
-                      ? "white"
-                      : "red",
+                  color: that.getBuildingLabelColor(
+                    feature.values_.features[0].values_.devnum,
+                    feature.values_.features[0].values_.assetnum,
+                    feature.values_.features[0].values_.tboxnum
+                  ),
                   backgroundColor: "white",
                 }),
 

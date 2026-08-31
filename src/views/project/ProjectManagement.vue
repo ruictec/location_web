@@ -2509,8 +2509,7 @@ export default {
                 text: feature.values_.features[0].values_.building, // 添加文字描述
                 font: "12px font-size", // 设置字体大小
                 fill: new Fill({
-                  // 设置字体颜色
-                  color: "white",
+                  color: that.getMarkerTextColor(),
                 }),
                 offsetY: 10, // 设置文字偏移量
               }),

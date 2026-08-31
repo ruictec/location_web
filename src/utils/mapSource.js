@@ -79,6 +79,14 @@ function createOsmLayers(isZh) {
   return [layer]
 }
 
+export function getOutdoorMarkerTextColor(style, isZh) {
+  const selectedStyle = style || getSavedTiandituStyle()
+  if (!isTiandituMapAvailable(isZh) || selectedStyle === 'vec') {
+    return '#303133'
+  }
+  return '#ffffff'
+}
+
 /**
  * 创建室外地图底图图层（中文环境默认天地图，无 Key 时回退 OSM）
  * @param {boolean} isZh 是否为中文环境

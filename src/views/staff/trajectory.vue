@@ -185,6 +185,8 @@ export default {
       devType: "",
       moveTime: 0,
       outerDoor: false, //是否室外轨迹
+      mapSwitching: false,
+      nextMapTimer: null,
     };
   },
   computed: {
@@ -271,6 +273,12 @@ export default {
     },
 
     search(arr, begintime, endtime, devtype) {
+      this.mapSwitching = false;
+      if (this.nextMapTimer) {
+        clearTimeout(this.nextMapTimer);
+        this.nextMapTimer = null;
+      }
+      this.unbindMoveFeature();
       this.restartLine = false;
       this.beTime = begintime;
       this.enTime = endtime;
@@ -689,6 +697,7 @@ export default {
             );
           }
         } else {
+          that.mapSwitching = false;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
@@ -808,8 +817,9 @@ export default {
     },
     // 室内地图
     mapInit(x, y) {
+      this.unbindMoveFeature();
       if (this.map) {
-        this.map.setTarget("sss");
+        this.map.setTarget(undefined);
       }
       var that = this;
       var extent = [0, 0, x, y];
@@ -1112,6 +1122,23 @@ export default {
       let date2 = date.toUTCString();
       return this.datetimecut(date2, true);
     },
+    // 进度条时间：兼容 Unix 秒/毫秒时间戳和 "YYYY-MM-DD HH:mm:ss" 字符串
+    toProgressTime(gpstime) {
+      if (gpstime == null || gpstime === "") {
+        return "";
+      }
+      if (typeof gpstime === "number") {
+        const sec = gpstime > 1e12 ? gpstime / 1000 : gpstime;
+        return this.formatDatetime(sec);
+      }
+      const str = String(gpstime);
+      return str.length > 5 ? str.substr(5) : str;
+    },
+    unbindMoveFeature() {
+      if (this.vectorLayer) {
+        this.vectorLayer.un("postrender", this.moveFeature);
+      }
+    },
     formatDateTimeForHMSS(obj) {
       if (obj == null) {
         return null;
@@ -1172,6 +1199,10 @@ export default {
 
     // 轨迹移动
     moveFeature(event) {
+      if (!this.map || !this.geoMarker || !this.routeCoords.length) {
+        this.unbindMoveFeature();
+        return;
+      }
       var that = this;
       let index = Math.ceil(this.num + this.speed / 30);
       this.num = this.num + this.speed / 30;
@@ -1182,16 +1213,14 @@ export default {
         this.restartLine = true;
         this.nextMap();
         if (that.TrackData.length > 0) {
-          that.progressTime = that.TrackData[that.TrackData.length - 1].gpstime
-            ? that.formatDatetime(
-                that.TrackData[that.TrackData.length - 1].gpstime
-              )
-            : "";
+          that.progressTime = that.toProgressTime(
+            that.TrackData[that.TrackData.length - 1].gpstime
+          );
         }
         if (that.searchInfoArr.length > 0) {
-          that.progressTime = that.searchInfoArr[0].gpstime
-            ? that.searchInfoArr[0].gpstime.substr(5)
-            : "";
+          that.progressTime = that.toProgressTime(
+            that.searchInfoArr[0].gpstime
+          );
         }
         return;
       }
@@ -1200,14 +1229,14 @@ export default {
       if (that.TrackData.length > 0) {
         if (that.TrackData.length == 1) {
           that.percentage = 100;
-          that.progressTime = that.TrackData[0].gpstime
-            ? that.TrackData[0].gpstime.substr(5)
-            : "";
+          that.progressTime =
+            that.toProgressTime(that.TrackData[0].gpstime) ||
+            that.progressTime;
         } else {
           that.percentage = Math.round((index / that.TrackData.length) * 100);
-          that.progressTime = that.TrackData[index - 1].gpstime
-            ? that.formatDatetime(that.TrackData[index - 1].gpstime)
-            : that.progressTime;
+          that.progressTime =
+            that.toProgressTime(that.TrackData[index - 1].gpstime) ||
+            that.progressTime;
         }
       }
       // 室内
@@ -1215,9 +1244,9 @@ export default {
         if (that.searchInfoArr.length == 1) {
           that.percentage = 100;
         } else {
-          that.progressTime = that.searchInfoArr[index - 1].gpstime
-            ? that.searchInfoArr[index - 1].gpstime.substr(5)
-            : that.progressTime;
+          that.progressTime =
+            that.toProgressTime(that.searchInfoArr[index - 1].gpstime) ||
+            that.progressTime;
 
           if (that.searchInfoArr[index - 1].remaintime > 0) {
             this.stop(true);
@@ -1293,8 +1322,15 @@ export default {
       return pi_90 - pi_ac;
     },
     nextMap() {
+      if (this.mapSwitching) return;
+      this.mapSwitching = true;
+      this.unbindMoveFeature();
+      if (this.nextMapTimer) {
+        clearTimeout(this.nextMapTimer);
+      }
       let that = this;
-      setTimeout(() => {
+      this.nextMapTimer = setTimeout(() => {
+        this.nextMapTimer = null;
         this.groundLength += 1;
         this.restartLine = false;
         if (that.actionTableDataArr.length > that.groundLength) {
@@ -1316,8 +1352,15 @@ export default {
                     that.actionTableDataArr[that.groundLength]
                   );
                 } else {
+                  that.mapSwitching = false;
+                  that.$message({
+                    message: that.$t("trajectory.switchTo3d"),
+                    type: "warning",
+                  });
                   that.$emit("closePopup2d", "test");
                 }
+              } else {
+                that.mapSwitching = false;
               }
             });
           } else {
@@ -1364,11 +1407,17 @@ export default {
               );
             }
           }
+        } else {
+          that.mapSwitching = false;
         }
       }, 3000);
     },
 
     start() {
+      if (!this.map || !this.vectorLayer || !this.geoMarker) {
+        return;
+      }
+      this.mapSwitching = false;
       this.now = new Date().getTime();
       this.geoMarker.setStyle(null); // hide geoMarker 隐藏标记
       if (this.outDoor) {
@@ -1380,14 +1429,25 @@ export default {
     // 停止
     stop(ended) {
       this.animating = false;
-      let coord = ended
-        ? this.routeCoords[this.routeLength - 1]
-        : this.routeCoords[0];
-      let geometry = this.geoMarker.getGeometry().setCoordinates(coord);
-      this.vectorLayer.un("postrender", this.moveFeature); // 删除侦听器
+      this.unbindMoveFeature();
+      if (
+        this.geoMarker &&
+        this.geoMarker.getGeometry() &&
+        this.routeCoords &&
+        this.routeCoords.length
+      ) {
+        const coord = ended
+          ? this.routeCoords[this.routeLength - 1] ||
+            this.routeCoords[this.routeCoords.length - 1]
+          : this.routeCoords[0];
+        if (coord) {
+          this.geoMarker.getGeometry().setCoordinates(coord);
+        }
+      }
     },
 
     searchOutDoor(userName, beginTime, endTime, outdoorData, devType) {
+      this.stop(true);
       this.firsttime = Date.parse(new Date(outdoorData[0].gpstime));
       this.alltime = outdoorData[0].remaintime * 1000;
       this.searchInfoArr = [];
@@ -1430,6 +1490,7 @@ export default {
             // });
           }
         } else {
+          that.mapSwitching = false;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
@@ -1440,8 +1501,9 @@ export default {
     // 室外地图
     initMap() {
       let that = this;
+      this.unbindMoveFeature();
       if (this.map) {
-        this.map.setTarget("sss");
+        this.map.setTarget(undefined);
       }
       this.outdoorBaseLayers = createOutdoorBaseLayers(
         this.$store.state.i18n == "zh"
@@ -1558,7 +1620,16 @@ export default {
     );
   },
   unmounted() {
+    this.mapSwitching = true;
+    if (this.nextMapTimer) {
+      clearTimeout(this.nextMapTimer);
+      this.nextMapTimer = null;
+    }
     this.stop(true);
+    if (this.map) {
+      this.map.setTarget(undefined);
+      this.map = null;
+    }
   },
 };
 </script>

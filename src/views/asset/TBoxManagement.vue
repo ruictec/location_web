@@ -51,21 +51,25 @@
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("car.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button>
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="car-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.exportSelected")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
               <el-button type="primary" class="add" @click="addTBox()">{{
                 $t("car.Addvehicle")
               }}</el-button><el-button type="danger" class="add" @click="removeTBoxs()">{{
@@ -276,34 +280,58 @@
                 <el-input v-model="addData.sn"></el-input>
               </el-form-item>
               <el-form-item :label="$t('car.Vehicletype1')" prop="">
-                <el-select
-                  v-model="addData.type"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in tboxList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="addData.type"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in tboxList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.vehicleTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Department2')">
-                <el-select
-                  v-model="addData.depart"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="addData.depart"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Tagnumber')">
                 <el-select
@@ -388,35 +416,59 @@
                 <el-input v-model="editData.sn" disabled></el-input>
               </el-form-item>
               <el-form-item :label="$t('car.Vehicletype1')" prop="">
-                <el-select
-                  v-model="editData.type"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in tboxList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="editData.type"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in tboxList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.vehicleTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
 
               <el-form-item :label="$t('car.Department2')">
-                <el-select
-                  v-model="editData.depart"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="editData.depart"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Tagnumber')">
                 <el-select
@@ -613,7 +665,18 @@
               @close="closetrajectoryAction"
             >
               <!-- <location ref="locations" /> -->
-              <Trajectory ref="trajectory" @closePopup="closePopup" />
+              <Trajectory ref="trajectory" @closePopup2d="closePopup" />
+            </el-dialog>
+            <el-dialog
+              v-model="trajectory3d"
+              width="80%"
+              style="text-align: center"
+              :close-on-click-modal="false"
+              class="trajectory"
+              append-to-body
+              @close="closetrajectoryAction3d"
+            >
+              <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
             </el-dialog>
             <el-form
               class="demo-form-inline"
@@ -743,16 +806,19 @@ import {
   getMemberList,
   getProjectListByTenantid,
   getDevGpsAction,
+  getBuildGroundList,
   importTbox,
 } from "../../axios/api";
 import Asset from "../../components/asset/asset.vue";
 
 import Trajectory from "../staff/trajectory.vue";
+import Trajectorys from "../staff/trajectory3d.vue";
 export default {
   components: {
     Menu,
     Asset,
     Trajectory,
+    Trajectorys,
   },
   name: "AssetManagement",
   data() {
@@ -906,6 +972,7 @@ export default {
         projectid: "",
       },
       trajectory: false,
+      trajectory3d: false,
       addAssets: false,
       tboxList: [],
       actions: false,
@@ -1144,20 +1211,15 @@ export default {
     },
     showTrajectory() {
       this.isSearchAction = true;
+      this.actionTableData = [];
+      this.searchAction();
+    },
+    showTrajectorys() {
       var that = this;
-      if (this.actionTableData.length === 0) {
-        // this.$message({
-        //   message: "请先查询行为数据",
-        //   type: "warning",
-        // });
-        that.searchAction();
-        return;
-      }
-
       // 将行为轨迹数据根据楼层分为不同的数组
-      this.actionTableDataArr = [];
+      that.actionTableDataArr = [];
       let newArr = [];
-      let list = JSON.parse(JSON.stringify(this.actionTableData));
+      let list = JSON.parse(JSON.stringify(that.actionTableData));
       let node = list[0];
       list.forEach((item, i) => {
         if (item.groundid === node.groundid) {
@@ -1172,34 +1234,95 @@ export default {
           that.actionTableDataArr.push(newArr);
         }
       });
-
       if (that.actionTableDataArr.length > 0) {
         let begintime, endtime;
-        if (this.actionTime == null || this.actionTime.length == 0) {
-          let timee = new Date();
-          timee.setHours(0, 0, 0, 0);
-          begintime = timee.getTime() / 1000;
+        if (that.actionTime == null || that.actionTime.length == 0) {
+          begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
           endtime = Date.parse(new Date()) / 1000;
         } else {
-          begintime = Date.parse(that.actionTime[0]) / 1000;
-          endtime = Date.parse(that.actionTime[1]) / 1000;
+          let begingTime = that.actionTime[0];
+          let endTime = that.actionTime[1];
+
+          begingTime =
+            !begingTime || begingTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(begingTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          endTime =
+            !endTime || endTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(endTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          if (begingTime.length > 0 && endTime.length > 0) {
+            begingTime = Date.parse(new Date(begingTime)) / 1000;
+            endTime = Date.parse(new Date(endTime)) / 1000;
+          }
+          begintime = begingTime;
+          endtime = endTime;
         }
-        this.trajectory = true;
+
         this.isSearchAction = false;
-        this.$nextTick(() => {
-          this.$refs.trajectory.search(
-            that.actionTableDataArr,
-            begintime,
-            endtime,
-            4
-          );
-        });
+        if (that.actionTableDataArr[0][0].groundid) {
+          let data = {
+            groundid: that.actionTableDataArr[0][0].groundid,
+          };
+          getBuildGroundList(
+            data,
+            this.tenantkey_A,
+            this.tenantid_A,
+            this.userName
+          ).then((res) => {
+            if (res.code == 1001) {
+              if (res.data.list[0].maptype == 2) {
+                that.trajectory3d = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectorys.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    4
+                  );
+                });
+              } else {
+                that.trajectory = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectory.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    4
+                  );
+                });
+              }
+            }
+          });
+        } else {
+          that.trajectory = true;
+          that.$nextTick(() => {
+            that.$refs.trajectory.search(
+              that.actionTableDataArr,
+              begintime,
+              endtime,
+              4
+            );
+          });
+        }
       }
     },
 
     // 当子区域设置有误时，关闭轨迹弹框
     closePopup(data) {
       this.trajectory = false;
+    },
+    closePopup3d(data) {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
+      this.trajectory3d = false;
     },
     //行为分析
     staffAction(row) {
@@ -1227,6 +1350,7 @@ export default {
         endtime: "",
         devtype: 4,
         timezone: this.$store.state.intoProjectTimezone,
+        postype: 1,
       };
       if (this.actionTime) {
         // 判断是否为24小时间隔
@@ -1262,9 +1386,7 @@ export default {
         data.begintime = begingTime;
         data.endtime = endTime;
       } else {
-        let timee = new Date();
-        timee.setHours(0, 0, 0, 0);
-        data.begintime = timee.getTime() / 1000;
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
         data.endtime = Date.parse(new Date()) / 1000;
       }
       if (
@@ -1313,7 +1435,7 @@ export default {
             // );
           }
           if (this.isSearchAction == true) {
-            that.showTrajectory();
+            that.showTrajectorys();
           }
         } else {
           that.$message({
@@ -1331,7 +1453,14 @@ export default {
     closetrajectoryAction() {
       this.$nextTick(() => {
         this.$refs.trajectory.stop(true);
+        this.$refs.trajectory.closeTime();
+        this.$refs.trajectory.removeVectorLayer();
       });
+    },
+    closetrajectoryAction3d() {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
     },
 
     //时间转换
@@ -2286,6 +2415,31 @@ export default {
 <style scoped>
 #articleImageFile {
   display: none;
+}
+.form-label-with-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.depart-field-with-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.depart-field-with-tip :deep(.el-select) {
+  flex: 1;
+  min-width: 0;
+}
+.form-label-tip {
+  cursor: pointer;
+  color: #909399;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.form-label-tip:hover {
+  color: #409eff;
 }
 .home {
   height: 100%;

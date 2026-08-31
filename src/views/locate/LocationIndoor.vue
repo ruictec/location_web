@@ -835,6 +835,35 @@ import { markRaw } from "vue";
 import host from "../../host";
 import { component as Fullscreen } from "vue-fullscreen";
 
+/** Vue3 Proxy 会破坏 fengmap WebGL 节点（modelViewMatrix / center.set），标记并修正 renderNode */
+function patchFengmapRenderNode(marker) {
+  if (
+    !marker ||
+    marker.__patchedRenderNode ||
+    typeof marker.getRenderNode !== "function"
+  ) {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
+
 import {
   getBuildingByProjectid,
   getGroundList,
@@ -2470,7 +2499,7 @@ export default {
         }
       }
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2499,7 +2528,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
 
       that.layer.selfAttr = info;
 
@@ -2654,7 +2683,7 @@ export default {
         level: info.newground,
       };
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2683,7 +2712,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(info.newground);
@@ -2723,7 +2752,7 @@ export default {
       } else {
         imgsrc = "../../../static/tbox.png";
       }
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2753,7 +2782,7 @@ export default {
           url: imgsrc,
           size: [100, 100],
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(info.newground);
@@ -3479,7 +3508,7 @@ export default {
             break;
         }
       }
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -3509,7 +3538,7 @@ export default {
           url: imgsrc,
           size: [100, 100],
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(mapinfo.newground);
@@ -3581,7 +3610,7 @@ export default {
         level: mapinfo.newground,
       };
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -3610,7 +3639,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
 
       this.layer.selfAttr = info;
       if (this.showAllGround) {

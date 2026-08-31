@@ -549,6 +549,7 @@ const zh = {
         unknown: '未知',
         Pleasecheck: '请勾选设备',
         export: '导出',
+        exportSelected: '导出选中',
         exportAll: '导出所有',
         exportArea: '区域',
         importArea: '区域',
@@ -1834,6 +1835,7 @@ const zh = {
     staff: {
         importWorktype: '导入角色',
         exportWorktype: '导出角色',
+        exportStaff: '导出员工',
         icon: '图标',
         birthday: '生日',
         selectStaff: '请选择员工！',
@@ -1932,6 +1934,8 @@ const zh = {
         AssetModel2: '资产型号：',
         User2: '所属用户：',
         Department2: '所属部门：',
+        departTip: '部门的设置在人员管理-员工管理页面中进行设置',
+        assetTypeTip: '资产类型在资产设置中进行设置',
         Tagnumber2: '标签号：',
         Remark2: '备注：',
         Assetempty: '资产类型不能为空！',
@@ -1981,6 +1985,8 @@ const zh = {
         Carnumber1: '车牌号：',
         Vehicletype1: '车辆类型：',
         Department2: '所属部门：',
+        departTip: '部门的设置在人员管理-员工管理页面中进行设置',
+        vehicleTypeTip: '车辆类型在车辆设置中进行设置',
         Tagnumber: '标签号：',
         Remark1: '备注：',
         text3: '修改资产信息',
@@ -2469,6 +2475,7 @@ const zh = {
         text3: '请选择需要查询的！',
         text4: '没有位置信息！',
         text5: '查询结果在室内，确定跳转到室内定位页面吗？',
+        text6: '该楼栋下有楼层信息，确定跳转到室内定位-定位查询页面吗？',
 
     },
     //定位管理 室外定位历史轨迹
@@ -2600,6 +2607,8 @@ const zh = {
         Speed: '速度：',
         Showroute: '显示路线',
         Trackplayback: '轨迹回放',
+        switchTo3d: '下一段轨迹为3D地图，当前2D/室外回放已结束',
+        switchTo2d: '下一段轨迹为2D或室外地图，当前3D回放已结束',
     },
     //列表
     list: {

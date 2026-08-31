@@ -111,7 +111,7 @@
                       $t("terminal.import")
                     }}</el-dropdown-item>
                     <el-dropdown-item @click="exportExcel()">{{
-                      $t("terminal.export")
+                      $t("staff.exportStaff")
                     }}</el-dropdown-item>
                     <el-dropdown-item @click="exportExcelAll()">{{
                       $t("terminal.exportAll")
@@ -2017,6 +2017,9 @@ export default {
       this.trajectory = false;
     },
     closePopup3d(data) {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
       this.trajectory3d = false;
     },
     projectList() {
@@ -3158,9 +3161,10 @@ export default {
       });
     },
     closetrajectoryAction3d() {
-      this.$nextTick(() => {
+      // 同步清理：勿等 nextTick，否则播放器动画仍会访问已关闭弹窗里的 map
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
         this.$refs.trajectorys.mapOut();
-      });
+      }
     },
 
     // 删除员工
