@@ -325,7 +325,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       style="margin-left: 0"
                       @click="assetAction(scope.row)"
@@ -654,7 +654,7 @@
 
           <!-- 行为分析 / 轨迹 -->
           <el-dialog
-            :visible.sync="actions"
+            v-model="actions"
             width="60%"
             style="text-align: center"
             :close-on-click-modal="false"
@@ -662,7 +662,7 @@
             @close="closeAction"
           >
             <el-dialog
-              :visible.sync="trajectory"
+              v-model="trajectory"
               width="80%"
               style="text-align: center"
               :close-on-click-modal="false"
@@ -673,7 +673,7 @@
               <Trajectory ref="trajectory" @closePopup2d="closePopup" />
             </el-dialog>
             <el-dialog
-              :visible.sync="trajectory3d"
+              v-model="trajectory3d"
               width="80%"
               style="text-align: center"
               :close-on-click-modal="false"
@@ -728,7 +728,7 @@
                 <el-date-picker
                   v-model="actionTime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts"
                   :range-separator="$t('terminal.to')"
                   :start-placeholder="$t('terminal.startdate')"
                   :end-placeholder="$t('terminal.enddate')"
@@ -983,29 +983,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -2948,10 +2948,22 @@ export default {
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  text-align: left;
 }
-.actionDetails :deep(.ivu-timeline) {
+.actionDetails :deep(.el-timeline) {
   width: 23%;
   margin-left: 2%;
+  margin-right: 0;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__wrapper),
+.actionDetails :deep(.el-timeline-item__content) {
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__content) p {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
   text-align: left;
 }
 .action .el-dialog__body .el-form .el-form-item {

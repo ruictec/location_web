@@ -759,7 +759,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
@@ -1450,7 +1450,7 @@ export default {
       }
       that._map3DInitStarted = true;
       const level = Number(group) || 1;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: container,
         level: level,
         visibleLevels: [level],
@@ -1460,8 +1460,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        decoderURL: FENGMAP_DECODER_URL,
-      };
+      });
       that.map3d = markRaw(new fengmap.FMMap(mapOpation));
       that.map3d.on("loaded", function () {
         try {

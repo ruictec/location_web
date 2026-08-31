@@ -1476,7 +1476,7 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min"; //核心包
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import "fengmap/build/fengmap.plugin.ui.min"; //UI控件包
 import "fengmap/build/fengmap.analyser.min"; //分析器包
 import "fengmap/build/fengmap.plugin.navi.min"; //导航包
@@ -2892,7 +2892,7 @@ export default {
         container.style.height = "100%";
         container.style.display = "flex";
 
-        var mapOpation = {
+        var mapOpation = applyFengmapLocalLoad({
           container: container,
           level: 1,
           visibleLevels: [1],
@@ -2905,8 +2905,7 @@ export default {
           modelSelectedEffect: false,
           defaultViewMode: fengmap.FMViewMode.MODE_3D,
           themeID: that.themeId,
-          decoderURL: FENGMAP_DECODER_URL,
-        };
+        });
         that.map3d = markRaw(new fengmap.FMMap(mapOpation));
         that._fengMapLastWidth = 0;
         that._fengMapLastHeight = 0;

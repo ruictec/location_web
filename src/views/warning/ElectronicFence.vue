@@ -444,7 +444,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
-import { FENGMAP_DECODER_URL } from "../../utils/fengmapAssets";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import host from "../../host";
 
 import Menu from "../../components/menu/Menu";
@@ -1132,7 +1132,7 @@ export default {
       setTimeout(() => {
         var container = document.getElementById("fengMap");
         if (container) {
-          var mapOpation = {
+          var mapOpation = applyFengmapLocalLoad({
             container: container,
             level: group,
             visibleLevels: [group],
@@ -1144,10 +1144,7 @@ export default {
             mapID: that.fmapId,
             themeID: that.themeId,
             zoomRange: [1, 29],
-            decoderURL: FENGMAP_DECODER_URL,
-            // mapURL: "/data/",
-            // themeURL: "/data/theme/",
-          };
+          });
           that.map3d = new fengmap.FMMap(mapOpation);
           that.map3d.on("loaded", function () {
             // 地图加载完成后的回调
