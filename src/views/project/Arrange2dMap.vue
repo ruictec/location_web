@@ -1494,16 +1494,18 @@ export default {
     selectSingleClick() {
       let that = this;
       //只给相邻点添加点击事件
-      let arr = that.map.getLayers().getArray();
+      let arr = that.map.getLayers().getArray().slice();
       let list = [];
-      arr.forEach((item, index) => {
-        if (item.values_.wrapX == false) {
-          arr.splice(index, 1);
+      arr.forEach((item) => {
+        if (that.isFenceVectorLayer(item)) {
+          return;
         }
-      });
-      arr.map((item, index) => {
-        let source = item.getSource();
-        if (source.getFeatures && !source.getFeatures()[0].values_.name) {
+        // 跳过底图等非矢量图层
+        if (item && item.values_ && item.values_.wrapX == false) {
+          return;
+        }
+        const values = that.getLayerFirstFeatureValues(item);
+        if (values && !values.name) {
           list.push(item);
         }
       });
@@ -3225,17 +3227,17 @@ export default {
     modifyFeature(map, source, layer) {
       var that = this;
       let layerList = [];
-      let arr = that.map.getLayers().getArray();
-      arr.forEach((item, index) => {
-        if (item.values_.wrapX == false) {
-          arr.splice(index, 1);
+      let arr = that.map.getLayers().getArray().slice();
+      arr.forEach((item) => {
+        if (that.isFenceVectorLayer(item)) {
+          return;
         }
-      });
-      arr.forEach((item, index) => {
-        if (
-          item.getSource().getFeatures &&
-          !item.getSource().getFeatures()[0].values_.name
-        ) {
+        // 跳过底图等非矢量图层
+        if (item && item.values_ && item.values_.wrapX == false) {
+          return;
+        }
+        const values = that.getLayerFirstFeatureValues(item);
+        if (values && !values.name) {
           layerList.push(item);
         }
       });
@@ -3707,35 +3709,50 @@ export default {
         menu_overlay1.setPosition(undefined);
       });
     },
+    getLayerFirstFeatureValues(layer) {
+      if (!layer || typeof layer.getSource !== "function") {
+        return null;
+      }
+      const source = layer.getSource();
+      if (!source || typeof source.getFeatures !== "function") {
+        return null;
+      }
+      const features = source.getFeatures();
+      if (!features || !features.length || !features[0]) {
+        return null;
+      }
+      const feature = features[0];
+      if (feature.values_) {
+        return feature.values_;
+      }
+      if (typeof feature.getProperties === "function") {
+        return feature.getProperties();
+      }
+      return null;
+    },
     showLines() {
       var that = this;
       if (this.isShowLines) {
         that.isShowLines = !that.isShowLines;
-        let arr = that.map.getLayers().getArray();
+        let arr = that.map.getLayers().getArray().slice();
         for (let i = 0; i < arr.length; i++) {
-          let source = arr[i].getSource();
-          // name删除线，id删除点
+          // name删除线，id删除点；空图层 / 底图 / 围栏层跳过
+          const values = that.getLayerFirstFeatureValues(arr[i]);
           if (
-            source.getFeatures &&
-            (source.getFeatures()[0].values_.name ||
-              source.getFeatures()[0].values_.id)
+            values &&
+            (values.name || values.id) &&
+            !that.isFenceVectorLayer(arr[i])
           ) {
-            if (!that.isFenceVectorLayer(arr[i])) {
-              that.map.removeLayer(arr[i]);
-              i--;
-            }
+            that.map.removeLayer(arr[i]);
           }
         }
       } else {
         that.isShowLines = !that.isShowLines;
-        let arr = that.map.getLayers().getArray();
+        let arr = that.map.getLayers().getArray().slice();
         for (let i = 0; i < arr.length; i++) {
-          let source = arr[i].getSource();
-          if (source.getFeatures && source.getFeatures()[0].values_.id) {
-            if (!that.isFenceVectorLayer(arr[i])) {
-              that.map.removeLayer(arr[i]);
-              i--;
-            }
+          const values = that.getLayerFirstFeatureValues(arr[i]);
+          if (values && values.id && !that.isFenceVectorLayer(arr[i])) {
+            that.map.removeLayer(arr[i]);
           }
         }
         that.addSubPolygon();

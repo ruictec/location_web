@@ -599,19 +599,7 @@ export default {
       }
     },
     showWarningDialog(val, oldVal) {
-      var notifications = document.getElementsByClassName("el-notification");
-      var arrs = Object.values(notifications);
-      if (val == false) {
-        arrs.forEach((item) => {
-          item.style.opacity = "0";
-          item.style.zIndex = "0";
-        });
-      } else {
-        arrs.forEach((item) => {
-          item.style.opacity = "1";
-          item.style.zIndex = "100";
-        });
-      }
+      this.applyWarningNotificationVisibility(val !== false);
     },
     "$i18n.locale"() {
       var that = this;
@@ -692,8 +680,29 @@ export default {
     window.GoMap = this.GoMap;
     window.hideNotify = this.hideNotify;
     window.showNotify = this.showNotify;
+    this.$nextTick(() => {
+      this.applyWarningNotificationVisibility(
+        this.$store.state.showWarningDialog !== false
+      );
+    });
   },
   methods: {
+    applyWarningNotificationVisibility(visible) {
+      const notifications = document.getElementsByClassName("el-notification");
+      Array.from(notifications).forEach((item) => {
+        if (visible) {
+          item.classList.remove("warning-notification-hidden");
+          item.style.opacity = "1";
+          item.style.zIndex = "100";
+          item.style.pointerEvents = "auto";
+        } else {
+          item.classList.add("warning-notification-hidden");
+          item.style.opacity = "0";
+          item.style.zIndex = "-1";
+          item.style.pointerEvents = "none";
+        }
+      });
+    },
     // 选择项目
     selectProject() {
       var that = this;
@@ -1231,19 +1240,9 @@ export default {
         notification[index].style.right = 10 + "px";
       }
       // }
-      var notifications = document.getElementsByClassName("el-notification");
-      var arrs = Object.values(notifications);
-      if (this.$store.state.showWarningDialog == false) {
-        arrs.forEach((item) => {
-          item.style.opacity = "0";
-          item.style.zIndex = "-1";
-        });
-      } else {
-        arrs.forEach((item) => {
-          item.style.opacity = "1";
-          item.style.zIndex = "100";
-        });
-      }
+      this.applyWarningNotificationVisibility(
+        this.$store.state.showWarningDialog !== false
+      );
     },
     hideNotify(deveuiIcon) {
       var that = this;
@@ -1664,6 +1663,12 @@ body {
 .el-notification.right {
   padding: 0;
   /* right: 3% !important; */
+}
+
+.el-notification.warning-notification-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
 }
 
 .el-notification__group {

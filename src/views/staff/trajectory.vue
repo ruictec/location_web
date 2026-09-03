@@ -340,7 +340,12 @@ export default {
           this.g = new Graphs();
           if (that.graphData.length > 0 && that.intoProjectType == 1) {
             for (let i = 0; i < that.graphData.length; i++) {
-              if (that.graphData[i].list.length > 0) {
+              // 自身节点也要进坐标表；原先只 push 邻居，单点停留时本楼层 eui 对不上会得到空 pathAllXY
+              arr.push(that.graphData[i]);
+              if (
+                that.graphData[i].list &&
+                that.graphData[i].list.length > 0
+              ) {
                 for (let j = 0; j < that.graphData[i].list.length; j++) {
                   that.g.addEdge(
                     that.graphData[i].pointid,
@@ -348,8 +353,6 @@ export default {
                   );
                   arr.push(that.graphData[i].list[j]);
                 }
-              } else {
-                arr.push(that.graphData[i]);
               }
             }
             let arrs = that.unique(arr);
@@ -360,8 +363,11 @@ export default {
               pathAllXY = []; //存放路线节点的坐标值
             if (this.actionTableData.length == 1) {
               pathOneArr = [];
-              if (that.actionTableData[0].list.length > 1) {
-                let lists = that.actionTableData[0].list.reverse();
+              const stayList = Array.isArray(that.actionTableData[0].list)
+                ? that.actionTableData[0].list
+                : [];
+              if (stayList.length > 1) {
+                let lists = stayList.slice().reverse();
                 let newGPSTime;
                 let gpstimeValue;
                 let xValue;
@@ -412,6 +418,7 @@ export default {
                     remaintime: that.actionTableData[0].remaintime,
                     pointid: that.actionTableData[0].eui,
                     anglimit: that.actionTableData[0].anglimit, //扫描角度，15表示360°，判断是否走一半
+                    beacon: 1,
                   },
                 ];
                 pathAll = pathAll.concat(One);
@@ -420,8 +427,11 @@ export default {
             } else {
               for (let k = 0; k < this.actionTableData.length-1; k++) {
                 pathOneArr = [];
-                if (that.actionTableData[k].list.length > 1) {
-                  let lists = that.actionTableData[k].list.reverse();
+                const stayList = Array.isArray(that.actionTableData[k].list)
+                  ? that.actionTableData[k].list
+                  : [];
+                if (stayList.length > 1) {
+                  let lists = stayList.slice().reverse();
                   let newGPSTime;
                   let gpstimeValue;
                   let xValue;
@@ -486,7 +496,7 @@ export default {
                     pathOneArr = pathOne.split("->");
                     pathOneArr.forEach((item, index) => {
                       if (index === 0) {
-                        if (that.actionTableData[k].list.length < 2) {
+                        if (stayList.length < 2) {
                           pathOneArr[index] = {
                             gpstime: that.actionTableData[k].gpstime,
                             remaintime: that.actionTableData[k].remaintime,
@@ -553,57 +563,101 @@ export default {
             //给每个点都加上时间
 
             pathAll.forEach((item) => {
+              if (!item || item.pointid == null || item.pointid === "") {
+                return;
+              }
+              let matched = false;
               arrs.forEach((val) => {
-                if (item.pointid == val.pointid) {
-                  if (item.anglimit) {
-                    pathAllXY.push({
-                      gpstime: item.gpstime,
-                      x: val.nodeX,
-                      y: val.nodeY,
-                      beacon: 1,
-                      anglimit: item.anglimit,
-                      remaintime: item.remaintime,
-                      pointid: item.pointid,
-                    });
-                  } else if (item.beacon) {
-                    pathAllXY.push({
-                      gpstime: item.gpstime,
-                      x: val.nodeX,
-                      y: val.nodeY,
-                      beacon: 1,
-                      remaintime: item.remaintime,
-                      pointid: item.pointid,
-                    });
-                  } else if (
-                    (item.pointid.length == 8 || item.pointid.length == 16) &&
-                    item.x == undefined
-                  ) {
-                    pathAllXY.push({
-                      x: val.nodeX,
-                      y: val.nodeY,
-                      beacon: 1,
-                      gpstime: item.gpstime,
-                      remaintime: item.remaintime,
-                      pointid: item.pointid,
-                    });
-                  } else if (item.x || item.y) {
-                    pathAllXY.push({
-                      x: item.x,
-                      y: item.y,
-                      remaintime: item.remaintime,
-                      gpstime: item.gpstime,
-                      pointid: item.pointid,
-                    });
-                  } else {
-                    pathAllXY.push({
-                      x: val.nodeX,
-                      y: val.nodeY,
-                      gpstime: item.gpstime,
-                      pointid: item.pointid,
-                    });
-                  }
+                if (String(item.pointid) != String(val.pointid)) {
+                  return;
+                }
+                matched = true;
+                if (item.anglimit) {
+                  pathAllXY.push({
+                    gpstime: item.gpstime,
+                    x: val.nodeX,
+                    y: val.nodeY,
+                    beacon: 1,
+                    anglimit: item.anglimit,
+                    remaintime: item.remaintime,
+                    pointid: item.pointid,
+                  });
+                } else if (item.beacon) {
+                  pathAllXY.push({
+                    gpstime: item.gpstime,
+                    x: val.nodeX,
+                    y: val.nodeY,
+                    beacon: 1,
+                    remaintime: item.remaintime,
+                    pointid: item.pointid,
+                  });
+                } else if (
+                  (String(item.pointid).length == 8 ||
+                    String(item.pointid).length == 16) &&
+                  item.x == undefined
+                ) {
+                  pathAllXY.push({
+                    x: val.nodeX,
+                    y: val.nodeY,
+                    beacon: 1,
+                    gpstime: item.gpstime,
+                    remaintime: item.remaintime,
+                    pointid: item.pointid,
+                  });
+                } else if (item.x || item.y) {
+                  pathAllXY.push({
+                    x: item.x,
+                    y: item.y,
+                    remaintime: item.remaintime,
+                    gpstime: item.gpstime,
+                    pointid: item.pointid,
+                  });
+                } else {
+                  pathAllXY.push({
+                    x: val.nodeX,
+                    y: val.nodeY,
+                    gpstime: item.gpstime,
+                    pointid: item.pointid,
+                  });
                 }
               });
+              // arrs 未命中时：用自身坐标或 graphData 回退，避免切楼层得到空轨迹
+              if (!matched) {
+                let x = item.x;
+                let y = item.y;
+                if (
+                  (x === undefined ||
+                    x === null ||
+                    y === undefined ||
+                    y === null) &&
+                  that.graphData &&
+                  that.graphData.length
+                ) {
+                  const node = that.graphData.find(
+                    (g) => g && String(g.pointid) === String(item.pointid)
+                  );
+                  if (node) {
+                    x = node.nodeX;
+                    y = node.nodeY;
+                  }
+                }
+                if (
+                  x !== undefined &&
+                  x !== null &&
+                  y !== undefined &&
+                  y !== null
+                ) {
+                  pathAllXY.push({
+                    gpstime: item.gpstime,
+                    x: x,
+                    y: y,
+                    beacon: 1,
+                    anglimit: item.anglimit,
+                    remaintime: item.remaintime,
+                    pointid: item.pointid,
+                  });
+                }
+              }
             });
             // 每两个之间起始点选择真实位置数据
             if (pathAllXY.length > 1) {
@@ -674,11 +728,22 @@ export default {
 
     searchInfo(arr, groundid) {
       var that = this;
+      // 切楼层后若无法生成轨迹点（如 5 楼仅 1 个停留点且坐标未匹配），跳过本段继续下一段，避免读 arr[0].gpstime 崩溃
+      if (!arr || !arr.length || !arr[0] || arr[0].gpstime == null) {
+        console.warn(
+          "[trajectory] empty path for ground, skip to nextMap",
+          groundid,
+          arr
+        );
+        that.nextMap();
+        return;
+      }
       let gpstime1 = Date.parse(new Date(arr[0].gpstime));
-      let gpstime2 = Date.parse(new Date(arr[arr.length - 1].gpstime));
+      let last = arr[arr.length - 1];
+      let gpstime2 = Date.parse(new Date(last.gpstime));
       this.firsttime = gpstime1;
       this.alltime =
-        gpstime2 + arr[arr.length - 1].remaintime * 1000 - gpstime1;
+        gpstime2 + (Number(last.remaintime) || 0) * 1000 - gpstime1;
       // if (that.intoProjectid != "e4pggpuy") {
       that.searchInfoArr = arr;
       // } else {

@@ -1453,6 +1453,7 @@
 </template>
 <script>
 import host from "../../host";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import Menu from "../../components/menu/Menu";
 import basecard from "../../components/card/base-card";
 import Asset from "../../components/asset/asset.vue";
@@ -2451,7 +2452,7 @@ export default {
         return false;
       };
       var that = this;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: document.getElementById("fengMap"),
         level: ground,
         visibleLevels: [ground],
@@ -2461,9 +2462,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {
@@ -2551,7 +2550,7 @@ export default {
         return false;
       };
       var that = this;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: document.getElementById("fengMapHis"),
         level: ground, //默认聚焦楼层
         visibleLevels: [ground], //初始显示楼层ID数组
@@ -2560,9 +2559,7 @@ export default {
         viewMode: fengmap.FMViewMode.MODE_2D, //设置地图2d显示
         mapID: that.fmapId,
         themeID: that.themeId,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {

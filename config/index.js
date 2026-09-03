@@ -3,8 +3,24 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-// 尽早加载 .env.local，供下方 proxyTable 读取 API_PROXY_TARGET
+// 尽早加载 .env.local，供下方 proxyTable 读取 API_PROXY_TARGET / DATA_PROXY_TARGET
 require('dotenv').config({ path: path.resolve(__dirname, '../.env.local') })
+require('dotenv').config({ path: path.resolve(__dirname, '../.env.development.local') })
+
+function normalizeProxyOrigin(target, fallback) {
+  const raw = (target && String(target).trim()) || fallback
+  try {
+    const url = new URL(raw)
+    return url.origin
+  } catch (e) {
+    return String(raw).replace(/\/$/, '')
+  }
+}
+
+const dataProxyTarget = normalizeProxyOrigin(
+  process.env.DATA_PROXY_TARGET,
+  'https://location.rctiot.com'
+)
 
 module.exports = {
   dev: {
@@ -33,13 +49,18 @@ module.exports = {
           '^/v1': ''
         }
       },
+      '/data': {
+        // 蜂鸟 3D 离线地图包（nginx 静态目录，与 :14001 API 无关）
+        target: dataProxyTarget,
+        changeOrigin: true,
+      },
 
     },
 
     // Various Dev Server settings
-    host: '192.168.2.169', // can be overwritten by process.env.HOST
+    // host: '192.168.2.126', // can be overwritten by process.env.HOST
     // host: '192.168.50.235', // can be overwritten by process.env.HOST
-    // host: 'localhost', // can be overwritten by process.env.HOST
+    host: 'localhost', // can be overwritten by process.env.HOST
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

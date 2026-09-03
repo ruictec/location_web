@@ -52,6 +52,7 @@ import Graphs from "./trajectory2.js";
 // import "fengmap/build/toolBarStyle.css";
 
 import fengmap from "fengmap/build/fengmap.map.min"; //核心包
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import "fengmap/build/fengmap.plugin.ui.min"; //UI控件包
 import "fengmap/build/fengmap.analyser.min"; //分析器包
 import "fengmap/build/fengmap.plugin.navi.min"; //导航包
@@ -532,7 +533,7 @@ export default {
         that.map.dispose();
         that.map = null;
       }
-      var options = {
+      var options = applyFengmapLocalLoad({
         container: document.getElementById("fengmap"),
         appName: appName,
         key: key,
@@ -540,9 +541,7 @@ export default {
         level: level,
         visibleLevels: [level],
         floorSpace: 50,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
       this.map = new fengmap.FMMap(options);
       this.map.on("loaded", function () {
         console.log("加载完成1");

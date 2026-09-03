@@ -839,6 +839,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
@@ -1424,7 +1425,7 @@ export default {
       };
       var that = this;
       that.lastGroupid = group;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: document.getElementById("fengMap"),
         level: group,
         visibleLevels: [group],
@@ -1436,9 +1437,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {
         if (that.$store.state.intoProjectType == 1) {

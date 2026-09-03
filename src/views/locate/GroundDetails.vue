@@ -186,6 +186,7 @@ import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 
 import {
   getBuildingByProjectid,
@@ -747,7 +748,7 @@ export default {
         return false;
       };
       var that = this;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: document.getElementById("fengMap"),
         level: ground ? ground : 1, //默认聚焦楼层
         visibleLevels: ground ? [ground] : [1], //初始显示楼层ID数组
@@ -757,9 +758,7 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
       this.map3d = new fengmap.FMMap(mapOpation);
       this.map3d.on("loaded", function () {

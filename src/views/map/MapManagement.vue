@@ -1421,6 +1421,7 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min"; //核心包
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import "fengmap/build/fengmap.plugin.ui.min"; //UI控件包
 import "fengmap/build/fengmap.analyser.min"; //分析器包
 import "fengmap/build/fengmap.plugin.navi.min"; //导航包
@@ -2609,7 +2610,7 @@ export default {
 
     onmap() {
       var that = this;
-      var mapOpation = {
+      var mapOpation = applyFengmapLocalLoad({
         container: document.getElementById("fengMap"),
         level: 1, //默认聚焦楼层
         visibleLevels: [1], //初始显示楼层ID数组
@@ -2622,7 +2623,7 @@ export default {
         modelSelectedEffect: false, //支持单击模型高亮，false为单击时模型不高亮
         defaultViewMode: fengmap.FMViewMode.MODE_3D, //设置地图2d/3d显示
         themeID: that.themeId,
-      };
+      });
       this.map3d = new fengmap.FMMap(mapOpation);
 
       this.map3d.on("loaded", function () {

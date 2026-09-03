@@ -1171,15 +1171,15 @@ export default {
             })
           }
 
-          if (Number(val.lastx) === 0 && Number(val.lasty) === 0) {
-            that.$message({
-              message: that.$t('gateway.noGps'),
-              type: 'warning',
-            })
-          } else {
-            that.map.getView().setCenter([val.lastx, val.lasty], 'EPSG:4326')
-            that.addIconMarker(that.map, val)
-          }
+          // 即使坐标为 (0,0) 也在地图上加载，方便手动拖拽布置
+          const lastx = Number(val.lastx) || 0
+          const lasty = Number(val.lasty) || 0
+          const markerInfo = Object.assign({}, val, {
+            lastx: lastx,
+            lasty: lasty,
+          })
+          that.map.getView().setCenter([lastx, lasty], 'EPSG:4326')
+          that.addIconMarker(that.map, markerInfo)
           that.clickTrue = true
         }
       }
