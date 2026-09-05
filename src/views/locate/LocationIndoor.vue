@@ -5583,8 +5583,9 @@ export default {
 .selectGround {
   position: relative;
   z-index: 1002;
-  pointer-events: auto;
+  align-self: flex-start;
   flex-shrink: 0;
+  pointer-events: none;
 }
 .selectGround label,
 .selectGround .fm-layer-list > div {
@@ -5886,7 +5887,8 @@ a {
   position: fixed;
   bottom: 100px;
   right: 20px;
-  z-index: 99;
+  z-index: 1100;
+  pointer-events: auto;
 }
 .imags_ul li {
   margin-top: 20px;

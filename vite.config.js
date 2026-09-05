@@ -139,6 +139,19 @@ export default defineConfig(({ mode }) => {
     proxyOrigin = new URL(proxyTargetRaw).origin
   } catch (e) {}
 
+  function normalizeProxyOrigin(target, fallback) {
+    const raw = (target && String(target).trim()) || fallback
+    try {
+      return new URL(raw).origin
+    } catch (e) {
+      return String(raw).replace(/\/$/, '')
+    }
+  }
+  const dataProxyTarget = normalizeProxyOrigin(
+    env.DATA_PROXY_TARGET,
+    'https://location.rctiot.com'
+  )
+
   return {
     base: mode === 'production' ? './' : '/',
     publicDir: false,
@@ -198,6 +211,11 @@ export default defineConfig(({ mode }) => {
         },
         '/v1': {
           target: proxyOrigin,
+          changeOrigin: true
+        },
+        // 蜂鸟 3D 离线地图包（nginx 静态目录，与 :14001 API 无关）
+        '/data': {
+          target: dataProxyTarget,
           changeOrigin: true
         }
       }
