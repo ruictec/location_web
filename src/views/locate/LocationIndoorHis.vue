@@ -104,7 +104,7 @@
         >
         </el-table-column>
         <el-table-column
-          property="ground"
+          property="groundname"
           :label="$t('LocationIndoorHis.Floor')"
           min-width="30"
           show-overflow-tooltip

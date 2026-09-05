@@ -1104,29 +1104,35 @@
             style="text-align: center"
             @close="closeMap()"
           >
-            <el-upload
-              :disabled="changeImg"
-              :action="ImagePathEdit"
-              list-type="picture-card"
-              :file-list="fileListEdit"
-              :on-preview="handlePictureCardPreviewEdit"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPicEdit"
-              :on-success="picSuccessEdit"
-              :on-error="picErrorEdit"
-              :headers="myHeaderEdit"
-              :auto-upload="false"
-              :on-change="choseApi"
-              :on-exceed="handleExceedEdit"
-              :before-upload="beforeAvatarUploadEdit"
+            <div
+              class="map-edit-upload"
+              :class="{ 'is-full': hideEditMapUpload }"
             >
-              <template #tip><div class="el-upload__tip">
-                {{ $t("mapmanagements.text6") }}
-              </div></template>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+              <el-upload
+                :disabled="changeImg"
+                :action="ImagePathEdit"
+                list-type="picture-card"
+                v-model:file-list="fileListEdit"
+                :on-preview="handlePictureCardPreviewEdit"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPicEdit"
+                :on-success="picSuccessEdit"
+                :on-error="picErrorEdit"
+                :headers="myHeaderEdit"
+                :auto-upload="false"
+                :on-change="choseApi"
+                :on-remove="handleRemoveEdit"
+                :on-exceed="handleExceedEdit"
+                :before-upload="beforeAvatarUploadEdit"
+              >
+                <template #tip><div class="el-upload__tip">
+                  {{ $t("mapmanagements.text6") }}
+                </div></template>
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
               :model="editDatas"
               label-width="120px"
@@ -1762,6 +1768,10 @@ export default {
     filterLangClass() {
       const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
       return lang === "en" ? "is-en" : "is-zh";
+    },
+    // 编辑2D：已有地图图片时隐藏上传入口；删除图片后才可再传
+    hideEditMapUpload() {
+      return Array.isArray(this.fileListEdit) && this.fileListEdit.length > 0;
     },
   },
   methods: {
@@ -2734,9 +2744,14 @@ export default {
 
     //判断有没有更换地图，从而选择接口
     choseApi(file, fileList) {
+      this.fileListEdit = fileList || [];
       if (this.needChangeAPI) {
         this.choseApiEdit = true;
       }
+    },
+    handleRemoveEdit(file, fileList) {
+      this.fileListEdit = fileList || [];
+      this.choseApiEdit = false;
     },
     //企业级管理员编辑确定
     editTrues(editDatas) {
@@ -3690,6 +3705,14 @@ export default {
   margin-top: 16px;
   text-align: right;
   padding-right: 8px;
+}
+
+/* 编辑2D：已有地图时隐藏 picture-card 上传按钮（Element Plus 达 limit 不会自动隐藏） */
+.map-edit-upload.is-full .el-upload--picture-card {
+  display: none !important;
+}
+.map-edit-upload.is-full .el-upload__tip {
+  display: none !important;
 }
 
 </style>
