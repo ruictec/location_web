@@ -463,6 +463,10 @@ export default {
       tboxType: "",
       tboxMaplabel: "",
       tboxTime: "",
+      // 车辆开门告警闪烁：deveui -> 是否开门闪烁；timer/layer 仅运行时使用
+      vehicleDoorOpen: {},
+      vehicleFlashTimers: {},
+      vehicleFlashLayers: {},
       mapCenter: [],
       xinaoList: [],
       AllFences: [],
@@ -631,6 +635,7 @@ export default {
           }, 201);
           that.delFeature(sosData);
           setTimeout(() => {
+            that.applyVehicleAlarm(sosData.deveui, sosData.alarm, true);
             that.addTBoxIconMarker(that.map, sosData, true);
             const center = fromLonLat([sosData.x, sosData.y]);
             that.map.getView().setCenter(center);
@@ -699,6 +704,7 @@ export default {
                 if (that.perDeveui || per) {
                   that.addIconMarker(that.map, res.data, true);
                 } else if (that.tboxDeveui || tbox) {
+                  that.applyVehicleAlarm(res.data.deveui, res.data.alarm, true);
                   that.addTBoxIconMarker(that.map, res.data, true);
                 }
                 const center = fromLonLat([res.data.x, res.data.y]);
@@ -734,6 +740,7 @@ export default {
       this.getTboxSnIds();
       console.log(this.sostype);
       this.sostype = false;
+      this.clearAllVehicleFlash();
       var that = this;
       //删除所有图标   //重新获取
       let LayerArrays;
@@ -1075,6 +1082,16 @@ export default {
           zIndex: 10,
         });
         map.addLayer(this.vectorLayer);
+        // 查询加载：车辆 alarm 无值默认关门；alarm=1 开门闪烁
+        if (mapInfo.devtype == 4 && mapInfo.deveui) {
+          this.applyVehicleAlarm(mapInfo.deveui, mapInfo.alarm, true);
+          this.bindVehicleFlashLayer(
+            mapInfo.deveui,
+            this.vectorLayer,
+            src,
+            mapInfo.username
+          );
+        }
       }
     },
 
@@ -1186,6 +1203,7 @@ export default {
         gpstime: mapInfo.gpstime,
         devtype: mapInfo.devtype,
         battery: mapInfo.battery ? mapInfo.battery : "",
+        alarm: mapInfo.alarm,
         geometry: new OlGeomPoint(mercatorCoord),
       });
 
@@ -1193,29 +1211,11 @@ export default {
         features: [features],
       });
 
-      let style;
-      console.log(this.sostype);
+      let src = "../../../static/tbox.png";
       if (this.sostype) {
-        style = new OlStyleStyle({
-          image: new OlStyleIcon({
-            anchor: [0.5, 1],
-            src: "../../../static/tboxsos.png",
-            scale: 1,
-          }),
-          // 设置图片下面显示字体的样式和内容
-          text: this.createMarkerText(mapInfo.username),
-        });
-      } else {
-        style = new OlStyleStyle({
-          image: new OlStyleIcon({
-            anchor: [0.5, 1],
-            src: "../../../static/tbox.png",
-            scale: 1,
-          }),
-          // 设置图片下面显示字体的样式和内容
-          text: this.createMarkerText(mapInfo.username),
-        });
+        src = "../../../static/tboxsos.png";
       }
+      let style = this.buildVehicleStyle(mapInfo.username, src, 1);
 
       this.vectorLayer = new OlLayerVector({
         source: this.source,
@@ -1225,10 +1225,99 @@ export default {
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
       this.sostype = false;
+      // 按已缓存的开门状态绑定闪烁（alarm 由查询/WebSocket 入口事先 apply）
+      if (mapInfo.deveui) {
+        this.bindVehicleFlashLayer(
+          mapInfo.deveui,
+          this.vectorLayer,
+          src,
+          mapInfo.username
+        );
+      }
       if (newCenter) {
         const center = fromLonLat([mapInfo.x, mapInfo.y]);
         that.map.getView().setCenter(center);
       }
+    },
+    // alarm: 1 开门闪烁，2 关门停止；查询无值默认关门
+    applyVehicleAlarm(deveui, alarm, fromQuery) {
+      if (!deveui) {
+        return;
+      }
+      if (alarm === undefined || alarm === null || alarm === "") {
+        if (fromQuery) {
+          this.vehicleDoorOpen[deveui] = false;
+        }
+        return;
+      }
+      const n = Number(alarm);
+      if (n === 1) {
+        this.vehicleDoorOpen[deveui] = true;
+      } else if (n === 2 || fromQuery) {
+        this.vehicleDoorOpen[deveui] = false;
+      }
+    },
+    buildVehicleStyle(username, src, opacity) {
+      return new OlStyleStyle({
+        image: new OlStyleIcon({
+          anchor: [0.5, 1],
+          src: src,
+          scale: 1,
+          opacity: opacity,
+        }),
+        text: this.createMarkerText(username),
+      });
+    },
+    pauseVehicleFlash(deveui) {
+      if (!deveui) {
+        return;
+      }
+      if (this.vehicleFlashTimers[deveui]) {
+        clearInterval(this.vehicleFlashTimers[deveui]);
+        delete this.vehicleFlashTimers[deveui];
+      }
+      delete this.vehicleFlashLayers[deveui];
+    },
+    bindVehicleFlashLayer(deveui, layer, src, username) {
+      if (!deveui || !layer) {
+        return;
+      }
+      this.pauseVehicleFlash(deveui);
+      this.vehicleFlashLayers[deveui] = {
+        layer: layer,
+        src: src,
+        username: username || "",
+        visible: true,
+      };
+      const shouldFlash = !!this.vehicleDoorOpen[deveui];
+      layer.setStyle(this.buildVehicleStyle(username, src, 1));
+      if (!shouldFlash) {
+        return;
+      }
+      const tick = () => {
+        const meta = this.vehicleFlashLayers[deveui];
+        if (!meta || !meta.layer) {
+          this.pauseVehicleFlash(deveui);
+          return;
+        }
+        meta.visible = !meta.visible;
+        meta.layer.setStyle(
+          this.buildVehicleStyle(
+            meta.username,
+            meta.src,
+            meta.visible ? 1 : 0.2
+          )
+        );
+      };
+      this.vehicleFlashTimers[deveui] = setInterval(tick, 500);
+    },
+    clearAllVehicleFlash() {
+      Object.keys(this.vehicleFlashTimers || {}).forEach((deveui) => {
+        clearInterval(this.vehicleFlashTimers[deveui]);
+      });
+      this.vehicleFlashTimers = {};
+      this.vehicleFlashLayers = {};
+      this.vehicleDoorOpen = {};
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -1750,6 +1839,10 @@ export default {
               return;
             }
             if (e.deveui == firstFeature.values_.deveui) {
+              // 图层即将被删，暂停闪烁定时器，但保留开门状态供重新上图后继续闪
+              if (firstFeature.values_.devtype == 4) {
+                this.pauseVehicleFlash(e.deveui);
+              }
               layer
                 .getSource()
                 .getFeatures()
@@ -1972,12 +2065,17 @@ export default {
           }
           if (data.status != 2) {
             if (data.devtype == 4) {
+              // alarm:1 开门闪烁，2 关门停止；无 alarm 字段则保留原开门状态
+              that.applyVehicleAlarm(data.deveui, data.alarm, false);
               that.addTBoxIconMarker(that.map, data);
             } else if (data.devtype == 3) {
               that.addAssetMarker(that.map, data);
             } else {
               that.addIconMarker(that.map, data);
             }
+          } else if (data.devtype == 4) {
+            that.pauseVehicleFlash(data.deveui);
+            delete that.vehicleDoorOpen[data.deveui];
           }
         }
       }
@@ -2094,7 +2192,10 @@ export default {
     },
   },
   unmounted() {
-    this.websock.close();
+    this.clearAllVehicleFlash();
+    if (this.websock) {
+      this.websock.close();
+    }
   },
 };
 </script>
