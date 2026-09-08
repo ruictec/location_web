@@ -2121,9 +2121,19 @@ export default {
       this.$refs[editData].validate((valid) => {
         if (valid) {
           that.loading = true;
-          that.editData.flag = that.beaconidList.some(
-            (item) => item.beaconid === that.editData.beaconid
-          );
+          // 编辑前已是信标(flag=true)则保留，不再用可选列表对比（占用中的信标不在 beaconidList 里）
+          const alreadyBeacon =
+            that.editData.flag === true ||
+            that.editData.flag === "true" ||
+            that.editData.flag === 1 ||
+            that.editData.flag === "1";
+          if (!alreadyBeacon) {
+            that.editData.flag = that.beaconidList.some(
+              (item) => item.beaconid === that.editData.beaconid
+            );
+          } else {
+            that.editData.flag = true;
+          }
           if (that.haveImage) {
             that.userIdForPicEdit.id = that.editData.id;
             that.userIdForPicEdit.name = that.editData.name;
