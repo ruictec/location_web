@@ -51,7 +51,7 @@
               }}</el-dropdown-item>
             </el-dropdown-menu></template>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V2.0</span>
+          <span @click="showVer()" class="show_ver">V2.1</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
@@ -401,6 +401,19 @@ export default {
             this.$t("versions.content118"),
           ],
           timestamp: this.$t("versions.timestamp17"),
+        },
+        {
+          content: [
+            this.$t("versions.content119"),
+            this.$t("versions.content120"),
+            this.$t("versions.content121"),
+            this.$t("versions.content122"),
+            this.$t("versions.content123"),
+            this.$t("versions.content124"),
+            this.$t("versions.content125"),
+            this.$t("versions.content126"),
+          ],
+          timestamp: this.$t("versions.timestamp18"),
         },
       ],
       showVersion: false,
@@ -945,7 +958,6 @@ export default {
         superid: superid,
         projectid: intoProjectid,
         status: 1,
-        endtype: 8,
       };
       getWarningPopoutList(
         data,
@@ -1210,6 +1222,14 @@ export default {
           break;
         case 8:
           warningTitle = this.$t("warning.Firealarm");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 9:
+          warningTitle = this.$t("warning.CloseContact");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 10:
+          warningTitle = this.$t("warning.DoorOpenalarm");
           warningContent = this.$t("terminal.deveui");
           break;
         default:
@@ -1516,7 +1536,6 @@ export default {
         projectid: that.intoProjectid,
         status: 1,
         // type: 1,
-        endtype: 8,
       };
       getWarningPopoutList(
         data,

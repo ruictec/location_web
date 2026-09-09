@@ -1082,7 +1082,7 @@ export default {
           zIndex: 10,
         });
         map.addLayer(this.vectorLayer);
-        // 查询加载：车辆 alarm 无值默认关门；alarm=1 开门闪烁
+        // 查询加载：车辆 alarm 无值默认关门；alarm=2 开门闪烁
         if (mapInfo.devtype == 4 && mapInfo.deveui) {
           this.applyVehicleAlarm(mapInfo.deveui, mapInfo.alarm, true);
           this.bindVehicleFlashLayer(
@@ -1239,7 +1239,7 @@ export default {
         that.map.getView().setCenter(center);
       }
     },
-    // alarm: 1 开门闪烁，2 关门停止；查询无值默认关门
+    // alarm: 2 开门闪烁，3 关门停止；查询无值默认关门
     applyVehicleAlarm(deveui, alarm, fromQuery) {
       if (!deveui) {
         return;
@@ -1251,9 +1251,9 @@ export default {
         return;
       }
       const n = Number(alarm);
-      if (n === 1) {
+      if (n === 2) {
         this.vehicleDoorOpen[deveui] = true;
-      } else if (n === 2 || fromQuery) {
+      } else if (n === 3 || fromQuery) {
         this.vehicleDoorOpen[deveui] = false;
       }
     },
@@ -2065,7 +2065,7 @@ export default {
           }
           if (data.status != 2) {
             if (data.devtype == 4) {
-              // alarm:1 开门闪烁，2 关门停止；无 alarm 字段则保留原开门状态
+              // alarm:2 开门闪烁，3 关门停止；无 alarm 字段则保留原开门状态
               that.applyVehicleAlarm(data.deveui, data.alarm, false);
               that.addTBoxIconMarker(that.map, data);
             } else if (data.devtype == 3) {

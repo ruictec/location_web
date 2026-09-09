@@ -200,7 +200,11 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.triggerMethod')" prop="meth" v-if="showWarnum == false">
+              <el-form-item
+                :label="$t('warning.triggerMethod')"
+                prop="meth"
+                v-if="addData.type == 4"
+              >
                 <el-select v-model="addData.meth" :placeholder="$t('warning.selectTriggerMethod')">
                   <el-option
                     v-for="item in methList"
@@ -337,7 +341,7 @@
               </el-form-item>
               <el-form-item
                 :label="$t('warning.triggerMethod')"
-                v-if="showWarnum == false"
+                v-if="editData.type == 4"
               >
                 <span>{{ formatMeth(editData.meth) }}</span>
               </el-form-item>
@@ -626,6 +630,10 @@ export default {
           index: 4,
           value: this.$t("warning.Passingalarm"),
         },
+        {
+          index: 5,
+          value: this.$t("warning.DoorOpenalarm"),
+        },
       ], // 告警定位类型
       postypeList: [
         {
@@ -656,13 +664,16 @@ export default {
     },
   },
   methods: {
-    // 判断是否是选择越界告警和聚集告警
+    // 越界(4)隐藏门限并显示触发方式；开门告警(5)隐藏门限且不显示触发方式
     changeType(val) {
-      if (val == 4) {
+      if (val == 4 || val == 5) {
         this.addData.warnum = "";
         this.showWarnum = false;
       } else {
         this.showWarnum = true;
+      }
+      if (val != 4) {
+        this.addData.meth = "";
       }
       this.typeval = val;
     },
@@ -1027,7 +1038,7 @@ export default {
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
-      if (this.editData.type == 4) {
+      if (this.editData.type == 4 || this.editData.type == 5) {
         this.showWarnum = false;
       } else {
         this.showWarnum = true;
