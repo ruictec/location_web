@@ -28,6 +28,16 @@
               </el-form-item>
 
               <el-form-item
+                :label="$t('beacon.Beaconalias')"
+                class="terminal-filter-item"
+              >
+                <el-input
+                  v-model="searchList.alias"
+                  :placeholder="$t('beacon.please')"
+                ></el-input>
+              </el-form-item>
+
+              <el-form-item
                 :label="$t('beacon.major1')"
                 class="terminal-filter-item"
               >
@@ -1894,6 +1904,7 @@ export default {
       searchInuse: "", //使用状态
       searchList: {
         beaconid: "",
+        alias: "",
         minor: "",
         major: "",
         inuse: "",
@@ -3936,6 +3947,7 @@ export default {
       ) {
         this.searchList = {
           beaconid: "",
+          alias: "",
           minor: "",
           major: "",
           inuse: "",
@@ -3964,6 +3976,7 @@ export default {
       ) {
         this.searchList = {
           beaconid: "",
+          alias: "",
           minor: "",
           major: "",
           inuse: "",
@@ -3989,6 +4002,7 @@ export default {
       } else if (this.$store.state.userInfo.prionum == 5) {
         this.searchList = {
           beaconid: "",
+          alias: "",
           minor: "",
           major: "",
           inuse: "",

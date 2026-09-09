@@ -1813,6 +1813,7 @@ const en = {
         Tilt: 'Tilt alarm',
         Dumpalarm: 'Dump alarm',
         Firealarm: 'Fire alarm',
+        DoorOpenalarm: 'Door open alarm',
         CloseContact: 'Close contact',
         permissiondelete: 'No permission to delete！',
         permissiondelete1: 'Are you sure you want to delete?',
@@ -3454,6 +3455,15 @@ const en = {
         content117: '18.Support license key update in User Center;',
         content118: '19.Unify list filter styles and pagination experience;',
         timestamp17: '2026-08-25',
+        content119: 'V2.1',
+        content120: '1.Add door-open alarm type for personnel/vehicle alarms;',
+        content121: '2.Support outdoor vehicle icon flashing for door-open alarms;',
+        content122: '3.Optimize alarm popup and alarm management type display;',
+        content123: '4.Optimize sidebar alarm count badge display;',
+        content124: '5.Fix asset edit incorrectly changing flag to false;',
+        content125: '6.Hide upload entry when editing an existing 2D map image;',
+        content126: '7.Improve indoor positioning experience; Fengmap 3D supports local offline loading;',
+        timestamp18: '2026-09-08',
     },
     warningVoice: {
 

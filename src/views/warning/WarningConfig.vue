@@ -603,6 +603,10 @@ export default {
           index: 8,
           value: this.$t("warning.Firealarm"),
         },
+        {
+          index: 9,
+          value: this.$t("warning.DoorOpenalarm"),
+        },
       ],
       //   告警时间
       timeList: [

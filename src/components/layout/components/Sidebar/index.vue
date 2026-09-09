@@ -51,9 +51,10 @@
           <el-menu-item index="/warning/index">
             <span>{{ $t("list.Alarminformation") }}</span>
             <el-badge
+              v-if="Number(warningNum) > 0"
               :value="warningNum"
+              :hidden="Number(warningNum) <= 0"
               class="warningbox"
-              v-show="warningNum > 0"
             >
             </el-badge></el-menu-item>
           <el-menu-item index="/warning/warningconfigper" v-if="alarmConfig">{{
@@ -374,10 +375,18 @@ export default {
 .el-badge.warningbox {
   margin-left: auto !important;
   margin-right: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: auto !important;
+  line-height: 1 !important;
 }
-:deep(sup) {
-  transform: translateY(5px);
+.el-badge.warningbox :deep(.el-badge__content),
+.el-badge.warningbox :deep(sup) {
+  transform: none !important;
+  position: static !important;
   border: 0;
+  top: auto !important;
+  vertical-align: middle;
 }
 .el-scrollbar {
   padding-bottom: 30px !important;

@@ -1,5 +1,5 @@
 <template>
-  <div class="content" style="height: 100%; width: 100%">
+  <div class="content location-indoor" style="width: 100%">
     <ul class="imags_ul" v-show="btnShow">
       <li>
         <el-tooltip
@@ -163,7 +163,7 @@
 
     <div
       :class="fullscreen ? 'fullscreen_containers' : 'containers'"
-      style="width: 100%; height: 98%"
+      style="width: 100%"
     >
       <div class="float_box">
         <div v-if="isAllData" style="width: 100%">
@@ -214,7 +214,11 @@
       </div>
 
       <!-- 2D地图 -->
-      <div v-show="mapTypes" class="mapConent">
+      <div
+        v-show="mapTypes"
+        class="mapConent"
+        :class="{ 'is-map-hidden': !mapTypes }"
+      >
         <div id="allmap" ref="map" class="allmap">
           <div
             style="position: absolute; bottom: 2%; right: 4px; z-index: 1001"
@@ -462,7 +466,11 @@
       </div>
 
       <!-- 3D地图 -->
-      <div v-show="!mapTypes" class="mapConentD">
+      <div
+        v-show="!mapTypes"
+        class="mapConentD"
+        :class="{ 'is-map-hidden': mapTypes }"
+      >
         <div id="fengMap" class="fengMap">
           <div
             style="position: absolute; bottom: 10%; right: 2%; z-index: 1001"
@@ -652,15 +660,7 @@
             </div>
           </transition>
         </div>
-        <p
-          style="
-            position: absolute;
-            top: 94.5%;
-            text-align: left;
-            color: white;
-            z-index: 11;
-          "
-        >
+        <p class="indoor-map-tip">
           {{ $t("LocationIndoor.tet") }}
         </p>
       </div>
@@ -1264,7 +1264,6 @@ export default {
         buildid: this.building,
         groundid: this.groundid,
         status: 1,
-        endtype: 8,
       };
       that.sosDatas.data = [];
       that.sosDatas = { ...that.sosDatas };
@@ -5889,6 +5888,21 @@ a {
   right: 20px;
   z-index: 1100;
   pointer-events: auto;
+}
+.indoor-map-tip {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  top: auto;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  color: #fff;
+  z-index: 1002;
+  pointer-events: none;
+  font-size: 13px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
 }
 .imags_ul li {
   margin-top: 20px;

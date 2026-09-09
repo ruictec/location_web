@@ -436,13 +436,12 @@ export default {
           value: this.$t("tet.event"),
         },
       ],
-      //告警类型
+      //告警类型（typeList / typeList1 保持一致）
       typeList: [
         {
           index: 1,
           value: this.$t("warning.SOSalarm"),
         },
-
         {
           index: 2,
           value: this.$t("warning.Aggregatealarm"),
@@ -477,23 +476,7 @@ export default {
         },
         {
           index: 10,
-          value: this.$t("terminal.Cancelsearch"),
-        },
-        {
-          index: 11,
-          value: this.$t("tet.ble"),
-        },
-        {
-          index: 12,
-          value: this.$t("tet.lora"),
-        },
-        {
-          index: 13,
-          value: this.$t("tet.seekfailed"),
-        },
-        {
-          index: 14,
-          value: this.$t("tet.tet6"),
+          value: this.$t("warning.DoorOpenalarm"),
         },
       ],
 
@@ -502,7 +485,6 @@ export default {
           index: 1,
           value: this.$t("warning.SOSalarm"),
         },
-
         {
           index: 2,
           value: this.$t("warning.Aggregatealarm"),
@@ -535,6 +517,10 @@ export default {
           index: 9,
           value: this.$t("warning.CloseContact"),
         },
+        {
+          index: 10,
+          value: this.$t("warning.DoorOpenalarm"),
+        },
       ],
     };
   },
@@ -562,7 +548,7 @@ export default {
           value: this.$t("warning.Released"),
         },
       ];
-      if (type > 9) {
+      if (type > 10) {
         this.statusList = arr;
         this.searchList.status = 3;
       } else {

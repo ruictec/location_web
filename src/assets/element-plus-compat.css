@@ -214,8 +214,10 @@ body .el-table th,
   min-width: 0 !important;
 }
 
-.containers .mapConentD {
-  display: block !important;
+/* 勿对 mapConentD 写 display:!important，会覆盖 v-show 的 display:none，导致 2D/3D 同时占位、详情表重复 */
+.containers .mapConentD.is-map-hidden,
+.containers .mapConent.is-map-hidden {
+  display: none !important;
 }
 
 .mapConentD #fengMap,
@@ -224,6 +226,52 @@ body .el-table th,
   height: 100% !important;
   display: flex !important;
   position: relative !important;
+}
+
+/* 室内定位：扣除顶栏 50px + 底部固定栏 30px，避免地图/提示/水印被挡住 */
+.location-indoor {
+  height: calc(100vh - 80px) !important;
+  max-height: calc(100vh - 80px);
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.location-indoor .containers {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+.location-indoor .mapConent,
+.location-indoor .mapConentD:not(.is-map-hidden) {
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+.location-indoor .mapConentD:not(.is-map-hidden) #fengMap,
+.location-indoor .mapConentD:not(.is-map-hidden) .fengMap,
+.location-indoor .mapConent .allmap {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.location-indoor .mapConentD:not(.is-map-hidden) {
+  position: relative !important;
+}
+
+.location-indoor .indoor-map-tip {
+  position: absolute !important;
+  left: 8px !important;
+  bottom: 10px !important;
+  top: auto !important;
+  z-index: 1002 !important;
+  margin: 0 !important;
+  color: #fff !important;
+  pointer-events: none !important;
+  font-size: 13px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+  white-space: nowrap;
 }
 
 .mapConent .statistics > *,
@@ -1536,6 +1584,17 @@ body .el-table th,
   margin-left: auto !important;
   margin-right: 0 !important;
   flex-shrink: 0;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
+.sidebar-container .el-menu-item .el-badge.warningbox .el-badge__content,
+.sidebar-container .el-menu-item .el-badge.warningbox sup {
+  position: static !important;
+  transform: none !important;
+  top: auto !important;
+  vertical-align: middle;
 }
 
 /* 各模块左侧竖向菜单：抵消 * { margin: 0 auto }，图标+文字左对齐，问号跟在后面 */

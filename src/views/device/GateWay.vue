@@ -147,7 +147,7 @@
               @current-change="selectGateway"
               @selection-change="handleSelectionChange"
               style="width: 98%; text-align: center; margin-left: 2%"
-              :max-height="contrForPrionum == 5 ? 660 : 300"
+              :max-height="300"
               border
               highlight-current-row
             >
@@ -344,7 +344,7 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent" v-if="contrForPrionum != 5">
+          <div class="mapConent">
             <div class="gateway-map-wrap">
               <MapLayerSwitcher
                 :map="map"
@@ -1111,7 +1111,7 @@ export default {
     },
     //选中表格事件
     selectGateway(val) {
-      if (!val || this.contrForPrionum == 5) return
+      if (!val) return
       if (this.show4G) {
         var that = this
         if (this.echarts1 && this.echarts2 && this.clickTrue) {
@@ -1362,9 +1362,7 @@ export default {
         style: style,
       })
 
-      if (this.contrForPrionum != 5) {
-        this.modifyFeature(map, vectorLayer.getSource())
-      }
+      this.modifyFeature(map, vectorLayer.getSource())
       map.addLayer(vectorLayer)
     },
 
@@ -1613,16 +1611,14 @@ export default {
           if (res.code == 1001) {
             that.tableData = res.data.list
             that.total = res.data.size
-            if (that.contrForPrionum != 5) {
-              const currentRow =
-                that.tableData.find(item => item.custom == 1) || that.tableData[0]
-              if (currentRow) {
-                that.$nextTick(() => {
-                  if (that.$refs.multipleTable) {
-                    that.$refs.multipleTable.setCurrentRow(currentRow)
-                  }
-                })
-              }
+            const currentRow =
+              that.tableData.find(item => item.custom == 1) || that.tableData[0]
+            if (currentRow) {
+              that.$nextTick(() => {
+                if (that.$refs.multipleTable) {
+                  that.$refs.multipleTable.setCurrentRow(currentRow)
+                }
+              })
             }
           }
         }
@@ -2011,16 +2007,12 @@ export default {
 
     this.getCustomerNames()
     this.getSearchGatewayList()
-    if (this.contrForPrionum != 5) {
-      this.initMap()
-    }
+    this.initMap()
     this.getGatewayLists()
   },
   mounted() {
-    if (this.contrForPrionum != 5) {
-      this.drawLine1()
-      this.drawLine2()
-    }
+    this.drawLine1()
+    this.drawLine2()
   },
   watch: {
     totalbytes(v) {
@@ -2043,10 +2035,8 @@ export default {
       Object.assign(this.$data.editRules, this.$options.data.call(this).editRules)
       Object.assign(this.$data.typeList, this.$options.data.call(this).typeList)
 
-      if (this.contrForPrionum != 5) {
-        this.drawLine1()
-        this.drawLine2()
-      }
+      this.drawLine1()
+      this.drawLine2()
     },
   },
 }
