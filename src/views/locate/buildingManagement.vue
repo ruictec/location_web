@@ -1008,19 +1008,32 @@ export default {
       }
       this.selfLocationLayer = null;
       this.seeLayer = this.outdoorBaseLayers;
-      if (this.mapInfo.length > 0) {
-        this.view = new View({
-          projection: "EPSG:4326",
-          center: [that.longi, that.lati],
-          zoom: that.zoom,
-        });
-      } else {
-        this.view = new View({
-          projection: "EPSG:4326",
-          center: that.mapCenter,
-          zoom: 5,
-        });
-      }
+
+      // 有无楼栋都优先使用项目已保存的中心点与缩放（来自 store / updateProjectPosition）
+      const hasSavedCenter =
+        that.longi !== "" &&
+        that.longi !== null &&
+        that.longi !== undefined &&
+        that.lati !== "" &&
+        that.lati !== null &&
+        that.lati !== undefined;
+      const center = hasSavedCenter
+        ? [Number(that.longi), Number(that.lati)]
+        : Array.isArray(that.mapCenter) && that.mapCenter.length === 2
+        ? [Number(that.mapCenter[0]), Number(that.mapCenter[1])]
+        : that.$store.state.i18n == "zh"
+        ? [118, 32]
+        : [0.1, 51.3];
+      const zoom =
+        that.zoom !== "" && that.zoom !== null && that.zoom !== undefined
+          ? Number(that.zoom)
+          : 5;
+
+      this.view = new View({
+        projection: "EPSG:4326",
+        center,
+        zoom,
+      });
       setTimeout(() => {
         this.map = new Map({
           target: "map",
@@ -2075,7 +2088,17 @@ export default {
   },
   beforeMount() {
     let that = this;
-    if (this.$store.state.longis && this.$store.state.latis) {
+    // 与 store 同步，避免无楼栋分支只用默认 zoom:5 / 旧 mapCenter
+    if (
+      this.$store.state.longis !== "" &&
+      this.$store.state.longis !== null &&
+      this.$store.state.longis !== undefined &&
+      this.$store.state.latis !== "" &&
+      this.$store.state.latis !== null &&
+      this.$store.state.latis !== undefined
+    ) {
+      this.longi = this.$store.state.longis;
+      this.lati = this.$store.state.latis;
       this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
     } else {
       if (that.$store.state.i18n == "zh") {
@@ -2083,6 +2106,13 @@ export default {
       } else {
         that.mapCenter = [0.1, 51.3];
       }
+    }
+    if (
+      this.$store.state.mapZoom !== "" &&
+      this.$store.state.mapZoom !== null &&
+      this.$store.state.mapZoom !== undefined
+    ) {
+      this.zoom = this.$store.state.mapZoom;
     }
     this.outdoorBaseLayers = createOutdoorBaseLayers(
       this.$store.state.i18n == "zh"
@@ -2129,8 +2159,11 @@ export default {
     }
     this.getBuildingByProjectids();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     var that = this;
+    if (!this.map || !this.map.getView) {
+      return;
+    }
     let data = {
       projectid: this.intoProjectid,
       longi: this.map.getView().getCenter()[0],
@@ -2141,6 +2174,10 @@ export default {
       lati: this.map.getView().getCenter()[1],
       zoom: this.map.getView().getZoom(),
     };
+    // 先写 store，保证立刻返回本页时中心/缩放已是最新
+    this.$store.commit("changeMapZoom", data.zoom);
+    this.$store.commit("changeMapLongi", data.longi);
+    this.$store.commit("changeMapLati", data.lati);
     updateProjectPosition(
       data,
       this.tenantkey_A,

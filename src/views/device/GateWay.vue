@@ -262,7 +262,7 @@
                 :label="$t('gateway.memo2')"
                 align="center"
                 show-overflow-tooltip
-                v-if="contrForPrionum != 1 && contrForPrionum != 2"
+                v-if="contrForPrionum == 3 || contrForPrionum == 4"
               ></el-table-column>
               <el-table-column
                 fixed="right"
