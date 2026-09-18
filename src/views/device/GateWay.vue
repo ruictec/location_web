@@ -1388,6 +1388,13 @@ export default {
               message: that.$store.state.i18n == 'zh' ? res.msg : res.enMsg,
               type: 'error',
             })
+            return
+          }
+          // 同步表格坐标，避免再次点击该行时地图回到旧位置
+          const row = that.tableData.find(item => item.deveui === data.deveui)
+          if (row) {
+            row.lastx = data.longitude
+            row.lasty = data.latitude
           }
         })
       })

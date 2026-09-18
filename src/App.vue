@@ -643,8 +643,11 @@ export default {
         sessionStorage.clear();
       }
     },
-    showWarningDialog(val, oldVal) {
+    showWarningDialog(val) {
       this.applyWarningNotificationVisibility(val !== false);
+      if (val !== false) {
+        this.scheduleRepositionWarningNotifications();
+      }
     },
     "$i18n.locale"() {
       var that = this;
@@ -1126,14 +1129,10 @@ export default {
                     that.sosList[j].name ==
                     data.list[i].deveui + data.list[i].type
                   ) {
+                    // 只走 Element Plus close，避免手动 remove 导致内部队列与 top 错乱
                     that.sosList[j].value.close();
                     that.clearSos(data.list[i].deveui + data.list[i].type);
-                    var boxEls = document.getElementsByClassName(
-                      data.list[i].deveui + data.list[i].type
-                    );
-                    for (let j = 0; j < boxEls.length; j++) {
-                      boxEls[j].remove();
-                    }
+                    break;
                   }
                 }
               }
@@ -1244,6 +1243,10 @@ export default {
         showClose: false,
         dangerouslyUseHTMLString: true,
         offset: 44,
+        onClose: () => {
+          // Element Plus 关闭动画/内部 offset 更新后再强制重排
+          that.scheduleRepositionWarningNotifications();
+        },
         message:
           `<div class="${sosA.deveuiIcon}box box"><div class= "sosheader ${
             sosA.deveuiIcon
@@ -1318,44 +1321,101 @@ export default {
         notification[index].style.right = 10 + "px";
       }
       // }
-      var notifications = document.getElementsByClassName("el-notification");
       this.applyWarningNotificationVisibility(
         this.$store.state.showWarningDialog !== false
       );
+      // 新告警加入后按当前展开/折叠实际高度重排
+      this.scheduleRepositionWarningNotifications();
     },
     hideNotify(deveuiIcon) {
       var that = this;
       let box = document.getElementsByClassName(deveuiIcon + "box");
       let minibox = document.getElementsByClassName(deveuiIcon + "minibox");
-      let arr = document.getElementsByClassName("el-notification");
-      box[0].style.display = "none";
-      minibox[0].style.display = "block";
+      if (box[0]) box[0].style.display = "none";
+      if (minibox[0]) minibox[0].style.display = "block";
       that.$nextTick(() => {
-        that.setTop(arr);
+        that.scheduleRepositionWarningNotifications();
       });
     },
     showNotify(deveuiIcon) {
       var that = this;
       let box = document.getElementsByClassName(deveuiIcon + "box");
       let minibox = document.getElementsByClassName(deveuiIcon + "minibox");
-      let arr = document.getElementsByClassName("el-notification");
-      box[0].style.display = "block";
-      minibox[0].style.display = "none";
+      if (box[0]) box[0].style.display = "block";
+      if (minibox[0]) minibox[0].style.display = "none";
       that.$nextTick(() => {
-        that.setTop(arr);
+        that.scheduleRepositionWarningNotifications();
       });
     },
-    //重新计算sos框位置
+    // 与 Element Plus Notification 对齐：起始 44+16，间距 16
+    // 必须同步 props.offset，否则 EP close() 仍按旧高度减偏移，留下顶部/中间空位
     setTop(domArr) {
-      let top = [60];
+      const start = 60;
+      const gap = 16;
+      let top = start;
       for (let i = 0; i < domArr.length; i++) {
-        if (i > 0) {
-          top.push(domArr[i - 1].scrollHeight + top[i - 1] + 18);
-          domArr[i].style.top = top[i] + "px";
-        } else {
-          domArr[i].style.top = top[0] + "px";
+        const el = domArr[i];
+        const inst = el.__vueParentComponent;
+        if (inst && inst.props) {
+          inst.props.offset = top;
         }
+        el.style.setProperty("top", `${top}px`, "important");
+        top += (el.offsetHeight || 0) + gap;
       }
+    },
+    getVisibleWarningNotifications() {
+      return Array.from(document.getElementsByClassName("el-notification"))
+        .filter((el) => {
+          if (el.classList.contains("warning-notification-hidden")) return false;
+          // 正在离场动画的节点不要占位
+          if (
+            el.classList.contains("el-notification-fade-leave-active") ||
+            el.classList.contains("el-notification-fade-leave-to")
+          ) {
+            return false;
+          }
+          const inst = el.__vueParentComponent;
+          if (inst && inst.exposed && inst.exposed.visible && inst.exposed.visible.value === false) {
+            return false;
+          }
+          const style = window.getComputedStyle(el);
+          if (style.display === "none" || style.visibility === "hidden") {
+            return false;
+          }
+          if (Number(style.opacity) === 0) return false;
+          if (!el.offsetHeight) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const offsetOf = (el) => {
+            const fromProp =
+              el.__vueParentComponent && el.__vueParentComponent.props
+                ? Number(el.__vueParentComponent.props.offset)
+                : NaN;
+            if (!Number.isNaN(fromProp)) return fromProp;
+            return Number.parseInt(el.style.top, 10) || el.offsetTop || 0;
+          };
+          return offsetOf(a) - offsetOf(b);
+        });
+    },
+    // 告警消除/新增/展开折叠后，按当前可见弹框实际高度紧凑排列
+    repositionWarningNotifications() {
+      const arr = this.getVisibleWarningNotifications();
+      if (arr.length > 0) {
+        this.setTop(arr);
+      }
+    },
+    scheduleRepositionWarningNotifications() {
+      if (this._warningReposTimers && this._warningReposTimers.length) {
+        this._warningReposTimers.forEach((t) => clearTimeout(t));
+      }
+      this._warningReposTimers = [];
+      const run = () => this.repositionWarningNotifications();
+      this.$nextTick(run);
+      // 多次回写：覆盖 EP close 改 offset、关闭动画结束、折叠高度变化
+      [0, 50, 120, 320, 520, 800].forEach((delay) => {
+        this._warningReposTimers.push(setTimeout(run, delay));
+      });
     },
     // 字符串双引号变成单引号
     htmlspecialchars(str) {
@@ -1531,6 +1591,8 @@ export default {
           that.audios(that.warningAudioList[backSosAudio]);
         }
       }
+      // 关闭后重排（onClose 里也会排；这里再兜底一次，覆盖折叠态消除）
+      that.scheduleRepositionWarningNotifications();
       let data = {
         superid: that.superid,
         projectid: that.intoProjectid,
@@ -1606,6 +1668,10 @@ export default {
     },
   },
   unmounted() {
+    if (this._warningReposTimers && this._warningReposTimers.length) {
+      this._warningReposTimers.forEach((t) => clearTimeout(t));
+      this._warningReposTimers = [];
+    }
     window.removeEventListener("beforeunload", (e) =>
       this.beforeunloadHandler(e)
     );
