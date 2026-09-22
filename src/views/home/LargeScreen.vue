@@ -22,12 +22,13 @@
               </p>
               <div class="ultitle">
                 <el-table
+                  class="screen-floor-table"
                   :data="tableData"
                   row-key="rowKey"
                   default-expand-all
                   :fit="true"
                   :tree-props="{ children: 'children' }"
-                  style="width: 100%; background: transparent"
+                  style="width: 100%"
                   :cell-style="tableCellStyle"
                   :header-cell-style="tableHeaderStyle"
                 >
@@ -2284,62 +2285,75 @@ $border: 1px solid red;
                 background: rgb(56, 151, 234);
               }
 
-              .el-table :deep(.has-gutter tr th) {
-                background-color: #05162d;
-                color: white;
-                font-weight: bolder;
-                border: 0px;
-              }
-
-              .el-table :deep(.has-gutter tr th .cell) {
-                font-size: 18px;
-              }
-              .el-table :deep(body .el-table th) {
-                display: none !important;
-              }
-              .el-table,
-              .el-table :deep(.el-table__header-wrapper,
-              .el-table >>> .el-table__body-wrapper,
-              .el-table >>> .el-table__body,
-              .el-table >>> tr) {
-                background: transparent !important;
+              /* 大屏深色表格：覆盖 Element Plus 浅色默认与兼容层 */
+              :deep(.el-table) {
                 width: 100% !important;
-              }
-
-              .el-table :deep(.el-table__header-wrapper,
-              .el-table >>> .el-table__body-wrapper) {
-                overflow-x: hidden !important;
-              }
-
-              .el-table :deep(.el-table__header,
-              .el-table >>> .el-table__body) {
-                width: 100% !important;
-              }
-
-              .el-table :deep(td) {
-                border: none;
-              }
-
-              & >>> .el-table .cell {
-                color: #f1f1f1;
-              }
-
-              .el-table :deep(.el-table__body tr > td,
-              .el-table >>> .el-table__body tr:hover > td,
-              .el-table >>> .el-table__body tr.hover-row > td,
-              .el-table >>> .el-table__body tr.current-row > td,
-              .el-table >>> .el-table__row,
-              .el-table >>> .el-table__row:hover,
-              .el-table >>> .el-table__row:hover td) {
                 background: transparent !important;
+                color: #f1f1f1 !important;
+                --el-table-bg-color: transparent;
+                --el-table-tr-bg-color: transparent;
+                --el-table-header-bg-color: transparent;
+                --el-table-row-hover-bg-color: rgba(0, 187, 255, 0.12);
+                --el-table-border-color: transparent;
+                --el-table-text-color: #f1f1f1;
+                --el-table-header-text-color: #ffffff;
+                --el-fill-color-blank: transparent;
+              }
+
+              :deep(.el-table__inner-wrapper),
+              :deep(.el-table__header-wrapper),
+              :deep(.el-table__body-wrapper),
+              :deep(.el-table__body),
+              :deep(.el-table__header),
+              :deep(.el-table tr),
+              :deep(.el-table th.el-table__cell),
+              :deep(.el-table td.el-table__cell) {
+                background: transparent !important;
+                background-color: transparent !important;
+                border-color: transparent !important;
                 color: #f1f1f1 !important;
               }
 
-              .el-table :deep(.el-table__expand-icon) {
+              :deep(.el-table__header-wrapper),
+              :deep(.el-table__body-wrapper) {
+                overflow-x: hidden !important;
+                width: 100% !important;
+              }
+
+              :deep(.el-table__header),
+              :deep(.el-table__body) {
+                width: 100% !important;
+              }
+
+              :deep(.el-table th.el-table__cell) {
+                font-weight: bolder;
+                font-size: 18px;
+              }
+
+              :deep(.el-table th.el-table__cell .cell),
+              :deep(.el-table td.el-table__cell .cell) {
+                color: #f1f1f1 !important;
+              }
+
+              :deep(.el-table__body tr:hover > td.el-table__cell),
+              :deep(.el-table__body tr.hover-row > td.el-table__cell),
+              :deep(.el-table__body tr.current-row > td.el-table__cell) {
+                background: rgba(0, 187, 255, 0.12) !important;
+                color: #f1f1f1 !important;
+              }
+
+              :deep(.el-table__inner-wrapper::before),
+              :deep(.el-table::before),
+              :deep(.el-table__border-left-patch) {
+                background-color: transparent !important;
+                display: none !important;
+              }
+
+              :deep(.el-table__expand-icon) {
                 color: #8ec8ff;
               }
 
-              .el-table :deep(.el-table__placeholder) {
+              :deep(.el-table__placeholder) {
                 width: 16px;
               }
             }

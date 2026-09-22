@@ -230,7 +230,7 @@ export default {
         username: this.$store.state.userInfo.username,
         details: "",
       },
-      editfilePath: host.host + "user/updateQuestionMapFile",
+      editfilePath: host.host + "service/updateQuestionMapFile",
       editdataForFile: {},
       editfileList: [], //upload多文件数组
       editfileData: "", //文件上传数据（多文件合一）

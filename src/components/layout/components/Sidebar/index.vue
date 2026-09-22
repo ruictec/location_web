@@ -99,6 +99,10 @@
           <el-menu-item index="/staff/inspection" v-if="task">{{
             $t("list.Patrolmanagement")
           }}</el-menu-item>
+          <el-menu-item
+            index="/staff/taskmanagement"
+            v-if="$store.state.userInfo.prionum == 5"
+            >{{ $t("list.Taskmanagement") }}</el-menu-item>
         </el-sub-menu>
         <el-sub-menu ref="subMenu" index="/location">
           <template #title>

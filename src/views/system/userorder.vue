@@ -404,7 +404,7 @@ export default {
       total: 0,
       editdataForFile: {},
 
-      editfilePath: host.host + "user/updateQuestionMapFile",
+      editfilePath: host.host + "service/updateQuestionMapFile",
       editfileData: "", //文件上传数据（多文件合一）
       editfileList: [], //upload多文件数组
       uploadData: "",
@@ -904,7 +904,7 @@ export default {
       this.editfileData.append("filename", this.editData.filename);
       this.$axios({
         method: "POST",
-        url: "v1/user/updateQuestionMapFile",
+        url: "v1/service/updateQuestionMapFile",
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -544,7 +544,7 @@ export default {
       let formData = new FormData();
       formData.append("file", file);
       this.$axios
-        .post("user/updateRegisterFile", formData)
+        .post("service/updateRegisterFile", formData)
         .then((response) => {
           if (response.data.code === 1001) {
             that.$message({

@@ -1298,8 +1298,8 @@ export default {
       },
       haveImage: false, //判断添加的员工有没有头像
       delImage: false, //判断员工是否要删除头像
-      ImagePath: host.host + "user/addMemberMapFile",
-      ImagePathEdit: host.host + "user/updateMemberMapFile",
+      ImagePath: host.host + "service/addMemberMapFile",
+      ImagePathEdit: host.host + "service/updateMemberMapFile",
       fileListAdd: [],
       fileListEdit: [],
       dialogImageUrl: "",

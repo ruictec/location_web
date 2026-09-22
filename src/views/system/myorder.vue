@@ -490,8 +490,8 @@ export default {
         details: "",
         status: "",
       },
-      filePath: host.host + "user/addQuestionMapFile",
-      editfilePath: host.host + "user/updateQuestionMapFile",
+      filePath: host.host + "service/addQuestionMapFile",
+      editfilePath: host.host + "service/updateQuestionMapFile",
       fileData: "", //文件上传数据（多文件合一）
       editfileData: "", //文件上传数据（多文件合一）
       fileList: [], //upload多文件数组
@@ -948,7 +948,7 @@ export default {
       this.fileData.append("status", this.addData.status);
       this.$axios({
         method: "POST",
-        url: "v1/user/addQuestionMapFile",
+        url: "v1/service/addQuestionMapFile",
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -1142,7 +1142,7 @@ export default {
       this.editfileData.append("filename", this.editData.filename);
       this.$axios({
         method: "POST",
-        url: "v1/user/updateQuestionMapFile",
+        url: "v1/service/updateQuestionMapFile",
         headers: {
           "Content-Type": "multipart/form-data",
         },

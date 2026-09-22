@@ -2047,11 +2047,14 @@ export default {
     websocketonmessage(res) {
       var that = this;
       if (res.data != "连接成功") {
-        var data = JSON.parse(res.data);
+        var payload = JSON.parse(res.data);
+        // 新格式：{ devGps, fenceList }；兼容旧格式（设备字段在根级、围栏为 fenceObj）
+        var data = payload.devGps || payload;
+        var fenceList = payload.fenceList || payload.fenceObj;
         if (data.deveui) {
           that.delFeature(data);
-          if (data.fenceObj && data.fenceObj.length > 0) {
-            data.fenceObj.forEach((item) => {
+          if (fenceList && fenceList.length > 0) {
+            fenceList.forEach((item) => {
               const index = that.AllFences.findIndex(
                 (items) => items.id === item.id
               );

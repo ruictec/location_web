@@ -1815,7 +1815,7 @@ export default {
       formData.append("file", file);
       formData.append("projectid", this.selectProjectID);
       this.$axios
-        .post("v1/user/addProjectMapFile", formData)
+        .post("v1/service/addProjectMapFile", formData)
         .then((response) => {
           if (response.data.code == 1001) {
             that.$message({

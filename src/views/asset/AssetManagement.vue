@@ -1118,8 +1118,8 @@ export default {
       DepartList: [],
       haveImage: false, //判断添加的资产有没有图片
       delImage: false, //判断资产是否要删除图片
-      ImagePath: host.host + "user/addAssetMapFile",
-      ImagePathEdit: host.host + "user/updateAssetMapFile",
+      ImagePath: host.host + "service/addAssetMapFile",
+      ImagePathEdit: host.host + "service/updateAssetMapFile",
       fileListAdd: [],
       fileListEdit: [],
       dialogImageUrl: "",
