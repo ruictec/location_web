@@ -511,45 +511,94 @@
         </el-row>
       </el-main>
     </el-container>
-    <!-- 选择项目 -->
+    <!-- 选择项目（权限5登录后必选，不可关闭） -->
     <el-dialog
-      :title="$t('navbar.Selectitem')"
       v-if="pro"
       v-model="pro"
-      :close-on-press-escape="false"
+      class="project-select-dialog"
+      modal-class="project-select-mask"
       :show-close="false"
+      :close-on-press-escape="false"
       :close-on-click-modal="false"
-      width="40%"
-      style="text-align: center"
-      class="select"
+      :append-to-body="true"
+      width="760px"
+      align-center
     >
-      <div class="project-wrapper">
-        <div
-          class="project-item"
-          v-for="(item, index) in projectTable"
-          :key="index"
-          @click="choseProject(item)"
-        >
-          <div class="item-header">
-            <div class="item-icon"></div>
-            {{ item.name }}
-          </div>
-          <div class="item-info">
-            <div class="key">
-              <span>{{ $t("navbar.number") }}</span>
-              <span>{{ $t("navbar.type") }}</span>
-              <span>{{ $t("navbar.remarks") }}</span>
+      <template #header>
+        <div class="ps-modal-title">
+          <span>{{ $t("navbar.Selectitem") }}</span>
+          <el-tooltip effect="dark" placement="bottom" :show-after="200">
+            <template #content>
+              <div class="ps-help-tip">
+                <p>{{ $t("project.tet9") }}</p>
+                <p>{{ $t("project.tet10") }}</p>
+                <a
+                  class="ps-help-tip-link"
+                  href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                >{{ $t("navbar.learnMore") }}</a>
+              </div>
+            </template>
+            <i class="el-icon-question ps-help-q" @click.stop />
+          </el-tooltip>
+        </div>
+      </template>
+      <div class="ps-grid-wrap">
+        <div class="ps-grid">
+          <div
+            class="ps-card"
+            v-for="(item, index) in projectTable"
+            :key="item.projectid || index"
+            @click="choseProject(item)"
+            :class="{
+              'is-active': $store.state.projectid === item.projectid,
+            }"
+          >
+            <div class="ps-card-header">
+              <div class="ps-card-main">
+                <span
+                  class="ps-card-icon"
+                  :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill="currentColor"
+                      opacity="0.22"
+                      d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                    />
+                  </svg>
+                </span>
+                <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+              </div>
+              <span
+                class="ps-tag"
+                :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+              >{{
+                Number(item.type) === 2
+                  ? i8n == "zh"
+                    ? "反向"
+                    : item.entype || "Reverse"
+                  : i8n == "zh"
+                    ? "正向"
+                    : item.entype || "Forward"
+              }}</span>
             </div>
-            <div class="value">
-              <span>{{ item.projectid }}</span>
-
-              <span>{{ i8n == "zh" ? item.typestr : item.entype }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="item.memo"
-                placement="bottom-end"
-                ><span>{{ item.memo }}</span></el-tooltip>
+            <div class="ps-card-id">
+              {{ $t("navbar.number") }}：{{ item.projectid }}
+            </div>
+            <div class="ps-card-desc" :title="item.memo || ''">
+              {{ item.memo || "—" }}
             </div>
           </div>
         </div>

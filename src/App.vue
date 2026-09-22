@@ -51,7 +51,7 @@
               }}</el-dropdown-item>
             </el-dropdown-menu></template>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V2.1</span>
+          <span @click="showVer()" class="show_ver">V2.2</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
@@ -100,52 +100,100 @@
 
     <!-- 选择项目 -->
     <el-dialog
-      :title="$t('navbar.Selectitem')"
       v-model="selectProjects"
-      class="edit padreduce"
-      style="text-align: center"
-      :close-on-press-escape="false"
+      class="project-select-dialog"
+      modal-class="project-select-mask"
+      :show-close="false"
+      :close-on-press-escape="projectSelectClosable"
       :close-on-click-modal="false"
       :append-to-body="true"
-      width="40%"
+      width="760px"
+      align-center
     >
-      <div class="project-wrapper">
-        <div
-          class="project-item"
-          v-for="(item, index) in projectTable"
-          :key="index"
-          @click="choseProject(item)"
-          :class="{
-            'active-item': $store.state.projectid === item.projectid,
-          }"
+      <template #header>
+        <div class="ps-modal-title">
+          <span>{{ $t("navbar.Selectitem") }}</span>
+          <el-tooltip effect="dark" placement="bottom" :show-after="200">
+            <template #content>
+              <div class="ps-help-tip">
+                <p>{{ $t("project.tet9") }}</p>
+                <p>{{ $t("project.tet10") }}</p>
+                <a
+                  class="ps-help-tip-link"
+                  href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                >{{ $t("navbar.learnMore") }}</a>
+              </div>
+            </template>
+            <i class="el-icon-question ps-help-q" @click.stop />
+          </el-tooltip>
+        </div>
+        <button
+          v-if="projectSelectClosable"
+          type="button"
+          class="ps-close-btn"
+          aria-label="close"
+          @click="selectProjects = false"
         >
-          <div class="item-header">
-            <div class="item-icon"></div>
-            {{ item.name }}
-            <div
-              v-if="$store.state.projectid === item.projectid"
-              class="isactive"
-            >
-              <i class="icon"></i>
+          <span class="ps-close-icon">×</span>
+        </button>
+      </template>
+      <div class="ps-grid-wrap">
+        <div class="ps-grid">
+          <div
+            class="ps-card"
+            v-for="(item, index) in projectTable"
+            :key="item.projectid || index"
+            @click="choseProject(item)"
+            :class="{
+              'is-active': $store.state.projectid === item.projectid,
+            }"
+          >
+            <div class="ps-card-header">
+              <div class="ps-card-main">
+                <span
+                  class="ps-card-icon"
+                  :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill="currentColor"
+                      opacity="0.22"
+                      d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                    />
+                  </svg>
+                </span>
+                <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+              </div>
+              <span
+                class="ps-tag"
+                :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+              >{{
+                Number(item.type) === 2
+                  ? i8n == "zh"
+                    ? "反向"
+                    : item.entype || "Reverse"
+                  : i8n == "zh"
+                    ? "正向"
+                    : item.entype || "Forward"
+              }}</span>
             </div>
-          </div>
-          <div class="item-info">
-            <div class="key">
-              <span>{{ $t("navbar.number") }}</span>
-              <span>{{ $t("navbar.type") }}</span>
-              <span>{{ $t("navbar.remarks") }}</span>
+            <div class="ps-card-id">
+              {{ $t("navbar.number") }}：{{ item.projectid }}
             </div>
-            <div class="value">
-              <span>{{ item.projectid }}</span>
-              <span>{{ i8n == "zh" ? item.typestr : item.entype }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="item.memo"
-                placement="bottom-end"
-              >
-                <span>{{ item.memo }}</span>
-              </el-tooltip>
+            <div class="ps-card-desc" :title="item.memo || ''">
+              {{ item.memo || "—" }}
             </div>
           </div>
         </div>
@@ -178,6 +226,8 @@ export default {
     return {
       showTooltip: false,
       selectProjects: false,
+      // App 底部切换项目可关闭；必选场景由 Homeuser 控制
+      projectSelectClosable: true,
       projectTable: [],
       attenFlag: this.$store.state.functionParts.attenFlag,
       alarmConfig: this.$store.state.functionParts.alarmConfig,
@@ -415,6 +465,18 @@ export default {
           ],
           timestamp: this.$t("versions.timestamp18"),
         },
+        {
+          content: [
+            this.$t("versions.content127"),
+            this.$t("versions.content128"),
+            this.$t("versions.content129"),
+            this.$t("versions.content130"),
+            this.$t("versions.content131"),
+            this.$t("versions.content132"),
+            this.$t("versions.content133"),
+          ],
+          timestamp: this.$t("versions.timestamp19"),
+        },
       ],
       showVersion: false,
       showlargr: true,
@@ -542,7 +604,7 @@ export default {
       }
     },
     $route(to, from) {
-      to.path == "/largescreen"
+      to.path == "/largescreen" || to.path == "/taskdetail"
         ? (this.showlargr = false)
         : (this.showlargr = true);
       if (from && from.path === "/largescreen") {
@@ -695,8 +757,8 @@ export default {
     //   this.show = this.router.path === "/largescreen"
     // })
     if (
-      this.$route.path === "/largescreen" &&
-      this.$store.state.userInfo.prionum == 5
+      this.$route.path === "/largescreen" ||
+      this.$route.path === "/taskdetail"
     ) {
       this.showlargr = false;
     } else {
@@ -1243,6 +1305,8 @@ export default {
         showClose: false,
         dangerouslyUseHTMLString: true,
         offset: 44,
+        // 固定 zIndex，避免室外/室内 el-dialog 的 nextZIndex 触发 Notification 重算 top
+        zIndex: 5000,
         onClose: () => {
           // Element Plus 关闭动画/内部 offset 更新后再强制重排
           that.scheduleRepositionWarningNotifications();
@@ -1933,113 +1997,6 @@ body .el-table th.el-table__cell {
 }
 </style>
 <style scoped>
-/*项目选择 */
-.project-wrapper {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5vw;
-}
-.project-item {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  box-sizing: border-box;
-  padding-bottom: 20px;
-  z-index: 0;
-  transition: all 0.3s;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0;
-  text-align: left;
-  box-shadow: 3px 3px 4px -2px #d6d6d6;
-}
-
-.project-item:hover {
-  z-index: 2;
-  transform: scale(1.05);
-  -moz-box-shadow: 1px 5px 14px #cccccc;
-  -webkit-box-shadow: 1px 5px 14px #cccccc;
-  box-shadow: 1px 5px 14px #cccccc;
-}
-.item-header {
-  position: relative;
-  height: 40px;
-  background: #409eff;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-}
-.active-item .item-header {
-  background: #ff9b44;
-}
-.item-header .isactive {
-  width: 46px;
-  height: 46px;
-  position: absolute;
-  background: #ffca9c;
-  top: -23px;
-  right: -23px;
-  transform: rotate(45deg);
-}
-.item-header .isactive .icon {
-  position: absolute;
-  bottom: 0;
-  transform: rotate(-45deg);
-  width: 12px;
-  height: 12px;
-  background: #fff;
-  mask: url("./assets/pick.svg");
-  mask-size: contain;
-}
-.item-header .item-icon {
-  margin: 0;
-  margin-right: 10px;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  background-color: #fff;
-  mask: url("./assets/firm.svg");
-  mask-size: contain;
-  font-size: 18px;
-}
-.item-info {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 14px 0 0;
-  text-align: left;
-}
-.item-info .key {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  color: #8c8c8c;
-  margin: 0 10px;
-  white-space: nowrap;
-  text-align: left;
-}
-.item-info .key span {
-  margin: 4px 0 0;
-  text-align: left;
-}
-.item-info .value {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 0 0 0 5px;
-  min-width: 0;
-  text-align: left;
-}
-.item-info .value span {
-  margin: 4px 0 0;
-  color: #2d2d2d;
-  text-align: left;
-}
 .version {
   text-align: left;
   height: 500px;

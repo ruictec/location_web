@@ -340,12 +340,6 @@ export default {
         tenantid: "",
         msg: "",
       },
-
-      websock: "",
-      wsuri: host.ws + "user/" + this.$store.state.userInfo.username,
-      // wsuri:
-      //   "ws://192.168.2.12:14301/websocket/user/" +
-      //   this.$store.state.userInfo.username,
       value: "",
       msgtable: [],
       tenantidData: [],
@@ -355,7 +349,7 @@ export default {
       // imgSrc: require("../../assets/rct.png"),
       imgSrc: "",
       setLogo: false,
-      ImagePath: "v1/user/addMapFileLogo",
+      ImagePath: "v1/service/addMapFileLogo",
       fileListAdd: [],
       dialogImageUrl: "",
       dialogVisible: false,

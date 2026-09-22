@@ -49,6 +49,8 @@ const OrderDetails = () => import('../views/system/orderdetails')
 const CompanyOrder = () => import('../views/system/companyorder')
 const CheckWork = () => import('../views/staff/checkwork')
 const inspection = () => import('../views/staff/inspection')
+const TaskManagement = () => import('../views/staff/TaskManagement')
+const TaskDetail = () => import('../views/staff/TaskDetail')
 import Layout from '../components/layout'
 
 // 说明：基础路由（无需鉴权），其余按角色在运行时动态注入
@@ -61,6 +63,16 @@ export const constantRoutes = [
       props: true, // 通过props将查询参数传递给组件 
       meta: {
         requireAuth: false
+      }
+    },
+    {
+      path: '/taskdetail',
+      name: 'TaskDetail',
+      component: TaskDetail,
+      meta: {
+        title: 'router.taskDetail',
+        requireAuth: true,
+        noCache: true
       }
     },
 
@@ -494,6 +506,12 @@ export const userRoutes = [
           component: inspection,
           name: 'inspection',
           meta: { title: 'router.inspectionManagement', noCache: true }
+        },
+        {
+          path: 'taskmanagement',
+          component: TaskManagement,
+          name: 'taskmanagement',
+          meta: { title: 'router.taskManagement', noCache: true }
         }
       ]
     },

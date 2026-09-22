@@ -1682,8 +1682,8 @@ export default {
       fileListEdit: [],
       userIdForPic: {}, //添加图片携带参数
       userIdForPicEdit: {}, //编辑图片携带参数
-      ImagePath: host.host + "map/addMapInfoAndMapFile",
-      ImagePathEdit: host.host + "map/updateMapFile",
+      ImagePath: host.host + "service/addMapInfoAndMapFile",
+      ImagePathEdit: host.host + "service/updateMapFile",
       myHeader: {
         tenantkey: this.$store.state.userInfo.tenantkey,
         ts: new Date().getTime(),

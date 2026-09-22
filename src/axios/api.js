@@ -65,9 +65,9 @@ function hex_sha1(input) {
 }
 export const getUser = (query, tenantkey_A, tenantid_A, username) => { //获取用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getUser" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getUser" + tenantkey_A + time_A)
     return service({
-        url: "user/getUser",
+        url: "service/getUser",
         method: 'get',
         headers: {
             ts: time_A,
@@ -81,9 +81,9 @@ export const getUser = (query, tenantkey_A, tenantid_A, username) => { //获取�
 
 export const getSchemes = (query, tenantkey_A, tenantid_A, username) => { //获取公司设备制式
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getSchemes" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getSchemes" + tenantkey_A + time_A)
     return service({
-        url: "user/getSchemes",
+        url: "service/getSchemes",
         method: 'get',
         headers: {
             ts: time_A,
@@ -97,9 +97,9 @@ export const getSchemes = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const registerUser = (datas, tenantkey_A, tenantid_A, username) => { //注册用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/registerUser" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/registerUser" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/registerUser",
+        url: "service/registerUser",
         method: 'post',
         processData: false,
         headers: {
@@ -115,9 +115,9 @@ export const registerUser = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const insertUser = (datas, tenantkey_A, tenantid_A, username) => { //添加用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertUser" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertUser" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertUser",
+        url: "service/insertUser",
         method: 'post',
         processData: false,
         headers: {
@@ -132,9 +132,9 @@ export const insertUser = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const getCustomerList = (query, tenantkey_A, tenantid_A, username) => { //获取客户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCustomerList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCustomerList" + tenantkey_A + time_A)
     return service({
-        url: "user/getCustomerList",
+        url: "service/getCustomerList",
         method: 'get',
         processData: false,
         headers: {
@@ -149,9 +149,9 @@ export const getCustomerList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getCustomerUsernameTenantidAll = (query, tenantkey_A, tenantid_A, username) => { //获取客户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCustomerUsernameTenantidAll" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCustomerUsernameTenantidAll" + tenantkey_A + time_A)
     return service({
-        url: "user/getCustomerUsernameTenantidAll",
+        url: "service/getCustomerUsernameTenantidAll",
         method: 'get',
         processData: false,
         headers: {
@@ -166,9 +166,9 @@ export const getCustomerUsernameTenantidAll = (query, tenantkey_A, tenantid_A, u
 
 export const getCustomerName = (query, tenantkey_A, tenantid_A, username) => { //获取客户公司下拉框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCustomerName" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCustomerName" + tenantkey_A + time_A)
     return service({
-        url: "user/getCustomerName",
+        url: "service/getCustomerName",
         method: 'get',
         processData: false,
         headers: {
@@ -183,9 +183,9 @@ export const getCustomerName = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getUserCustomerList = (query, tenantkey_A, tenantid_A, username) => { //获取用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getUserCustomerList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getUserCustomerList" + tenantkey_A + time_A)
     return service({
-        url: "user/getUserCustomerList",
+        url: "service/getUserCustomerList",
         method: 'get',
         processData: false,
         headers: {
@@ -200,9 +200,9 @@ export const getUserCustomerList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const getUserCustomerOne = (query, tenantkey_A, tenantid_A, username) => { //获取用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getUserCustomerOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getUserCustomerOne" + tenantkey_A + time_A)
     return service({
-        url: "user/getUserCustomerOne",
+        url: "service/getUserCustomerOne",
         method: 'get',
         processData: false,
         headers: {
@@ -218,9 +218,9 @@ export const getUserCustomerOne = (query, tenantkey_A, tenantid_A, username) => 
 
 export const updateUser = (datas, tenantkey_A, tenantid_A, username) => { //编辑用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateUser" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateUser" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateUser",
+        url: "service/updateUser",
         method: 'put',
         headers: {
             ts: time_A,
@@ -235,9 +235,9 @@ export const updateUser = (datas, tenantkey_A, tenantid_A, username) => { //编�
 
 export const resetUserkey = (datas, tenantkey_A, tenantid_A, username) => { //重置密码
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/resetUserkey" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/resetUserkey" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/resetUserkey",
+        url: "service/resetUserkey",
         method: 'put',
         headers: {
             ts: time_A,
@@ -251,9 +251,9 @@ export const resetUserkey = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const delUserByUsername = (datas, tenantkey_A, tenantid_A, username) => { //删除用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delUserByUsername" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delUserByUsername" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delUserByUsername",
+        url: "service/delUserByUsername",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -268,9 +268,9 @@ export const delUserByUsername = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const removeUser = (datas, tenantkey_A, tenantid_A, username) => { //删除用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/removeUser" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/removeUser" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/removeUser",
+        url: "service/removeUser",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -284,9 +284,9 @@ export const removeUser = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const loginout = (datas, tenantkey_A, tenantid_A, username) => { //退出
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/loginout" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/loginout" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/loginout",
+        url: "service/loginout",
         method: 'post',
         processData: false,
         headers: {
@@ -302,9 +302,9 @@ export const loginout = (datas, tenantkey_A, tenantid_A, username) => { //退出
 
 export const getCountryList = (query, tenantkey_A, tenantid_A, username) => { //获取用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCountryList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCountryList" + tenantkey_A + time_A)
     return service({
-        url: "user/getCountryList",
+        url: "service/getCountryList",
         method: 'get',
         headers: {
             ts: time_A,
@@ -319,9 +319,9 @@ export const getCountryList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const delCustomer = (datas, tenantkey_A, tenantid_A, username) => { //删除采购公司信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delCustomer" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delCustomer" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delCustomer",
+        url: "service/delCustomer",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -335,9 +335,9 @@ export const delCustomer = (datas, tenantkey_A, tenantid_A, username) => { //删
 
 export const getCustomerByTenantid = (query, tenantkey_A, tenantid_A, username) => { //根据tenantid查询客户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCustomerByTenantid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCustomerByTenantid" + tenantkey_A + time_A)
     return service({
-        url: "user/getCustomerByTenantid",
+        url: "service/getCustomerByTenantid",
         method: 'get',
         processData: false,
         headers: {
@@ -353,9 +353,9 @@ export const getCustomerByTenantid = (query, tenantkey_A, tenantid_A, username) 
 
 export const insertCustomer = (datas, tenantkey_A, tenantid_A, username) => { //添加采购公司信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertCustomer",
+        url: "service/insertCustomer",
         method: 'post',
         processData: false,
         headers: {
@@ -371,9 +371,9 @@ export const insertCustomer = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateCustomer = (datas, tenantkey_A, tenantid_A, username) => { //编辑采购公司信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateCustomer",
+        url: "service/updateCustomer",
         method: 'put',
         headers: {
             ts: time_A,
@@ -388,9 +388,9 @@ export const updateCustomer = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const getSysLog = (query, tenantkey_A, tenantid_A, username) => { //查询操作记录信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getSysLog" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getSysLog" + tenantkey_A + time_A)
     return service({
-        url: "user/getSysLog",
+        url: "service/getSysLog",
         method: 'get',
         headers: {
             ts: time_A,
@@ -405,9 +405,9 @@ export const getSysLog = (query, tenantkey_A, tenantid_A, username) => { //查�
 
 export const delSysLog = (datas, tenantkey_A, tenantid_A, username) => { //删除操作记录
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delSysLog" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delSysLog" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delSysLog",
+        url: "service/delSysLog",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -422,9 +422,9 @@ export const delSysLog = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const getCountry = (query, tenantkey_A, tenantid_A, username) => { //根据国家名称查询国家设备数量信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getCountry" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCountry" + tenantkey_A + time_A)
     return service({
-        url: "user/getCountry",
+        url: "service/getCountry",
         method: 'get',
         headers: {
             ts: time_A,
@@ -439,9 +439,9 @@ export const getCountry = (query, tenantkey_A, tenantid_A, username) => { //根�
 
 export const updateCountry = (datas, tenantkey_A, tenantid_A, username) => { //根据国家修改设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateCountry" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateCountry" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateCountry",
+        url: "service/updateCountry",
         method: 'put',
         headers: {
             ts: time_A,
@@ -456,9 +456,9 @@ export const updateCountry = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getProjectList = (query, tenantkey_A, tenantid_A, username) => { //获取项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getProjectList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getProjectList" + tenantkey_A + time_A)
     return service({
-        url: "user/getProjectList",
+        url: "service/getProjectList",
         method: 'get',
         processData: false,
         headers: {
@@ -473,9 +473,9 @@ export const getProjectList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const getProjectListByTenantid = (query, tenantkey_A, tenantid_A, username) => { //添加用户时获取项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getProjectListByTenantid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getProjectListByTenantid" + tenantkey_A + time_A)
     return service({
-        url: "user/getProjectListByTenantid",
+        url: "service/getProjectListByTenantid",
         method: 'get',
         processData: false,
         headers: {
@@ -490,9 +490,9 @@ export const getProjectListByTenantid = (query, tenantkey_A, tenantid_A, usernam
 
 export const getUsernameByTenantid = (query, tenantkey_A, tenantid_A, username) => { //添加项目的时候获取分配人员下拉框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getUsernameByTenantid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getUsernameByTenantid" + tenantkey_A + time_A)
     return service({
-        url: "user/getUsernameByTenantid",
+        url: "service/getUsernameByTenantid",
         method: 'get',
         processData: false,
         headers: {
@@ -508,9 +508,9 @@ export const getUsernameByTenantid = (query, tenantkey_A, tenantid_A, username) 
 
 export const addProject = (datas, tenantkey_A, tenantid_A, username) => { //添加项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addProject",
+        url: "service/addProject",
         method: 'post',
         processData: false,
         headers: {
@@ -525,9 +525,9 @@ export const addProject = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const delProject = (datas, tenantkey_A, tenantid_A, username) => { //删除项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delProject",
+        url: "service/delProject",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -542,9 +542,9 @@ export const delProject = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const updateProject = (datas, tenantkey_A, tenantid_A, username) => { //根据项目编号修改项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProject",
+        url: "service/updateProject",
         method: 'put',
         headers: {
             ts: time_A,
@@ -558,9 +558,9 @@ export const updateProject = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateProjectByProjectid = (datas, tenantkey_A, tenantid_A, username) => { //根据项目编号修改项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProjectByProjectid" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProjectByProjectid" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProjectByProjectid",
+        url: "service/updateProjectByProjectid",
         method: 'put',
         headers: {
             ts: time_A,
@@ -575,9 +575,9 @@ export const updateProjectByProjectid = (datas, tenantkey_A, tenantid_A, usernam
 
 export const getMemberList = (query, tenantkey_A, tenantid_A, username) => { //获取员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberList" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberList",
+        url: "service/getMemberList",
         method: 'get',
         processData: false,
         headers: {
@@ -592,9 +592,9 @@ export const getMemberList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const addMember = (datas, tenantkey_A, tenantid_A, username) => { //添加员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addMember" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addMember" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addMember",
+        url: "service/addMember",
         method: 'post',
         processData: false,
         headers: {
@@ -609,9 +609,9 @@ export const addMember = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const updateMember = (datas, tenantkey_A, tenantid_A, username) => { //根据id修改员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateMember" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMember" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateMember",
+        url: "service/updateMember",
         method: 'put',
         headers: {
             ts: time_A,
@@ -625,9 +625,9 @@ export const updateMember = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateMemberRemoveLable = (datas, tenantkey_A, tenantid_A, username) => { //解除和员工绑定的工卡
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateMemberRemoveLable" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMemberRemoveLable" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateMemberRemoveLable",
+        url: "service/updateMemberRemoveLable",
         method: 'put',
         headers: {
             ts: time_A,
@@ -641,9 +641,9 @@ export const updateMemberRemoveLable = (datas, tenantkey_A, tenantid_A, username
 
 export const delMemberById = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delMember" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delMember" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delMember",
+        url: "service/delMember",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -658,9 +658,9 @@ export const delMemberById = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const addDevToNs = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号将设备同步到Ns服务器
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addDevToNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addDevToNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addDevToNs",
+        url: "service/addDevToNs",
         method: 'post',
         processData: false,
         headers: {
@@ -675,9 +675,9 @@ export const addDevToNs = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const addTenantOperateNs = (datas, tenantkey_A, tenantid_A, username) => { //采购公司页面同步到NS
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addTenantOperateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTenantOperateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addTenantOperateNs",
+        url: "service/addTenantOperateNs",
         method: 'post',
         processData: false,
         headers: {
@@ -693,9 +693,9 @@ export const addTenantOperateNs = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const addNs = (datas, tenantkey_A, tenantid_A, username) => { //添加NS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addNs",
+        url: "service/addNs",
         method: 'post',
         processData: false,
         headers: {
@@ -710,9 +710,9 @@ export const addNs = (datas, tenantkey_A, tenantid_A, username) => { //添加NS�
 
 export const getNsList = (query, tenantkey_A, tenantid_A, username) => { //获取NS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsList",
+        url: "service/getNsList",
         method: 'get',
         processData: false,
         headers: {
@@ -727,9 +727,9 @@ export const getNsList = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const getNsAll = (query, tenantkey_A, tenantid_A, username) => { //获取NS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsAll" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsAll" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsAll",
+        url: "service/getNsAll",
         method: 'get',
         processData: false,
         headers: {
@@ -744,9 +744,9 @@ export const getNsAll = (query, tenantkey_A, tenantid_A, username) => { //获取
 
 export const updateNs = (datas, tenantkey_A, tenantid_A, username) => { //根据id修改Ns信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateNs",
+        url: "service/updateNs",
         method: 'put',
         headers: {
             ts: time_A,
@@ -760,9 +760,9 @@ export const updateNs = (datas, tenantkey_A, tenantid_A, username) => { //根据
 
 export const delNs = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除NS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delNs",
+        url: "service/delNs",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -776,9 +776,9 @@ export const delNs = (datas, tenantkey_A, tenantid_A, username) => { //根据id�
 
 export const getDevCommandList = (query, tenantkey_A, tenantid_A, username) => { //获取下行命令信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevCommandList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevCommandList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevCommandList",
+        url: "service/getDevCommandList",
         method: 'get',
         processData: false,
         headers: {
@@ -793,9 +793,9 @@ export const getDevCommandList = (query, tenantkey_A, tenantid_A, username) => {
 
 export const delDevCommandById = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除下行命令信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delDevCommandById" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevCommandById" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delDevCommandById",
+        url: "service/delDevCommandById",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -809,9 +809,9 @@ export const delDevCommandById = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getNsConfigList = (query, tenantkey_A, tenantid_A, username) => { //获取NS配置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsConfigList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsConfigList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsConfigList",
+        url: "service/getNsConfigList",
         method: 'get',
         processData: false,
         headers: {
@@ -826,9 +826,9 @@ export const getNsConfigList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const addGateway = (datas, tenantkey_A, tenantid_A, username) => { //添加基站信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addGateway",
+        url: "service/addGateway",
         method: 'post',
         processData: false,
         headers: {
@@ -843,9 +843,9 @@ export const addGateway = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const delNsConfig = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除ns配置信息 
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delNsConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delNsConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delNsConfig",
+        url: "service/delNsConfig",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -859,9 +859,9 @@ export const delNsConfig = (datas, tenantkey_A, tenantid_A, username) => { //根
 
 export const delNsDpConfig = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除ns配置信息 
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delNsDpConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delNsDpConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delNsDpConfig",
+        url: "service/delNsDpConfig",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -876,9 +876,9 @@ export const delNsDpConfig = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getGatewayList = (query, tenantkey_A, tenantid_A, username) => { //获取基站信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getGatewayList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGatewayList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getGatewayList",
+        url: "service/getGatewayList",
         method: 'get',
         processData: false,
         headers: {
@@ -893,9 +893,9 @@ export const getGatewayList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const updateGateway = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号修改基站信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateGateway",
+        url: "service/updateGateway",
         method: 'put',
         headers: {
             ts: time_A,
@@ -909,9 +909,9 @@ export const updateGateway = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateGatewayRemoveProject = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号解除项目分配
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateGatewayRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateGatewayRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateGatewayRemoveProject",
+        url: "service/updateGatewayRemoveProject",
         method: 'put',
         headers: {
             ts: time_A,
@@ -925,9 +925,9 @@ export const updateGatewayRemoveProject = (datas, tenantkey_A, tenantid_A, usern
 
 export const delGateway = (datas, tenantkey_A, tenantid_A, username) => { //根据deveui删除基站信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delGateway" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delGateway",
+        url: "service/delGateway",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -941,9 +941,9 @@ export const delGateway = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const getBeaconList = (query, tenantkey_A, tenantid_A, username) => { //获取信标信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getBeaconList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBeaconList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getBeaconList",
+        url: "service/getBeaconList",
         method: 'get',
         processData: false,
         headers: {
@@ -958,9 +958,9 @@ export const getBeaconList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const addBeacon = (datas, tenantkey_A, tenantid_A, username) => { //添加Beacon信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addBeacon",
+        url: "service/addBeacon",
         method: 'post',
         processData: false,
         headers: {
@@ -975,9 +975,9 @@ export const addBeacon = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const updateBeaconByBeaconids = (datas, tenantkey_A, tenantid_A, username) => { //企业管理员分配Beacon
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeaconByBeaconids" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeaconByBeaconids" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeaconByBeaconids",
+        url: "service/updateBeaconByBeaconids",
         method: 'put',
         processData: false,
         headers: {
@@ -992,9 +992,9 @@ export const updateBeaconByBeaconids = (datas, tenantkey_A, tenantid_A, username
 
 export const updateRemoveProjectByBeaconids = (datas, tenantkey_A, tenantid_A, username) => { //企业管理员解除分配Beacon
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateRemoveProjectByBeaconids" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateRemoveProjectByBeaconids" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateRemoveProjectByBeaconids",
+        url: "service/updateRemoveProjectByBeaconids",
         method: 'put',
         processData: false,
         headers: {
@@ -1009,9 +1009,9 @@ export const updateRemoveProjectByBeaconids = (datas, tenantkey_A, tenantid_A, u
 
 export const updateBeacon = (datas, tenantkey_A, tenantid_A, username) => { //根据信标编号修改beacon信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeacon",
+        url: "service/updateBeacon",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1025,9 +1025,9 @@ export const updateBeacon = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateBeaconList = (datas, tenantkey_A, tenantid_A, username) => { //根据信标编号批量修改beacon信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeaconList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeaconList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeaconList",
+        url: "service/updateBeaconList",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1041,9 +1041,9 @@ export const updateBeaconList = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const delBeacon = (datas, tenantkey_A, tenantid_A, username) => { //根据项目编号删除beacon信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delBeacon",
+        url: "service/delBeacon",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1057,9 +1057,9 @@ export const delBeacon = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const delBeaconList = (datas, tenantkey_A, tenantid_A, username) => { //批量删除删除beacon信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delBeaconList" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delBeaconList" + datas + tenantkey_A + time_A)
     return service({
-        url: "devices/delBeaconList",
+        url: "service/delBeaconList",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1073,9 +1073,9 @@ export const delBeaconList = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const addDevList = (datas, tenantkey_A, tenantid_A, username) => { //添加设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addDevList",
+        url: "service/addDevList",
         method: 'post',
         processData: false,
         headers: {
@@ -1090,9 +1090,9 @@ export const addDevList = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const addDevListKey = (datas, tenantkey_A, tenantid_A, username) => { //添加设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addDevListKey" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addDevListKey" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addDevListKey",
+        url: "service/addDevListKey",
         method: 'post',
         processData: false,
         headers: {
@@ -1107,9 +1107,9 @@ export const addDevListKey = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevList = (query, tenantkey_A, tenantid_A, username) => { //获取设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevList",
+        url: "service/getDevList",
         method: 'get',
         processData: false,
         headers: {
@@ -1124,9 +1124,9 @@ export const getDevList = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const updateDevList = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号deveui修改设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevList",
+        url: "service/updateDevList",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1140,9 +1140,9 @@ export const updateDevList = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateDevListByDeveuis = (datas, tenantkey_A, tenantid_A, username) => { //分配设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListByDeveuis",
+        url: "service/updateDevListByDeveuis",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1156,9 +1156,9 @@ export const updateDevListByDeveuis = (datas, tenantkey_A, tenantid_A, username)
 
 export const updateDevListRemoveProject = (datas, tenantkey_A, tenantid_A, username) => { //解除分配设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListRemoveProject",
+        url: "service/updateDevListRemoveProject",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1172,9 +1172,9 @@ export const updateDevListRemoveProject = (datas, tenantkey_A, tenantid_A, usern
 
 export const delDevList = (datas, tenantkey_A, tenantid_A, username) => { //根据deveui删除设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delDevList",
+        url: "service/delDevList",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1189,9 +1189,9 @@ export const delDevList = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const getDevConfigV2 = (query, tenantkey_A, tenantid_A, username) => { //根据设备号查询设备配置的单个信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevConfigV2" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevConfigV2" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevConfigV2",
+        url: "service/getDevConfigV2",
         method: 'get',
         processData: false,
         headers: {
@@ -1206,9 +1206,9 @@ export const getDevConfigV2 = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const updateDevConfigV2 = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号deveui修改设备配置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevConfigV2" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevConfigV2" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevConfigV2",
+        url: "service/updateDevConfigV2",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1222,9 +1222,9 @@ export const updateDevConfigV2 = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getStatusRecordList = (query, tenantkey_A, tenantid_A, username) => { //获取心跳数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getStatusRecordList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getStatusRecordList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getStatusRecordList",
+        url: "service/getStatusRecordList",
         method: 'get',
         processData: false,
         headers: {
@@ -1239,9 +1239,9 @@ export const getStatusRecordList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const delStatusRecord = (datas, tenantkey_A, tenantid_A, username) => { //根据信息id删除设备心跳信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delStatusRecord" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delStatusRecord" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delStatusRecord",
+        url: "service/delStatusRecord",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1256,9 +1256,9 @@ export const delStatusRecord = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const getTrackerTestList = (query, tenantkey_A, tenantid_A, username) => { //获取设备测试信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getTrackerTestList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrackerTestList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getTrackerTestList",
+        url: "service/getTrackerTestList",
         method: 'get',
         processData: false,
         headers: {
@@ -1273,9 +1273,9 @@ export const getTrackerTestList = (query, tenantkey_A, tenantid_A, username) => 
 
 export const delTrackerTest = (datas, tenantkey_A, tenantid_A, username) => { //根据信息id删除设备测试信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delTrackerTest" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTrackerTest" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delTrackerTest",
+        url: "service/delTrackerTest",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1289,9 +1289,9 @@ export const delTrackerTest = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const delDevRssiById = (datas, tenantkey_A, tenantid_A, username) => { //根据信息id删除设备测试信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delDevRssiById" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevRssiById" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delDevRssiById",
+        url: "service/delDevRssiById",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1306,9 +1306,9 @@ export const delDevRssiById = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateDevListBatch = (datas, tenantkey_A, tenantid_A, username) => { //批量编辑设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListBatch" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListBatch" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListBatch",
+        url: "service/updateDevListBatch",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1323,9 +1323,9 @@ export const updateDevListBatch = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const delDevListByDeveuis = (datas, tenantkey_A, tenantid_A, username) => { //根据设备id批量删除设备测试信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delDevListByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevListByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delDevListByDeveuis",
+        url: "service/delDevListByDeveuis",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1339,9 +1339,9 @@ export const delDevListByDeveuis = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const updateDevConfigV2List = (datas, tenantkey_A, tenantid_A, username) => { //批量编辑设备配置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevConfigV2List" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevConfigV2List" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevConfigV2List",
+        url: "service/updateDevConfigV2List",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1355,9 +1355,9 @@ export const updateDevConfigV2List = (datas, tenantkey_A, tenantid_A, username) 
 
 export const addMap = (datas, tenantkey_A, tenantid_A, username) => { //添加图片信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addMap" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addMap" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addMap",
+        url: "service/addMap",
         method: 'post',
         processData: false,
         headers: {
@@ -1373,9 +1373,9 @@ export const addMap = (datas, tenantkey_A, tenantid_A, username) => { //添加�
 
 export const getMapInfoList = (query, tenantkey_A, tenantid_A, username) => { //获取地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getMapInfoList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMapInfoList" + tenantkey_A + time_A)
     return service({
-        url: "map/getMapInfoList",
+        url: "service/getMapInfoList",
         method: 'get',
         processData: false,
         headers: {
@@ -1391,9 +1391,9 @@ export const getMapInfoList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const delMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //根据mapid删除地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delMapInfo",
+        url: "service/delMapInfo",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1407,9 +1407,9 @@ export const delMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const updateMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //编辑地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateMapInfo",
+        url: "service/updateMapInfo",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1424,9 +1424,9 @@ export const updateMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateMap = (datas, tenantkey_A, tenantid_A, username) => { //编辑地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateMap" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMap" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateMap",
+        url: "service/updateMap",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1441,9 +1441,9 @@ export const updateMap = (datas, tenantkey_A, tenantid_A, username) => { //编�
 
 export const getDevDeveui = (query, tenantkey_A, tenantid_A, username) => { //员工管理页面，只获取设备号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevDeveui" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevDeveui" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevDeveui",
+        url: "service/getDevDeveui",
         method: 'get',
         processData: false,
         headers: {
@@ -1458,9 +1458,9 @@ export const getDevDeveui = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getBeaconid = (query, tenantkey_A, tenantid_A, username) => { //员工管理页面只获取设备号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getBeaconid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBeaconid" + tenantkey_A + time_A)
     return service({
-        url: "devices/getBeaconid",
+        url: "service/getBeaconid",
         method: 'get',
         processData: false,
         headers: {
@@ -1475,9 +1475,9 @@ export const getBeaconid = (query, tenantkey_A, tenantid_A, username) => { //员
 
 export const getBuildGroundList = (query, tenantkey_A, tenantid_A, username) => { //获取建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getBuildGroundList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBuildGroundList" + tenantkey_A + time_A)
     return service({
-        url: "map/getBuildGroundList",
+        url: "service/getBuildGroundList",
         method: 'get',
         processData: false,
         headers: {
@@ -1492,9 +1492,9 @@ export const getBuildGroundList = (query, tenantkey_A, tenantid_A, username) => 
 
 export const getBuildGroundOne = (query, tenantkey_A, tenantid_A, username) => { //获取建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getBuildGroundOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBuildGroundOne" + tenantkey_A + time_A)
     return service({
-        url: "map/getBuildGroundOne",
+        url: "service/getBuildGroundOne",
         method: 'get',
         processData: false,
         headers: {
@@ -1510,9 +1510,9 @@ export const getBuildGroundOne = (query, tenantkey_A, tenantid_A, username) => {
 
 export const getBuildingByProjectid = (query, tenantkey_A, tenantid_A, username) => { //根据项目编号获取楼栋信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getBuildingByProjectid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBuildingByProjectid" + tenantkey_A + time_A)
     return service({
-        url: "map/getBuildingByProjectid",
+        url: "service/getBuildingByProjectid",
         method: 'get',
         processData: false,
         headers: {
@@ -1527,9 +1527,9 @@ export const getBuildingByProjectid = (query, tenantkey_A, tenantid_A, username)
 
 export const disposeBuildingMsg = (datas, tenantkey_A, tenantid_A, username) => { //添加建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/disposeBuildingMsg" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/disposeBuildingMsg" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/disposeBuildingMsg",
+        url: "service/disposeBuildingMsg",
         method: 'post',
         processData: false,
         headers: {
@@ -1544,9 +1544,9 @@ export const disposeBuildingMsg = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const addBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //添加建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addBuildGround",
+        url: "service/addBuildGround",
         method: 'post',
         processData: false,
         headers: {
@@ -1561,9 +1561,9 @@ export const addBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //编辑建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateBuildGround",
+        url: "service/updateBuildGround",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1577,9 +1577,9 @@ export const updateBuildGround = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const updateBuildGround3D = (datas, tenantkey_A, tenantid_A, username) => { //编辑建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateBuildGround3D" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBuildGround3D" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateBuildGround3D",
+        url: "service/updateBuildGround3D",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1593,9 +1593,9 @@ export const updateBuildGround3D = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const delBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //删除建筑信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delBuildGround",
+        url: "service/delBuildGround",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1610,9 +1610,9 @@ export const delBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const sendDownLinkMsg = (datas, tenantkey_A, tenantid_A, username) => { //下行数据操作
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/sendDownLinkMsg" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/sendDownLinkMsg" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/sendDownLinkMsg",
+        url: "service/sendDownLinkMsg",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1626,9 +1626,9 @@ export const sendDownLinkMsg = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const getNotice = (query, tenantkey_A, tenantid_A, username) => { //获取通知消息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getNotice" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNotice" + tenantkey_A + time_A)
     return service({
-        url: "user/getNotice",
+        url: "service/getNotice",
         method: 'get',
         processData: false,
         headers: {
@@ -1643,9 +1643,9 @@ export const getNotice = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const delNotice = (datas, tenantkey_A, tenantid_A, username) => { //删除通知信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delNotice" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delNotice" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delNotice",
+        url: "service/delNotice",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -1659,9 +1659,9 @@ export const delNotice = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const updateNoticeList = (datas, tenantkey_A, tenantid_A, username) => { //批量修改消息状态
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateNoticeList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateNoticeList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateNoticeList",
+        url: "service/updateNoticeList",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1675,9 +1675,9 @@ export const updateNoticeList = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const updateDevPosList = (datas, tenantkey_A, tenantid_A, username) => { //布置反向项目设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevPosList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevPosList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevPosList",
+        url: "service/updateDevPosList",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1692,9 +1692,9 @@ export const updateDevPosList = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const getDevPosList = (query, tenantkey_A, tenantid_A, username) => { //获取查询反向项目设备的位置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevPosList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevPosList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevPosList",
+        url: "service/getDevPosList",
         method: 'get',
         processData: false,
         headers: {
@@ -1709,9 +1709,9 @@ export const getDevPosList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getBeaconPosList = (query, tenantkey_A, tenantid_A, username) => { //获取查询正向设备的位置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getBeaconPosList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBeaconPosList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getBeaconPosList",
+        url: "service/getBeaconPosList",
         method: 'get',
         processData: false,
         headers: {
@@ -1726,9 +1726,9 @@ export const getBeaconPosList = (query, tenantkey_A, tenantid_A, username) => { 
 
 export const updateBeaconPosList = (datas, tenantkey_A, tenantid_A, username) => { //布置正向项目设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeaconPosList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeaconPosList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeaconPosList",
+        url: "service/updateBeaconPosList",
         method: 'put',
         headers: {
             ts: time_A,
@@ -1742,9 +1742,9 @@ export const updateBeaconPosList = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const getBuildingById = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋编号获取项目名和楼层数
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getBuildingById" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBuildingById" + tenantkey_A + time_A)
     return service({
-        url: "map/getBuildingById",
+        url: "service/getBuildingById",
         method: 'get',
         processData: false,
         headers: {
@@ -1760,9 +1760,9 @@ export const getBuildingById = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getGwActiveInfo = (query, tenantkey_A, tenantid_A, username) => { //获取基站的活动信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getGwActiveInfo" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGwActiveInfo" + tenantkey_A + time_A)
     return service({
-        url: "devices/getGwActiveInfo",
+        url: "service/getGwActiveInfo",
         method: 'get',
         processData: false,
         headers: {
@@ -1777,9 +1777,9 @@ export const getGwActiveInfo = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getGatewayMore = (query, tenantkey_A, tenantid_A, username) => { //获取基站的活动信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getGatewayMore" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGatewayMore" + tenantkey_A + time_A)
     return service({
-        url: "devices/getGatewayMore",
+        url: "service/getGatewayMore",
         method: 'get',
         processData: false,
         headers: {
@@ -1794,9 +1794,9 @@ export const getGatewayMore = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const getDevStatsNum = (query, tenantkey_A, tenantid_A, username) => { //获取基站设备和终端设备的活动数量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevStatsNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevStatsNum" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevStatsNum",
+        url: "service/getDevStatsNum",
         method: 'get',
         processData: false,
         headers: {
@@ -1811,9 +1811,9 @@ export const getDevStatsNum = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const getGwStats = (query, tenantkey_A, tenantid_A, username) => { //获取单个基站处理的数量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getGwStats" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGwStats" + tenantkey_A + time_A)
     return service({
-        url: "devices/getGwStats",
+        url: "service/getGwStats",
         method: 'get',
         processData: false,
         headers: {
@@ -1828,9 +1828,9 @@ export const getGwStats = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const getGroundList = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取楼层号集合
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getGroundList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGroundList" + tenantkey_A + time_A)
     return service({
-        url: "map/getGroundList",
+        url: "service/getGroundList",
         method: 'get',
         processData: false,
         headers: {
@@ -1845,9 +1845,9 @@ export const getGroundList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const addGatewayToNs = (datas, tenantkey_A, tenantid_A, username) => { //根据基站设备号将设备同步到Ns服务器
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addGatewayToNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addGatewayToNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addGatewayToNs",
+        url: "service/addGatewayToNs",
         method: 'post',
         processData: false,
         headers: {
@@ -1864,9 +1864,9 @@ export const addGatewayToNs = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const exportDevListInfo = (query, tenantkey_A, tenantid_A, username) => { //导出设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/exportDevListInfo" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/exportDevListInfo" + tenantkey_A + time_A)
     return service({
-        url: "devices/exportDevListInfo",
+        url: "service/exportDevListInfo",
         method: 'get',
         processData: false,
         headers: {
@@ -1881,9 +1881,9 @@ export const exportDevListInfo = (query, tenantkey_A, tenantid_A, username) => {
 
 export const importDevList = (datas, tenantkey_A, tenantid_A, username) => { //导入设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/importDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importDevList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/importDevList",
+        url: "service/importDevList",
         method: 'post',
         processData: false,
         headers: {
@@ -1898,9 +1898,9 @@ export const importDevList = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevGps = (query, tenantkey_A, tenantid_A, username) => { //根据楼层查询定位设备的位置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevGps" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGps" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevGps",
+        url: "service/getDevGps",
         method: 'get',
         processData: false,
         headers: {
@@ -1915,9 +1915,26 @@ export const getDevGps = (query, tenantkey_A, tenantid_A, username) => { //根�
 
 export const getLastDevGps = (query, tenantkey_A, tenantid_A, username) => { //查询定位设备的位置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getLastDevGps" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getLastDevGps" + tenantkey_A + time_A)
     return service({
-        url: "map/getLastDevGps",
+        url: "service/getLastDevGps",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getLastDevGpsByDeveuis = (query, tenantkey_A, tenantid_A, username) => { //按设备号集合查询最后位置
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getLastDevGpsByDeveuis" + tenantkey_A + time_A)
+    return service({
+        url: "service/getLastDevGpsByDeveuis",
         method: 'get',
         processData: false,
         headers: {
@@ -1932,9 +1949,9 @@ export const getLastDevGps = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevGpsList = (query, tenantkey_A, tenantid_A, username) => { //分页查询定位信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevGpsList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGpsList" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevGpsList",
+        url: "service/getDevGpsList",
         method: 'get',
         processData: false,
         headers: {
@@ -1949,9 +1966,9 @@ export const getDevGpsList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevGpsOne = (query, tenantkey_A, tenantid_A, username) => { //查询定位信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevGpsOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGpsOne" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevGpsOne",
+        url: "service/getDevGpsOne",
         method: 'get',
         processData: false,
         headers: {
@@ -1967,9 +1984,9 @@ export const getDevGpsOne = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevGpsById = (query, tenantkey_A, tenantid_A, username) => { //根据id定位信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevGpsById" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGpsById" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevGpsById",
+        url: "service/getDevGpsById",
         method: 'get',
         processData: false,
         headers: {
@@ -1984,9 +2001,9 @@ export const getDevGpsById = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevGpsAction = (query, tenantkey_A, tenantid_A, username) => { //行为分析
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevGpsAction" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGpsAction" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevGpsAction",
+        url: "service/getDevGpsAction",
         method: 'get',
         processData: false,
         headers: {
@@ -2001,9 +2018,9 @@ export const getDevGpsAction = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const registerSendMail = (datas, tenantkey_A, tenantid_A, username) => { //重置密码
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/registerSendMail" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/registerSendMail" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/registerSendMail",
+        url: "service/registerSendMail",
         method: 'post',
         processData: false,
         headers: {
@@ -2018,9 +2035,9 @@ export const registerSendMail = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const registerUserPwd = (datas, tenantkey_A, tenantid_A, username) => { //布置正向项目设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/registerUserPwd" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/registerUserPwd" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/registerUserPwd",
+        url: "service/registerUserPwd",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2034,9 +2051,9 @@ export const registerUserPwd = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const updateGatewayLocation = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号修改基站位置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateGatewayLocation" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateGatewayLocation" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateGatewayLocation",
+        url: "service/updateGatewayLocation",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2050,9 +2067,9 @@ export const updateGatewayLocation = (datas, tenantkey_A, tenantid_A, username) 
 
 export const getFristPage = (query, tenantkey_A, tenantid_A, username) => { //获取首页数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getFristPage" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFristPage" + tenantkey_A + time_A)
     return service({
-        url: "devices/getFristPage",
+        url: "service/getFristPage",
         method: 'get',
         processData: false,
         headers: {
@@ -2068,9 +2085,9 @@ export const getFristPage = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const delDevGps = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除定位信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delDevGps" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevGps" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delDevGps",
+        url: "service/delDevGps",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2084,9 +2101,9 @@ export const delDevGps = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const getWarningList = (query, tenantkey_A, tenantid_A, username) => { //获取告警
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarningList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarningList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarningList",
+        url: "service/getWarningList",
         method: 'get',
         processData: false,
         headers: {
@@ -2101,9 +2118,9 @@ export const getWarningList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const getWarningNum = (query, tenantkey_A, tenantid_A, username) => { //企业用户获取未处理告警数量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarningNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarningNum" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarningNum",
+        url: "service/getWarningNum",
         method: 'get',
         processData: false,
         headers: {
@@ -2119,9 +2136,9 @@ export const getWarningNum = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getWarnSos = (query, tenantkey_A, tenantid_A, username) => { //获取SOS
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarnSos" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarnSos" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarnSos",
+        url: "service/getWarnSos",
         method: 'get',
         processData: false,
         headers: {
@@ -2136,9 +2153,9 @@ export const getWarnSos = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const delWarning = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除告警信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delWarning" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delWarning" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delWarning",
+        url: "service/delWarning",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2153,9 +2170,9 @@ export const delWarning = (datas, tenantkey_A, tenantid_A, username) => { //根�
 
 export const getAssetList = (query, tenantkey_A, tenantid_A, username) => { //查询资产信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getAssetList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAssetList" + tenantkey_A + time_A)
     return service({
-        url: "user/getAssetList",
+        url: "service/getAssetList",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2169,9 +2186,9 @@ export const getAssetList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const addAsset = (datas, tenantkey_A, tenantid_A, username) => { //添加资产信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addAsset",
+        url: "service/addAsset",
         method: 'post',
         processData: false,
         headers: {
@@ -2187,9 +2204,9 @@ export const addAsset = (datas, tenantkey_A, tenantid_A, username) => { //添加
 
 export const updateAsset = (datas, tenantkey_A, tenantid_A, username) => { //根据id修改资产信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateAsset",
+        url: "service/updateAsset",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2204,9 +2221,9 @@ export const updateAsset = (datas, tenantkey_A, tenantid_A, username) => { //根
 
 export const updateRemoveBeacon = (datas, tenantkey_A, tenantid_A, username) => { //根据ids解除资产与信标的绑定
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateRemoveBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateRemoveBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateRemoveBeacon",
+        url: "service/updateRemoveBeacon",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2220,9 +2237,9 @@ export const updateRemoveBeacon = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const delAsset = (datas, tenantkey_A, tenantid_A, username) => { //根据ids删除资产
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delAsset",
+        url: "service/delAsset",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2236,9 +2253,9 @@ export const delAsset = (datas, tenantkey_A, tenantid_A, username) => { //根据
 
 export const getMemberName = (query, tenantkey_A, tenantid_A, username) => { //获取员工姓名与工卡号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberName" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberName" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberName",
+        url: "service/getMemberName",
         method: 'get',
         processData: false,
         headers: {
@@ -2253,9 +2270,9 @@ export const getMemberName = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getBeaconGps = (query, tenantkey_A, tenantid_A, username) => { //反向项目获取室内定位最后一次的位置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getBeaconGps" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBeaconGps" + tenantkey_A + time_A)
     return service({
-        url: "devices/getBeaconGps",
+        url: "service/getBeaconGps",
         method: 'get',
         processData: false,
         headers: {
@@ -2270,9 +2287,9 @@ export const getBeaconGps = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getAssetName = (query, tenantkey_A, tenantid_A, username) => { //查询资产位置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getAssetName" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAssetName" + tenantkey_A + time_A)
     return service({
-        url: "user/getAssetName",
+        url: "service/getAssetName",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2286,9 +2303,9 @@ export const getAssetName = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getAssetOne = (query, tenantkey_A, tenantid_A, username) => { //查询单个资产信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getAssetOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAssetOne" + tenantkey_A + time_A)
     return service({
-        url: "user/getAssetOne",
+        url: "service/getAssetOne",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2302,9 +2319,9 @@ export const getAssetOne = (query, tenantkey_A, tenantid_A, username) => { //查
 
 export const getGround = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取楼层号集合
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getGround" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGround" + tenantkey_A + time_A)
     return service({
-        url: "map/getGround",
+        url: "service/getGround",
         method: 'get',
         processData: false,
         headers: {
@@ -2319,9 +2336,9 @@ export const getGround = (query, tenantkey_A, tenantid_A, username) => { //根�
 
 export const updateDevBeaconUUID = (datas, tenantkey_A, tenantid_A, username) => { //下行数据操作: 配置定位和资产UUID
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevBeaconUUID" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevBeaconUUID" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevBeaconUUID",
+        url: "service/updateDevBeaconUUID",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2335,9 +2352,9 @@ export const updateDevBeaconUUID = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const updateSosWarn = (datas, tenantkey_A, tenantid_A, username) => { //确认SOS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateSosWarn" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateSosWarn" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateSosWarn",
+        url: "service/updateSosWarn",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2351,9 +2368,9 @@ export const updateSosWarn = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateDevBeaconFilter = (datas, tenantkey_A, tenantid_A, username) => { //下行数据操作: 配置设备的透传数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevBeaconFilter" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevBeaconFilter" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevBeaconFilter",
+        url: "service/updateDevBeaconFilter",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2367,9 +2384,26 @@ export const updateDevBeaconFilter = (datas, tenantkey_A, tenantid_A, username) 
 
 export const getDevConfigFilter = (query, tenantkey_A, tenantid_A, username) => { //查询透传数据配置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevConfigFilter" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevConfigFilter" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevConfigFilter",
+        url: "service/getDevConfigFilter",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getMemberByWorktypes = (query, tenantkey_A, tenantid_A, username) => { //按分组查询最新人员信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getMemberByWorktypes" + tenantkey_A + time_A)
+    return service({
+        url: "service/getMemberByWorktypes",
         method: 'get',
         processData: false,
         headers: {
@@ -2384,9 +2418,9 @@ export const getDevConfigFilter = (query, tenantkey_A, tenantid_A, username) => 
 
 export const getMemberType = (query, tenantkey_A, tenantid_A, username) => { //查询员工类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberType" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberType" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberType",
+        url: "service/getMemberType",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2400,9 +2434,9 @@ export const getMemberType = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDepartmentType = (query, tenantkey_A, tenantid_A, username) => { //查询员工部门
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getDepartmentType" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDepartmentType" + tenantkey_A + time_A)
     return service({
-        url: "user/getDepartmentType",
+        url: "service/getDepartmentType",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2416,9 +2450,9 @@ export const getDepartmentType = (query, tenantkey_A, tenantid_A, username) => {
 
 export const getAssetType = (query, tenantkey_A, tenantid_A, username) => { //查询资产类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getAssetType" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAssetType" + tenantkey_A + time_A)
     return service({
-        url: "user/getAssetType",
+        url: "service/getAssetType",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2432,9 +2466,9 @@ export const getAssetType = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getTboxType = (query, tenantkey_A, tenantid_A, username) => { //查询Tbox
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getTboxType" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTboxType" + tenantkey_A + time_A)
     return service({
-        url: "user/getTboxType",
+        url: "service/getTboxType",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2448,9 +2482,9 @@ export const getTboxType = (query, tenantkey_A, tenantid_A, username) => { //查
 
 export const delMemberType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除员工类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delMemberType" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delMemberType" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delMemberType",
+        url: "service/delMemberType",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2464,9 +2498,9 @@ export const delMemberType = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const delDepartmenType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除资产类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delDepartmenType" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDepartmenType" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delDepartmenType",
+        url: "service/delDepartmenType",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2480,9 +2514,9 @@ export const delDepartmenType = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const delAssetType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除资产类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delAssetType" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delAssetType" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delAssetType",
+        url: "service/delAssetType",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2496,9 +2530,9 @@ export const delAssetType = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const delTboxType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除Tbox
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delTboxType" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTboxType" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delTboxType",
+        url: "service/delTboxType",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2512,9 +2546,9 @@ export const delTboxType = (datas, tenantkey_A, tenantid_A, username) => { //根
 
 export const addMemberType = (datas, tenantkey_A, tenantid_A, username) => { //添加员工类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addMemberType" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addMemberType" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addMemberType",
+        url: "service/addMemberType",
         method: 'post',
         processData: false,
         headers: {
@@ -2528,9 +2562,9 @@ export const addMemberType = (datas, tenantkey_A, tenantid_A, username) => { //�
 };
 export const addDepartmentType = (datas, tenantkey_A, tenantid_A, username) => { //添加员工部门
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addDepartmentType" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addDepartmentType" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addDepartmentType",
+        url: "service/addDepartmentType",
         method: 'post',
         processData: false,
         headers: {
@@ -2544,9 +2578,9 @@ export const addDepartmentType = (datas, tenantkey_A, tenantid_A, username) => {
 };
 export const addAssetType = (datas, tenantkey_A, tenantid_A, username) => { //添加资产类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addAssetType" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addAssetType" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addAssetType",
+        url: "service/addAssetType",
         method: 'post',
         processData: false,
         headers: {
@@ -2560,9 +2594,9 @@ export const addAssetType = (datas, tenantkey_A, tenantid_A, username) => { //�
 };
 export const addTboxType = (datas, tenantkey_A, tenantid_A, username) => { //添加Tbox
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addTboxType" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTboxType" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addTboxType",
+        url: "service/addTboxType",
         method: 'post',
         processData: false,
         headers: {
@@ -2577,9 +2611,9 @@ export const addTboxType = (datas, tenantkey_A, tenantid_A, username) => { //添
 
 export const updateMemberTypeIcon = (datas, tenantkey_A, tenantid_A, username) => { //g更新图标
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateMemberTypeIcon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMemberTypeIcon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateMemberTypeIcon",
+        url: "service/updateMemberTypeIcon",
         method: 'put',
         processData: false,
         headers: {
@@ -2595,9 +2629,9 @@ export const updateMemberTypeIcon = (datas, tenantkey_A, tenantid_A, username) =
 
 export const getGroundDevNum = (query, tenantkey_A, tenantid_A, username) => { //显示当前楼层人数，不同工种的人数，不同部门的人数，不同类型的资产数
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getGroundDevNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGroundDevNum" + tenantkey_A + time_A)
     return service({
-        url: "map/getGroundDevNum",
+        url: "service/getGroundDevNum",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2611,9 +2645,9 @@ export const getGroundDevNum = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getMemberInformation = (query, tenantkey_A, tenantid_A, username) => { //显示当前楼层人数，不同工种的人数，不同部门的人数，不同类型的资产数
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberInformation" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberInformation" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberInformation",
+        url: "service/getMemberInformation",
         method: 'get',
         headers: {
             ts: time_A,
@@ -2629,9 +2663,9 @@ export const getMemberInformation = (query, tenantkey_A, tenantid_A, username) =
 
 export const getQuestion = (query, tenantkey_A, tenantid_A, username) => { //企业用户获取未处理告警数量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getQuestion" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getQuestion" + tenantkey_A + time_A)
     return service({
-        url: "user/getQuestion",
+        url: "service/getQuestion",
         method: 'get',
         processData: false,
         headers: {
@@ -2646,9 +2680,9 @@ export const getQuestion = (query, tenantkey_A, tenantid_A, username) => { //企
 
 export const addQuestionMapFile = (datas, tenantkey_A, tenantid_A, username) => { //添加工单
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addQuestionMapFile" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addQuestionMapFile" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addQuestionMapFile",
+        url: "service/addQuestionMapFile",
         method: 'post',
         processData: false,
         headers: {
@@ -2663,9 +2697,9 @@ export const addQuestionMapFile = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const insertQuestion = (datas, tenantkey_A, tenantid_A, username) => { //添加工单，没有附件
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertQuestion" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertQuestion" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertQuestion",
+        url: "service/insertQuestion",
         method: 'post',
         processData: false,
         headers: {
@@ -2680,9 +2714,9 @@ export const insertQuestion = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const delQuestion = (datas, tenantkey_A, tenantid_A, username) => { //删除工单信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delQuestion" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delQuestion" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delQuestion",
+        url: "service/delQuestion",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2695,9 +2729,9 @@ export const delQuestion = (datas, tenantkey_A, tenantid_A, username) => { //删
 };
 export const updateQuestionMapFile = (datas, tenantkey_A, tenantid_A, username) => { //修改工单信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateQuestionMapFile" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateQuestionMapFile" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateQuestionMapFile",
+        url: "service/updateQuestionMapFile",
         method: 'post',
         processData: false,
         headers: {
@@ -2712,9 +2746,9 @@ export const updateQuestionMapFile = (datas, tenantkey_A, tenantid_A, username) 
 
 export const updateQuestion = (datas, tenantkey_A, tenantid_A, username) => { //修改工单信息，没有附件
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateQuestion" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateQuestion" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateQuestion",
+        url: "service/updateQuestion",
         method: 'post',
         processData: false,
         headers: {
@@ -2729,9 +2763,9 @@ export const updateQuestion = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const delFile = (datas, tenantkey_A, tenantid_A, username) => { //删除工单信息附件
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delFile" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delFile" + datas + tenantkey_A + time_A)
     return service({
-        url: "user/delFile",
+        url: "service/delFile",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2747,7 +2781,7 @@ export const addDevOtaMapFile = (formData) => { //上传OTA文件
     const baseURL = API_BASE.endsWith('/') ? API_BASE : (API_BASE + '/')
     return axios({
         baseURL,
-        url: "user/addDevOtaMapFile",
+        url: "service/addDevOtaMapFile",
         method: 'post',
         data: formData,
         timeout: 50000
@@ -2756,9 +2790,9 @@ export const addDevOtaMapFile = (formData) => { //上传OTA文件
 
 export const delDevOta = (datas, tenantkey_A, tenantid_A, username) => { //删除OTA文件
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delDevOta",
+        url: "service/delDevOta",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2772,9 +2806,9 @@ export const delDevOta = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const updateDevOta = (datas, tenantkey_A, tenantid_A, username) => { //编辑OTA文件
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOta" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateDevOta",
+        url: "service/updateDevOta",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2788,7 +2822,7 @@ export const updateDevOta = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getDevOtaMapFileList = (query) => { //分页查询OTA文件
     return service({
-        url: "user/getDevOtaMapFileList",
+        url: "service/getDevOtaMapFileList",
         method: 'get',
         params: query
     }).then(res => res)
@@ -2796,9 +2830,9 @@ export const getDevOtaMapFileList = (query) => { //分页查询OTA文件
 
 export const insertNoticeList = (datas, tenantkey_A, tenantid_A, username) => { //批量添加通知消息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertNoticeList" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertNoticeList" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertNoticeList",
+        url: "service/insertNoticeList",
         method: 'post',
         processData: false,
         headers: {
@@ -2813,9 +2847,9 @@ export const insertNoticeList = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const updateQuestionStatus = (datas, tenantkey_A, tenantid_A, username) => { //关闭工单
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateQuestionStatus" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateQuestionStatus" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateQuestionStatus",
+        url: "service/updateQuestionStatus",
         method: 'post',
         processData: false,
         headers: {
@@ -2830,9 +2864,9 @@ export const updateQuestionStatus = (datas, tenantkey_A, tenantid_A, username) =
 
 export const getMsgBoard = (query, tenantkey_A, tenantid_A, username) => { //根据工单编号查询留言信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMsgBoard" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMsgBoard" + tenantkey_A + time_A)
     return service({
-        url: "user/getMsgBoard",
+        url: "service/getMsgBoard",
         method: 'get',
         processData: false,
         headers: {
@@ -2847,9 +2881,9 @@ export const getMsgBoard = (query, tenantkey_A, tenantid_A, username) => { //根
 
 export const insertMsgBoard = (datas, tenantkey_A, tenantid_A, username) => { //添加留言信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertMsgBoard" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertMsgBoard" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertMsgBoard",
+        url: "service/insertMsgBoard",
         method: 'post',
         processData: false,
         headers: {
@@ -2864,9 +2898,9 @@ export const insertMsgBoard = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const getQuestionOne = (query, tenantkey_A, tenantid_A, username) => { //查询单个工单信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getQuestionOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getQuestionOne" + tenantkey_A + time_A)
     return service({
-        url: "user/getQuestionOne",
+        url: "service/getQuestionOne",
         method: 'get',
         processData: false,
         headers: {
@@ -2881,9 +2915,9 @@ export const getQuestionOne = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const updateClockin = (datas, tenantkey_A, tenantid_A, username) => { //设置打卡点
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateClockin" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateClockin" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateClockin",
+        url: "service/updateClockin",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2899,9 +2933,9 @@ export const updateClockin = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getTranche = (query, tenantkey_A, tenantid_A, username) => { //获取区域数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTranche" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTranche" + tenantkey_A + time_A)
     return service({
-        url: "map/getTranche",
+        url: "service/getTranche",
         method: 'get',
         processData: false,
         headers: {
@@ -2916,9 +2950,9 @@ export const getTranche = (query, tenantkey_A, tenantid_A, username) => { //获�
 
 export const addTranche = (datas, tenantkey_A, tenantid_A, username) => { //添加区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addTranche",
+        url: "service/addTranche",
         method: 'post',
         processData: false,
         headers: {
@@ -2932,9 +2966,9 @@ export const addTranche = (datas, tenantkey_A, tenantid_A, username) => { //添�
 };
 export const delTranche = (datas, tenantkey_A, tenantid_A, username) => { //删除区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delTranche" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTranche" + datas + tenantkey_A + time_A)
     return service({
-        url: "map/delTranche",
+        url: "service/delTranche",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -2948,9 +2982,9 @@ export const delTranche = (datas, tenantkey_A, tenantid_A, username) => { //删�
 
 export const updateDevListTranche = (datas, tenantkey_A, tenantid_A, username) => { //批量分配设备组别
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListTranche",
+        url: "service/updateDevListTranche",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2963,9 +2997,9 @@ export const updateDevListTranche = (datas, tenantkey_A, tenantid_A, username) =
 };
 export const removeDevTranche = (datas, tenantkey_A, tenantid_A, username) => { //批量解除设备组别
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/removeDevTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/removeDevTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/removeDevTranche",
+        url: "service/removeDevTranche",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2978,9 +3012,9 @@ export const removeDevTranche = (datas, tenantkey_A, tenantid_A, username) => { 
 };
 export const updateBeaconTranche = (datas, tenantkey_A, tenantid_A, username) => { //批量分配设备组别(信标)
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeaconTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeaconTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeaconTranche",
+        url: "service/updateBeaconTranche",
         method: 'put',
         headers: {
             ts: time_A,
@@ -2993,9 +3027,9 @@ export const updateBeaconTranche = (datas, tenantkey_A, tenantid_A, username) =>
 };
 export const removeBeaconTranche = (datas, tenantkey_A, tenantid_A, username) => { //批量解除设备组别(信标)
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/removeBeaconTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/removeBeaconTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/removeBeaconTranche",
+        url: "service/removeBeaconTranche",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3013,9 +3047,9 @@ export const removeBeaconTranche = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const delAttendance = (datas, tenantkey_A, tenantid_A, username) => { //删除考勤信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delAttendance" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delAttendance" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delAttendance",
+        url: "service/delAttendance",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3029,9 +3063,9 @@ export const delAttendance = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const getAttendanceList = (query, tenantkey_A, tenantid_A, username) => { //获取区域数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getAttendanceList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAttendanceList" + tenantkey_A + time_A)
     return service({
-        url: "map/getAttendanceList",
+        url: "service/getAttendanceList",
         method: 'get',
         processData: false,
         headers: {
@@ -3045,9 +3079,9 @@ export const getAttendanceList = (query, tenantkey_A, tenantid_A, username) => {
 };
 export const getDevNum = (query, tenantkey_A, tenantid_A, username) => { //获取区域数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevNum" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevNum",
+        url: "service/getDevNum",
         method: 'get',
         processData: false,
         headers: {
@@ -3061,9 +3095,9 @@ export const getDevNum = (query, tenantkey_A, tenantid_A, username) => { //获�
 };
 export const getTaskInfoList = (query, tenantkey_A, tenantid_A, username) => { //获取巡检历史信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTaskInfoList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTaskInfoList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTaskInfoList",
+        url: "service/getTaskInfoList",
         method: 'get',
         processData: false,
         headers: {
@@ -3078,9 +3112,9 @@ export const getTaskInfoList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getTaskInfoTimeList = (query, tenantkey_A, tenantid_A, username) => { //获取巡检历史信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTaskInfoTimeList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTaskInfoTimeList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTaskInfoTimeList",
+        url: "service/getTaskInfoTimeList",
         method: 'get',
         processData: false,
         headers: {
@@ -3093,11 +3127,78 @@ export const getTaskInfoTimeList = (query, tenantkey_A, tenantid_A, username) =>
     }).then(res => res)
 };
 
+export const getLocateTaskList = (query, tenantkey_A, tenantid_A, username) => { //获取定位任务列表
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getLocateTaskList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getLocateTaskList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const insertLocateTask = (datas, tenantkey_A, tenantid_A, username) => { //添加定位任务
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/insertLocateTask" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/insertLocateTask",
+        method: 'post',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
+export const delLocateTask = (datas, tenantkey_A, tenantid_A, username) => { //删除定位任务
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/delLocateTask" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/delLocateTask",
+        method: 'delete',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
+export const updateLocateTask = (datas, tenantkey_A, tenantid_A, username) => { //修改定位任务
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/updateLocateTask" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/updateLocateTask",
+        method: 'put',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
 export const getTaskManagementList = (query, tenantkey_A, tenantid_A, username) => { //获取巡检任务信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTaskManagementList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTaskManagementList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTaskManagementList",
+        url: "service/getTaskManagementList",
         method: 'get',
         processData: false,
         headers: {
@@ -3112,9 +3213,9 @@ export const getTaskManagementList = (query, tenantkey_A, tenantid_A, username) 
 
 export const insertTaskManagement = (datas, tenantkey_A, tenantid_A, username) => { //添加巡检任务
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/insertTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/insertTaskManagement",
+        url: "service/insertTaskManagement",
         method: 'post',
         processData: false,
         headers: {
@@ -3131,9 +3232,9 @@ export const insertTaskManagement = (datas, tenantkey_A, tenantid_A, username) =
 
 export const delTaskInfo = (datas, tenantkey_A, tenantid_A, username) => { //批量删除巡检历史信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delTaskInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTaskInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delTaskInfo",
+        url: "service/delTaskInfo",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3147,9 +3248,9 @@ export const delTaskInfo = (datas, tenantkey_A, tenantid_A, username) => { //批
 
 export const delTaskManagement = (datas, tenantkey_A, tenantid_A, username) => { //批量删除巡检历史信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delTaskManagement",
+        url: "service/delTaskManagement",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3163,9 +3264,9 @@ export const delTaskManagement = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const updateTaskManagement = (datas, tenantkey_A, tenantid_A, username) => { //修改任务信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTaskManagement" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateTaskManagement",
+        url: "service/updateTaskManagement",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3179,9 +3280,9 @@ export const updateTaskManagement = (datas, tenantkey_A, tenantid_A, username) =
 
 export const removeTaskManagementDetails = (datas, tenantkey_A, tenantid_A, username) => { //解除路线设置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/removeTaskManagementDetails" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/removeTaskManagementDetails" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/removeTaskManagementDetails",
+        url: "service/removeTaskManagementDetails",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3195,9 +3296,9 @@ export const removeTaskManagementDetails = (datas, tenantkey_A, tenantid_A, user
 
 export const updateTaskManagementStats = (datas, tenantkey_A, tenantid_A, username) => { //修改任务的状态
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateTaskManagementStats" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTaskManagementStats" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateTaskManagementStats",
+        url: "service/updateTaskManagementStats",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3211,9 +3312,9 @@ export const updateTaskManagementStats = (datas, tenantkey_A, tenantid_A, userna
 
 export const updateMemberTask = (datas, tenantkey_A, tenantid_A, username) => { //根据员工id分配或解除任务
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateMemberTask" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateMemberTask" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateMemberTask",
+        url: "service/updateMemberTask",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3227,9 +3328,9 @@ export const updateMemberTask = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const getMemberNameId = (query, tenantkey_A, tenantid_A, username) => { //查询员工姓名、id号、标签号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberNameId" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberNameId" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberNameId",
+        url: "service/getMemberNameId",
         method: 'get',
         processData: false,
         headers: {
@@ -3245,9 +3346,9 @@ export const getMemberNameId = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getTaskNameId = (query, tenantkey_A, tenantid_A, username) => { //查询员工姓名、id号、标签号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTaskNameId" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTaskNameId" + tenantkey_A + time_A)
     return service({
-        url: "map/getTaskNameId",
+        url: "service/getTaskNameId",
         method: 'get',
         processData: false,
         headers: {
@@ -3262,9 +3363,9 @@ export const getTaskNameId = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getMemberByTaskid = (query, tenantkey_A, tenantid_A, username) => { //根据任务查询人员
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberByTaskid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberByTaskid" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberByTaskid",
+        url: "service/getMemberByTaskid",
         method: 'get',
         processData: false,
         headers: {
@@ -3279,9 +3380,9 @@ export const getMemberByTaskid = (query, tenantkey_A, tenantid_A, username) => {
 
 export const updateTaskManagementDetails = (datas, tenantkey_A, tenantid_A, username) => { //修改任务管理详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateTaskManagementDetails" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTaskManagementDetails" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateTaskManagementDetails",
+        url: "service/updateTaskManagementDetails",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3295,9 +3396,9 @@ export const updateTaskManagementDetails = (datas, tenantkey_A, tenantid_A, user
 
 export const getBeaconByBeaconids = (query, tenantkey_A, tenantid_A, username) => { //查询巡检任务详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getBeaconByBeaconids" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBeaconByBeaconids" + tenantkey_A + time_A)
     return service({
-        url: "devices/getBeaconByBeaconids",
+        url: "service/getBeaconByBeaconids",
         method: 'get',
         processData: false,
         headers: {
@@ -3312,9 +3413,9 @@ export const getBeaconByBeaconids = (query, tenantkey_A, tenantid_A, username) =
 
 export const getDevByEuiList = (query, tenantkey_A, tenantid_A, username) => { //查询巡检任务详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevByEuiList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevByEuiList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevByEuiList",
+        url: "service/getDevByEuiList",
         method: 'get',
         processData: false,
         headers: {
@@ -3331,9 +3432,9 @@ export const getDevByEuiList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const getFristPageAdmin = (query, tenantkey_A, tenantid_A, username) => { //查询巡检任务详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getFristPageAdmin" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFristPageAdmin" + tenantkey_A + time_A)
     return service({
-        url: "devices/getFristPageAdmin",
+        url: "service/getFristPageAdmin",
         method: 'get',
         processData: false,
         headers: {
@@ -3348,9 +3449,9 @@ export const getFristPageAdmin = (query, tenantkey_A, tenantid_A, username) => {
 
 export const getFristPageUserDevUtil = (query, tenantkey_A, tenantid_A, username) => { //查询巡检任务详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getFristPageUserDevUtil" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFristPageUserDevUtil" + tenantkey_A + time_A)
     return service({
-        url: "devices/getFristPageUserDevUtil",
+        url: "service/getFristPageUserDevUtil",
         method: 'get',
         processData: false,
         headers: {
@@ -3365,9 +3466,9 @@ export const getFristPageUserDevUtil = (query, tenantkey_A, tenantid_A, username
 
 export const updateDevListToGwClockin = (datas, tenantkey_A, tenantid_A, username) => { //设置打卡点
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListToGwClockin" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListToGwClockin" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListToGwClockin",
+        url: "service/updateDevListToGwClockin",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3381,9 +3482,9 @@ export const updateDevListToGwClockin = (datas, tenantkey_A, tenantid_A, usernam
 
 export const updateBuildingOne = (datas, tenantkey_A, tenantid_A, username) => { //修改楼栋信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateBuildingOne" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBuildingOne" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateBuildingOne",
+        url: "service/updateBuildingOne",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3398,9 +3499,9 @@ export const updateBuildingOne = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getFristPageUserMapUtil = (query, tenantkey_A, tenantid_A, username) => { //查询巡检任务详情
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFristPageUserMapUtil" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFristPageUserMapUtil" + tenantkey_A + time_A)
     return service({
-        url: "map/getFristPageUserMapUtil",
+        url: "service/getFristPageUserMapUtil",
         method: 'get',
         processData: false,
         headers: {
@@ -3416,9 +3517,9 @@ export const getFristPageUserMapUtil = (query, tenantkey_A, tenantid_A, username
 
 export const superLogin = (datas, tenantkey_A, tenantid_A, username) => { //退出
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/superLogin" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/superLogin" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/superLogin",
+        url: "service/superLogin",
         method: 'post',
         processData: false,
         headers: {
@@ -3433,9 +3534,9 @@ export const superLogin = (datas, tenantkey_A, tenantid_A, username) => { //退�
 
 export const getWarningConfigList = (query, tenantkey_A, tenantid_A, username) => { //查询告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarningConfigList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarningConfigList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarningConfigList",
+        url: "service/getWarningConfigList",
         method: 'get',
         processData: false,
         headers: {
@@ -3451,9 +3552,9 @@ export const getWarningConfigList = (query, tenantkey_A, tenantid_A, username) =
 
 export const addWarningConfig = (datas, tenantkey_A, tenantid_A, username) => { //添加告警设置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addWarningConfig",
+        url: "service/addWarningConfig",
         method: 'post',
         processData: false,
         headers: {
@@ -3468,9 +3569,9 @@ export const addWarningConfig = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const delWarningConfig = (datas, tenantkey_A, tenantid_A, username) => { //批量删除告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delWarningConfig",
+        url: "service/delWarningConfig",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3484,9 +3585,9 @@ export const delWarningConfig = (datas, tenantkey_A, tenantid_A, username) => { 
 
 export const updateWarningConfig = (datas, tenantkey_A, tenantid_A, username) => { //修改告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateWarningConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateWarningConfig",
+        url: "service/updateWarningConfig",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3500,9 +3601,9 @@ export const updateWarningConfig = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const getTrancheByIds = (query, tenantkey_A, tenantid_A, username) => { //查询统计分组类别
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTrancheByIds" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrancheByIds" + tenantkey_A + time_A)
     return service({
-        url: "map/getTrancheByIds",
+        url: "service/getTrancheByIds",
         method: 'get',
         processData: false,
         headers: {
@@ -3517,9 +3618,9 @@ export const getTrancheByIds = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const updateTaskManagementUsers = (datas, tenantkey_A, tenantid_A, username) => { //根据员工id分配或解除任务
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateTaskManagementUsers" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTaskManagementUsers" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateTaskManagementUsers",
+        url: "service/updateTaskManagementUsers",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3534,9 +3635,9 @@ export const updateTaskManagementUsers = (datas, tenantkey_A, tenantid_A, userna
 
 export const getMemberByIds = (query, tenantkey_A, tenantid_A, username) => { //查询统计分组类别
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberByIds" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberByIds" + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberByIds",
+        url: "service/getMemberByIds",
         method: 'get',
         processData: false,
         headers: {
@@ -3551,9 +3652,9 @@ export const getMemberByIds = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const updateAnglimit = (datas, tenantkey_A, tenantid_A, username) => { //设置扫描区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateAnglimit" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateAnglimit" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateAnglimit",
+        url: "service/updateAnglimit",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3567,9 +3668,9 @@ export const updateAnglimit = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateDevListToGwAnglimit = (datas, tenantkey_A, tenantid_A, username) => { //批量编辑设备
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListToGwAnglimit" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListToGwAnglimit" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListToGwAnglimit",
+        url: "service/updateDevListToGwAnglimit",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3583,9 +3684,9 @@ export const updateDevListToGwAnglimit = (datas, tenantkey_A, tenantid_A, userna
 
 export const updateHistoryBleConfig = (datas, tenantkey_A, tenantid_A, username) => { //可重传信标列表
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateHistoryBleConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateHistoryBleConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateHistoryBleConfig",
+        url: "service/updateHistoryBleConfig",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3599,9 +3700,9 @@ export const updateHistoryBleConfig = (datas, tenantkey_A, tenantid_A, username)
 
 export const replaceMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //修改楼层地图
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/replaceMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/replaceMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/replaceMapInfo",
+        url: "service/replaceMapInfo",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3615,9 +3716,9 @@ export const replaceMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateNearBeacons = (datas, tenantkey_A, tenantid_A, username) => { //设置/解除信标的相邻信标
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateNearBeacons" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateNearBeacons" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateNearBeacons",
+        url: "service/updateNearBeacons",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3630,9 +3731,9 @@ export const updateNearBeacons = (datas, tenantkey_A, tenantid_A, username) => {
 };
 export const addTrancheSub = (datas, tenantkey_A, tenantid_A, username) => { //添加子区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addTrancheSub" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTrancheSub" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addTrancheSub",
+        url: "service/addTrancheSub",
         method: 'post',
         processData: false,
         headers: {
@@ -3646,9 +3747,9 @@ export const addTrancheSub = (datas, tenantkey_A, tenantid_A, username) => { //�
 };
 export const getTrancheSubAndNearList = (query, tenantkey_A, tenantid_A, username) => { //获取子区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTrancheSubAndNearList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrancheSubAndNearList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTrancheSubAndNearList",
+        url: "service/getTrancheSubAndNearList",
         method: 'get',
         processData: false,
         headers: {
@@ -3662,9 +3763,9 @@ export const getTrancheSubAndNearList = (query, tenantkey_A, tenantid_A, usernam
 };
 export const delTrancheSubById = (datas, tenantkey_A, tenantid_A, username) => { //删除子区域
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delTrancheSubById" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTrancheSubById" + datas + tenantkey_A + time_A)
     return service({
-        url: "map/delTrancheSubById",
+        url: "service/delTrancheSubById",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3678,9 +3779,9 @@ export const delTrancheSubById = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const addTrancheNearSub = (datas, tenantkey_A, tenantid_A, username) => { //添加相邻点
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addTrancheNearSub" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTrancheNearSub" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addTrancheNearSub",
+        url: "service/addTrancheNearSub",
         method: 'post',
         processData: false,
         headers: {
@@ -3694,9 +3795,9 @@ export const addTrancheNearSub = (datas, tenantkey_A, tenantid_A, username) => {
 };
 export const getTrancheNearSubList = (query, tenantkey_A, tenantid_A, username) => { //获取相邻点
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTrancheNearSubList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrancheNearSubList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTrancheNearSubList",
+        url: "service/getTrancheNearSubList",
         method: 'get',
         processData: false,
         headers: {
@@ -3711,9 +3812,9 @@ export const getTrancheNearSubList = (query, tenantkey_A, tenantid_A, username) 
 
 export const delTrancheNearSubBySubtranchid = (datas, tenantkey_A, tenantid_A, username) => { //删除相邻点
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delTrancheNearSubBySubtranchid" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTrancheNearSubBySubtranchid" + datas + tenantkey_A + time_A)
     return service({
-        url: "map/delTrancheNearSubBySubtranchid",
+        url: "service/delTrancheNearSubBySubtranchid",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3727,9 +3828,9 @@ export const delTrancheNearSubBySubtranchid = (datas, tenantkey_A, tenantid_A, u
 
 export const getTrancheAndSubList = (query, tenantkey_A, tenantid_A, username) => { //获取区域数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTrancheAndSubList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrancheAndSubList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTrancheAndSubList",
+        url: "service/getTrancheAndSubList",
         method: 'get',
         processData: false,
         headers: {
@@ -3743,9 +3844,9 @@ export const getTrancheAndSubList = (query, tenantkey_A, tenantid_A, username) =
 };
 export const getTrancheSubList = (query, tenantkey_A, tenantid_A, username) => { //获取区域数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getTrancheSubList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTrancheSubList" + tenantkey_A + time_A)
     return service({
-        url: "map/getTrancheSubList",
+        url: "service/getTrancheSubList",
         method: 'get',
         processData: false,
         headers: {
@@ -3761,9 +3862,9 @@ export const getTrancheSubList = (query, tenantkey_A, tenantid_A, username) => {
 
 export const getFristPageUserUtil = (query, tenantkey_A, tenantid_A, username) => { //用户首页数据
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getFristPageUserUtil" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFristPageUserUtil" + tenantkey_A + time_A)
     return service({
-        url: "user/getFristPageUserUtil",
+        url: "service/getFristPageUserUtil",
         method: 'get',
         processData: false,
         headers: {
@@ -3778,9 +3879,9 @@ export const getFristPageUserUtil = (query, tenantkey_A, tenantid_A, username) =
 
 export const getWarnWeekNumList = (query, tenantkey_A, tenantid_A, username) => { //查询七天内某种告警类型的每一天的告警情况
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarnWeekNumList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarnWeekNumList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarnWeekNumList",
+        url: "service/getWarnWeekNumList",
         method: 'get',
         processData: false,
         headers: {
@@ -3795,9 +3896,9 @@ export const getWarnWeekNumList = (query, tenantkey_A, tenantid_A, username) => 
 
 export const addTbox = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addTbox",
+        url: "service/addTbox",
         method: 'post',
         processData: false,
         headers: {
@@ -3812,9 +3913,9 @@ export const addTbox = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getTboxList = (query, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getTboxList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTboxList" + tenantkey_A + time_A)
     return service({
-        url: "user/getTboxList",
+        url: "service/getTboxList",
         method: 'get',
         headers: {
             ts: time_A,
@@ -3828,9 +3929,9 @@ export const getTboxList = (query, tenantkey_A, tenantid_A, username) => {
 
 export const updateTbox = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateTbox",
+        url: "service/updateTbox",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3844,9 +3945,9 @@ export const updateTbox = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const delTbox = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delTbox",
+        url: "service/delTbox",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3860,9 +3961,9 @@ export const delTbox = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const updateTboxRemoveLable = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateTboxRemoveLable" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateTboxRemoveLable" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateTboxRemoveLable",
+        url: "service/updateTboxRemoveLable",
         method: 'put',
         headers: {
             ts: time_A,
@@ -3877,9 +3978,9 @@ export const updateTboxRemoveLable = (datas, tenantkey_A, tenantid_A, username) 
 
 export const getTboxSnId = (query, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getTboxSnId" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTboxSnId" + tenantkey_A + time_A)
     return service({
-        url: "user/getTboxSnId",
+        url: "service/getTboxSnId",
         method: 'get',
         headers: {
             ts: time_A,
@@ -3894,9 +3995,9 @@ export const getTboxSnId = (query, tenantkey_A, tenantid_A, username) => {
 
 export const getTboxOne = (query, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getTboxOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTboxOne" + tenantkey_A + time_A)
     return service({
-        url: "user/getTboxOne",
+        url: "service/getTboxOne",
         method: 'get',
         headers: {
             ts: time_A,
@@ -3910,9 +4011,9 @@ export const getTboxOne = (query, tenantkey_A, tenantid_A, username) => {
 
 export const addMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //添加地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addMapInfo" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addMapInfo",
+        url: "service/addMapInfo",
         method: 'post',
         processData: false,
         headers: {
@@ -3928,9 +4029,9 @@ export const addMapInfo = (datas, tenantkey_A, tenantid_A, username) => { //添�
 
 export const getMapidByBuildid = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getMapidByBuildid" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMapidByBuildid" + tenantkey_A + time_A)
     return service({
-        url: "map/getMapidByBuildid",
+        url: "service/getMapidByBuildid",
         method: 'get',
         processData: false,
         headers: {
@@ -3944,9 +4045,9 @@ export const getMapidByBuildid = (query, tenantkey_A, tenantid_A, username) => {
 };
 export const getGroundDevGps = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getGroundDevGps" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGroundDevGps" + tenantkey_A + time_A)
     return service({
-        url: "map/getGroundDevGps",
+        url: "service/getGroundDevGps",
         method: 'get',
         processData: false,
         headers: {
@@ -3960,9 +4061,9 @@ export const getGroundDevGps = (query, tenantkey_A, tenantid_A, username) => { /
 };
 export const getCountNum = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getCountNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getCountNum" + tenantkey_A + time_A)
     return service({
-        url: "map/getCountNum",
+        url: "service/getCountNum",
         method: 'get',
         processData: false,
         headers: {
@@ -3976,9 +4077,9 @@ export const getCountNum = (query, tenantkey_A, tenantid_A, username) => { //根
 };
 // export const getMemberByEuis = (datas, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
 //     let time_A = getTime()
-//     let sha_A = hex_sha1("/v1/user/getMemberByEuis" +JSON.stringify(datas)+ tenantkey_A + time_A)
+//     let sha_A = hex_sha1("/v1/service/getMemberByEuis" +JSON.stringify(datas)+ tenantkey_A + time_A)
 //     return service({
-//         url: "user/getMemberByEuis",
+//         url: "service/getMemberByEuis",
 //         method: 'post',
 //         processData: false,
 //         headers: {
@@ -3992,9 +4093,9 @@ export const getCountNum = (query, tenantkey_A, tenantid_A, username) => { //根
 // };
 export const getMemberByEuis = (datas, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getMemberByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getMemberByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/getMemberByEuis",
+        url: "service/getMemberByEuis",
         method: 'post',
         processData: false,
         headers: {
@@ -4008,9 +4109,9 @@ export const getMemberByEuis = (datas, tenantkey_A, tenantid_A, username) => { /
 };
 // export const addPoint = (datas, tenantkey_A, tenantid_A, username) => { //添加地图信息
 //     let time_A = getTime()
-//     let sha_A = hex_sha1("/v1/map/addPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
+//     let sha_A = hex_sha1("/v1/service/addPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
 //     return service({
-//         url: "map/addPoint",
+//         url: "service/addPoint",
 //         method: 'post',
 //         processData: false,
 //         headers: {
@@ -4025,9 +4126,9 @@ export const getMemberByEuis = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const getTboxByEuis = (datas, tenantkey_A, tenantid_A, username) => { //
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getTboxByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getTboxByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/getTboxByEuis",
+        url: "service/getTboxByEuis",
         method: 'post',
         processData: false,
         headers: {
@@ -4042,9 +4143,9 @@ export const getTboxByEuis = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const getAssetByEuis = (datas, tenantkey_A, tenantid_A, username) => { //
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getAssetByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getAssetByEuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/getAssetByEuis",
+        url: "service/getAssetByEuis",
         method: 'post',
         processData: false,
         headers: {
@@ -4059,9 +4160,9 @@ export const getAssetByEuis = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const addPoint = (datas, tenantkey_A, tenantid_A, username) => { //添加地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addPoint",
+        url: "service/addPoint",
         method: 'post',
         processData: false,
         headers: {
@@ -4075,9 +4176,9 @@ export const addPoint = (datas, tenantkey_A, tenantid_A, username) => { //添加
 };
 export const delPointByPointid = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delPointByPointid" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delPointByPointid" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delPointByPointid",
+        url: "service/delPointByPointid",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4090,9 +4191,9 @@ export const delPointByPointid = (datas, tenantkey_A, tenantid_A, username) => {
 };
 export const updatePoint = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updatePoint" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updatePoint" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updatePoint",
+        url: "service/updatePoint",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4106,9 +4207,9 @@ export const updatePoint = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getPointList = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getPointList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getPointList" + tenantkey_A + time_A)
     return service({
-        url: "map/getPointList",
+        url: "service/getPointList",
         method: 'get',
         processData: false,
         headers: {
@@ -4123,9 +4224,9 @@ export const getPointList = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getPointNearList = (query, tenantkey_A, tenantid_A, username) => { //根据楼栋号获取地图编号
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getPointNearList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getPointNearList" + tenantkey_A + time_A)
     return service({
-        url: "map/getPointNearList",
+        url: "service/getPointNearList",
         method: 'get',
         processData: false,
         headers: {
@@ -4140,9 +4241,9 @@ export const getPointNearList = (query, tenantkey_A, tenantid_A, username) => { 
 
 export const addPointNear = (datas, tenantkey_A, tenantid_A, username) => { //添加地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addPointNear" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addPointNear" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addPointNear",
+        url: "service/addPointNear",
         method: 'post',
         processData: false,
         headers: {
@@ -4156,9 +4257,9 @@ export const addPointNear = (datas, tenantkey_A, tenantid_A, username) => { //�
 };
 export const getPointAndNearList = (query, tenantkey_A, tenantid_A, username) => { //查询点及相邻点的信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getPointAndNearList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getPointAndNearList" + tenantkey_A + time_A)
     return service({
-        url: "map/getPointAndNearList",
+        url: "service/getPointAndNearList",
         method: 'get',
         processData: false,
         headers: {
@@ -4173,9 +4274,9 @@ export const getPointAndNearList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const delPointNearByPointid = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delPointNearByPointid" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delPointNearByPointid" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delPointNearByPointid",
+        url: "service/delPointNearByPointid",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4189,9 +4290,9 @@ export const delPointNearByPointid = (datas, tenantkey_A, tenantid_A, username) 
 
 export const updateBeaconPosOne = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateBeaconPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateBeaconPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateBeaconPosOne",
+        url: "service/updateBeaconPosOne",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4205,9 +4306,9 @@ export const updateBeaconPosOne = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const addBuilding = (datas, tenantkey_A, tenantid_A, username) => { //添加楼栋信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/addBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/addBuilding",
+        url: "service/addBuilding",
         method: 'post',
         processData: false,
         headers: {
@@ -4222,9 +4323,9 @@ export const addBuilding = (datas, tenantkey_A, tenantid_A, username) => { //添
 
 export const delBuilding = (datas, tenantkey_A, tenantid_A, username) => { //删除楼栋信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delBuilding",
+        url: "service/delBuilding",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4238,9 +4339,9 @@ export const delBuilding = (datas, tenantkey_A, tenantid_A, username) => { //删
 
 export const getBuildingList = (query, tenantkey_A, tenantid_A, username) => { //查询楼栋信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getBuildingList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getBuildingList" + tenantkey_A + time_A)
     return service({
-        url: "map/getBuildingList",
+        url: "service/getBuildingList",
         method: 'get',
         processData: false,
         headers: {
@@ -4255,9 +4356,9 @@ export const getBuildingList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const updateDevListPosOne = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevListPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevListPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevListPosOne",
+        url: "service/updateDevListPosOne",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4271,9 +4372,9 @@ export const updateDevListPosOne = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const updateProjectPosition = (datas, tenantkey_A, tenantid_A, username) => { //根据项目编号修改项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProjectPosition" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProjectPosition" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProjectPosition",
+        url: "service/updateProjectPosition",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4287,9 +4388,9 @@ export const updateProjectPosition = (datas, tenantkey_A, tenantid_A, username) 
 
 export const getDevGpsByGroup = (query, tenantkey_A, tenantid_A, username) => { //行为分析
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getDevGpsByGroup" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevGpsByGroup" + tenantkey_A + time_A)
     return service({
-        url: "map/getDevGpsByGroup",
+        url: "service/getDevGpsByGroup",
         method: 'get',
         processData: false,
         headers: {
@@ -4304,9 +4405,9 @@ export const getDevGpsByGroup = (query, tenantkey_A, tenantid_A, username) => { 
 
 export const getNsAllName = (query, tenantkey_A, tenantid_A, username) => { //获取NS信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsAllName" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsAllName" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsAllName",
+        url: "service/getNsAllName",
         method: 'get',
         processData: false,
         headers: {
@@ -4322,9 +4423,9 @@ export const getNsAllName = (query, tenantkey_A, tenantid_A, username) => { //�
 
 export const getProjectConfigOne = (query, tenantkey_A, tenantid_A, username) => { //获取项目功能配置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getProjectConfigOne" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getProjectConfigOne" + tenantkey_A + time_A)
     return service({
-        url: "user/getProjectConfigOne",
+        url: "service/getProjectConfigOne",
         method: 'get',
         processData: false,
         headers: {
@@ -4339,9 +4440,9 @@ export const getProjectConfigOne = (query, tenantkey_A, tenantid_A, username) =>
 
 export const updateProjectConfig = (datas, tenantkey_A, tenantid_A, username) => { //修改项目功能配置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProjectConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProjectConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProjectConfig",
+        url: "service/updateProjectConfig",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4355,9 +4456,9 @@ export const updateProjectConfig = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const addCustomerToMysql = (datas, tenantkey_A, tenantid_A, username) => { //添加采购公司信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/addCustomerToMysql" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addCustomerToMysql" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/addCustomerToMysql",
+        url: "service/addCustomerToMysql",
         method: 'post',
         processData: false,
         headers: {
@@ -4372,9 +4473,9 @@ export const addCustomerToMysql = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const getGatewayFlow = (query, tenantkey_A, tenantid_A, username) => { //查询基站4G卡的流量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getGatewayFlow" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getGatewayFlow" + tenantkey_A + time_A)
     return service({
-        url: "devices/getGatewayFlow",
+        url: "service/getGatewayFlow",
         method: 'get',
         processData: false,
         headers: {
@@ -4389,9 +4490,9 @@ export const getGatewayFlow = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const removeGroundDev = (datas, tenantkey_A, tenantid_A, username) => {//一键解除布置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/removeGroundDev" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/removeGroundDev" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/removeGroundDev",
+        url: "service/removeGroundDev",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4405,9 +4506,9 @@ export const removeGroundDev = (datas, tenantkey_A, tenantid_A, username) => {//
 
 export const insertWarningVoice = (datas, tenantkey_A, tenantid_A, username) => { //添加告警设置
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/insertWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/insertWarningVoice",
+        url: "service/insertWarningVoice",
         method: 'post',
         processData: false,
         headers: {
@@ -4422,9 +4523,9 @@ export const insertWarningVoice = (datas, tenantkey_A, tenantid_A, username) => 
 
 export const delWarningVoice = (datas, tenantkey_A, tenantid_A, username) => { //批量删除告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delWarningVoice",
+        url: "service/delWarningVoice",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4438,9 +4539,9 @@ export const delWarningVoice = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const getWarningVoiceList = (query, tenantkey_A, tenantid_A, username) => { //查询告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarningVoiceList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarningVoiceList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarningVoiceList",
+        url: "service/getWarningVoiceList",
         method: 'get',
         processData: false,
         headers: {
@@ -4456,9 +4557,9 @@ export const getWarningVoiceList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const updateWarningVoice = (datas, tenantkey_A, tenantid_A, username) => { //修改告警设置信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateWarningVoice" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateWarningVoice",
+        url: "service/updateWarningVoice",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4471,9 +4572,9 @@ export const updateWarningVoice = (datas, tenantkey_A, tenantid_A, username) => 
 };
 export const addDevOther = (datas, tenantkey_A, tenantid_A, username) => { //添加Aoa信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/addDevOther" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/addDevOther" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/addDevOther",
+        url: "service/addDevOther",
         method: 'post',
         processData: false,
         headers: {
@@ -4488,9 +4589,9 @@ export const addDevOther = (datas, tenantkey_A, tenantid_A, username) => { //添
 
 export const getDevOtherList = (query, tenantkey_A, tenantid_A, username) => { //获取Aoa信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevOtherList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevOtherList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevOtherList",
+        url: "service/getDevOtherList",
         method: 'get',
         processData: false,
         headers: {
@@ -4505,9 +4606,9 @@ export const getDevOtherList = (query, tenantkey_A, tenantid_A, username) => { /
 
 export const delDevOtherByDeveuis = (datas, tenantkey_A, tenantid_A, username) => { //批量删除删除Aoa信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delDevOtherByDeveuis" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDevOtherByDeveuis" + datas + tenantkey_A + time_A)
     return service({
-        url: "devices/delDevOtherByDeveuis",
+        url: "service/delDevOtherByDeveuis",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4521,9 +4622,9 @@ export const delDevOtherByDeveuis = (datas, tenantkey_A, tenantid_A, username) =
 
 export const updateDevOther = (datas, tenantkey_A, tenantid_A, username) => { //根据信标编号修改Aoa信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevOther" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOther" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevOther",
+        url: "service/updateDevOther",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4537,9 +4638,9 @@ export const updateDevOther = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const updateDevOtherByDeveuis = (datas, tenantkey_A, tenantid_A, username) => { //企业管理员分配Beacon
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevOtherByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOtherByDeveuis" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevOtherByDeveuis",
+        url: "service/updateDevOtherByDeveuis",
         method: 'put',
         processData: false,
         headers: {
@@ -4554,9 +4655,9 @@ export const updateDevOtherByDeveuis = (datas, tenantkey_A, tenantid_A, username
 
 export const updateDevOtherRemoveProject = (datas, tenantkey_A, tenantid_A, username) => { //企业管理员解除分配Beacon
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevOtherRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOtherRemoveProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevOtherRemoveProject",
+        url: "service/updateDevOtherRemoveProject",
         method: 'put',
         processData: false,
         headers: {
@@ -4571,9 +4672,9 @@ export const updateDevOtherRemoveProject = (datas, tenantkey_A, tenantid_A, user
 
 export const getDevAndOtherList = (query, tenantkey_A, tenantid_A, username) => { //查询基站4G卡的流量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevAndOtherList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevAndOtherList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevAndOtherList",
+        url: "service/getDevAndOtherList",
         method: 'get',
         processData: false,
         headers: {
@@ -4587,9 +4688,9 @@ export const getDevAndOtherList = (query, tenantkey_A, tenantid_A, username) => 
 };
 export const getDevRssiList = (query, tenantkey_A, tenantid_A, username) => { //查询基站4G卡的流量
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getDevRssiList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getDevRssiList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getDevRssiList",
+        url: "service/getDevRssiList",
         method: 'get',
         processData: false,
         headers: {
@@ -4604,9 +4705,9 @@ export const getDevRssiList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const updateDevOtherPosOne = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevOtherPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOtherPosOne" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevOtherPosOne",
+        url: "service/updateDevOtherPosOne",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4620,9 +4721,9 @@ export const updateDevOtherPosOne = (datas, tenantkey_A, tenantid_A, username) =
 
 export const sendDevOtherAlarmOne = (datas, tenantkey_A, tenantid_A, username) => { //根据设备号触发或取消告警
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/sendDevOtherAlarmOne" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/sendDevOtherAlarmOne" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/sendDevOtherAlarmOne",
+        url: "service/sendDevOtherAlarmOne",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4635,9 +4736,9 @@ export const sendDevOtherAlarmOne = (datas, tenantkey_A, tenantid_A, username) =
 };
 export const sendDevOtherAlarmMore = (datas, tenantkey_A, tenantid_A, username) => { //根据楼栋层触发或取消告警
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/sendDevOtherAlarmMore" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/sendDevOtherAlarmMore" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/sendDevOtherAlarmMore",
+        url: "service/sendDevOtherAlarmMore",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4650,9 +4751,9 @@ export const sendDevOtherAlarmMore = (datas, tenantkey_A, tenantid_A, username) 
 };
 export const insertCustomerConfig = (datas, tenantkey_A, tenantid_A, username) => { //注册用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/insertCustomerConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/insertCustomerConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/insertCustomerConfig",
+        url: "service/insertCustomerConfig",
         method: 'post',
         processData: false,
         headers: {
@@ -4666,9 +4767,9 @@ export const insertCustomerConfig = (datas, tenantkey_A, tenantid_A, username) =
 };
 export const delCustomerConfig = (datas, tenantkey_A, tenantid_A, username) => { //删除用户信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/delCustomerConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delCustomerConfig" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/delCustomerConfig",
+        url: "service/delCustomerConfig",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -4682,9 +4783,9 @@ export const delCustomerConfig = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const updateDevOtherTranche = (datas, tenantkey_A, tenantid_A, username) => {
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/updateDevOtherTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateDevOtherTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/updateDevOtherTranche",
+        url: "service/updateDevOtherTranche",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4698,9 +4799,9 @@ export const updateDevOtherTranche = (datas, tenantkey_A, tenantid_A, username) 
 
 export const getWarnNumList = (query, tenantkey_A, tenantid_A, username) => { //查询七天内某种告警类型的每一天的告警情况
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarnNumList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarnNumList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarnNumList",
+        url: "service/getWarnNumList",
         method: 'get',
         processData: false,
         headers: {
@@ -4715,9 +4816,9 @@ export const getWarnNumList = (query, tenantkey_A, tenantid_A, username) => { //
 
 export const getWarningPopoutList = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getWarningPopoutList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getWarningPopoutList" + tenantkey_A + time_A)
     return service({
-        url: "map/getWarningPopoutList",
+        url: "service/getWarningPopoutList",
         method: 'get',
         processData: false,
         headers: {
@@ -4733,9 +4834,9 @@ export const getWarningPopoutList = (query, tenantkey_A, tenantid_A, username) =
 
 export const updateProjectMosaic = (datas, tenantkey_A, tenantid_A, username) => { //开启关闭嵌入页面功能
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProjectMosaic" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProjectMosaic" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProjectMosaic",
+        url: "service/updateProjectMosaic",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4749,9 +4850,9 @@ export const updateProjectMosaic = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const getProjectFirstList = (query, tenantkey_A, tenantid_A, username) => { //获取项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/getProjectFirstList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getProjectFirstList" + tenantkey_A + time_A)
     return service({
-        url: "user/getProjectFirstList",
+        url: "service/getProjectFirstList",
         method: 'get',
         processData: false,
         headers: {
@@ -4766,9 +4867,9 @@ export const getProjectFirstList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const exportBeaconInfo = (query, tenantkey_A, tenantid_A, username) => { //导出设备信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/exportBeaconInfo" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/exportBeaconInfo" + tenantkey_A + time_A)
     return service({
-        url: "devices/exportBeaconInfo",
+        url: "service/exportBeaconInfo",
         method: 'get',
         processData: false,
         headers: {
@@ -4783,9 +4884,9 @@ export const exportBeaconInfo = (query, tenantkey_A, tenantid_A, username) => { 
 
 export const importTbox = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importTbox" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importTbox",
+        url: "service/importTbox",
         method: 'post',
         processData: false,
         headers: {
@@ -4800,9 +4901,9 @@ export const importTbox = (datas, tenantkey_A, tenantid_A, username) => { //导�
 
 export const importAsset = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importAsset" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importAsset",
+        url: "service/importAsset",
         method: 'post',
         processData: false,
         headers: {
@@ -4817,9 +4918,9 @@ export const importAsset = (datas, tenantkey_A, tenantid_A, username) => { //导
 
 export const importMember = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importMember" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importMember" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importMember",
+        url: "service/importMember",
         method: 'post',
         processData: false,
         headers: {
@@ -4834,9 +4935,9 @@ export const importMember = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const importTranche = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/importTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importTranche" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/importTranche",
+        url: "service/importTranche",
         method: 'post',
         processData: false,
         headers: {
@@ -4851,9 +4952,9 @@ export const importTranche = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const importPointNear = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/importPointNear" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importPointNear" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/importPointNear",
+        url: "service/importPointNear",
         method: 'post',
         processData: false,
         headers: {
@@ -4868,9 +4969,9 @@ export const importPointNear = (datas, tenantkey_A, tenantid_A, username) => { /
 
 export const importPoint = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/importPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importPoint" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/importPoint",
+        url: "service/importPoint",
         method: 'post',
         processData: false,
         headers: {
@@ -4885,9 +4986,9 @@ export const importPoint = (datas, tenantkey_A, tenantid_A, username) => { //导
 
 export const importBuildGround = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/importBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importBuildGround" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/importBuildGround",
+        url: "service/importBuildGround",
         method: 'post',
         processData: false,
         headers: {
@@ -4902,9 +5003,9 @@ export const importBuildGround = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const importBuilding = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/importBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importBuilding" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/importBuilding",
+        url: "service/importBuilding",
         method: 'post',
         processData: false,
         headers: {
@@ -4919,9 +5020,9 @@ export const importBuilding = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const importProject = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importProject" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importProject" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importProject",
+        url: "service/importProject",
         method: 'post',
         processData: false,
         headers: {
@@ -4936,9 +5037,9 @@ export const importProject = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const importCustomer = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importCustomer" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importCustomer",
+        url: "service/importCustomer",
         method: 'post',
         processData: false,
         headers: {
@@ -4953,9 +5054,9 @@ export const importCustomer = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const importBeacon = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/importBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importBeacon" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/importBeacon",
+        url: "service/importBeacon",
         method: 'post',
         processData: false,
         headers: {
@@ -4971,9 +5072,9 @@ export const importBeacon = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const updateProjectUnbind = (datas, tenantkey_A, tenantid_A, username) => { //根据项目编号修改项目信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/updateProjectUnbind" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateProjectUnbind" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/updateProjectUnbind",
+        url: "service/updateProjectUnbind",
         method: 'put',
         headers: {
             ts: time_A,
@@ -4987,9 +5088,9 @@ export const updateProjectUnbind = (datas, tenantkey_A, tenantid_A, username) =>
 
 export const importBranch = (datas, tenantkey_A, tenantid_A, username) => { //导入信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/user/importBranch" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/importBranch" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "user/importBranch",
+        url: "service/importBranch",
         method: 'post',
         processData: false,
         headers: {
@@ -5004,9 +5105,9 @@ export const importBranch = (datas, tenantkey_A, tenantid_A, username) => { //�
 
 export const fenceManage = (datas, tenantkey_A, tenantid_A, username) => { //添加图片信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/fenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/fenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/fenceManage",
+        url: "service/fenceManage",
         method: 'post',
         processData: false,
         headers: {
@@ -5021,9 +5122,9 @@ export const fenceManage = (datas, tenantkey_A, tenantid_A, username) => { //添
 
 export const getFenceManageAndPointList = (query, tenantkey_A, tenantid_A, username) => { //获取电子围栏
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageAndPointList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageAndPointList" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageAndPointList",
+        url: "service/getFenceManageAndPointList",
         method: 'get',
         processData: false,
         headers: {
@@ -5038,9 +5139,9 @@ export const getFenceManageAndPointList = (query, tenantkey_A, tenantid_A, usern
 
 export const getFenceManageAndPointListByPage = (query, tenantkey_A, tenantid_A, username) => { //获取电子围栏（有分页数据）
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageAndPointListByPage" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageAndPointListByPage" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageAndPointListByPage",
+        url: "service/getFenceManageAndPointListByPage",
         method: 'get',
         processData: false,
         headers: {
@@ -5055,9 +5156,9 @@ export const getFenceManageAndPointListByPage = (query, tenantkey_A, tenantid_A,
 
 export const delFenceManage = (datas, tenantkey_A, tenantid_A, username) => { //根据mapid删除地图信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/delFenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delFenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/delFenceManage",
+        url: "service/delFenceManage",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -5071,9 +5172,9 @@ export const delFenceManage = (datas, tenantkey_A, tenantid_A, username) => { //
 
 export const getFenceManageList = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageList" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageList",
+        url: "service/getFenceManageList",
         method: 'get',
         processData: false,
         headers: {
@@ -5088,9 +5189,26 @@ export const getFenceManageList = (query, tenantkey_A, tenantid_A, username) => 
 
 export const getFenceManageByIds = (query, tenantkey_A, tenantid_A, username) => { //根据id查询电子围栏信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageByIds" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageByIds" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageByIds",
+        url: "service/getFenceManageByIds",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getFenceManageAndPointByIds = (query, tenantkey_A, tenantid_A, username) => { //根据id查询电子围栏及坐标点
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getFenceManageAndPointByIds" + tenantkey_A + time_A)
+    return service({
+        url: "service/getFenceManageAndPointByIds",
         method: 'get',
         processData: false,
         headers: {
@@ -5105,9 +5223,9 @@ export const getFenceManageByIds = (query, tenantkey_A, tenantid_A, username) =>
 
 export const getFenceManageWhiteList = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageWhiteList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageWhiteList" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageWhiteList",
+        url: "service/getFenceManageWhiteList",
         method: 'get',
         processData: false,
         headers: {
@@ -5122,9 +5240,9 @@ export const getFenceManageWhiteList = (query, tenantkey_A, tenantid_A, username
 
 export const updateFenceManage = (datas, tenantkey_A, tenantid_A, username) => { //根据围栏id修改围栏信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/updateFenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/updateFenceManage" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "map/updateFenceManage",
+        url: "service/updateFenceManage",
         method: 'put',
         headers: {
             ts: time_A,
@@ -5138,9 +5256,9 @@ export const updateFenceManage = (datas, tenantkey_A, tenantid_A, username) => {
 
 export const getFenceManageWhiteNum = (query, tenantkey_A, tenantid_A, username) => { //获取告警弹框
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/map/getFenceManageWhiteNum" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getFenceManageWhiteNum" + tenantkey_A + time_A)
     return service({
-        url: "map/getFenceManageWhiteNum",
+        url: "service/getFenceManageWhiteNum",
         method: 'get',
         processData: false,
         headers: {
@@ -5157,9 +5275,9 @@ export const getFenceManageWhiteNum = (query, tenantkey_A, tenantid_A, username)
 
 export const getNsTenantInfoList = (query, tenantkey_A, tenantid_A, username) => { //查询Tenant信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsTenantInfoList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsTenantInfoList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsTenantInfoList",
+        url: "service/getNsTenantInfoList",
         method: 'get',
         processData: false,
         headers: {
@@ -5175,9 +5293,9 @@ export const getNsTenantInfoList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const getNsDeviceInfoList = (query, tenantkey_A, tenantid_A, username) => { //查询NsDeviceInfo信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getNsDeviceInfoList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getNsDeviceInfoList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getNsDeviceInfoList",
+        url: "service/getNsDeviceInfoList",
         method: 'get',
         processData: false,
         headers: {
@@ -5193,9 +5311,9 @@ export const getNsDeviceInfoList = (query, tenantkey_A, tenantid_A, username) =>
 
 export const getApplicationList = (query, tenantkey_A, tenantid_A, username) => { //查询application现信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/getApplicationList" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getApplicationList" + tenantkey_A + time_A)
     return service({
-        url: "devices/getApplicationList",
+        url: "service/getApplicationList",
         method: 'get',
         processData: false,
         headers: {
@@ -5210,9 +5328,9 @@ export const getApplicationList = (query, tenantkey_A, tenantid_A, username) => 
 
 export const delTenantOperateNs = (datas, tenantkey_A, tenantid_A, username) => { //删除Tenant信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/devices/delTenantOperateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delTenantOperateNs" + JSON.stringify(datas) + tenantkey_A + time_A)
     return service({
-        url: "devices/delTenantOperateNs",
+        url: "service/delTenantOperateNs",
         method: 'delete',
         headers: {
             ts: time_A,
