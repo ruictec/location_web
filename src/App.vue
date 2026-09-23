@@ -57,12 +57,14 @@
             class="item"
             effect="dark"
             :content="$t('navbar.Selectitem')"
-            placement="bottom"
-            :visible="showTooltip"
+            placement="top"
+            trigger="hover"
+            :visible="showTooltip ? true : undefined"
+            popper-class="project-name-tip"
           >
             <span
               class="project_name"
-              @click="selectProject()"
+              @click.stop="selectProject"
               style="position: relative"
               >{{ $store.state.intoProjectName }}
             </span>
@@ -98,107 +100,120 @@
       <img src="./assets/xcx.jpg" alt="" srcset="" />
     </el-dialog>
 
-    <!-- 选择项目 -->
-    <el-dialog
-      v-model="selectProjects"
-      class="project-select-dialog"
-      modal-class="project-select-mask"
-      :show-close="false"
-      :close-on-press-escape="projectSelectClosable"
-      :close-on-click-modal="false"
-      :append-to-body="true"
-      width="760px"
-      align-center
-    >
-      <template #header>
-        <div class="ps-modal-title">
-          <span>{{ $t("navbar.Selectitem") }}</span>
-          <el-tooltip effect="dark" placement="bottom" :show-after="200">
-            <template #content>
-              <div class="ps-help-tip">
-                <p>{{ $t("project.tet9") }}</p>
-                <p>{{ $t("project.tet10") }}</p>
-                <a
-                  class="ps-help-tip-link"
-                  href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  @click.stop
-                >{{ $t("navbar.learnMore") }}</a>
-              </div>
-            </template>
-            <i class="el-icon-question ps-help-q" @click.stop />
-          </el-tooltip>
-        </div>
-        <button
-          v-if="projectSelectClosable"
-          type="button"
-          class="ps-close-btn"
-          aria-label="close"
-          @click="selectProjects = false"
-        >
-          <span class="ps-close-icon">×</span>
-        </button>
-      </template>
-      <div class="ps-grid-wrap">
-        <div class="ps-grid">
+    <!-- 选择项目：Teleport 自定义弹层（DOM/class 对齐 el-dialog，保证样式一致） -->
+    <Teleport to="body">
+      <div
+        v-if="selectProjects"
+        class="el-overlay app-project-select-mask project-select-mask"
+        @click.self="projectSelectClosable && closeProjectSelect()"
+      >
+        <div class="app-ps-center">
           <div
-            class="ps-card"
-            v-for="(item, index) in projectTable"
-            :key="item.projectid || index"
-            @click="choseProject(item)"
-            :class="{
-              'is-active': $store.state.projectid === item.projectid,
-            }"
+            class="project-select-dialog app-project-select-dialog"
+            role="dialog"
+            aria-modal="true"
+            @click.stop
           >
-            <div class="ps-card-header">
-              <div class="ps-card-main">
-                <span
-                  class="ps-card-icon"
-                  :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
-                  aria-hidden="true"
+            <div class="el-dialog__header ps-dialog-header">
+              <div class="ps-modal-title">
+                <span>{{ $t("navbar.Selectitem") }}</span>
+                <el-tooltip
+                  effect="dark"
+                  placement="bottom"
+                  :show-after="200"
+                  :z-index="30000"
+                  popper-class="project-select-help-tip"
                 >
-                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      fill="currentColor"
-                      opacity="0.22"
-                      d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
-                    />
-                  </svg>
-                </span>
-                <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+                  <template #content>
+                    <div class="ps-help-tip">
+                      <p>{{ $t("project.tet9") }}</p>
+                      <p>{{ $t("project.tet10") }}</p>
+                      <a
+                        class="ps-help-tip-link"
+                        href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        @click.stop
+                      >{{ $t("navbar.learnMore") }}</a>
+                    </div>
+                  </template>
+                  <i class="el-icon-question ps-help-q" @click.stop />
+                </el-tooltip>
               </div>
-              <span
-                class="ps-tag"
-                :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
-              >{{
-                Number(item.type) === 2
-                  ? i8n == "zh"
-                    ? "反向"
-                    : item.entype || "Reverse"
-                  : i8n == "zh"
-                    ? "正向"
-                    : item.entype || "Forward"
-              }}</span>
+              <button
+                v-if="projectSelectClosable"
+                type="button"
+                class="ps-close-btn"
+                aria-label="close"
+                @click="closeProjectSelect"
+              >
+                <span class="ps-close-icon">×</span>
+              </button>
             </div>
-            <div class="ps-card-id">
-              {{ $t("navbar.number") }}：{{ item.projectid }}
-            </div>
-            <div class="ps-card-desc" :title="item.memo || ''">
-              {{ item.memo || "—" }}
+            <div class="el-dialog__body">
+              <div class="ps-grid-wrap">
+                <div class="ps-grid">
+                  <div
+                    class="ps-card"
+                    v-for="(item, index) in projectTable"
+                    :key="item.projectid || index"
+                    @click="choseProject(item)"
+                    :class="{
+                      'is-active': $store.state.projectid === item.projectid,
+                    }"
+                  >
+                    <div class="ps-card-header">
+                      <div class="ps-card-main">
+                        <span
+                          class="ps-card-icon"
+                          :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                          aria-hidden="true"
+                        >
+                          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                              fill="currentColor"
+                              opacity="0.22"
+                              d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                            />
+                          </svg>
+                        </span>
+                        <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+                      </div>
+                      <span
+                        class="ps-tag"
+                        :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                      >{{
+                        Number(item.type) === 2
+                          ? i8n == "zh"
+                            ? "反向"
+                            : item.entype || "Reverse"
+                          : i8n == "zh"
+                            ? "正向"
+                            : item.entype || "Forward"
+                      }}</span>
+                    </div>
+                    <div class="ps-card-id">
+                      {{ $t("navbar.number") }}：{{ item.projectid }}
+                    </div>
+                    <div class="ps-card-desc" :title="item.memo || ''">
+                      {{ item.memo || "—" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </el-dialog>
+    </Teleport>
     <audio :src="audioSrc" controls="controls" loop hidden ref="audio"></audio>
   </div>
 </template>
@@ -566,8 +581,18 @@ export default {
     projectNums(val, oldVal) {
       if (val > 1) {
         this.showTooltip = true;
+        if (this._projectTipTimer) clearTimeout(this._projectTipTimer);
+        // 底部强制提示易挡住点击，数秒后收起，之后改由悬停触发
+        this._projectTipTimer = setTimeout(() => {
+          this.showTooltip = false;
+          this._projectTipTimer = null;
+        }, 3500);
       } else {
         this.showTooltip = false;
+        if (this._projectTipTimer) {
+          clearTimeout(this._projectTipTimer);
+          this._projectTipTimer = null;
+        }
       }
     },
     timess(val, oldVal) {
@@ -825,11 +850,19 @@ export default {
       body.style.overflow = "";
       body.style.paddingRight = "0px";
       body.classList.remove("el-popup-parent--hidden");
-      document.querySelectorAll("body > .el-overlay").forEach((el) => {
-        if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
-          el.remove();
-        }
-      });
+      // 自定义选项目弹层打开时不要清掉
+      if (!this.selectProjects) {
+        document
+          .querySelectorAll(
+            "body > .el-overlay.project-select-mask, body > .el-overlay.app-project-select-mask"
+          )
+          .forEach((el) => el.remove());
+        document.querySelectorAll("body > .el-overlay").forEach((el) => {
+          if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
+            el.remove();
+          }
+        });
+      }
       if (window.lib && window.lib.flexible && window.lib.flexible.refreshRem) {
         window.lib.flexible.refreshRem();
       }
@@ -837,25 +870,46 @@ export default {
         window.dispatchEvent(new Event("resize"));
       });
     },
+    closeProjectSelect() {
+      this.selectProjects = false;
+    },
     // 选择项目
     selectProject() {
       var that = this;
+      this.showTooltip = false;
+      const tenantkey =
+        this.tenantkey_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName || (this.$store.state.userInfo && this.$store.state.userInfo.username);
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.username
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.projectTable = res.data;
-          that.$store.commit("changeProjectTable", this.projectTable);
-          if (that.projectTable.length > 1) {
-            that.i8n = that.$store.state.i18n;
-            that.selectProjects = true;
-          }
+      // 若 vuex 已有列表，先立刻打开，避免“接口成功但看不见弹窗”
+      const cached = Array.isArray(this.$store.state.projectTable)
+        ? this.$store.state.projectTable
+        : [];
+      if (cached.length > 1) {
+        this.projectTable = cached;
+        this.i8n = this.$store.state.i18n;
+        this.selectProjects = true;
+      }
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
+        if (res.code != 1001) return;
+        const raw = res.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : raw && Array.isArray(raw.list)
+            ? raw.list
+            : [];
+        that.projectTable = list;
+        that.$store.commit("changeProjectTable", list);
+        if (list.length > 1) {
+          that.i8n = that.$store.state.i18n;
+          that.selectProjects = true;
+        } else {
+          that.selectProjects = false;
         }
       });
     },
@@ -908,7 +962,7 @@ export default {
       that.$store.commit("changeMapLati", row.lati);
       that.$store.commit("selectProjectType", row.type);
       that.$store.commit("selectProjectprojectType", row.projectype);
-      that.selectProjects = false;
+      that.closeProjectSelect();
       // 切换项目后，清除页面上上一个项目的所有告警
       let sosList = that.$store.state.sosList;
 
@@ -1732,6 +1786,10 @@ export default {
     },
   },
   unmounted() {
+    if (this._projectTipTimer) {
+      clearTimeout(this._projectTipTimer);
+      this._projectTipTimer = null;
+    }
     if (this._warningReposTimers && this._warningReposTimers.length) {
       this._warningReposTimers.forEach((t) => clearTimeout(t));
       this._warningReposTimers = [];
@@ -1765,6 +1823,12 @@ export default {
   border-left: 2px solid pink;
   padding-left: 10px;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.project-name-tip {
+  pointer-events: none !important;
 }
 
 .version_text {

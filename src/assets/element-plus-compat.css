@@ -2119,17 +2119,82 @@ body .el-table th,
 /* ========== 选择项目弹框（对齐 test1.html） ========== */
 .el-overlay.project-select-mask {
   background-color: rgba(15, 23, 42, 0.55) !important;
+  z-index: 10050 !important;
+}
+/* align-center 时 overlay-dialog 为 flex；必须防止子项被 stretch 成全屏高 */
+.el-overlay.project-select-mask .el-overlay-dialog {
+  align-items: center !important;
+  justify-content: center !important;
 }
 .el-dialog.project-select-dialog {
   width: 760px !important;
   max-width: calc(100vw - 48px) !important;
+  height: fit-content !important;
+  max-height: calc(100vh - 48px) !important;
+  align-self: center !important;
+  flex: none !important;
   border-radius: 16px !important;
   overflow: hidden !important;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22) !important;
   padding: 0 !important;
   background: #fff !important;
+  /* 保持四向 auto，避免被 flex stretch 拉满高度 */
+  margin: auto !important;
 }
-.el-dialog.project-select-dialog .el-dialog__header {
+.el-dialog.project-select-dialog.is-align-center {
+  margin: auto !important;
+}
+.el-dialog.project-select-dialog .el-dialog__body {
+  flex: none !important;
+  height: auto !important;
+  max-height: none !important;
+}
+/* App 底部切换项目：自定义 Teleport 弹层（不用 .el-dialog，避免 EP 把高度撑满） */
+.el-overlay.app-project-select-mask {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(15, 23, 42, 0.55) !important;
+  z-index: 10050 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.el-overlay.app-project-select-mask .app-ps-center {
+  margin: 0 !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* 抵消全局 * { margin:0 auto } */
+.el-overlay.app-project-select-mask .app-project-select-dialog,
+.el-overlay.app-project-select-mask .app-project-select-dialog * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog {
+  width: 760px !important;
+  max-width: calc(100vw - 48px) !important;
+  height: fit-content !important;
+  max-height: calc(100vh - 48px) !important;
+  display: block !important;
+  flex: none !important;
+  position: relative !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22) !important;
+  padding: 0 !important;
+  background: #fff !important;
+  margin: 0 !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-dialog-header,
+.el-overlay.app-project-select-mask .app-project-select-dialog .el-dialog__header {
   margin: 0 !important;
   padding: 20px 48px !important;
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
@@ -2137,8 +2202,82 @@ body .el-table th,
   box-sizing: border-box;
   position: relative !important;
 }
-.el-dialog.project-select-dialog .ps-modal-title,
-.el-dialog.project-select-dialog .el-dialog__title {
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-modal-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .el-dialog__body {
+  display: block !important;
+  height: auto !important;
+  max-height: none !important;
+  flex: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  text-align: left !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-grid-wrap {
+  padding: 24px 28px !important;
+  max-height: 60vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  gap: 20px !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-card {
+  margin: 0 !important;
+  text-align: left !important;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-close-btn {
+  position: absolute !important;
+  top: 50% !important;
+  right: 16px !important;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.el-overlay.app-project-select-mask .app-project-select-dialog .ps-help-q {
+  color: rgba(255, 255, 255, 0.95) !important;
+  cursor: help;
+}
+/* 帮助 tip 必须高于选项目遮罩，否则看不见 */
+.el-popper.project-select-help-tip {
+  z-index: 30000 !important;
+}
+.project-select-dialog .el-dialog__header {
+  margin: 0 !important;
+  padding: 20px 48px !important;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+  text-align: center !important;
+  box-sizing: border-box;
+  position: relative !important;
+}
+.project-select-dialog .ps-modal-title,
+.project-select-dialog .el-dialog__title {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2153,19 +2292,19 @@ body .el-table th,
   line-height: 1.4 !important;
   text-align: center !important;
 }
-.el-dialog.project-select-dialog .ps-modal-title > span {
+.project-select-dialog .ps-modal-title > span {
   margin: 0;
   padding: 0;
 }
-.el-dialog.project-select-dialog .ps-modal-title .el-tooltip__trigger,
-.el-dialog.project-select-dialog .ps-modal-title > .el-tooltip {
+.project-select-dialog .ps-modal-title .el-tooltip__trigger,
+.project-select-dialog .ps-modal-title > .el-tooltip {
   display: inline-flex !important;
   align-items: center;
   margin: 0 !important;
   padding: 0 !important;
   line-height: 1;
 }
-.el-dialog.project-select-dialog .ps-help-q {
+.project-select-dialog .ps-help-q {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -2181,7 +2320,7 @@ body .el-table th,
   top: auto !important;
   transform: none !important;
 }
-.el-dialog.project-select-dialog .ps-help-q:hover {
+.project-select-dialog .ps-help-q:hover {
   color: #ffffff !important;
 }
 .ps-help-tip {
@@ -2199,7 +2338,7 @@ body .el-table th,
   color: #93c5fd;
   text-decoration: underline;
 }
-.el-dialog.project-select-dialog .ps-close-btn {
+.project-select-dialog .ps-close-btn {
   position: absolute !important;
   top: 50% !important;
   right: 16px !important;
@@ -2219,47 +2358,51 @@ body .el-table th,
   line-height: 1;
   transition: background-color 0.2s ease;
 }
-.el-dialog.project-select-dialog .ps-close-btn:hover {
+.project-select-dialog .ps-close-btn:hover {
   background: rgba(255, 255, 255, 0.18);
 }
-.el-dialog.project-select-dialog .ps-close-icon {
+.project-select-dialog .ps-close-icon {
   font-size: 22px;
   font-weight: 400;
   line-height: 1;
   color: inherit;
 }
-.el-dialog.project-select-dialog .el-dialog__headerbtn {
+.project-select-dialog .el-dialog__headerbtn {
   display: none !important;
 }
-.el-dialog.project-select-dialog .el-dialog__body {
+.project-select-dialog .el-dialog__body {
   padding: 0 !important;
   color: inherit !important;
   max-height: none !important;
+  text-align: left !important;
 }
-.el-dialog.project-select-dialog .ps-grid-wrap {
+.project-select-dialog .ps-grid-wrap {
   padding: 24px 28px !important;
   max-height: 60vh;
   overflow-y: auto;
   box-sizing: border-box;
+  text-align: left !important;
 }
-.el-dialog.project-select-dialog .ps-grid-wrap::-webkit-scrollbar {
+.project-select-dialog .ps-grid-wrap::-webkit-scrollbar {
   width: 7px;
 }
-.el-dialog.project-select-dialog .ps-grid-wrap::-webkit-scrollbar-thumb {
+.project-select-dialog .ps-grid-wrap::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
-.el-dialog.project-select-dialog .ps-grid {
+.project-select-dialog .ps-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
   gap: 20px !important;
   margin: 0 !important;
   transform: none !important;
+  width: 100% !important;
 }
-.el-dialog.project-select-dialog .ps-card {
+.project-select-dialog .ps-card {
   position: relative;
   box-sizing: border-box !important;
   width: auto !important;
+  max-width: none !important;
   margin: 0 !important;
   padding: 20px !important;
   border: 1px solid #e5e7eb !important;
@@ -2272,32 +2415,33 @@ body .el-table th,
   transition: all 0.25s ease !important;
   z-index: 1;
 }
-.el-dialog.project-select-dialog .ps-card:hover {
+.project-select-dialog .ps-card:hover {
   border-color: #3b82f6 !important;
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2) !important;
   transform: translateY(-4px) !important;
   z-index: 2;
 }
-.el-dialog.project-select-dialog .ps-card.is-active {
+.project-select-dialog .ps-card.is-active {
   border: 2px solid #2563eb !important;
   background-color: #f0f6ff !important;
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25) !important;
 }
-.el-dialog.project-select-dialog .ps-card-header {
+.project-select-dialog .ps-card-header {
   display: flex !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
   gap: 10px;
-  margin-bottom: 14px !important;
+  margin: 0 0 14px 0 !important;
 }
-.el-dialog.project-select-dialog .ps-card-main {
+.project-select-dialog .ps-card-main {
   display: flex !important;
   align-items: center !important;
   gap: 10px;
   min-width: 0;
   flex: 1;
+  margin: 0 !important;
 }
-.el-dialog.project-select-dialog .ps-card-icon {
+.project-select-dialog .ps-card-icon {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
@@ -2308,18 +2452,20 @@ body .el-table th,
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  margin: 0 !important;
 }
-.el-dialog.project-select-dialog .ps-card.is-reverse .ps-card-icon,
-.el-dialog.project-select-dialog .ps-card-icon.is-reverse {
+.project-select-dialog .ps-card.is-reverse .ps-card-icon,
+.project-select-dialog .ps-card-icon.is-reverse {
   background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
   color: #16a34a;
 }
-.el-dialog.project-select-dialog .ps-card-icon svg {
+.project-select-dialog .ps-card-icon svg {
   width: 17px;
   height: 17px;
   display: block;
+  margin: 0 !important;
 }
-.el-dialog.project-select-dialog .ps-card-name {
+.project-select-dialog .ps-card-name {
   font-size: 16px !important;
   font-weight: 600 !important;
   color: #111827 !important;
@@ -2327,8 +2473,10 @@ body .el-table th,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 0 !important;
+  text-align: left !important;
 }
-.el-dialog.project-select-dialog .ps-tag {
+.project-select-dialog .ps-tag {
   flex-shrink: 0;
   font-size: 12px !important;
   font-weight: 500 !important;
@@ -2336,25 +2484,30 @@ body .el-table th,
   padding: 4px 10px !important;
   border-radius: 16px !important;
   border: none !important;
+  margin: 0 !important;
 }
-.el-dialog.project-select-dialog .ps-tag.is-forward {
-  background-color: #dbeafe !important;
+.project-select-dialog .ps-tag.is-forward {
   color: #1d4ed8 !important;
+  background: #dbeafe !important;
 }
-.el-dialog.project-select-dialog .ps-tag.is-reverse {
-  background-color: #dcfce7 !important;
+.project-select-dialog .ps-tag.is-reverse {
   color: #15803d !important;
+  background: #dcfce7 !important;
 }
-.el-dialog.project-select-dialog .ps-card-id {
+.project-select-dialog .ps-card-id {
   font-size: 13px !important;
   color: #6b7280 !important;
-  margin-bottom: 8px !important;
+  margin: 0 0 8px 0 !important;
+  text-align: left !important;
   line-height: 1.4;
+  word-break: break-all;
 }
-.el-dialog.project-select-dialog .ps-card-desc {
+.project-select-dialog .ps-card-desc {
   font-size: 13px !important;
   color: #6b7280 !important;
   line-height: 1.5 !important;
+  margin: 0 !important;
+  text-align: left !important;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

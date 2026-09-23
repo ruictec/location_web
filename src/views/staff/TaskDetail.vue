@@ -600,9 +600,13 @@ export default {
         this.countdownText = "-";
         return;
       }
-      // 已超过结束时间：直接显示已结束，不再显示已开始时长
+      // 已超过结束时间：直接显示已结束，并断开 WebSocket
       if (end && now >= end) {
         this.countdownText = this.$t("locateTask.ended");
+        if (this.websock) {
+          this.closeWebsocket();
+        }
+        this.clearCountdown();
         return;
       }
       const elapsed = now - begin;
@@ -614,9 +618,15 @@ export default {
           this.$t("locateTask.elapsed") + " " + this.formatDuration(elapsed);
       }
     },
+    isTaskEnded() {
+      const end = Number(this.task && this.task.endtime);
+      if (!end) return false;
+      return Math.floor(Date.now() / 1000) >= end;
+    },
     startCountdown() {
       this.clearCountdown();
       this.updateCountdown();
+      if (this.isTaskEnded()) return;
       this.countdownTimer = setInterval(() => {
         this.updateCountdown();
       }, 1000);
@@ -782,6 +792,11 @@ export default {
     },
     initWebsocket() {
       if (typeof WebSocket === "undefined") {
+        return;
+      }
+      // 任务已结束：不建立 WebSocket
+      if (this.isTaskEnded()) {
+        console.log("任务详情 WebSocket 跳过：任务已结束");
         return;
       }
       const sid = this.getTaskWsSid();
