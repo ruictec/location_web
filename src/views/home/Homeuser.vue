@@ -513,7 +513,6 @@
     </el-container>
     <!-- 选择项目（权限5登录后必选，不可关闭） -->
     <el-dialog
-      v-if="pro"
       v-model="pro"
       class="project-select-dialog"
       modal-class="project-select-mask"
@@ -521,13 +520,15 @@
       :close-on-press-escape="false"
       :close-on-click-modal="false"
       :append-to-body="true"
+      :destroy-on-close="true"
       width="760px"
       align-center
+      @closed="cleanupProjectSelectOverlay"
     >
       <template #header>
         <div class="ps-modal-title">
           <span>{{ $t("navbar.Selectitem") }}</span>
-          <el-tooltip effect="dark" placement="bottom" :show-after="200">
+          <el-tooltip effect="dark" placement="bottom" :show-after="200" :z-index="30000" popper-class="project-select-help-tip">
             <template #content>
               <div class="ps-help-tip">
                 <p>{{ $t("project.tet9") }}</p>
@@ -1698,6 +1699,9 @@ export default {
     choseProject(row) {
       var that = this;
       this.pro = false;
+      this.$nextTick(() => {
+        setTimeout(() => that.cleanupProjectSelectOverlay(), 50);
+      });
       that.attenFlag = row.projectConfig.attenFlag;
       that.alarmConfig = row.projectConfig.alarmConfig;
       that.tboxConfig = row.projectConfig.tboxConfig;
@@ -1944,10 +1948,22 @@ export default {
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(data, this.tenantkey_A, this.tenantid_A, this.username).then(
-        (res) => {
+      const tenantkey =
+        this.tenantkey_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.username);
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
           if (res.code == 1001) {
             this.projectTable = res.data;
+            this.$store.commit(
+              "changeProjectTable",
+              Array.isArray(res.data) ? res.data : []
+            );
             if (this.projectTable.length === 1) {
               this.choseProject(this.projectTable[0]);
             }
@@ -1958,8 +1974,30 @@ export default {
               }, 200);
             }
           }
+      });
+    },
+    // 关闭选项目弹窗后清理残留遮罩，避免挡住右下角点击
+    cleanupProjectSelectOverlay() {
+      if (this.pro) return;
+      const html = document.documentElement;
+      const body = document.body;
+      body.classList.remove("el-popup-parent--hidden");
+      body.style.overflow = "";
+      body.style.paddingRight = "0px";
+      html.style.overflow = "";
+      document
+        .querySelectorAll("body > .el-overlay.project-select-mask")
+        .forEach((el) => {
+          // 若 App/Navbar 正在展示选项目弹窗，不要误删
+          const dialog = el.querySelector(".project-select-dialog");
+          if (dialog && dialog.getAttribute("aria-hidden") === "false") return;
+          el.remove();
+        });
+      document.querySelectorAll("body > .el-overlay").forEach((el) => {
+        if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
+          el.remove();
         }
-      );
+      });
     },
 
     //初始化用户首页地图

@@ -277,13 +277,14 @@
       :close-on-press-escape="projectSelectClosable"
       :close-on-click-modal="false"
       :append-to-body="true"
+      :destroy-on-close="true"
       width="760px"
       align-center
     >
       <template #header>
         <div class="ps-modal-title">
           <span>{{ $t("navbar.Selectitem") }}</span>
-          <el-tooltip effect="dark" placement="bottom" :show-after="200">
+          <el-tooltip effect="dark" placement="bottom" :show-after="200" :z-index="30000" popper-class="project-select-help-tip">
             <template #content>
               <div class="ps-help-tip">
                 <p>{{ $t("project.tet9") }}</p>
@@ -512,7 +513,7 @@ export default {
       // 音效相关
 
       audioSrc: "",
-      audioTimer: true,
+      audioTimer: null,
     };
   },
   components: {
@@ -730,52 +731,66 @@ export default {
           this.tenantid_A,
           this.userName
         ).then((res) => {
-          if (res.code == 1001) {
-            that.warningNum = res.data.size;
-            that.$store.commit("setWarningNum", res.data.size);
-            let sosNumss = that.$store.state.sosNums;
-            if (sosNumss == 0 || sosNumss == "") {
-              if (res.data.warning) {
-                if (res.data.warning.id != that.$store.state.warningInfo.id) {
+          if (res.code != 1001) return;
+          // 切大屏等场景 Navbar 已卸载时 ref 为空，避免 pause 报错
+          const audio = that.$refs && that.$refs.audio;
+          that.warningNum = res.data.size;
+          that.$store.commit("setWarningNum", res.data.size);
+          let sosNumss = that.$store.state.sosNums;
+          if (sosNumss == 0 || sosNumss == "") {
+            if (res.data.warning) {
+              if (res.data.warning.id != that.$store.state.warningInfo.id) {
+                if (that.audioTimer) {
                   clearInterval(that.audioTimer);
                   that.audioTimer = null;
-                  that.$refs.audio.pause();
-                  that.$store.commit("setWarningInfo", res.data.warning);
-                  if (res.data.warning.vtime > 0) {
-                    that.$refs.audio.src =
+                }
+                if (audio) audio.pause();
+                that.$store.commit("setWarningInfo", res.data.warning);
+                if (res.data.warning.vtime > 0) {
+                  if (audio) {
+                    audio.src =
                       "../../../static/video/" +
                       res.data.warning.voice +
                       ".mp3";
-                    that.$refs.audio.currentTime = 0; //从头开始播放
-                    that.$refs.audio.play(); //播放
-                    setTimeout(() => {
-                      that.$refs.audio.pause();
-                    }, res.data.warning.vtime * 1000);
+                    audio.currentTime = 0;
+                    audio.play();
+                  }
+                  setTimeout(() => {
+                    const a = that.$refs && that.$refs.audio;
+                    if (a) a.pause();
+                  }, res.data.warning.vtime * 1000);
 
-                    if (res.data.warning.vcycle > 0) {
-                      that.audioTimer = setInterval(() => {
-                        that.$refs.audio.play(); //播放
-                        setTimeout(() => {
-                          that.$refs.audio.pause();
-                        }, res.data.warning.vtime * 1000);
-                      }, res.data.warning.vcycle * 1000);
-                    }
-                  } else {
+                  if (res.data.warning.vcycle > 0) {
+                    that.audioTimer = setInterval(() => {
+                      const a = that.$refs && that.$refs.audio;
+                      if (a) a.play();
+                      setTimeout(() => {
+                        const a2 = that.$refs && that.$refs.audio;
+                        if (a2) a2.pause();
+                      }, res.data.warning.vtime * 1000);
+                    }, res.data.warning.vcycle * 1000);
+                  }
+                } else {
+                  if (that.audioTimer) {
                     clearInterval(that.audioTimer);
                     that.audioTimer = null;
-                    that.$refs.audio.pause();
                   }
+                  if (audio) audio.pause();
                 }
-              } else {
-                clearInterval(that.audioTimer);
-                that.audioTimer = null;
-                that.$refs.audio.pause();
               }
             } else {
+              if (that.audioTimer) {
+                clearInterval(that.audioTimer);
+                that.audioTimer = null;
+              }
+              if (audio) audio.pause();
+            }
+          } else {
+            if (that.audioTimer) {
               clearInterval(that.audioTimer);
               that.audioTimer = null;
-              that.$refs.audio.pause();
             }
+            if (audio) audio.pause();
           }
         });
       }
@@ -941,12 +956,13 @@ export default {
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.username
-      ).then((res) => {
+      const tenantkey =
+        this.tenantkey_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName || (this.$store.state.userInfo && this.$store.state.userInfo.username);
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
         if (res.code == 1001) {
           this.projectTable = res.data;
           this.$store.commit("changeProjectTable", this.projectTable);
