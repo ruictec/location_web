@@ -810,6 +810,7 @@ export default {
               editFencess.push({
                 coordinates: editFences,
                 color: item.colour,
+                opacity: item.opacity,
                 id: item.id,
                 num: item.num,
               });
@@ -828,6 +829,11 @@ export default {
       const b = (rgb >> 0) & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
     formatFenceNumberText(num) {
       const count = Number(num) || 0;
       if (count <= 0) {
@@ -841,6 +847,7 @@ export default {
       this.AllFences.forEach((fenceData) => {
         const gpsCoords = fenceData.coordinates;
         const color = fenceData.color;
+        const opacity = this.normalizeFenceOpacity(fenceData.opacity);
         const mercatorCoords = gpsCoords.map((coord) => fromLonLat(coord));
         const polygon = new Polygon([mercatorCoords]);
         const fenceNum =
@@ -864,7 +871,7 @@ export default {
         fenceFeature.setStyle(
           new Style({
             fill: new Fill({
-              color: this.hexToRgba(color, 0.5),
+              color: this.hexToRgba(color, opacity),
             }),
             stroke: new Stroke({
               color: color,

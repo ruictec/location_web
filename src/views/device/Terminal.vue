@@ -431,15 +431,17 @@
                   </span>
                   <el-button type="primary" class="query" @click="searchInfo()">{{ $t("terminal.search") }}</el-button>
                   <el-button type="primary" class="reset" @click="clearBtn()">{{ $t("terminal.reset") }}</el-button>
+                  <el-button v-if="!show" type="primary" @click="previousDevice()">{{ $t("terminal.previous") }}</el-button>
+                  <el-button v-if="!show" type="primary" @click="nextDevice()">{{ $t("terminal.next") }}</el-button>
                   <el-button v-if="isAdminPrio" type="primary" class="addTer" @click="addTer()">{{ $t("terminal.addterminal") }}</el-button>
-                  <el-dropdown trigger="click">
+                  <el-dropdown v-if="contrForPrionum != 5 || show" trigger="click">
                     <el-button type="primary">{{ $t("terminal.moreActions") }}<i class="el-icon-arrow-down el-icon--right"></i></el-button>
                     <template #dropdown>
                       <el-dropdown-menu class="terminal-action-menu">
                         <el-dropdown-item v-if="contrForPrionum != 5" @click="importExcel()">{{ $t("terminal.import") }}</el-dropdown-item>
                         <el-dropdown-item v-if="isAdminPrio" @click="exportExcel()">{{ $t("terminal.export") }}</el-dropdown-item>
-                        <el-dropdown-item @click="previousDevice()">{{ $t("terminal.previous") }}</el-dropdown-item>
-                        <el-dropdown-item @click="nextDevice()">{{ $t("terminal.next") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="show" @click="previousDevice()">{{ $t("terminal.previous") }}</el-dropdown-item>
+                        <el-dropdown-item v-if="show" @click="nextDevice()">{{ $t("terminal.next") }}</el-dropdown-item>
                       </el-dropdown-menu>
                     </template>
                   </el-dropdown>

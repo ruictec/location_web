@@ -2903,6 +2903,11 @@ export default {
       const b = rgb & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
     escapeFenceName(name) {
       return String(name || "")
         .replace(/&/g, "&amp;")
@@ -3036,10 +3041,11 @@ export default {
         var feature = new OlFeature(polygon);
         var color = fence.colour || "#FF0000";
         var fenceName = fence.name || "";
+        var fenceOpacity = that.normalizeFenceOpacity(fence.opacity);
         feature.setStyle(
           new OlStyleStyle({
             fill: new Fill({
-              color: that.hexToRgba(color, 0.3),
+              color: that.hexToRgba(color, fenceOpacity),
             }),
             stroke: new Stroke({
               color: color,
@@ -3099,7 +3105,7 @@ export default {
           var polygonMarker = new fengmap.FMPolygonMarker({
             points: polygonPoints,
             color: fence.colour || "#FF0000",
-            alpha: 0.3,
+            alpha: that.normalizeFenceOpacity(fence.opacity),
             lineWidth: 2,
             lineColor: fence.colour || "#FF0000",
           });

@@ -222,8 +222,25 @@
                       type="color"
                       v-model="fillColor"
                       class="fence-color-input"
-                      :title="fillColor || '#FF0000'"
+                      :title="$t('warning.FenceColor')"
                     />
+                    <div v-if="add || edit" class="fence-opacity-field">
+                      <span class="fence-opacity-label">{{
+                        $t("warning.FenceOpacity")
+                      }}</span>
+                      <el-input-number
+                        v-model="fillOpacity"
+                        class="fence-opacity-input"
+                        :min="0.01"
+                        :max="1"
+                        :step="0.1"
+                        :precision="2"
+                        controls-position="right"
+                      />
+                      <span class="fence-opacity-tip">{{
+                        $t("warning.FenceOpacityTip")
+                      }}</span>
+                    </div>
                     <el-button
                       v-if="add"
                       @click="clearFence"
@@ -404,6 +421,22 @@
                 <el-form-item :label="$t('warning.FenceColor')">
                   <el-color-picker v-model="fenceForm.colour"></el-color-picker>
                 </el-form-item>
+                <el-form-item :label="$t('warning.FenceOpacity')">
+                  <div class="fence-opacity-field is-dialog">
+                    <el-input-number
+                      v-model="fenceForm.opacity"
+                      class="fence-opacity-input"
+                      :min="0.01"
+                      :max="1"
+                      :step="0.1"
+                      :precision="2"
+                      controls-position="right"
+                    />
+                    <span class="fence-opacity-tip">{{
+                      $t("warning.FenceOpacityTip")
+                    }}</span>
+                  </div>
+                </el-form-item>
                 <el-form-item :label="$t('warning.EnableFence')">
                   <el-switch v-model="fenceForm.flag"></el-switch>
                 </el-form-item>
@@ -509,6 +542,7 @@ export default {
       centerX: 0,
       centerY: 0,
       fillColor: "#000000",
+      fillOpacity: 1,
       showFenceTypePopover: false, // 控制围栏类型选择弹窗显示
       showBuildingFloorDialog: false, // 控制楼栋楼层选择对话框显示
       buildingList: [], // 楼栋列表
@@ -549,10 +583,12 @@ export default {
       fenceForm: {
         name: "",
         colour: "#FF0000",
+        opacity: 1,
         flag: true, // 是否开启电子围栏，true为启用，false为停用
       },
       mapClickHandler: null, // 地图点击事件处理器
       creatingFenceColor: "#FF0000", // 正在创建的电子围栏颜色
+      creatingFenceOpacity: 1,
       // 右键菜单相关
       popMarker: null, // 右键菜单信息框
       popMarkerTip: false, // 是否有提示框了
@@ -676,17 +712,24 @@ export default {
 
     // 将16进制颜色和透明度转换为rgba格式
     hexToRgba(hex, opacity) {
-      const rgb = parseInt(hex.slice(1), 16); // 转换为 RGB 整数
+      const rgb = parseInt(String(hex || "#000000").slice(1), 16); // 转换为 RGB 整数
       const r = (rgb >> 16) & 0xff;
       const g = (rgb >> 8) & 0xff;
       const b = (rgb >> 0) & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    // opacity: (0, 1]，默认 1
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
     // 室外电子围栏样式（含名称文字）
-    createOutdoorFenceStyle(color, name) {
+    createOutdoorFenceStyle(color, name, opacity) {
+      const alpha = this.normalizeFenceOpacity(opacity);
       return new Style({
         fill: new Fill({
-          color: this.hexToRgba(color, 0.5),
+          color: this.hexToRgba(color, alpha),
         }),
         stroke: new Stroke({
           color: color,
@@ -719,7 +762,13 @@ export default {
       this.drawInteraction.on("drawend", (event) => {
         const feature = event.feature;
         // // 设置样式
-        feature.setStyle(this.createOutdoorFenceStyle(this.fillColor, this.mapData.name));
+        feature.setStyle(
+          this.createOutdoorFenceStyle(
+            this.fillColor,
+            this.mapData.name,
+            this.fillOpacity
+          )
+        );
         const geometry = feature.getGeometry();
         const coordinates = geometry.getCoordinates();
         // 记录围栏坐标
@@ -774,7 +823,13 @@ export default {
         const polygon = new Polygon([mercatorCoords]);
         const feature = new Feature(polygon);
         // // 设置样式
-        feature.setStyle(this.createOutdoorFenceStyle(color, fenceData.name));
+        feature.setStyle(
+          this.createOutdoorFenceStyle(
+            color,
+            fenceData.name,
+            fenceData.opacity
+          )
+        );
         this.vectorSource.addFeature(feature);
       });
     },
@@ -790,6 +845,7 @@ export default {
       this.centerX = this.$store.state.longis;
       this.centerY = this.$store.state.latis;
       this.fillColor = "#000000";
+      this.fillOpacity = 1;
       this.fenceID = "";
       this.showMap = true;
       this.add = true;
@@ -1755,7 +1811,7 @@ export default {
           var polygonMarker = new fengmap.FMPolygonMarker({
             points: polygonPoints,
             color: fence.colour || "#FF0000",
-            alpha: 0.3,
+            alpha: that.normalizeFenceOpacity(fence.opacity),
             lineWidth: 2,
             lineColor: fence.colour || "#FF0000",
           });
@@ -1862,10 +1918,11 @@ export default {
           // 设置样式（含名称文字，便于多个围栏时区分）
           var color = fence.colour || "#FF0000";
           var fenceName = fence.name || "";
+          var fenceOpacity = that.normalizeFenceOpacity(fence.opacity);
           feature.setStyle(
             new Style({
               fill: new Fill({
-                color: that.hexToRgba(color, 0.3),
+                color: that.hexToRgba(color, fenceOpacity),
               }),
               stroke: new Stroke({
                 color: color,
@@ -1895,6 +1952,7 @@ export default {
           feature.set('fenceName', fence.name);
           feature.set('fenceData', fence);
           feature.set('fenceColor', color);
+          feature.set('fenceOpacity', fenceOpacity);
 
           that.vectorSource2d.addFeature(feature);
           that.fenceFeatures2d.push(feature);
@@ -2080,6 +2138,9 @@ export default {
       // 设置绘制样式
       that.drawInteraction2d.on('drawstart', function () {
         that.creatingFenceColor = that.fenceForm.colour || "#FF0000";
+        that.creatingFenceOpacity = that.normalizeFenceOpacity(
+          that.fenceForm.opacity
+        );
       });
 
       // 绘制完成事件
@@ -2092,7 +2153,10 @@ export default {
         feature.setStyle(
           new Style({
             fill: new Fill({
-              color: that.hexToRgba(that.creatingFenceColor, 0.3),
+              color: that.hexToRgba(
+                that.creatingFenceColor,
+                that.normalizeFenceOpacity(that.creatingFenceOpacity)
+              ),
             }),
             stroke: new Stroke({
               color: that.creatingFenceColor,
@@ -2221,7 +2285,11 @@ export default {
       that.fenceForm.colour = fenceData ? (fenceData.colour || "#FF0000") : "#FF0000";
       that.fenceForm.name = fenceData ? (fenceData.name || "") : "";
       that.fenceForm.flag = fenceData ? (fenceData.flag !== false) : true;
+      that.fenceForm.opacity = that.normalizeFenceOpacity(
+        fenceData ? fenceData.opacity : 1
+      );
       that.creatingFenceColor = that.fenceForm.colour;
+      that.creatingFenceOpacity = that.fenceForm.opacity;
 
       // 添加修改交互（限制只能修改当前编辑的要素）
       if (that.modifyInteraction2d) {
@@ -2338,6 +2406,9 @@ export default {
         // 开始创建电子围栏
         this.fencePoints = [];
         this.creatingFenceColor = this.fenceForm.colour || "#FF0000";
+        this.creatingFenceOpacity = this.normalizeFenceOpacity(
+          this.fenceForm.opacity
+        );
         this.startDrawingFence();
       } else {
         // 结束创建电子围栏
@@ -2461,7 +2532,11 @@ export default {
         that.currentPolygonMarker = new fengmap.FMPolygonMarker({
           points: polygonPoints,
           color: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
-          alpha: 0.3,
+          alpha: that.normalizeFenceOpacity(
+            that.creatingFenceOpacity != null
+              ? that.creatingFenceOpacity
+              : that.fenceForm.opacity
+          ),
           lineWidth: 2,
           lineColor: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
         });
@@ -2532,7 +2607,10 @@ export default {
       that.clearFencePointMarkers();
       that.fenceForm.name = "";
       that.fenceForm.colour = "#FF0000";
+      that.fenceForm.opacity = 1;
       that.fenceForm.flag = true;
+      that.creatingFenceColor = "#FF0000";
+      that.creatingFenceOpacity = 1;
       that.showFenceDialog = false;
       // 重置3D创建状态
       if (that.isCreatingFence3d) {
@@ -2607,6 +2685,7 @@ export default {
           return { pointX: point.x, pointY: point.y };
         }),
         colour: that.fenceForm.colour || "#FF0000",
+        opacity: that.normalizeFenceOpacity(that.fenceForm.opacity),
         flag: that.fenceForm.flag, // true为启用，false为停用
       };
 
@@ -2658,8 +2737,10 @@ export default {
             that.fencePoints = [];
             that.fenceForm.name = "";
             that.fenceForm.colour = "#FF0000";
+            that.fenceForm.opacity = 1;
             that.fenceForm.flag = true;
             that.creatingFenceColor = "#FF0000";
+            that.creatingFenceOpacity = 1;
             
             // 停止2D地图的绘制和编辑交互
             if (that.drawInteraction2d) {
@@ -2983,7 +3064,11 @@ export default {
       that.fenceForm.colour = fenceData ? (fenceData.colour || "#FF0000") : "#FF0000";
       that.fenceForm.name = fenceData ? (fenceData.name || "") : "";
       that.fenceForm.flag = fenceData ? (fenceData.flag !== false) : true; // 默认启用
+      that.fenceForm.opacity = that.normalizeFenceOpacity(
+        fenceData ? fenceData.opacity : 1
+      );
       that.creatingFenceColor = that.fenceForm.colour;
+      that.creatingFenceOpacity = that.fenceForm.opacity;
 
       // 隐藏当前正在编辑的围栏标记（从数组中移除并删除）
       var markerIndex = -1;
@@ -3331,6 +3416,7 @@ export default {
               list: list,
               id: that.fenceID ? that.fenceID : "",
               colour: that.fillColor,
+              opacity: that.normalizeFenceOpacity(that.fillOpacity),
               groundid:0,
             };
             that.loading = true;
@@ -3399,6 +3485,7 @@ export default {
                 coordinates: editFences,
                 color: item.colour,
                 name: item.name,
+                opacity: item.opacity,
               });
             });
 
@@ -3423,6 +3510,7 @@ export default {
           name: "",
         };
         this.fillColor = fenceData.colour;
+        this.fillOpacity = this.normalizeFenceOpacity(fenceData.opacity);
         this.centerX =
           fenceData.list.length > 0
             ? fenceData.list[0].pointX
@@ -3447,6 +3535,7 @@ export default {
           coordinates: editFences,
           color: fenceData.colour,
           name: fenceData.name,
+          opacity: this.fillOpacity,
         });
         this.savedFences = this.editFences;
         this.showMap = true;
@@ -3921,6 +4010,31 @@ export default {
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
+}
+.fence-opacity-input {
+  width: 120px !important;
+  flex-shrink: 0;
+}
+.fence-opacity-field {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.fence-opacity-field.is-dialog {
+  width: 100%;
+}
+.fence-opacity-label {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #606266;
+  white-space: nowrap;
+}
+.fence-opacity-tip {
+  font-size: 12px;
+  color: #909399;
+  white-space: nowrap;
 }
 </style>
 <style>
