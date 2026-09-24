@@ -42,6 +42,21 @@
         min-width="140"
       />
       <el-table-column
+        :label="$t('locateTask.status')"
+        align="center"
+        min-width="100"
+      >
+        <template #default="scope">
+          <el-tag
+            :type="getTaskStatusTagType(scope.row)"
+            size="small"
+            effect="plain"
+          >
+            {{ formatTaskStatus(scope.row) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column
         :label="$t('locateTask.starttime')"
         show-overflow-tooltip
         align="center"
@@ -107,19 +122,124 @@
       <el-table-column
         :label="$t('locateTask.operate')"
         align="center"
-        width="220"
+        width="280"
         fixed="right"
       >
         <template #default="scope">
-          <el-button type="success" link @click="enterTask(scope.row)">{{
-            $t("locateTask.enter")
-          }}</el-button>
-          <el-button type="primary" link @click="openEditDialog(scope.row)">{{
-            $t("locateTask.edit")
-          }}</el-button>
-          <el-button type="danger" link @click="deleteTask(scope.row)">{{
-            $t("locateTask.delete")
-          }}</el-button>
+          <div class="task-operate-btns">
+            <el-tooltip
+              v-if="canStartTask(scope.row)"
+              effect="dark"
+              :content="$t('locateTask.start')"
+              placement="top"
+            >
+              <el-button
+                type="danger"
+                size="small"
+                class="icon_button"
+                @click="changeTaskStatus(scope.row, 1)"
+              >
+                <img src="../../../static/start1.png" alt="" />
+              </el-button>
+            </el-tooltip>
+            <el-tooltip
+              v-if="canPauseTask(scope.row)"
+              effect="dark"
+              :content="$t('locateTask.pause')"
+              placement="top"
+            >
+              <el-button
+                type="danger"
+                size="small"
+                class="icon_button"
+                @click="changeTaskStatus(scope.row, 2)"
+              >
+                <el-icon :size="16"><VideoPause /></el-icon>
+              </el-button>
+            </el-tooltip>
+            <el-tooltip
+              v-if="canStopTask(scope.row)"
+              effect="dark"
+              :content="$t('locateTask.stop')"
+              placement="top"
+            >
+              <el-button
+                type="danger"
+                size="small"
+                class="icon_button"
+                @click="stopTask(scope.row)"
+              >
+                <img src="../../../static/stop.png" alt="" />
+              </el-button>
+            </el-tooltip>
+            <el-dropdown size="small" type="primary" trigger="click">
+              <span class="el-dropdown-link">
+                <el-tooltip
+                  effect="dark"
+                  :content="$t('locateTask.operate')"
+                  placement="top"
+                >
+                  <el-button type="primary" size="small" class="icon_button">
+                    <img src="../../../static/control.png" alt="" />
+                  </el-button>
+                </el-tooltip>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu
+                  class="task-operate-menu selects"
+                  style="background-color: rgb(219, 222, 231)"
+                >
+                  <el-dropdown-item
+                    style="
+                      margin-top: 4%;
+                      background-color: rgb(219, 222, 231);
+                    "
+                  >
+                    <el-button
+                      size="small"
+                      class="edits"
+                      :disabled="!canEditTask(scope.row)"
+                      @click="openEditDialog(scope.row)"
+                      >{{ $t("locateTask.edit") }}</el-button
+                    >
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    style="
+                      margin-top: 4%;
+                      background-color: rgb(219, 222, 231);
+                    "
+                  >
+                    <el-button
+                      size="small"
+                      class="edits"
+                      :disabled="!canExtendTask(scope.row)"
+                      @click="openExtendDialog(scope.row)"
+                      >{{ $t("locateTask.extend") }}</el-button
+                    >
+                  </el-dropdown-item>
+                  <el-dropdown-item
+                    style="
+                      margin-top: 4%;
+                      background-color: rgb(219, 222, 231);
+                    "
+                  >
+                    <el-button
+                      size="small"
+                      class="dels"
+                      @click="deleteTask(scope.row)"
+                      >{{ $t("locateTask.delete") }}</el-button
+                    >
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-button
+              type="success"
+              size="small"
+              @click="enterTask(scope.row)"
+              >{{ $t("locateTask.enter") }}</el-button
+            >
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -144,7 +264,8 @@
       "
       width="560px"
       v-model="dialogVisible"
-      @close="closeDialog"
+      @opened="bindTaskTimeCompactInput"
+      @close="onTaskDialogClose"
     >
       <el-form
         ref="taskForm"
@@ -160,15 +281,28 @@
           />
         </el-form-item>
         <el-form-item :label="$t('locateTask.time')" prop="timeRange">
-          <el-date-picker
-            v-model="taskForm.timeRange"
-            type="datetimerange"
-            :range-separator="$t('locateTask.to')"
-            :start-placeholder="$t('locateTask.starttime')"
-            :end-placeholder="$t('locateTask.endtime')"
-            :disabled-date="disabledTaskDate"
-            style="width: 100%"
-          />
+          <div ref="taskTimePickerWrap" class="task-time-range-row">
+            <el-date-picker
+              :model-value="taskForm.timeRange[0] || null"
+              type="datetime"
+              format="YYYY-MM-DD HH:mm:ss"
+              :placeholder="$t('locateTask.starttime')"
+              :disabled-date="disabledTaskDate"
+              style="width: 100%"
+              @update:model-value="(val) => updateTimeRangeSide(0, val)"
+            />
+            <span class="task-time-sep">{{ $t("locateTask.to") }}</span>
+            <el-date-picker
+              :model-value="taskForm.timeRange[1] || null"
+              type="datetime"
+              format="YYYY-MM-DD HH:mm:ss"
+              :placeholder="$t('locateTask.endtime')"
+              :disabled-date="disabledTaskDate"
+              style="width: 100%"
+              @update:model-value="(val) => updateTimeRangeSide(1, val)"
+            />
+          </div>
+          <div class="task-time-tip">{{ $t("locateTask.timeCompactTip") }}</div>
         </el-form-item>
         <el-form-item :label="$t('locateTask.worktypes')" prop="worktypes">
           <el-select
@@ -264,11 +398,57 @@
         }}</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog
+      :title="$t('locateTask.extendTitle')"
+      width="420px"
+      v-model="extendDialogVisible"
+      @opened="bindExtendTimeCompactInput"
+      @close="closeExtendDialog"
+    >
+      <el-form label-width="100px">
+        <el-form-item :label="$t('locateTask.name')">
+          <span>{{ extendTaskName }}</span>
+        </el-form-item>
+        <el-form-item :label="$t('locateTask.endtime')">
+          <span>{{ formatSecondTime(extendOriginEndSec) }}</span>
+        </el-form-item>
+        <el-form-item :label="$t('locateTask.extendEndtime')">
+          <div ref="extendTimePickerWrap" class="extend-time-picker-wrap">
+            <el-date-picker
+              v-model="extendEndTime"
+              type="datetime"
+              format="YYYY-MM-DD HH:mm:ss"
+              :placeholder="$t('locateTask.extendEndtimePlaceholder')"
+              :disabled-date="disabledExtendEndDate"
+              :disabled-hours="disabledExtendHours"
+              :disabled-minutes="disabledExtendMinutes"
+              :disabled-seconds="disabledExtendSeconds"
+              style="width: 100%"
+            />
+          </div>
+          <div class="task-time-tip">{{ $t("locateTask.timeCompactTip") }}</div>
+        </el-form-item>
+        <div class="task-time-tip">{{ $t("locateTask.extendTip") }}</div>
+      </el-form>
+      <template #footer>
+        <el-button @click="closeExtendDialog">{{
+          $t("locateTask.cancel")
+        }}</el-button>
+        <el-button
+          type="primary"
+          :loading="extendSubmitLoading"
+          @click="submitExtendTime"
+          >{{ $t("locateTask.confirm") }}</el-button
+        >
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { markRaw } from "vue";
+import { VideoPause } from "@element-plus/icons-vue";
 import { Map, View } from "ol";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
@@ -288,14 +468,24 @@ import {
   getLocateTaskList,
   insertLocateTask,
   updateLocateTask,
+  updateLocateTaskStatus,
+  extendLocateTaskEndtime,
   delLocateTask,
   getMemberType,
   getFenceManageList,
 } from "../../axios/api";
 
+// status: 0 未开始 / 1 进行中 / 2 已暂停 / 3 已结束
+const TASK_STATUS = {
+  NOT_STARTED: 0,
+  RUNNING: 1,
+  PAUSED: 2,
+  ENDED: 3,
+};
+
 export default {
   name: "TaskManagement",
-  components: { MapLayerSwitcher },
+  components: { MapLayerSwitcher, VideoPause },
   mixins: [mapStyleMixin],
   data() {
     return {
@@ -303,6 +493,13 @@ export default {
       submitLoading: false,
       dialogVisible: false,
       dialogMode: "add",
+      extendDialogVisible: false,
+      extendSubmitLoading: false,
+      extendTaskId: "",
+      extendTaskName: "",
+      extendOriginEnd: null,
+      extendOriginEndSec: "",
+      extendEndTime: null,
       searchList: {
         name: "",
         page: 1,
@@ -317,7 +514,7 @@ export default {
       taskForm: {
         id: "",
         name: "",
-        timeRange: [],
+        timeRange: [null, null],
         worktypes: [],
         tranches: [],
         longi: "",
@@ -359,14 +556,22 @@ export default {
         ],
         timeRange: [
           {
-            required: true,
-            type: "array",
-            min: 2,
-            message: this.$t("locateTask.timeRequired"),
-            trigger: "change",
-          },
-          {
-            validator: this.validateTaskTimeRange,
+            validator: (rule, value, callback) => {
+              const range = Array.isArray(value) ? value : [];
+              const hasStart = range[0] instanceof Date;
+              const hasEnd = range[1] instanceof Date;
+              // 都为空：允许不填
+              if (!hasStart && !hasEnd) {
+                callback();
+                return;
+              }
+              // 只填一侧：不允许
+              if (hasStart !== hasEnd) {
+                callback(new Error(this.$t("locateTask.timePairRequired")));
+                return;
+              }
+              this.validateTaskTimeRange(rule, range, callback);
+            },
             trigger: "change",
           },
         ],
@@ -398,6 +603,8 @@ export default {
     },
   },
   beforeUnmount() {
+    this.unbindTaskTimeCompactInput();
+    this.unbindExtendTimeCompactInput();
     this.destroyLocationMap();
   },
   mounted() {
@@ -570,7 +777,7 @@ export default {
       this.taskForm = {
         id: "",
         name: "",
-        timeRange: [],
+        timeRange: [null, null],
         worktypes: [],
         tranches: [],
         longi: "",
@@ -584,6 +791,13 @@ export default {
       });
     },
     openEditDialog(row) {
+      if (!this.canEditTask(row)) {
+        this.$message({
+          message: this.$t("locateTask.editOnlyNotStarted"),
+          type: "warning",
+        });
+        return;
+      }
       this.dialogMode = "edit";
       const worktypesFromApi = this.parseCommaList(row.worktypes);
       const worktypes =
@@ -599,7 +813,7 @@ export default {
                 new Date(Number(row.begintime) * 1000),
                 new Date(Number(row.endtime) * 1000),
               ]
-            : [],
+            : [null, null],
         worktypes,
         tranches: this.parseTrancheIds(row.tranches),
         longi:
@@ -618,10 +832,210 @@ export default {
     },
     closeDialog() {
       this.dialogVisible = false;
+    },
+    onTaskDialogClose() {
+      this.unbindTaskTimeCompactInput();
       this.submitLoading = false;
       if (this.$refs.taskForm) {
         this.$refs.taskForm.resetFields();
       }
+    },
+    // 支持输入 20240924122020 → 转为标准时间后再交给 el-date-picker 解析
+    parseCompactDateTime(text) {
+      if (!/^\d{14}$/.test(String(text || "").trim())) return null;
+      const s = String(text).trim();
+      const y = Number(s.slice(0, 4));
+      const m = Number(s.slice(4, 6));
+      const d = Number(s.slice(6, 8));
+      const h = Number(s.slice(8, 10));
+      const mi = Number(s.slice(10, 12));
+      const se = Number(s.slice(12, 14));
+      if (
+        m < 1 ||
+        m > 12 ||
+        d < 1 ||
+        d > 31 ||
+        h > 23 ||
+        mi > 59 ||
+        se > 59
+      ) {
+        return null;
+      }
+      const date = new Date(y, m - 1, d, h, mi, se);
+      if (
+        date.getFullYear() !== y ||
+        date.getMonth() !== m - 1 ||
+        date.getDate() !== d ||
+        date.getHours() !== h ||
+        date.getMinutes() !== mi ||
+        date.getSeconds() !== se
+      ) {
+        return null;
+      }
+      return date;
+    },
+    formatDateTimeDisplay(date) {
+      const pad = (num) => (num < 10 ? "0" + num : "" + num);
+      return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        " " +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes()) +
+        ":" +
+        pad(date.getSeconds())
+      );
+    },
+    applyCompactTimeFromInput(el) {
+      if (!el || el.tagName !== "INPUT") return false;
+      const date = this.parseCompactDateTime(el.value);
+      if (!date) return false;
+
+      const root = this._taskTimeCompactRoot;
+      const inputs = root
+        ? Array.from(root.querySelectorAll(".el-date-editor input"))
+        : [];
+      const index = inputs.indexOf(el);
+      if (index !== 0 && index !== 1) return false;
+
+      const formatted = this.formatDateTimeDisplay(date);
+      el.value = formatted;
+      // 同步 EP 内部 userInput，避免失焦后被旧值覆盖
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      this.updateTimeRangeSide(index, date);
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      return true;
+    },
+    updateTimeRangeSide(index, value) {
+      const next = Array.isArray(this.taskForm.timeRange)
+        ? [...this.taskForm.timeRange]
+        : [null, null];
+      while (next.length < 2) next.push(null);
+      next[index] = value || null;
+      // 选择/输入开始时间后，默认结束时间 = 开始时间 + 2 小时（仍可再改）
+      if (index === 0) {
+        if (next[0] instanceof Date) {
+          next[1] = new Date(next[0].getTime() + 2 * 60 * 60 * 1000);
+        } else {
+          // 清空开始时一并清空结束，避免只剩一侧
+          next[1] = null;
+        }
+      }
+      this.taskForm.timeRange = next;
+      this.$nextTick(() => {
+        if (this.$refs.taskForm) {
+          this.$refs.taskForm.validateField("timeRange");
+        }
+      });
+    },
+    bindTaskTimeCompactInput() {
+      this.$nextTick(() => {
+        this.unbindTaskTimeCompactInput();
+        const root = this.$refs.taskTimePickerWrap;
+        if (!root || typeof root.addEventListener !== "function") return;
+        this._taskTimeCompactRoot = root;
+        this._taskTimeCompactOnFocusOut = (e) => {
+          this.applyCompactTimeFromInput(e.target);
+        };
+        this._taskTimeCompactOnKeydown = (e) => {
+          if (
+            e.key === "Enter" ||
+            e.code === "Enter" ||
+            e.code === "NumpadEnter"
+          ) {
+            this.applyCompactTimeFromInput(e.target);
+          }
+        };
+        root.addEventListener(
+          "focusout",
+          this._taskTimeCompactOnFocusOut,
+          true
+        );
+        root.addEventListener(
+          "keydown",
+          this._taskTimeCompactOnKeydown,
+          true
+        );
+      });
+    },
+    unbindTaskTimeCompactInput() {
+      if (this._taskTimeCompactRoot) {
+        this._taskTimeCompactRoot.removeEventListener(
+          "focusout",
+          this._taskTimeCompactOnFocusOut,
+          true
+        );
+        this._taskTimeCompactRoot.removeEventListener(
+          "keydown",
+          this._taskTimeCompactOnKeydown,
+          true
+        );
+      }
+      this._taskTimeCompactRoot = null;
+      this._taskTimeCompactOnFocusOut = null;
+      this._taskTimeCompactOnKeydown = null;
+    },
+    applyExtendCompactTimeFromInput(el) {
+      if (!el || el.tagName !== "INPUT") return false;
+      const date = this.parseCompactDateTime(el.value);
+      if (!date) return false;
+      const formatted = this.formatDateTimeDisplay(date);
+      el.value = formatted;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      this.extendEndTime = date;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      return true;
+    },
+    bindExtendTimeCompactInput() {
+      this.$nextTick(() => {
+        this.unbindExtendTimeCompactInput();
+        const root = this.$refs.extendTimePickerWrap;
+        if (!root || typeof root.addEventListener !== "function") return;
+        this._extendTimeCompactRoot = root;
+        this._extendTimeCompactOnFocusOut = (e) => {
+          this.applyExtendCompactTimeFromInput(e.target);
+        };
+        this._extendTimeCompactOnKeydown = (e) => {
+          if (
+            e.key === "Enter" ||
+            e.code === "Enter" ||
+            e.code === "NumpadEnter"
+          ) {
+            this.applyExtendCompactTimeFromInput(e.target);
+          }
+        };
+        root.addEventListener(
+          "focusout",
+          this._extendTimeCompactOnFocusOut,
+          true
+        );
+        root.addEventListener(
+          "keydown",
+          this._extendTimeCompactOnKeydown,
+          true
+        );
+      });
+    },
+    unbindExtendTimeCompactInput() {
+      if (this._extendTimeCompactRoot) {
+        this._extendTimeCompactRoot.removeEventListener(
+          "focusout",
+          this._extendTimeCompactOnFocusOut,
+          true
+        );
+        this._extendTimeCompactRoot.removeEventListener(
+          "keydown",
+          this._extendTimeCompactOnKeydown,
+          true
+        );
+      }
+      this._extendTimeCompactRoot = null;
+      this._extendTimeCompactOnFocusOut = null;
+      this._extendTimeCompactOnKeydown = null;
     },
     formatSecondTime(value) {
       if (value == null || value === "" || Number(value) === 0) return "";
@@ -670,6 +1084,261 @@ export default {
     },
     getMemberCount(members) {
       return Array.isArray(members) ? members.length : 0;
+    },
+    getTaskStatus(row) {
+      if (!row || row.status === null || row.status === undefined || row.status === "") {
+        return TASK_STATUS.NOT_STARTED;
+      }
+      const status = Number(row.status);
+      return Number.isNaN(status) ? TASK_STATUS.NOT_STARTED : status;
+    },
+    formatTaskStatus(row) {
+      const status = this.getTaskStatus(row);
+      if (status === TASK_STATUS.RUNNING) {
+        return this.$t("locateTask.statusRunning");
+      }
+      if (status === TASK_STATUS.PAUSED) {
+        return this.$t("locateTask.statusPaused");
+      }
+      if (status === TASK_STATUS.ENDED) {
+        return this.$t("locateTask.statusEnded");
+      }
+      return this.$t("locateTask.statusNotStarted");
+    },
+    getTaskStatusTagType(row) {
+      const status = this.getTaskStatus(row);
+      if (status === TASK_STATUS.RUNNING) return "success";
+      if (status === TASK_STATUS.PAUSED) return "warning";
+      if (status === TASK_STATUS.ENDED) return "info";
+      return "";
+    },
+    canStartTask(row) {
+      const status = this.getTaskStatus(row);
+      return (
+        status === TASK_STATUS.NOT_STARTED || status === TASK_STATUS.PAUSED
+      );
+    },
+    canPauseTask(row) {
+      return this.getTaskStatus(row) === TASK_STATUS.RUNNING;
+    },
+    canStopTask(row) {
+      const status = this.getTaskStatus(row);
+      return status === TASK_STATUS.RUNNING || status === TASK_STATUS.PAUSED;
+    },
+    canExtendTask(row) {
+      const status = this.getTaskStatus(row);
+      return status === TASK_STATUS.RUNNING || status === TASK_STATUS.PAUSED;
+    },
+    canEditTask(row) {
+      return this.getTaskStatus(row) === TASK_STATUS.NOT_STARTED;
+    },
+    changeTaskStatus(row, status) {
+      const that = this;
+      const actionKey =
+        status === TASK_STATUS.RUNNING
+          ? "start"
+          : status === TASK_STATUS.PAUSED
+            ? "pause"
+            : "stop";
+      updateLocateTaskStatus(
+        { id: row.id, status },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          if (res.code == 1001) {
+            row.status = status;
+            that.$message({
+              message: that.$t(`locateTask.${actionKey}success`),
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message:
+                (that.$store.state.i18n == "zh" ? res.msg : res.enMsg) ||
+                that.$t(`locateTask.${actionKey}faile`),
+              type: "warning",
+            });
+          }
+        })
+        .catch(() => {
+          that.$message({
+            message: that.$t(`locateTask.${actionKey}faile`),
+            type: "warning",
+          });
+        });
+    },
+    stopTask(row) {
+      this.$confirm(
+        this.$t("locateTask.stopConfirm", { name: row.name || "" }),
+        this.$t("beacon.prompt"),
+        {
+          confirmButtonText: this.$t("locateTask.confirm"),
+          cancelButtonText: this.$t("locateTask.cancel"),
+          type: "warning",
+        }
+      )
+        .then(() => {
+          this.changeTaskStatus(row, TASK_STATUS.ENDED);
+        })
+        .catch(() => {});
+    },
+    openExtendDialog(row) {
+      if (!this.canExtendTask(row)) {
+        this.$message({
+          message: this.$t("locateTask.extendOnlyAfterStart"),
+          type: "warning",
+        });
+        return;
+      }
+      if (!row || row.endtime == null || row.endtime === "") {
+        this.$message({
+          message: this.$t("locateTask.extendNoEndtime"),
+          type: "warning",
+        });
+        return;
+      }
+      const endMs =
+        Number(row.endtime) < 1e12
+          ? Number(row.endtime) * 1000
+          : Number(row.endtime);
+      if (Number.isNaN(endMs)) {
+        this.$message({
+          message: this.$t("locateTask.extendNoEndtime"),
+          type: "warning",
+        });
+        return;
+      }
+      this.extendTaskId = row.id;
+      this.extendTaskName = row.name || "";
+      this.extendOriginEnd = new Date(endMs);
+      this.extendOriginEndSec = Number(row.endtime);
+      // 默认选中原结束时间后 1 小时，便于直接确认
+      const defaultEnd = new Date(endMs + 60 * 60 * 1000);
+      this.extendEndTime = defaultEnd;
+      this.extendDialogVisible = true;
+    },
+    closeExtendDialog() {
+      this.unbindExtendTimeCompactInput();
+      this.extendDialogVisible = false;
+      this.extendSubmitLoading = false;
+      this.extendTaskId = "";
+      this.extendTaskName = "";
+      this.extendOriginEnd = null;
+      this.extendOriginEndSec = "";
+      this.extendEndTime = null;
+    },
+    isSameCalendarDay(a, b) {
+      if (!(a instanceof Date) || !(b instanceof Date)) return false;
+      return (
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+      );
+    },
+    disabledExtendEndDate(time) {
+      const origin = this.extendOriginEnd;
+      if (!(origin instanceof Date)) return false;
+      const day = new Date(origin);
+      day.setHours(0, 0, 0, 0);
+      return time.getTime() < day.getTime();
+    },
+    disabledExtendHours() {
+      const origin = this.extendOriginEnd;
+      if (!(origin instanceof Date)) return [];
+      const selected =
+        this.extendEndTime instanceof Date ? this.extendEndTime : origin;
+      if (!this.isSameCalendarDay(selected, origin)) return [];
+      const max = origin.getHours();
+      const hours = [];
+      for (let i = 0; i < max; i += 1) hours.push(i);
+      return hours;
+    },
+    disabledExtendMinutes(hour) {
+      const origin = this.extendOriginEnd;
+      if (!(origin instanceof Date)) return [];
+      const selected =
+        this.extendEndTime instanceof Date ? this.extendEndTime : origin;
+      if (!this.isSameCalendarDay(selected, origin)) return [];
+      if (hour > origin.getHours()) return [];
+      if (hour < origin.getHours()) {
+        return Array.from({ length: 60 }, (_, i) => i);
+      }
+      const max = origin.getMinutes();
+      const minutes = [];
+      for (let i = 0; i < max; i += 1) minutes.push(i);
+      return minutes;
+    },
+    disabledExtendSeconds(hour, minute) {
+      const origin = this.extendOriginEnd;
+      if (!(origin instanceof Date)) return [];
+      const selected =
+        this.extendEndTime instanceof Date ? this.extendEndTime : origin;
+      if (!this.isSameCalendarDay(selected, origin)) return [];
+      if (
+        hour !== origin.getHours() ||
+        minute !== origin.getMinutes()
+      ) {
+        return [];
+      }
+      const max = origin.getSeconds();
+      const seconds = [];
+      for (let i = 0; i <= max; i += 1) seconds.push(i);
+      return seconds;
+    },
+    submitExtendTime() {
+      if (!(this.extendEndTime instanceof Date)) {
+        this.$message({
+          message: this.$t("locateTask.extendEndtimeRequired"),
+          type: "warning",
+        });
+        return;
+      }
+      const origin = this.extendOriginEnd;
+      if (!(origin instanceof Date)) return;
+      if (this.extendEndTime.getTime() <= origin.getTime()) {
+        this.$message({
+          message: this.$t("locateTask.extendEndtimeInvalid"),
+          type: "warning",
+        });
+        return;
+      }
+      const that = this;
+      const endtime = this.toTimestamp(this.extendEndTime);
+      this.extendSubmitLoading = true;
+      extendLocateTaskEndtime(
+        { id: this.extendTaskId, endtime },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          if (res.code == 1001) {
+            that.$message({
+              message: that.$t("locateTask.extendsuccess"),
+              type: "success",
+            });
+            that.closeExtendDialog();
+            that.getTaskList();
+          } else {
+            that.$message({
+              message:
+                (that.$store.state.i18n == "zh" ? res.msg : res.enMsg) ||
+                that.$t("locateTask.extendfaile"),
+              type: "warning",
+            });
+          }
+        })
+        .catch(() => {
+          that.$message({
+            message: that.$t("locateTask.extendfaile"),
+            type: "warning",
+          });
+        })
+        .finally(() => {
+          that.extendSubmitLoading = false;
+        });
     },
     enterTask(row) {
       try {
@@ -749,10 +1418,6 @@ export default {
       return time.getTime() < day.getTime();
     },
     validateTaskTimeRange(rule, value, callback) {
-      if (!value || !Array.isArray(value) || value.length < 2 || !value[0]) {
-        callback();
-        return;
-      }
       const startMs =
         value[0] instanceof Date
           ? value[0].getTime()
@@ -1001,6 +1666,56 @@ export default {
   background: #fff;
   box-sizing: border-box;
 }
+.task-time-tip {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #909399;
+}
+.task-time-range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.task-time-sep {
+  flex-shrink: 0;
+  color: #606266;
+  font-size: 13px;
+}
+.task-operate-btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.task-operate-btns :deep(.el-button) {
+  height: 24px;
+  min-height: 24px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.task-operate-btns .icon_button {
+  padding: 0 11px !important;
+}
+.task-operate-btns .icon_button img {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+.task-operate-btns :deep(.el-dropdown),
+.task-operate-btns :deep(.el-dropdown-link),
+.task-operate-btns :deep(.el-tooltip__trigger) {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  line-height: 24px;
+}
 .terminal-filter-flow {
   display: flex;
   flex-wrap: wrap;
@@ -1072,5 +1787,20 @@ export default {
   margin-top: 10px;
   color: #303133;
   font-size: 13px;
+}
+</style>
+
+<style>
+.task-operate-menu.selects button {
+  width: 100%;
+  text-align: left;
+}
+.task-operate-menu .edits:hover {
+  background-color: rgb(25, 86, 201);
+  color: white;
+}
+.task-operate-menu .dels:hover {
+  background-color: rgb(196, 27, 27);
+  color: white;
 }
 </style>

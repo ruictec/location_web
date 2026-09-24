@@ -3194,6 +3194,40 @@ export const updateLocateTask = (datas, tenantkey_A, tenantid_A, username) => { 
     }).then(res => res)
 };
 
+export const updateLocateTaskStatus = (datas, tenantkey_A, tenantid_A, username) => { //更新定位任务状态
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/updateLocateTaskStatus" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/updateLocateTaskStatus",
+        method: 'put',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
+export const extendLocateTaskEndtime = (datas, tenantkey_A, tenantid_A, username) => { //定位任务加时
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/extendLocateTaskEndtime" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/extendLocateTaskEndtime",
+        method: 'put',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
 export const getTaskManagementList = (query, tenantkey_A, tenantid_A, username) => { //获取巡检任务信息
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/service/getTaskManagementList" + tenantkey_A + time_A)

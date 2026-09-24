@@ -158,7 +158,7 @@ const COLOUR_TEXT_MAP = {
   2: "#c8d018",
   3: "#e838e8",
   4: "#78c0c0",
-  5: "#c4a898",
+  5: "#000000",
   6: "#a0f0a0",
   7: "#e03058",
   8: "#6a6aff",
@@ -214,6 +214,7 @@ export default {
         name: "",
         begintime: "",
         endtime: "",
+        status: 0,
         members: [],
         worktypes: [],
         tranches: "",
@@ -259,13 +260,7 @@ export default {
       if (!keyword) return this.members;
       return this.members.filter((item) => {
         const name = String((item && item.username) || "").toLowerCase();
-        const type = String((item && item.worktype) || "").toLowerCase();
-        const label = String((item && item.maplabel) || "").toLowerCase();
-        return (
-          name.includes(keyword) ||
-          type.includes(keyword) ||
-          label.includes(keyword)
-        );
+        return name.includes(keyword);
       });
     },
   },
@@ -353,14 +348,15 @@ export default {
       const b = rgb & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
-    createFenceStyle(color, name, num) {
+    createFenceStyle(color, name, num, opacity) {
       let label = name || "";
       if (num != null && num !== "") {
         label = label ? `${label}(${num})` : String(num);
       }
+      const alpha = this.normalizeFenceOpacity(opacity);
       return new Style({
         fill: new Fill({
-          color: this.hexToRgba(color, 0.35),
+          color: this.hexToRgba(color, alpha),
         }),
         stroke: new Stroke({
           color: color || "#FF0000",
@@ -378,6 +374,11 @@ export default {
             })
           : undefined,
       });
+    },
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
     },
     clearFences() {
       if (this.vectorSource) {
@@ -412,6 +413,7 @@ export default {
         }
 
         const color = fence.colour || "#FF0000";
+        const fenceOpacity = this.normalizeFenceOpacity(fence.opacity);
         const fenceNum =
           fence.num === null || fence.num === undefined ? 0 : fence.num;
         const feature = markRaw(
@@ -421,11 +423,12 @@ export default {
             fenceId: fence.id,
             fenceName: fence.name || "",
             fenceColor: color,
+            fenceOpacity: fenceOpacity,
             number: fenceNum,
           })
         );
         feature.setStyle(
-          this.createFenceStyle(color, fence.name || "", fenceNum)
+          this.createFenceStyle(color, fence.name || "", fenceNum, fenceOpacity)
         );
         this.vectorSource.addFeature(feature);
         if (fence.id != null) {
@@ -462,7 +465,11 @@ export default {
         feature.set("number", num);
         const color = feature.get("fenceColor") || item.colour || "#FF0000";
         const name = feature.get("fenceName") || item.name || "";
-        feature.setStyle(this.createFenceStyle(color, name, num));
+        const opacity =
+          feature.get("fenceOpacity") != null
+            ? feature.get("fenceOpacity")
+            : item.opacity;
+        feature.setStyle(this.createFenceStyle(color, name, num, opacity));
       });
       this.fenceInCount = inCount;
     },
@@ -592,33 +599,77 @@ export default {
           : `${pad(hour)}:${pad(min)}:${pad(sec)}`;
       return (negative ? "-" : "") + text;
     },
+    // status: 0 未开始 / 1 进行中 / 2 已暂停 / 3 已结束
+    getTaskStatus() {
+      const raw = this.task && this.task.status;
+      if (raw === null || raw === undefined || raw === "") {
+        return 0;
+      }
+      const status = Number(raw);
+      return Number.isNaN(status) ? 0 : status;
+    },
+    markTaskEndedUI() {
+      this.countdownText = this.$t("locateTask.ended");
+      if (this.websock) {
+        this.closeWebsocket();
+      }
+      this.clearCountdown();
+    },
     updateCountdown() {
+      const status = this.getTaskStatus();
       const begin = Number(this.task.begintime);
       const end = Number(this.task.endtime);
       const now = Math.floor(Date.now() / 1000);
-      if (!begin) {
-        this.countdownText = "-";
+
+      // 以 status 为准：已结束
+      if (status === 3) {
+        this.markTaskEndedUI();
         return;
       }
-      // 已超过结束时间：直接显示已结束，并断开 WebSocket
+      // 已超过计划结束时间，视为结束
       if (end && now >= end) {
-        this.countdownText = this.$t("locateTask.ended");
-        if (this.websock) {
-          this.closeWebsocket();
-        }
-        this.clearCountdown();
+        this.markTaskEndedUI();
         return;
       }
-      const elapsed = now - begin;
-      if (elapsed < 0) {
+
+      // 未开始：不再按墙钟把“已过计划开始时间”当成已开始
+      if (status === 0) {
+        if (begin && now < begin) {
+          this.countdownText =
+            this.$t("locateTask.notStarted") +
+            " " +
+            this.formatDuration(now - begin);
+        } else {
+          this.countdownText = this.$t("locateTask.notStarted");
+        }
+        return;
+      }
+
+      // 已暂停
+      if (status === 2) {
+        if (begin) {
+          this.countdownText =
+            this.$t("locateTask.statusPaused") +
+            " " +
+            this.formatDuration(Math.max(0, now - begin));
+        } else {
+          this.countdownText = this.$t("locateTask.statusPaused");
+        }
+        return;
+      }
+
+      // 进行中（status === 1）
+      if (begin) {
         this.countdownText =
-          this.$t("locateTask.notStarted") + " " + this.formatDuration(elapsed);
+          this.$t("locateTask.elapsed") +
+          " " +
+          this.formatDuration(Math.max(0, now - begin));
       } else {
-        this.countdownText =
-          this.$t("locateTask.elapsed") + " " + this.formatDuration(elapsed);
+        this.countdownText = this.$t("locateTask.statusRunning");
       }
     },
     isTaskEnded() {
+      if (this.getTaskStatus() === 3) return true;
       const end = Number(this.task && this.task.endtime);
       if (!end) return false;
       return Math.floor(Date.now() / 1000) >= end;
@@ -1105,10 +1156,10 @@ export default {
   padding: 12px;
   box-sizing: border-box;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(15, 23, 42, 0.42);
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 10px;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 .collapse-btn {
@@ -1122,7 +1173,7 @@ export default {
   border: 1px solid rgba(148, 163, 184, 0.35);
   border-left: none;
   border-radius: 0 8px 8px 0;
-  background: rgba(15, 23, 42, 0.92);
+  background: rgba(15, 23, 42, 0.5);
   color: #e2e8f0;
   cursor: pointer;
   z-index: 8;
@@ -1135,7 +1186,7 @@ export default {
   flex: 0 0 auto;
   padding: 12px;
   border-radius: 8px;
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(30, 41, 59, 0.38);
   border: 1px solid rgba(56, 189, 248, 0.25);
 }
 .countdown-label {
@@ -1173,8 +1224,8 @@ export default {
   background: transparent;
   --el-table-bg-color: transparent;
   --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: rgba(30, 41, 59, 0.95);
-  --el-table-row-hover-bg-color: rgba(51, 65, 85, 0.7);
+  --el-table-header-bg-color: rgba(30, 41, 59, 0.45);
+  --el-table-row-hover-bg-color: rgba(51, 65, 85, 0.45);
   --el-table-text-color: #e2e8f0;
   --el-table-header-text-color: #cbd5e1;
   --el-table-border-color: rgba(71, 85, 105, 0.6);
