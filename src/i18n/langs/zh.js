@@ -3600,6 +3600,7 @@ const zh = {
         online: '在线',
         offline: '离线',
         center: '居中',
+        wsNetworkError: '实时连接失败，请检查网络后刷新页面重试',
     },
     ...zhLocale
 }

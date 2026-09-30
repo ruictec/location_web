@@ -1007,11 +1007,17 @@ export default {
 
     //保存vuex里面的state到session storage中
     saveState() {
-      const tabId = sessionStorage.getItem("authTabId");
+      // 刷新后仍需保留的会话缓存
+      const keepKeys = ["authTabId", "locateTaskDetail"];
+      const kept = {};
+      keepKeys.forEach((key) => {
+        const value = sessionStorage.getItem(key);
+        if (value != null) kept[key] = value;
+      });
       sessionStorage.clear();
-      if (tabId) {
-        sessionStorage.setItem("authTabId", tabId);
-      }
+      Object.keys(kept).forEach((key) => {
+        sessionStorage.setItem(key, kept[key]);
+      });
       this.$store.state.addRoutes = [];
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       sessionStorage.setItem("hasActiveSession", "true");

@@ -1947,6 +1947,23 @@ export const getLastDevGpsByDeveuis = (query, tenantkey_A, tenantid_A, username)
     }).then(res => res)
 };
 
+export const getDevGpsHistoryByDeveuiList = (query, tenantkey_A, tenantid_A, username) => { //批量按设备查询历史定位（deveuis 与 usernames 一一对应）
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getDevGpsHistoryByDeveuiList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getDevGpsHistoryByDeveuiList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
 export const getDevGpsList = (query, tenantkey_A, tenantid_A, username) => { //分页查询定位信息
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/service/getDevGpsList" + tenantkey_A + time_A)

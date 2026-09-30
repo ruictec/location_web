@@ -129,9 +129,10 @@ import { Map, View } from "ol";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import Polygon from "ol/geom/Polygon";
+import LineString from "ol/geom/LineString";
 import { Vector as VectorSource } from "ol/source";
 import { Vector as VectorLayer } from "ol/layer";
-import { Icon, Style, Fill, Stroke, Text } from "ol/style";
+import { Icon, Style, Fill, Stroke, Text, RegularShape } from "ol/style";
 import { fromLonLat } from "ol/proj";
 import { defaults as defaultControls } from "ol/control";
 import Zoom from "ol/control/Zoom";
@@ -148,9 +149,14 @@ import host from "../../host.js";
 import {
   getLastDevGpsByDeveuis,
   getFenceManageAndPointByIds,
+  getDevGpsHistoryByDeveuiList,
 } from "../../axios/api";
 
 const TASK_CACHE_KEY = "locateTaskDetail";
+const GPS_STALE_SECONDS = 10 * 60;
+const TRACK_ARROW_SPACING_PX = 80;
+const WS_RECONNECT_DELAY = 3000;
+const WS_RECONNECT_MAX = 3;
 
 // 与角色管理 / 室内外定位一致：colour 1-10 对应 static/1.png ... 10.png
 const COLOUR_TEXT_MAP = {
@@ -194,6 +200,8 @@ export default {
       wsuri: "",
       // deveui -> VectorLayer
       markerLayers: {},
+      // 勾选人员轨迹线图层
+      trackSource: null,
       // deveui -> { x, y, ... }
       gpsCache: {},
       // fenceId -> Feature
@@ -206,6 +214,16 @@ export default {
       selectedMembers: [],
       countdownText: "",
       countdownTimer: null,
+      // 用于判断速度/海拔是否过期，定时刷新
+      nowSec: Math.floor(Date.now() / 1000),
+      nowTimer: null,
+      // WebSocket 心跳超时重连（对齐告警通道 alarm_*）
+      wsTimer: null,
+      wsTimes: 0,
+      wsManualClose: false,
+      // 建连失败延迟重连
+      wsReconnectTimer: null,
+      wsReconnectCount: 0,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
       userName: this.$store.state.userInfo.username,
@@ -263,20 +281,60 @@ export default {
         return name.includes(keyword);
       });
     },
+    wsTimess() {
+      return this.wsTimes;
+    },
+  },
+  watch: {
+    // 对齐 App.vue 告警 WebSocket：心跳超时后重连并补数据
+    wsTimess(val, oldVal) {
+      if (oldVal != 4) return;
+      if (
+        this.wsManualClose ||
+        this.isTaskEnded() ||
+        !this.shouldConnectWebsocket()
+      ) {
+        this.clearWsHeartbeat();
+        return;
+      }
+      console.log("任务详情 WebSocket 心跳超时，重新连接", this.wsuri);
+      this.clearWsReconnectTimer();
+      this.clearWsHeartbeat();
+      this.closeWebsocket();
+      this.initWebsocket();
+      this.prefetchAllMembersGps();
+      this.reloadSelectedTracks();
+    },
+  },
+  created() {
+    // deveui -> { points: [{ x, y, t }], feature }，轨迹点量大，不做响应式
+    this.trackStates = {};
   },
   mounted() {
     this.loadTask();
     this.startCountdown();
+    this.nowTimer = setInterval(() => {
+      this.nowSec = Math.floor(Date.now() / 1000);
+      this.pruneStaleTracks();
+    }, 10000);
     this.$nextTick(() => {
       this.initMap();
       this.loadTaskFences();
-      this.initWebsocket();
+      this.syncWebsocketWithStatus();
     });
   },
   beforeUnmount() {
     this.clearCountdown();
+    if (this.nowTimer) {
+      clearInterval(this.nowTimer);
+      this.nowTimer = null;
+    }
+    this.wsManualClose = true;
+    this.clearWsReconnectTimer();
+    this.clearWsHeartbeat();
     this.closeWebsocket();
     this.clearAllMarkers();
+    this.clearAllTracks();
     this.clearFences();
     this.destroyMap();
   },
@@ -527,10 +585,14 @@ export default {
       prev.forEach((deveui) => {
         if (!next.has(deveui)) removed.push(deveui);
       });
-      removed.forEach((deveui) => this.removeMemberMarker(deveui));
-      // 勾选后重新请求定位并上图
+      removed.forEach((deveui) => {
+        this.removeMemberMarker(deveui);
+        this.removeMemberTrack(deveui);
+      });
+      // 勾选后重新请求定位并上图，同时加载任务开始至今的轨迹
       if (added.length) {
         this.fetchLastGpsByDeveuis(added, { placeOnMap: true });
+        this.fetchMemberTracks(added);
       }
     },
     getMemberRowKey(row) {
@@ -544,13 +606,21 @@ export default {
       const deveui = row && row.maplabel;
       return deveui ? this.gpsCache[String(deveui)] || null : null;
     },
-    formatMemberSpeed(row) {
+    // 后端会一直保留最后一条定位，超过时效的速度/海拔不再显示
+    getFreshMemberGps(row) {
       const gps = this.getMemberGps(row);
+      if (!gps) return null;
+      const gpstime = this.toGpsSeconds(gps.gpstime);
+      if (gpstime && this.nowSec - gpstime > GPS_STALE_SECONDS) return null;
+      return gps;
+    },
+    formatMemberSpeed(row) {
+      const gps = this.getFreshMemberGps(row);
       if (!gps || gps.speed == null || gps.speed === "") return "-";
       return Number(gps.speed).toFixed(1) + this.$t("locateTask.speedUnit");
     },
     formatMemberAltitude(row) {
-      const gps = this.getMemberGps(row);
+      const gps = this.getFreshMemberGps(row);
       const alt = gps && (gps.alt != null ? gps.alt : gps.altitude);
       if (alt == null || alt === "") return "-";
       return Number(alt) + this.$t("locateTask.meterUnit");
@@ -610,10 +680,40 @@ export default {
     },
     markTaskEndedUI() {
       this.countdownText = this.$t("locateTask.ended");
+      this.wsManualClose = true;
+      this.clearWsReconnectTimer();
+      this.clearWsHeartbeat();
       if (this.websock) {
         this.closeWebsocket();
       }
+      // 停留页面期间任务结束：已勾选人员改为显示整个任务时间段的轨迹
+      if (this.countdownTimer) {
+        this.reloadSelectedTracks();
+      }
       this.clearCountdown();
+    },
+    // 进行中/已暂停：直接连；未开始：到达开始时间后才连
+    shouldConnectWebsocket() {
+      if (this.isTaskEnded()) return false;
+      const status = this.getTaskStatus();
+      if (status === 1 || status === 2) return true;
+      if (status === 0) {
+        const begin = Number(this.task && this.task.begintime);
+        return !!begin && Math.floor(Date.now() / 1000) >= begin;
+      }
+      return false;
+    },
+    syncWebsocketWithStatus() {
+      if (this.isTaskEnded()) {
+        this.wsManualClose = true;
+        this.clearWsReconnectTimer();
+        this.clearWsHeartbeat();
+        this.closeWebsocket();
+        return;
+      }
+      if (!this.websock && this.shouldConnectWebsocket()) {
+        this.initWebsocket();
+      }
     },
     updateCountdown() {
       const status = this.getTaskStatus();
@@ -632,16 +732,24 @@ export default {
         return;
       }
 
-      // 未开始：不再按墙钟把“已过计划开始时间”当成已开始
+      // 未开始：到达开始时间后按已开始处理（显示已开始并建立 WebSocket）
       if (status === 0) {
-        if (begin && now < begin) {
+        if (!begin) {
+          this.countdownText = this.$t("locateTask.notStarted");
+          return;
+        }
+        if (now < begin) {
           this.countdownText =
             this.$t("locateTask.notStarted") +
             " " +
             this.formatDuration(now - begin);
-        } else {
-          this.countdownText = this.$t("locateTask.notStarted");
+          return;
         }
+        this.countdownText =
+          this.$t("locateTask.elapsed") +
+          " " +
+          this.formatDuration(now - begin);
+        this.syncWebsocketWithStatus();
         return;
       }
 
@@ -841,6 +949,215 @@ export default {
       this.map.addLayer(layer);
       this.markerLayers[deveui] = layer;
     },
+    // gpstime 兼容秒 / 毫秒 / 日期字符串，统一为秒
+    toGpsSeconds(value) {
+      if (value == null || value === "") return 0;
+      const num = Number(value);
+      if (!Number.isNaN(num)) {
+        return num > 1e12 ? Math.floor(num / 1000) : num;
+      }
+      const parsed = Date.parse(String(value).replace(/-/g, "/"));
+      return Number.isNaN(parsed) ? 0 : Math.floor(parsed / 1000);
+    },
+    // 缺少 gpstime 的推送点按接收时间计，便于按时效裁剪
+    toTrackPoint(item) {
+      if (!item || item.status == 2) return null;
+      const x = Number(item.x);
+      const y = Number(item.y);
+      if (!x || !y || Number.isNaN(x) || Number.isNaN(y)) return null;
+      const t =
+        this.toGpsSeconds(item.gpstime) || Math.floor(Date.now() / 1000);
+      return { x, y, t };
+    },
+    // 任务已结束：显示整个任务时间段，不按时效裁剪
+    getTrackCutoff() {
+      if (this.isTaskEnded()) return 0;
+      return Math.floor(Date.now() / 1000) - GPS_STALE_SECONDS;
+    },
+    // 进行中：最近 10 分钟（不早于任务开始）~ 当前时间
+    // 已结束：任务开始时间 ~ 任务结束时间（提前结束则到当前时间）
+    getTrackTimeRange() {
+      const now = Math.floor(Date.now() / 1000);
+      const taskBegin = Number(this.task && this.task.begintime);
+      const end = Number(this.task && this.task.endtime);
+      const endtime = end && end < now ? end : now;
+      let begintime;
+      if (this.isTaskEnded()) {
+        if (!taskBegin) return null;
+        begintime = taskBegin;
+      } else {
+        const cutoff = now - GPS_STALE_SECONDS;
+        begintime = taskBegin && taskBegin > cutoff ? taskBegin : cutoff;
+      }
+      if (endtime <= begintime) return null;
+      return { begintime, endtime };
+    },
+    reloadSelectedTracks() {
+      const deveuis = Array.from(this.selectedDeveuiSet);
+      if (!deveuis.length) return;
+      deveuis.forEach((deveui) => this.removeMemberTrack(deveui));
+      this.fetchMemberTracks(deveuis);
+    },
+    // 裁掉超过时效的轨迹点并重绘
+    pruneStaleTracks() {
+      const cutoff = this.getTrackCutoff();
+      Object.keys(this.trackStates).forEach((deveui) => {
+        const state = this.trackStates[deveui];
+        if (!state || !state.points.length) return;
+        if (state.points[0].t >= cutoff) return;
+        state.points = state.points.filter((p) => p.t >= cutoff);
+        this.renderMemberTrack(deveui);
+      });
+    },
+    ensureTrackState(deveui) {
+      const key = String(deveui);
+      if (!this.trackStates[key]) {
+        this.trackStates[key] = { points: [], feature: null };
+      }
+      return this.trackStates[key];
+    },
+    fetchMemberTracks(deveuis) {
+      const list = (deveuis || []).filter(Boolean).map((item) => String(item));
+      if (!list.length) return;
+      list.forEach((deveui) => this.ensureTrackState(deveui));
+      const range = this.getTrackTimeRange();
+      if (!range) return;
+      const usernames = list.map((deveui) => {
+        const member = this.findMemberByDeveui(deveui);
+        return (member && member.username) || deveui;
+      });
+      getDevGpsHistoryByDeveuiList(
+        {
+          projectid: this.$store.state.projectid,
+          deveuis: list.join(","),
+          usernames: usernames.join(","),
+          begintime: range.begintime,
+          endtime: range.endtime,
+        },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          if (!res || res.code != 1001) return;
+          const data = res.data || {};
+          list.forEach((deveui) => {
+            // 请求期间已取消勾选则丢弃
+            if (!this.selectedDeveuiSet.has(deveui)) return;
+            // 接口按 gpstime 倒序返回，反转为正序连线
+            const cutoff = this.getTrackCutoff();
+            const history = (Array.isArray(data[deveui]) ? data[deveui] : [])
+              .map((item) => this.toTrackPoint(item))
+              .filter((p) => p && p.t >= cutoff)
+              .reverse();
+            const state = this.ensureTrackState(deveui);
+            // 合并请求期间 WebSocket 已追加的新点
+            const lastT = history.length ? history[history.length - 1].t : 0;
+            const pending = state.points.filter(
+              (p) => p.t > lastT && p.t >= cutoff
+            );
+            state.points = history.concat(pending);
+            this.renderMemberTrack(deveui);
+          });
+        })
+        .catch(() => {});
+    },
+    appendTrackPoint(gpsInfo) {
+      if (!gpsInfo || !gpsInfo.deveui) return;
+      const deveui = String(gpsInfo.deveui);
+      if (!this.selectedDeveuiSet.has(deveui)) return;
+      const point = this.toTrackPoint(gpsInfo);
+      if (!point || point.t < this.getTrackCutoff()) return;
+      const state = this.ensureTrackState(deveui);
+      const last = state.points[state.points.length - 1];
+      if (last && last.x === point.x && last.y === point.y) return;
+      if (last && point.t < last.t) return;
+      state.points.push(point);
+      state.points = state.points.filter((p) => p.t >= this.getTrackCutoff());
+      this.renderMemberTrack(deveui);
+    },
+    renderMemberTrack(deveui) {
+      if (!this.trackSource) return;
+      const key = String(deveui);
+      const state = this.trackStates[key];
+      if (!state) return;
+      const coords = state.points.map((p) => fromLonLat([p.x, p.y]));
+      if (coords.length < 2) {
+        if (state.feature) {
+          this.trackSource.removeFeature(state.feature);
+          state.feature = null;
+        }
+        return;
+      }
+      if (state.feature) {
+        state.feature.getGeometry().setCoordinates(coords);
+        return;
+      }
+      const member = this.findMemberByDeveui(key);
+      const color = this.getColourText(member && member.colour);
+      const feature = markRaw(
+        new Feature({ geometry: new LineString(coords), deveui: key })
+      );
+      const lineStyle = new Style({
+        stroke: new Stroke({ color, width: 3 }),
+      });
+      feature.setStyle((f, resolution) =>
+        this.createTrackStyles(f, resolution, color, lineStyle)
+      );
+      this.trackSource.addFeature(feature);
+      state.feature = feature;
+    },
+    // 沿轨迹按固定屏幕间距绘制方向箭头
+    createTrackStyles(feature, resolution, color, lineStyle) {
+      const styles = [lineStyle];
+      const geometry = feature.getGeometry();
+      if (!geometry || !resolution) return styles;
+      const spacing = TRACK_ARROW_SPACING_PX * resolution;
+      let walked = 0;
+      let next = spacing / 2;
+      geometry.forEachSegment((start, end) => {
+        const dx = end[0] - start[0];
+        const dy = end[1] - start[1];
+        const len = Math.hypot(dx, dy);
+        if (!len) return;
+        // RegularShape 三角形默认朝上，rotation 为顺时针弧度
+        const rotation = Math.PI / 2 - Math.atan2(dy, dx);
+        while (next <= walked + len) {
+          const ratio = (next - walked) / len;
+          styles.push(
+            new Style({
+              geometry: new Point([
+                start[0] + dx * ratio,
+                start[1] + dy * ratio,
+              ]),
+              image: new RegularShape({
+                points: 3,
+                radius: 6,
+                rotation,
+                rotateWithView: true,
+                fill: new Fill({ color }),
+                stroke: new Stroke({ color: "#ffffff", width: 1 }),
+              }),
+            })
+          );
+          next += spacing;
+        }
+        walked += len;
+      });
+      return styles;
+    },
+    removeMemberTrack(deveui) {
+      const key = String(deveui);
+      const state = this.trackStates[key];
+      if (state && state.feature && this.trackSource) {
+        this.trackSource.removeFeature(state.feature);
+      }
+      delete this.trackStates[key];
+    },
+    clearAllTracks() {
+      if (this.trackSource) this.trackSource.clear();
+      this.trackStates = {};
+    },
     initWebsocket() {
       if (typeof WebSocket === "undefined") {
         return;
@@ -850,17 +1167,37 @@ export default {
         console.log("任务详情 WebSocket 跳过：任务已结束");
         return;
       }
+      // 任务未开始且未到开始时间：不建立 WebSocket
+      if (!this.shouldConnectWebsocket()) {
+        console.log("任务详情 WebSocket 跳过：任务未开始");
+        return;
+      }
       const sid = this.getTaskWsSid();
       if (!sid) {
         console.log("任务详情 WebSocket 跳过：缺少任务 id");
         return;
       }
+      this.wsManualClose = false;
+      this.clearWsHeartbeat();
       this.closeWebsocket();
       // host.ws 已含 /websocket/，最终为 /websocket/map/locateTask-{id}
       this.wsuri = host.ws + "map/" + sid;
       this.websock = new WebSocket(this.wsuri);
       this.websock.onopen = () => {
+        const wasReconnect = this.wsReconnectCount > 0;
         console.log("任务详情 WebSocket 连接成功", this.wsuri);
+        this.wsReconnectCount = 0;
+        this.clearWsReconnectTimer();
+        // 对齐告警：建连后先按 40s 计心跳超时
+        this.clearWsHeartbeat();
+        this.wsTimer = setInterval(() => {
+          this.wsTimes += 1;
+        }, 40000);
+        // 失败重连成功后补一次定位/轨迹
+        if (wasReconnect) {
+          this.prefetchAllMembersGps();
+          this.reloadSelectedTracks();
+        }
       };
       this.websock.onmessage = this.websocketonmessage;
       this.websock.onerror = () => {
@@ -868,7 +1205,63 @@ export default {
       };
       this.websock.onclose = () => {
         console.log("任务详情 WebSocket 关闭", this.wsuri);
+        this.websock = null;
+        this.clearWsHeartbeat();
+        this.scheduleWsReconnect();
       };
+    },
+    clearWsHeartbeat() {
+      if (this.wsTimer) {
+        clearInterval(this.wsTimer);
+        this.wsTimer = null;
+      }
+      this.wsTimes = 0;
+    },
+    clearWsReconnectTimer() {
+      if (this.wsReconnectTimer) {
+        clearTimeout(this.wsReconnectTimer);
+        this.wsReconnectTimer = null;
+      }
+    },
+    // 建连失败 / 异常断开：延迟重连，最多 3 次，仍失败则提示网络问题
+    scheduleWsReconnect() {
+      if (
+        this.wsManualClose ||
+        this.isTaskEnded() ||
+        !this.shouldConnectWebsocket()
+      ) {
+        return;
+      }
+      if (this.wsReconnectTimer) return;
+      if (this.wsReconnectCount >= WS_RECONNECT_MAX) {
+        this.$message({
+          message: this.$t("locateTask.wsNetworkError"),
+          type: "warning",
+        });
+        return;
+      }
+      this.wsReconnectCount += 1;
+      console.log(
+        "任务详情 WebSocket 将在 " +
+          WS_RECONNECT_DELAY +
+          "ms 后重连（第 " +
+          this.wsReconnectCount +
+          "/" +
+          WS_RECONNECT_MAX +
+          " 次）",
+        this.wsuri
+      );
+      this.wsReconnectTimer = setTimeout(() => {
+        this.wsReconnectTimer = null;
+        if (
+          this.wsManualClose ||
+          this.isTaskEnded() ||
+          !this.shouldConnectWebsocket()
+        ) {
+          return;
+        }
+        this.initWebsocket();
+      }, WS_RECONNECT_DELAY);
     },
     closeWebsocket() {
       if (this.websock) {
@@ -883,8 +1276,18 @@ export default {
       }
     },
     // 推送格式：{ devGps, fenceList, onlineNum }
+    // 心跳文案与告警通道一致：The connection is normal.
     websocketonmessage(res) {
-      if (!res || res.data === "连接成功") return;
+      if (!res) return;
+      if (res.data === "连接成功") return;
+      // 后端心跳：收到后缩短超时检测间隔（对齐 App.vue 告警）
+      if (res.data === "The connection is normal.") {
+        this.clearWsHeartbeat();
+        this.wsTimer = setInterval(() => {
+          this.wsTimes += 1;
+        }, 10000);
+        return;
+      }
       let payload;
       try {
         payload = JSON.parse(res.data);
@@ -915,11 +1318,13 @@ export default {
       // 仅勾选后才上图
       if (!this.selectedDeveuiSet.has(deveui)) return;
       this.upsertMemberMarker(this.gpsCache[deveui]);
+      this.appendTrackPoint(this.gpsCache[deveui]);
     },
     initMap() {
       const target = this.$refs.mapEl;
       if (!target) return;
       this.clearAllMarkers();
+      this.clearAllTracks();
       this.destroyMap();
 
       const isZh = this.$store.state.i18n === "zh";
@@ -932,6 +1337,13 @@ export default {
       const vectorLayer = markRaw(
         new VectorLayer({
           source: this.vectorSource,
+        })
+      );
+      this.trackSource = markRaw(new VectorSource());
+      const trackLayer = markRaw(
+        new VectorLayer({
+          source: this.trackSource,
+          zIndex: 5,
         })
       );
 
@@ -947,7 +1359,7 @@ export default {
       this.map = markRaw(
         new Map({
           target,
-          layers: [...baseLayers, vectorLayer],
+          layers: [...baseLayers, vectorLayer, trackLayer],
           view: this.view,
           controls: defaultControls({
             zoom: false,

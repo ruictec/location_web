@@ -3613,6 +3613,7 @@ const en = {
         online: 'Online',
         offline: 'Offline',
         center: 'Center',
+        wsNetworkError: 'Realtime connection failed. Please check your network and refresh the page.',
     },
     ...enLocale
 }
