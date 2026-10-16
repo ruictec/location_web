@@ -14,6 +14,7 @@ const Config = () => import('../views/project/ProjectConfig')
 const NsConfig = () => import('../views/device/NsConfig')
 const GateWay = () => import('../views/device/GateWay')
 const Terminal = () => import('../views/device/Terminal')
+const AudioRecording = () => import('../views/device/AudioRecording')
 const UserManagement = () => import('../views/user/UserManagement')
 const CompanyManagement = () => import('../views/user/CompanyManagement')
 const CustomerManagement = () => import('../views/user/CustomerManagement')
@@ -399,6 +400,12 @@ export const userRoutes = [
           component: GateWay,
           name: 'gateway',
           meta: { title: 'router.gatewayManagement', noCache: true }
+        },
+        {
+          path: 'audiorecording',
+          component: AudioRecording,
+          name: 'audiorecording',
+          meta: { title: 'router.audioRecording', noCache: true }
         }
       ]
     },

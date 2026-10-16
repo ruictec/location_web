@@ -3,8 +3,9 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-// 尽早加载 .env.local，供下方 proxyTable 读取 API_PROXY_TARGET
-require('dotenv').config({ path: path.resolve(__dirname, '../.env.local') })
+const { resolveBackend } = require('./app')
+
+const backend = resolveBackend()
 
 module.exports = {
   dev: {
@@ -23,10 +24,8 @@ module.exports = {
         }
       },
       '/v1': {
-        // 说明：开发环境代理目标，默认指向本地开发服务器；
-        // 如需使用其他地址，请在 shell 中导出 API_PROXY_TARGET 或在 .env.local 中配置 VUE_APP_API_BASE。
-        // 示例：export API_PROXY_TARGET=https://api.example.com:14001
-        target: process.env.API_PROXY_TARGET ,
+        // 开发代理目标来自 config/app.js（改 active 即可）
+        target: backend.apiProxy,
         // secure: false,
         changeOrigin: true,
         pathRewrite: {

@@ -4025,6 +4025,134 @@
                 >{{ $t("terminal.confirm") }}</el-button>
             </div></template>
           </el-dialog>
+
+          <!-- Wi-Fi/4G 配置设备（nettype=1） -->
+          <el-dialog
+            :title="$t('terminal.Configureinformation')"
+            v-model="configWifi"
+            width="420px"
+            class="config-wifi-dialog"
+          >
+            <el-form
+              :model="configData"
+              label-width="120px"
+              ref="configDataWifi"
+            >
+              <el-form-item :label="$t('terminal.deveui')">
+                <el-input v-model="configData.deveui" disabled></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.GPSreportingcycle')">
+                <el-select
+                  v-model="configData.gps"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in gpsList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Heartbeatcycle')">
+                <el-select
+                  v-model="configData.hb"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in hbList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <template #footer><div class="dialog-footer">
+              <el-button @click="(configWifi = false), (loading = false)">{{
+                $t("terminal.cancel")
+              }}</el-button>
+              <el-button
+                type="primary"
+                @click="configTrueWifi"
+                :loading="loading"
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
+          </el-dialog>
+
+          <!-- Wi-Fi/4G 批量配置设备（nettype=1） -->
+          <el-dialog
+            :title="$t('terminal.Configureinformation')"
+            v-model="configsWifi"
+            width="420px"
+            class="config-wifi-dialog"
+          >
+            <el-form
+              :model="configDatas"
+              label-width="120px"
+              ref="configDatasWifi"
+            >
+              <el-form-item :label="$t('terminal.deveui')">
+                <el-input
+                  v-model="configDatas.deveuiList"
+                  disabled
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.GPSreportingcycle')">
+                <el-select
+                  v-model="configDatas.gps"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in gpsList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Heartbeatcycle')">
+                <el-select
+                  v-model="configDatas.hb"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in hbList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <template #footer><div class="dialog-footer">
+              <el-button @click="(configsWifi = false), (loading = false)">{{
+                $t("terminal.cancel")
+              }}</el-button>
+              <el-button
+                type="primary"
+                @click="configTruesWifi"
+                :loading="loading"
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
+          </el-dialog>
+
           <!-- 批量删除设备 -->
           <el-dialog :title="$t('terminal.deletemsgs')" v-model="deletes">
             <el-table
@@ -6438,8 +6566,10 @@ export default {
         joinmode: "",
       },
       config: false,
+      configWifi: false,
       configData: "",
       configs: false,
+      configsWifi: false,
       configDatas: {
         deveuiList: "",
         power: "",
@@ -9337,6 +9467,13 @@ export default {
       this.getDevLists();
     },
 
+    getNettype(row) {
+      const n = Number(row && row.nettype);
+      return Number.isNaN(n) ? row && row.nettype : n;
+    },
+    isUnknownHbstatus(row) {
+      return Number(row && row.hbstatus) === 3;
+    },
     // 配置参数
     configTer(index) {
       if (this.tableData[index].custom == 2) {
@@ -9346,10 +9483,8 @@ export default {
         });
         return;
       }
-      if (
-        this.tableData[index].ver == "" ||
-        this.tableData[index].ver == null
-      ) {
+      // 未知状态(hbstatus=3)不可配置；在线/离线均可
+      if (this.isUnknownHbstatus(this.tableData[index])) {
         this.$message({
           message: this.$t("terminal.tet14"),
           type: "warning",
@@ -9363,6 +9498,7 @@ export default {
         this.selectConfig = true;
       }
       var that = this;
+      const nettype = this.getNettype(this.tableData[index]);
       let data = {
         deveui: this.tableData[index].deveui,
       };
@@ -9373,7 +9509,27 @@ export default {
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.configData = res.data;
+          const row = that.tableData[index] || {};
+          that.configData = res.data || {
+            deveui: row.deveui,
+            gps: "",
+            hb: "",
+          };
+          if (!that.configData.deveui) {
+            that.configData.deveui = row.deveui;
+          }
+          // Wi-Fi/4G：仅配置 GPS / 心跳周期
+          if (nettype === 1) {
+            that.configWifi = true;
+            return;
+          }
+          if (!res.data) {
+            that.$message({
+              message: that.$t("terminal.configfaile"),
+              type: "warning",
+            });
+            return;
+          }
           let starttime = res.data.sleepstart + that.timezone;
           let endtime = res.data.sleepend + that.timezone;
 
@@ -9610,6 +9766,33 @@ export default {
         }
       });
     },
+    // Wi-Fi/4G 单设备配置提交
+    configTrueWifi() {
+      var that = this;
+      this.loading = true;
+      updateDevConfigV2(
+        that.configData,
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.configWifi = false;
+          that.getDevLists();
+          that.$message({
+            message: that.$t("terminal.configsuccess"),
+            type: "success",
+          });
+          that.loading = false;
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+          that.loading = false;
+        }
+      });
+    },
     //批量配置
     configTers(index) {
       var that = this;
@@ -9676,9 +9859,17 @@ export default {
           return;
         }
         if (
-          that.multipleSelection[i].ver == null ||
-          that.multipleSelection[i].ver == ""
+          that.getNettype(that.multipleSelection[0]) !==
+          that.getNettype(that.multipleSelection[i])
         ) {
+          that.$message({
+            message: this.$t("terminal.configtersmsgNettype"),
+            type: "warning",
+          });
+          return;
+        }
+        // 未知状态(hbstatus=3)不可配置；在线/离线均可
+        if (that.isUnknownHbstatus(that.multipleSelection[i])) {
           that.$message({
             message: this.$t("terminal.tet21"),
             type: "warning",
@@ -9815,7 +10006,39 @@ export default {
           value: "asset",
         },
       ];
-      this.configs = true;
+      // Wi-Fi/4G：仅配置 GPS / 心跳周期
+      if (that.getNettype(that.multipleSelection[0]) === 1) {
+        this.configsWifi = true;
+      } else {
+        this.configs = true;
+      }
+    },
+    // Wi-Fi/4G 批量配置提交
+    configTruesWifi() {
+      var that = this;
+      this.loading = true;
+      updateDevConfigV2List(
+        that.configDatas,
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.configsWifi = false;
+          that.getDevLists();
+          that.$message({
+            message: that.$t("terminal.configsuccess"),
+            type: "success",
+          });
+          that.loading = false;
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+          that.loading = false;
+        }
+      });
     },
     configTrues(configDatas) {
       var that = this;
@@ -11855,6 +12078,22 @@ export default {
 </style>
 
 <style>
+/* Wi-Fi/4G 精简配置弹框：避免全局 margin:0 auto 把表单项顶到中间留白 */
+.config-wifi-dialog .el-dialog__body {
+  padding: 12px 24px 4px;
+}
+.config-wifi-dialog .el-form-item,
+.config-wifi-dialog .el-form-item__content,
+.config-wifi-dialog .el-input,
+.config-wifi-dialog .el-select {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.config-wifi-dialog .el-select,
+.config-wifi-dialog .el-select__wrapper {
+  width: 100% !important;
+}
+
 /* 对抗 App.vue 的 * { margin: 0 auto }，避免操作按钮被横向拉开 */
 .terminal-filter-flow {
   display: flex !important;

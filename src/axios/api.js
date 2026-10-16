@@ -1930,6 +1930,39 @@ export const getLastDevGps = (query, tenantkey_A, tenantid_A, username) => { //�
     }).then(res => res)
 };
 
+export const getAudioFileList = (query, tenantkey_A, tenantid_A, username) => { //按设备查询音频文件（时间倒序）
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getAudioFileList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getAudioFileList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const delAudioFile = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除音频文件
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/delAudioFile" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/delAudioFile",
+        method: 'delete',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
 export const getLastDevGpsByDeveuis = (query, tenantkey_A, tenantid_A, username) => { //按设备号集合查询最后位置
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/service/getLastDevGpsByDeveuis" + tenantkey_A + time_A)

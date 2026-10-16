@@ -22,8 +22,10 @@ import '@kjgl77/datav-vue3/dist/style.css'
 import i18n from './i18n/i18n'
 import VScaleScreen from 'v-scale-screen'
 import eventBus from './utils/eventBus'
+import { installInputTrim } from './utils/trimInput'
 
 window.$ = window.jQuery = $
+installInputTrim()
 
 const app = createApp(App)
 

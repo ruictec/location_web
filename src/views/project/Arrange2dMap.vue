@@ -1146,6 +1146,12 @@ export default {
       isShowLines: false, //是否显示连接线
 
       select: null, //选中的点
+      arrangeDragging: false, // 是否正在拖拽布置点（防止拖拽松手误触发 click 再布置）
+      suppressMapClickUntil: 0,
+      arrangeMoveToken: 0, // 拖拽保存请求序号，避免超时重载与慢请求叠加
+      _mapInitGeneration: 0,
+      _mapInitInFlight: false,
+      _arrangeLoadToken: 0,
       reallength: 0,
       length: 0,
       realwidth: 0,
@@ -1189,14 +1195,16 @@ export default {
     arrange(val) {
       if (!val) {
         clearTimeout(this._arrangeOpenTimer);
+        this._mapInitGeneration = (this._mapInitGeneration || 0) + 1;
         this.unobserveMapResize();
         return;
       }
       if (!this.pendingMapInit) {
         return;
       }
+      // 仅作 @opened 未触发时的兜底；地图已在初始化或已创建则不再二次 init（云端慢时双开会导致设备加两遍）
       this._arrangeOpenTimer = setTimeout(() => {
-        if (this.pendingMapInit) {
+        if (this.pendingMapInit && !this.map && !this._mapInitInFlight) {
           this.handleArrangeDialogOpened();
         }
       }, 350);
@@ -1917,6 +1925,81 @@ export default {
       });
     },
 
+    // 清除地图上已布置的设备图标层（保留底图、围栏、连接点/连线）
+    clearArrangeDeviceLayersOnly() {
+      if (!this.map) return;
+      const layers = this.map.getLayers().getArray().slice();
+      for (let i = layers.length - 1; i > 0; i--) {
+        const layer = layers[i];
+        if (this.isFenceVectorLayer && this.isFenceVectorLayer(layer)) continue;
+        const source = layer.getSource && layer.getSource();
+        if (!source || typeof source.getFeatures !== "function") continue;
+        if (source.image_) continue;
+        const feats = source.getFeatures();
+        if (!feats || !feats.length) continue;
+        const props =
+          (feats[0].values_ ||
+            (feats[0].getProperties && feats[0].getProperties())) ||
+          {};
+        // 只清设备图标；连接点(point)与相邻连线保留
+        if (props.point && !props.deveui) continue;
+        if (!(props.deveui || props.beaconid || props.alias)) continue;
+        this.map.removeLayer(layer);
+      }
+    },
+    // 同一设备号只保留一个图层，去掉拖拽/重载产生的重复图标
+    dedupeArrangeDeviceLayers() {
+      if (!this.map) return;
+      const seen = Object.create(null);
+      const layers = this.map.getLayers().getArray().slice();
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i];
+        if (this.isFenceVectorLayer && this.isFenceVectorLayer(layer)) continue;
+        const source = layer.getSource && layer.getSource();
+        if (!source || typeof source.getFeatures !== "function") continue;
+        const feats = source.getFeatures();
+        if (!feats || !feats.length) continue;
+        const props =
+          (feats[0].values_ ||
+            (feats[0].getProperties && feats[0].getProperties())) ||
+          {};
+        const key = props.deveui || props.beaconid || "";
+        if (!key) continue;
+        if (seen[key]) {
+          this.map.removeLayer(layer);
+        } else {
+          seen[key] = true;
+        }
+      }
+    },
+    // 可拖拽的布置要素：设备点 / 连接点；排除围栏、连线等
+    isMovableArrangeFeature(feature, layer) {
+      if (layer && typeof layer.get === "function") {
+        if (layer.get("isElectronicFenceLayer")) return false;
+      }
+      if (!feature || typeof feature.getGeometry !== "function") return false;
+      const geom = feature.getGeometry();
+      if (!geom) return false;
+      const gType = geom.getType();
+      if (
+        gType === "LineString" ||
+        gType === "MultiLineString" ||
+        gType === "Polygon" ||
+        gType === "MultiPolygon"
+      ) {
+        return false;
+      }
+      const props =
+        typeof feature.getProperties === "function"
+          ? feature.getProperties()
+          : feature.values_ || {};
+      return !!(
+        props.deveui ||
+        props.alias ||
+        props.point ||
+        (props.id && props.xy)
+      );
+    },
     //初始化地图
     mapInit(x, y, info) {
       this.imageWidth = x;
@@ -1940,7 +2023,10 @@ export default {
         }
         that.forceMapContainerSize();
 
-        that.select = new Select();
+        that.select = new Select({
+          hitTolerance: 16,
+          filter: that.isMovableArrangeFeature,
+        });
         // 单击选中
         that.select.on("select", (e) => {
           // if(that.select==null)return
@@ -2007,8 +2093,10 @@ export default {
           that.currentAdj = e.selected[0];
         });
 
+        // 不绑定 select 集合：否则命中到文字/连线时无法拖动，地图会被当成平移
         const translate = new Translate({
-          features: that.select.getFeatures(),
+          hitTolerance: 16,
+          filter: that.isMovableArrangeFeature,
         });
 
         let old = [];
@@ -2023,59 +2111,63 @@ export default {
 
         //开始移动
         translate.on("translatestart", (e) => {
+          that.arrangeDragging = true;
+          const moved =
+            (e.features && e.features.getArray && e.features.getArray()[0]) ||
+            (e.features && e.features.array_ && e.features.array_[0]);
+          if (!moved) {
+            that.arrangeDragging = false;
+            return;
+          }
           let list = that.map.getLayers().getArray();
           //获取选中的点信息 用于判断线的移动端点
-          let feature = e.features.array_[0].values_;
+          let feature = moved.values_ || moved.getProperties();
           if (feature.xy) {
             differX = e.coordinate[0] - feature.xy[0];
             differY = e.coordinate[1] - feature.xy[1];
           }
-          currentFeature = e.features.array_[0];
+          currentFeature = moved;
           oldFeature = feature;
           let LayerArrays = [];
           //获选中点相关的线集合
           list.forEach((item) => {
-            if (
-              !item.getSource().image_ &&
-              item.getSource().getFeatures()[0].values_
-            ) {
-              if (feature.id) {
-                if (
-                  item.getSource().getFeatures()[0].values_.perid ===
-                    feature.id ||
-                  item.getSource().getFeatures()[0].values_.subid === feature.id
-                ) {
-                  LayerArrays.push(item);
-                }
+            const source = item && item.getSource && item.getSource();
+            if (!source || source.image_ || typeof source.getFeatures !== "function") {
+              return;
+            }
+            const firstFeat = source.getFeatures()[0];
+            if (!firstFeat) return;
+            const values = firstFeat.values_ || firstFeat.getProperties();
+            if (!values) return;
+            if (feature.id) {
+              if (values.perid === feature.id || values.subid === feature.id) {
+                LayerArrays.push(item);
               }
-              if (feature.deveui) {
-                if (
-                  item.getSource().getFeatures()[0].values_.perid ===
-                    feature.deveui ||
-                  item.getSource().getFeatures()[0].values_.subid ===
-                    feature.deveui
-                ) {
-                  LayerArrays.push(item);
-                }
+            }
+            if (feature.deveui) {
+              if (
+                values.perid === feature.deveui ||
+                values.subid === feature.deveui
+              ) {
+                LayerArrays.push(item);
               }
             }
           });
           old = e.mapBrowserEvent.coordinate;
           lines = LayerArrays;
           //获取线的坐标集合
-          lines.forEach((item, index) => {
-            const flatCoordinates = item
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry().flatCoordinates;
+          xy = [];
+          lines.forEach((item) => {
+            const firstFeat = item.getSource().getFeatures()[0];
+            if (!firstFeat || !oldFeature.xy) return;
+            const flatCoordinates = firstFeat.getGeometry().flatCoordinates;
             //为了判断端点移动 线需要移动的端点坐标设为0
             if (
               flatCoordinates[0] === oldFeature.xy[0] &&
               flatCoordinates[1] === oldFeature.xy[1]
             ) {
               xy.push([0, 0, flatCoordinates[2], flatCoordinates[3]]);
-            }
-            if (
+            } else if (
               flatCoordinates[2] === oldFeature.xy[0] &&
               flatCoordinates[3] === oldFeature.xy[1]
             ) {
@@ -2088,39 +2180,48 @@ export default {
         translate.on("translating", function (e) {
           //遍历该点的相关线
           lines.forEach((item, index) => {
+            if (!xy[index]) return;
+            const firstFeat = item.getSource() && item.getSource().getFeatures()[0];
+            if (!firstFeat) return;
             //移动线，端点坐标为0的就设置为移动中的坐标
-            item
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry()
-              .setCoordinates([
-                [
-                  xy[index][0] == 0
-                    ? e.mapBrowserEvent.coordinate[0] - differX
-                    : xy[index][0],
-                  xy[index][1] == 0
-                    ? e.mapBrowserEvent.coordinate[1] - differY
-                    : xy[index][1],
-                ],
-                [
-                  xy[index][2] == 0
-                    ? e.mapBrowserEvent.coordinate[0] - differX
-                    : xy[index][2],
-                  xy[index][3] == 0
-                    ? e.mapBrowserEvent.coordinate[1] - differY
-                    : xy[index][3],
-                ],
-              ]);
+            firstFeat.getGeometry().setCoordinates([
+              [
+                xy[index][0] == 0
+                  ? e.mapBrowserEvent.coordinate[0] - differX
+                  : xy[index][0],
+                xy[index][1] == 0
+                  ? e.mapBrowserEvent.coordinate[1] - differY
+                  : xy[index][1],
+              ],
+              [
+                xy[index][2] == 0
+                  ? e.mapBrowserEvent.coordinate[0] - differX
+                  : xy[index][2],
+                xy[index][3] == 0
+                  ? e.mapBrowserEvent.coordinate[1] - differY
+                  : xy[index][3],
+              ],
+            ]);
           });
         });
 
         //移动结束
         translate.on("translateend", function (e) {
-          // if (window.event.ctrlKey) return;
+          that.arrangeDragging = false;
+          // 拖拽松手后忽略紧随其后的 click（云端更容易误触发再布置）
+          that.suppressMapClickUntil = Date.now() + 800;
+          const movedFeat =
+            currentFeature ||
+            (e.features && e.features.getArray && e.features.getArray()[0]) ||
+            (e.features && e.features.array_ && e.features.array_[0]);
+          const movedVals =
+            (movedFeat && (movedFeat.values_ || movedFeat.getProperties())) ||
+            {};
           //没有移动点就不执行
           if (
-            old[0] === e.mapBrowserEvent.coordinate[0] &&
-            old[1] === e.mapBrowserEvent.coordinate[1]
+            !movedFeat ||
+            (old[0] === e.mapBrowserEvent.coordinate[0] &&
+              old[1] === e.mapBrowserEvent.coordinate[1])
           ) {
             old = [];
             lines = [];
@@ -2128,256 +2229,200 @@ export default {
             xy = [];
             return;
           }
+
+          // 以拖拽后的几何坐标为准（比鼠标坐标减偏移更稳）
+          const geom = movedFeat.getGeometry && movedFeat.getGeometry();
+          const newCoord =
+            (geom && geom.getCoordinates && geom.getCoordinates()) ||
+            [
+              e.mapBrowserEvent.coordinate[0] - differX,
+              e.mapBrowserEvent.coordinate[1] - differY,
+            ];
+          const nodeX = Number(newCoord[0]);
+          const nodeY = Number(newCoord[1]);
+
+          if (
+            nodeX > that.imageWidth ||
+            nodeX < 0 ||
+            nodeY < 0 ||
+            nodeY > that.imageHeight
+          ) {
+            that.$message({
+              message: that.$t("floormanagement.Beyondthemap"),
+              type: "warning",
+            });
+            that.clearArranges();
+            old = [];
+            lines = [];
+            oldFeature = "";
+            xy = [];
+            return;
+          }
+
+          // 先写回本地 xy，避免后续逻辑读到旧坐标
+          if (movedFeat.set) {
+            movedFeat.set("xy", [nodeX, nodeY]);
+            movedFeat.set("x", nodeX);
+            movedFeat.set("y", nodeY);
+            if (movedVals.longi !== undefined || movedVals.alias) {
+              movedFeat.set("longi", nodeX);
+              movedFeat.set("lati", nodeY);
+            }
+          }
+
           const loading = that.$loading({
             lock: true,
             text: "loading",
             spinner: "el-icon-loading",
             background: "rgba(256, 256, 256, 0.7)",
           });
-          let moveTimes = 0;
-          function updatePoints() {
-            moveTimes += 1;
-            let clearMarker = true;
-            let data = {
+
+          // 云端首次保存可能超过 5s；超时里 clearArranges 会与仍保留的旧图层叠加成重复图标
+          const moveToken = ++that.arrangeMoveToken;
+          let finished = false;
+          let tryCount = 0;
+          const maxTry = 3;
+          const timeoutMs = 20000;
+          let timer = setTimeout(() => {
+            if (finished || moveToken !== that.arrangeMoveToken) return;
+            // 仅提示，不重建图层（重建是重复图标的主因）
+            that.$message({
+              message: that.$t("floormanagement.Requesttimedout"),
+              type: "warning",
+            });
+            loading.close();
+          }, timeoutMs);
+
+          const doneOk = () => {
+            if (moveToken !== that.arrangeMoveToken) return;
+            finished = true;
+            clearTimeout(timer);
+            that.dedupeArrangeDeviceLayers();
+            that.$message({
+              message: that.$t("Building.Layoutsuccessful"),
+              type: "success",
+            });
+            setTimeout(() => loading.close(), 300);
+          };
+          const doneFail = (res) => {
+            if (moveToken !== that.arrangeMoveToken) return;
+            finished = true;
+            clearTimeout(timer);
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+            loading.close();
+            that.clearArranges();
+          };
+          const savePoint = () => {
+            tryCount += 1;
+            const data = {
               groundid: that.groundid,
               pointid:
-                e.features.array_[0].values_.id ||
-                e.features.array_[0].values_.features[0].values_.id,
-              nodeX: e.mapBrowserEvent.coordinate[0] - differX,
-              nodeY: e.mapBrowserEvent.coordinate[1] - differY,
+                movedVals.id ||
+                (movedVals.features &&
+                  movedVals.features[0] &&
+                  movedVals.features[0].values_ &&
+                  movedVals.features[0].values_.id),
+              nodeX,
+              nodeY,
             };
-            // return;
-            setTimeout(() => {
-              if (clearMarker) {
-                that.$message({
-                  message: that.$t("floormanagement.Requesttimedout"),
-                  type: "warning",
-                });
-                that.clearArranges();
-                loading.close();
-              }
-            }, 5000);
             updatePoint(
               data,
               that.tenantkey_A,
               that.tenantid_A,
               that.userName
             ).then((res) => {
+              if (moveToken !== that.arrangeMoveToken) return;
               if (res.code == 1001) {
-                clearMarker = false;
-                moveTimes = 0;
-                that.$message({
-                  message: that.$t("Building.Layoutsuccessful"),
-                  type: "success",
-                });
-                //移动完成重新设置该点xy信息
-                currentFeature.set("xy", [
-                  e.mapBrowserEvent.coordinate[0] - differX,
-                  e.mapBrowserEvent.coordinate[1] - differY,
-                ]);
-                setTimeout(() => {
-                  loading.close();
-                }, 500);
+                doneOk();
+              } else if (tryCount < maxTry) {
+                savePoint();
               } else {
-                if (moveTimes <= 3) {
-                  updatePoints();
-                } else {
-                  that.$message({
-                    message:
-                      that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                    type: "error",
-                  });
-                  that.clearArranges();
-                  loading.close();
-                }
+                doneFail(res);
               }
             });
-          }
-          function updateBeaconPosOnes() {
-            let clearMarker = true;
-            moveTimes += 1;
-            let data = {
+          };
+          const saveDevice = () => {
+            tryCount += 1;
+            const data = {
               projectid: that.intoProjectid,
               groundid: that.groundid,
               deveui:
-                e.features.array_[0].values_.deveui ||
-                e.features.array_[0].values_.features[0].values_.deveui,
-              longi: e.mapBrowserEvent.coordinate[0] - differX,
-              lati: e.mapBrowserEvent.coordinate[1] - differY,
+                movedVals.deveui ||
+                (movedVals.features &&
+                  movedVals.features[0] &&
+                  movedVals.features[0].values_ &&
+                  movedVals.features[0].values_.deveui),
+              longi: nodeX,
+              lati: nodeY,
               falg: true,
             };
-            setTimeout(() => {
-              if (clearMarker) {
-                that.$message({
-                  message: that.$t("floormanagement.Requesttimedout"),
-                  type: "warning",
-                });
-                that.clearArranges();
-
-                loading.close();
-              }
-            }, 5000);
-
-            if (e.features.array_[0].values_.devtype) {
-              data.devtype = e.features.array_[0].values_.devtype;
-              updateDevOtherPosOne(
+            let req;
+            if (movedVals.devtype) {
+              data.devtype = movedVals.devtype;
+              req = updateDevOtherPosOne(
                 data,
                 that.tenantkey_A,
                 that.tenantid_A,
                 that.userName
-              ).then((res) => {
-                if (res.code == 1001) {
-                  clearMarker = false;
-                  setTimeout(() => {
-                    loading.close();
-                  }, 500);
-                  moveTimes = 0;
-                  that.$message({
-                    message: that.$t("Building.Layoutsuccessful"),
-                    type: "success",
-                  });
-                  //移动完成重新设置该点xy信息
-                  currentFeature.set("xy", [
-                    e.mapBrowserEvent.coordinate[0] - differX,
-                    e.mapBrowserEvent.coordinate[1] - differY,
-                  ]);
-                } else {
-                  if (moveTimes <= 3) {
-                    updateBeaconPosOnes();
-                  } else {
-                    loading.close();
-                    that.$message({
-                      message:
-                        that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                      type: "error",
-                    });
-
-                    that.clearArranges();
-                  }
-                }
-              });
+              );
+            } else if (that.intoProjectType == 1) {
+              req = updateBeaconPosOne(
+                data,
+                that.tenantkey_A,
+                that.tenantid_A,
+                that.userName
+              );
             } else {
-              if (that.intoProjectType == 1) {
-                updateBeaconPosOne(
-                  data,
-                  that.tenantkey_A,
-                  that.tenantid_A,
-                  that.userName
-                ).then((res) => {
-                  if (res.code == 1001) {
-                    clearMarker = false;
-                    setTimeout(() => {
-                      loading.close();
-                    }, 500);
-                    moveTimes = 0;
-                    that.$message({
-                      message: that.$t("Building.Layoutsuccessful"),
-                      type: "success",
-                    });
-                    //移动完成重新设置该点xy信息
-                    currentFeature.set("xy", [
-                      e.mapBrowserEvent.coordinate[0] - differX,
-                      e.mapBrowserEvent.coordinate[1] - differY,
-                    ]);
-                  } else {
-                    if (moveTimes <= 3) {
-                      updateBeaconPosOnes();
-                    } else {
-                      loading.close();
-                      that.$message({
-                        message:
-                          that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                        type: "error",
-                      });
-
-                      that.clearArranges();
-                    }
-                  }
-                });
-              } else {
-                updateDevListPosOne(
-                  data,
-                  that.tenantkey_A,
-                  that.tenantid_A,
-                  that.userName
-                ).then((res) => {
-                  if (res.code == 1001) {
-                    clearMarker = false;
-                    setTimeout(() => {
-                      loading.close();
-                    }, 500);
-                    moveTimes = 0;
-                    that.$message({
-                      message: that.$t("Building.Layoutsuccessful"),
-                      type: "success",
-                    });
-                    //移动完成重新设置该点xy信息
-                    currentFeature.set("xy", [
-                      e.mapBrowserEvent.coordinate[0] - differX,
-                      e.mapBrowserEvent.coordinate[1] - differY,
-                    ]);
-                  } else {
-                    if (moveTimes <= 3) {
-                      updateBeaconPosOnes();
-                    } else {
-                      loading.close();
-                      that.$message({
-                        message:
-                          that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                        type: "error",
-                      });
-
-                      that.clearArranges();
-                    }
-                  }
-                });
-              }
+              req = updateDevListPosOne(
+                data,
+                that.tenantkey_A,
+                that.tenantid_A,
+                that.userName
+              );
             }
+            req.then((res) => {
+              if (moveToken !== that.arrangeMoveToken) return;
+              if (res.code == 1001) {
+                doneOk();
+              } else if (tryCount < maxTry) {
+                saveDevice();
+              } else {
+                doneFail(res);
+              }
+            });
+          };
+
+          const isPoint =
+            movedVals.point ||
+            (movedVals.features &&
+              movedVals.features[0] &&
+              movedVals.features[0].values_ &&
+              movedVals.features[0].values_.point);
+          const isDevice =
+            movedVals.alias ||
+            movedVals.deveui ||
+            (movedVals.features &&
+              movedVals.features[0] &&
+              movedVals.features[0].values_ &&
+              (movedVals.features[0].values_.alias ||
+                movedVals.features[0].values_.deveui));
+
+          if (isPoint) {
+            savePoint();
+          } else if (isDevice) {
+            saveDevice();
+          } else {
+            clearTimeout(timer);
+            loading.close();
           }
 
-          if (
-            e.mapBrowserEvent.coordinate[0] - differX > that.imageWidth ||
-            e.mapBrowserEvent.coordinate[0] - differX < 0 ||
-            e.mapBrowserEvent.coordinate[1] - differY < 0 ||
-            e.mapBrowserEvent.coordinate[1] - differY > that.imageHeight
-          ) {
-            // 超出地图，重新加载
-            that.$message({
-              message: that.$t("floormanagement.Beyondthemap"),
-              type: "warning",
-            });
-            that.clearArranges();
-            setTimeout(() => {
-              loading.close();
-            }, 500);
-            return;
-          }
-          if (
-            (e.features.array_[0].values_ &&
-              e.features.array_[0].values_.point) ||
-            (e.features.array_[0].values_.features &&
-              e.features.array_[0].values_.features[0].values_ &&
-              e.features.array_[0].values_.features[0].values_.point)
-          ) {
-            updatePoints();
-          }
-          if (
-            (e.features.array_[0].values_ &&
-              e.features.array_[0].values_.alias) ||
-            (e.features.array_[0].values_.features &&
-              e.features.array_[0].values_.features[0].values_ &&
-              e.features.array_[0].values_.features[0].values_.alias)
-          ) {
-            updateBeaconPosOnes();
-          }
           old = [];
           lines = [];
           oldFeature = "";
           xy = [];
-          currentFeature.set("xy", [
-            e.mapBrowserEvent.coordinate[0],
-            e.mapBrowserEvent.coordinate[1],
-          ]);
         });
         const overviewMapControl = new OverviewMap({
           layers: [
@@ -2458,13 +2503,24 @@ export default {
       var that = this;
       var x, y, coodinate;
       this.mapClickEvent = this.map.on("click", (evt) => {
+        // 拖拽移动已布置设备时，松手可能连带触发 click，云端更容易出现，需忽略
+        if (that.arrangeDragging || Date.now() < that.suppressMapClickUntil) {
+          return;
+        }
         var feature = this.map.forEachFeatureAtPixel(
           evt.pixel,
-          function (feature) {
-            coodinate = evt.coordinate;
-            return feature;
-          }
+          function (feature, layer) {
+            if (that.isMovableArrangeFeature(feature, layer)) {
+              coodinate = evt.coordinate;
+              return feature;
+            }
+          },
+          { hitTolerance: 8 }
         );
+        // 点在已有设备/连接点上：只做选中，不再二次布置
+        if (feature) {
+          return;
+        }
         if (that.selectArrangeData == null || that.selectArrangeData == "") {
           // that.$message({
           //   message: "请选择未使用的设备！",
@@ -5473,19 +5529,21 @@ export default {
 
       this.currentPage2 = 1;
       this.searchArranges();
-      if (this.arrange) {
-        let LayerArrays = this.map.getLayers().getArray();
+      if (this.arrange && this.map) {
+        // slice 拷贝，避免 removeLayer 时改动到正在遍历的数组
+        const LayerArrays = this.map.getLayers().getArray().slice();
         for (let i = LayerArrays.length - 1; i > 0; i--) {
-          if (this.isFenceVectorLayer(LayerArrays[i])) {
+          const layer = LayerArrays[i];
+          if (this.isFenceVectorLayer(layer)) {
             continue;
           }
-          LayerArrays[i]
-            .getSource()
-            .getFeatures()
-            .forEach(function (feature) {
-              LayerArrays[i].getSource().removeFeature(feature);
+          const source = layer.getSource && layer.getSource();
+          if (source && typeof source.getFeatures === "function") {
+            source.getFeatures().slice().forEach(function (feature) {
+              source.removeFeature(feature);
             });
-          this.map.removeLayer(LayerArrays[i]);
+          }
+          this.map.removeLayer(layer);
         }
         this.addSubPolygon();
         if (that.$store.state.intoProjectType == 2) {
@@ -5790,12 +5848,21 @@ export default {
       if (!this.pendingMapInit) {
         return;
       }
+      if (this._mapInitInFlight) {
+        return;
+      }
       clearTimeout(this._arrangeOpenTimer);
+      this._mapInitInFlight = true;
       this.initMapWhenReady(this.pendingMapInit);
     },
     initMapWhenReady(pending, retries = 0, lastWidth = 0, stableCount = 0) {
+      const generation = this._mapInitGeneration;
       this.$nextTick(() => {
         requestAnimationFrame(() => {
+          if (generation !== this._mapInitGeneration) {
+            this._mapInitInFlight = false;
+            return;
+          }
           const mapEl = this.$refs.map;
           const currentWidth = mapEl?.offsetWidth || 0;
           if (
@@ -5808,6 +5875,8 @@ export default {
                 () => this.initMapWhenReady(pending, retries + 1),
                 50
               );
+            } else {
+              this._mapInitInFlight = false;
             }
             return;
           }
@@ -5832,6 +5901,7 @@ export default {
           this.pendingMapInit = null;
           this.forceMapContainerSize();
           this.mapInit(pending.x, pending.y, pending.info);
+          this._mapInitInFlight = false;
           this.scheduleMapResize();
         });
       });
@@ -5997,6 +6067,7 @@ export default {
     //反向项目获取地图上已布置的设备
     getArrangeGatewayPos(projectid) {
       var that = this;
+      const loadToken = ++this._arrangeLoadToken;
       let data2 = {
         projectype: 2,
         groundid: this.groundid,
@@ -6011,7 +6082,9 @@ export default {
         that.tenantid_A,
         that.userName
       ).then((res) => {
+        if (loadToken !== that._arrangeLoadToken) return;
         if (res.code == 1001) {
+          that.clearArrangeDeviceLayersOnly();
           let devList = res.data.devList;
           let otherList = res.data.otherList;
           that.arrangeFeatures = devList.concat(otherList);
@@ -6020,6 +6093,7 @@ export default {
               that.addIconMarkers(that.map, that.arrangeFeatures[i]);
             }
           }
+          that.dedupeArrangeDeviceLayers();
         }
       });
     },
@@ -6052,6 +6126,7 @@ export default {
     //正向项目获取地图上已布置的设备
     getArrangeBeaconPos(projectid) {
       var that = this;
+      const loadToken = ++this._arrangeLoadToken;
       let data2 = {
         projectype: 1,
         groundid: that.groundid,
@@ -6065,7 +6140,10 @@ export default {
         that.tenantid_A,
         that.userName
       ).then((res) => {
+        if (loadToken !== that._arrangeLoadToken) return;
         if (res.code == 1001) {
+          // 先清再加，避免初始化被触发两次时叠两套图标
+          that.clearArrangeDeviceLayersOnly();
           let devList = res.data.devList;
           let otherList = res.data.otherList;
           that.arrangeFeatures = devList.concat(otherList);
@@ -6074,6 +6152,7 @@ export default {
               that.addIconMarkers(that.map, that.arrangeFeatures[i]);
             }
           }
+          that.dedupeArrangeDeviceLayers();
         }
       });
     },

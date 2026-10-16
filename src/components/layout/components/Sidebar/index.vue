@@ -36,6 +36,10 @@
           <el-menu-item index="/device/gateway">{{
             $t("list.Basestationmanagement")
           }}</el-menu-item>
+          <el-menu-item
+            index="/device/audiorecording"
+            v-if="$store.state.userInfo.prionum == 5"
+            >{{ $t("list.Audiorecording") }}</el-menu-item>
         </el-sub-menu>
 
         <el-sub-menu ref="subMenu" index="/warning">

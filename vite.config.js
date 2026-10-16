@@ -1,12 +1,15 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import requireTransform from 'vite-plugin-require-transform'
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import { createRequire } from 'module'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const require = createRequire(import.meta.url)
+const { resolveBackend, resolveAppEnv } = require('./config/app.js')
 const staticDir = path.resolve(__dirname, 'static')
 const fengmapDataDir = path.resolve(__dirname, 'data')
 const fengmapBuildDir = path.resolve(__dirname, 'node_modules/fengmap/build')
@@ -96,28 +99,12 @@ function legacyStaticPlugin() {
 }
 
 function buildProcessEnvDefines(mode) {
-  const env = loadEnv(mode, process.cwd(), '')
   const isProd = mode === 'production'
+  // 统一配置入口：config/app.js
   const processEnv = {
     NODE_ENV: isProd ? 'production' : 'development',
     BASE_URL: isProd ? './' : '/',
-    VUE_APP_API_BASE: env.VUE_APP_API_BASE || (isProd ? 'https://location.rctiot.com:14001/v1' : '/v1'),
-    VUE_APP_WS_BASE: env.VUE_APP_WS_BASE || 'wss://location.rctiot.com:14001/websocket',
-    VUE_APP_ASSET_BASE: env.VUE_APP_ASSET_BASE || 'https://location.rctiot.com:8079',
-    VUE_APP_DOC_BASE: env.VUE_APP_DOC_BASE || 'https://location.rctiot.com:8078',
-    VUE_APP_HELP_BASE: env.VUE_APP_HELP_BASE || 'https://location.rctiot.com:8079',
-    VUE_APP_MAP_PROVIDER: env.VUE_APP_MAP_PROVIDER || 'tianditu',
-    VUE_APP_TIANDITU_KEY: env.VUE_APP_TIANDITU_KEY || '',
-    VUE_APP_TILE_URL_TEMPLATE: env.VUE_APP_TILE_URL_TEMPLATE || 'https://www.edwei.cn:8443/osm/{z}/{x}/{y}.png',
-    VUE_APP_FENGMAP_IMG_BASE: env.VUE_APP_FENGMAP_IMG_BASE || 'https://developer.fengmap.com/fmAPI/images',
-    VUE_APP_FENGMAP_MAP_URL: env.VUE_APP_FENGMAP_MAP_URL || '',
-    VUE_APP_FENGMAP_THEME_URL: env.VUE_APP_FENGMAP_THEME_URL || '',
-    VUE_APP_ENABLE_BAIDU_ANALYTICS: env.VUE_APP_ENABLE_BAIDU_ANALYTICS || 'false',
-    VUE_APP_BAIDU_HM_ID: env.VUE_APP_BAIDU_HM_ID || '',
-    VUE_APP_MQTT_BROKER_URL: env.VUE_APP_MQTT_BROKER_URL || '',
-    VUE_APP_WECHAT_APPID: env.VUE_APP_WECHAT_APPID || '',
-    VUE_APP_WECHAT_SECRET: env.VUE_APP_WECHAT_SECRET || '',
-    API_PROXY_TARGET: env.API_PROXY_TARGET || ''
+    ...resolveAppEnv(mode),
   }
   const defines = {
     'process.env': JSON.stringify(processEnv),
@@ -132,12 +119,15 @@ function buildProcessEnvDefines(mode) {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const proxyTargetRaw = env.API_PROXY_TARGET || 'https://location.rctiot.com:14001/v1'
+  const backend = resolveBackend()
+  const appEnv = resolveAppEnv(mode)
+  const proxyTargetRaw = backend.apiProxy
   let proxyOrigin = proxyTargetRaw
   try {
     proxyOrigin = new URL(proxyTargetRaw).origin
   } catch (e) {}
+  // eslint-disable-next-line no-console
+  console.log(`[app] backend=${backend.active} (${backend.label}) → ${proxyTargetRaw}`)
 
   function normalizeProxyOrigin(target, fallback) {
     const raw = (target && String(target).trim()) || fallback
@@ -148,7 +138,7 @@ export default defineConfig(({ mode }) => {
     }
   }
   const dataProxyTarget = normalizeProxyOrigin(
-    env.DATA_PROXY_TARGET,
+    appEnv.DATA_PROXY_TARGET,
     'https://location.rctiot.com'
   )
 
