@@ -50,6 +50,7 @@ const config = {
   common: {
     // 地图：tianditu | osm
     mapProvider: 'tianditu',
+    // 天地图 Key：勿把真实值提交到仓库；本机填写或部署后改 dist/static/config.js
     tiandituKey: '',
     tileUrlTemplate: 'https://www.edwei.cn:8443/osm/{z}/{x}/{y}.png',
     fengmapImgBase: 'https://developer.fengmap.com/fmAPI/images',
