@@ -92,6 +92,25 @@
               </el-form-item>
 
               <el-form-item
+                v-if="show"
+                :label="$t('terminal.nettype') + '：'"
+                class="terminal-filter-item">
+                <el-select
+                  v-model="searchList.nettype"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in nettypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item
                 :label="$t('terminal.country')"
                 v-if="show && (contrForPrionum == 1 || contrForPrionum == 2)"
                 class="terminal-filter-item">
@@ -4030,12 +4049,12 @@
           <el-dialog
             :title="$t('terminal.Configureinformation')"
             v-model="configWifi"
-            width="420px"
+            width="520px"
             class="config-wifi-dialog"
           >
             <el-form
               :model="configData"
-              label-width="120px"
+              label-width="180px"
               ref="configDataWifi"
             >
               <el-form-item :label="$t('terminal.deveui')">
@@ -4050,7 +4069,7 @@
                   :placeholder="$t('terminal.choose')"
                 >
                   <el-option
-                    v-for="item in gpsList"
+                    v-for="item in gpsListWifi"
                     :key="item.index"
                     :label="item.value"
                     :value="item.index"
@@ -4075,6 +4094,95 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item :label="$t('terminal.Sleeplevel')">
+                <el-select
+                  v-model="configData.degree"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in delaySleepList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content
+                    ><div>
+                      <p>{{ $t("terminal.text20") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Sleepstart1')">
+                <el-select
+                  v-model="configData.sleepstart"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in sleepList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content
+                    ><div>
+                      <p>{{ $t("terminal.text202") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Sleepstart2')">
+                <el-select
+                  v-model="configData.sleepend"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in sleepList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
             </el-form>
             <template #footer><div class="dialog-footer">
               <el-button @click="(configWifi = false), (loading = false)">{{
@@ -4092,12 +4200,12 @@
           <el-dialog
             :title="$t('terminal.Configureinformation')"
             v-model="configsWifi"
-            width="420px"
+            width="520px"
             class="config-wifi-dialog"
           >
             <el-form
               :model="configDatas"
-              label-width="120px"
+              label-width="180px"
               ref="configDatasWifi"
             >
               <el-form-item :label="$t('terminal.deveui')">
@@ -4115,7 +4223,7 @@
                   :placeholder="$t('terminal.choose')"
                 >
                   <el-option
-                    v-for="item in gpsList"
+                    v-for="item in gpsListWifi"
                     :key="item.index"
                     :label="item.value"
                     :value="item.index"
@@ -4133,6 +4241,95 @@
                 >
                   <el-option
                     v-for="item in hbList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Sleeplevel')">
+                <el-select
+                  v-model="configDatas.degree"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in delaySleepList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.value"
+                  >
+                  </el-option>
+                </el-select>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content
+                    ><div>
+                      <p>{{ $t("terminal.text20") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Sleepstart1')">
+                <el-select
+                  v-model="configDatas.sleepstart"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in sleepList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  >
+                  </el-option>
+                </el-select>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content
+                    ><div>
+                      <p>{{ $t("terminal.text202") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+              <el-form-item :label="$t('terminal.Sleepstart2')">
+                <el-select
+                  v-model="configDatas.sleepend"
+                  clearable
+                  filterable
+                  style="width: 100%"
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in sleepList"
                     :key="item.index"
                     :label="item.value"
                     :value="item.index"
@@ -5988,6 +6185,7 @@ export default {
       selectMemo: "",
       searchList: {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         country: "",
@@ -7130,6 +7328,65 @@ export default {
         {
           index: 1,
           value: "disabled",
+        },
+        {
+          index: 2,
+          value: "5s",
+        },
+        {
+          index: 3,
+          value: "10s",
+        },
+        {
+          index: 4,
+          value: "15s",
+        },
+        {
+          index: 5,
+          value: "30s",
+        },
+        {
+          index: 6,
+          value: "60s",
+        },
+        {
+          index: 7,
+          value: "150s",
+        },
+        {
+          index: 8,
+          value: "5min",
+        },
+        {
+          index: 9,
+          value: "15min",
+        },
+        {
+          index: 10,
+          value: "30min",
+        },
+        {
+          index: 11,
+          value: "60min",
+        },
+        {
+          index: 12,
+          value: "90min",
+        },
+        {
+          index: 13,
+          value: "3h",
+        },
+        {
+          index: 14,
+          value: "6h",
+        },
+      ],
+      // Wi-Fi/4G：GPS 周期选项与 Lora 下标一致，仅将 disabled 显示为 2s
+      gpsListWifi: [
+        {
+          index: 1,
+          value: "2s",
         },
         {
           index: 2,
@@ -9375,6 +9632,7 @@ export default {
       ) {
         this.searchList = {
           joinmode: "",
+          nettype: "",
           deveui: "",
           scheme: "",
           country: "",
@@ -9407,6 +9665,7 @@ export default {
       ) {
         this.searchList = {
           joinmode: "",
+          nettype: "",
           deveui: "",
           scheme: "",
           country: "",
@@ -9436,6 +9695,7 @@ export default {
       } else if (this.$store.state.userInfo.prionum == 5) {
         this.searchList = {
           joinmode: "",
+          nettype: "",
           deveui: "",
           scheme: "",
           country: "",
@@ -9514,11 +9774,26 @@ export default {
             deveui: row.deveui,
             gps: "",
             hb: "",
+            degree: "",
+            sleepstart: "",
+            sleepend: "",
           };
           if (!that.configData.deveui) {
             that.configData.deveui = row.deveui;
           }
-          // Wi-Fi/4G：仅配置 GPS / 心跳周期
+          // 睡眠时间按本地时区展示（Lora / Wi-Fi/4G 共用）
+          if (
+            res.data &&
+            (res.data.sleepstart || res.data.sleepstart === 0)
+          ) {
+            let starttime = res.data.sleepstart + that.timezone;
+            let endtime = res.data.sleepend + that.timezone;
+            that.configData.sleepend =
+              endtime > 24 ? endtime - 24 : endtime;
+            that.configData.sleepstart =
+              starttime > 24 ? starttime - 24 : starttime;
+          }
+          // Wi-Fi/4G：GPS / 心跳 / 休眠配置
           if (nettype === 1) {
             that.configWifi = true;
             return;
@@ -9530,12 +9805,6 @@ export default {
             });
             return;
           }
-          let starttime = res.data.sleepstart + that.timezone;
-          let endtime = res.data.sleepend + that.timezone;
-
-          that.configData.sleepend = endtime > 24 ? endtime - 24 : endtime;
-          that.configData.sleepstart =
-            starttime > 24 ? starttime - 24 : starttime;
 
           if (res.data.mode == 3 || res.data.mode == 4) {
             that.powerList = [
@@ -9769,6 +10038,16 @@ export default {
     // Wi-Fi/4G 单设备配置提交
     configTrueWifi() {
       var that = this;
+      let starttime, endtime;
+      if (this.configData.sleepstart || this.configData.sleepstart === 0) {
+        starttime = this.configData.sleepstart - this.timezone;
+        this.configData.sleepstart =
+          starttime < 0 ? 24 + starttime : starttime;
+      }
+      if (this.configData.sleepend || this.configData.sleepend === 0) {
+        endtime = this.configData.sleepend - this.timezone;
+        this.configData.sleepend = endtime < 0 ? 24 + endtime : endtime;
+      }
       this.loading = true;
       updateDevConfigV2(
         that.configData,
@@ -9789,6 +10068,16 @@ export default {
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
           });
+          if (that.configData.sleepstart || that.configData.sleepstart === 0) {
+            starttime = that.configData.sleepstart + that.timezone;
+            that.configData.sleepstart =
+              starttime > 24 ? starttime - 24 : starttime;
+          }
+          if (that.configData.sleepend || that.configData.sleepend === 0) {
+            endtime = that.configData.sleepend + that.timezone;
+            that.configData.sleepend =
+              endtime > 24 ? endtime - 24 : endtime;
+          }
           that.loading = false;
         }
       });
@@ -10006,7 +10295,7 @@ export default {
           value: "asset",
         },
       ];
-      // Wi-Fi/4G：仅配置 GPS / 心跳周期
+      // Wi-Fi/4G：GPS / 心跳 / 休眠配置
       if (that.getNettype(that.multipleSelection[0]) === 1) {
         this.configsWifi = true;
       } else {
@@ -10016,6 +10305,16 @@ export default {
     // Wi-Fi/4G 批量配置提交
     configTruesWifi() {
       var that = this;
+      let starttime, endtime;
+      if (this.configDatas.sleepstart || this.configDatas.sleepstart === 0) {
+        starttime = this.configDatas.sleepstart - this.timezone;
+        this.configDatas.sleepstart =
+          starttime < 0 ? 24 + starttime : starttime;
+      }
+      if (this.configDatas.sleepend || this.configDatas.sleepend === 0) {
+        endtime = this.configDatas.sleepend - this.timezone;
+        this.configDatas.sleepend = endtime < 0 ? 24 + endtime : endtime;
+      }
       this.loading = true;
       updateDevConfigV2List(
         that.configDatas,
@@ -10036,6 +10335,16 @@ export default {
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
           });
+          if (that.configDatas.sleepstart || that.configDatas.sleepstart === 0) {
+            starttime = that.configDatas.sleepstart + that.timezone;
+            that.configDatas.sleepstart =
+              starttime > 24 ? starttime - 24 : starttime;
+          }
+          if (that.configDatas.sleepend || that.configDatas.sleepend === 0) {
+            endtime = that.configDatas.sleepend + that.timezone;
+            that.configDatas.sleepend =
+              endtime > 24 ? endtime - 24 : endtime;
+          }
           that.loading = false;
         }
       });
@@ -11521,6 +11830,7 @@ export default {
     ) {
       this.searchList = {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         country: "",
@@ -11550,6 +11860,7 @@ export default {
     if (this.$store.state.userInfo.prionum == 5) {
       this.searchList = {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         country: "",
@@ -11582,6 +11893,7 @@ export default {
     ) {
       this.searchList = {
         joinmode: "",
+        nettype: "",
         deveui: "",
         scheme: "",
         country: "",

@@ -15,6 +15,8 @@ import store from './store/index'
 import echarts from './utils/echartsLegacy'
 import VueLazyload from 'vue-lazyload'
 import './utils/flexible'
+import { setUiScale } from './utils/uiScale'
+import { installScaledElementPlus } from './utils/scaleElementPlus'
 import websocket from './common/WebSocket'
 import Velocity from 'velocity-animate'
 import DataVVue3 from '@kjgl77/datav-vue3'
@@ -75,6 +77,23 @@ const lang =
 app.use(i18n)
 app.use(ElementPlus, { locale: lang === 'zh' ? zhCn : en })
 ElDialog.props.lockScroll.default = false
+// 表格列宽/弹框宽等模板固定 px 随 rem 同步缩放（输入框/按钮本身已是 rem）
+installScaledElementPlus(app)
+;(function syncUiScaleWithRem() {
+  const flexible = typeof window !== 'undefined' && window.lib && window.lib.flexible
+  const apply = () => {
+    const rem = (flexible && flexible.rem) || 192
+    setUiScale(rem / 192)
+  }
+  if (flexible && typeof flexible.refreshRem === 'function') {
+    const raw = flexible.refreshRem
+    flexible.refreshRem = function () {
+      raw.apply(this, arguments)
+      apply()
+    }
+  }
+  apply()
+})()
 
 app.use(VueLazyload, { attempt: 6 })
 app.use(DataVVue3)
@@ -120,19 +139,20 @@ app.directive('showTips', {
       el.style.whiteSpace = 'nowrap'
       el.onmouseenter = function (e) {
         const vcTooltipDom = document.createElement('div')
+        // 尺寸用 rem（rootValue=192），随 4K 根字号缩放；坐标仍用 px
         vcTooltipDom.style.cssText = `
-          max-width:400px;
-          max-height: 400px;
+          max-width:${400 / 192}rem;
+          max-height:${400 / 192}rem;
           overflow: auto;
           position:absolute;
           top:${e.clientY + 5}px;
           left:${e.clientX}px;
           background: rgba(0, 0 , 0, .6);
           color:#fff;
-          border-radius:5px;
-          padding:10px;
+          border-radius:${5 / 192}rem;
+          padding:${10 / 192}rem;
           display:inline-block;
-          font-size:12px;
+          font-size:${12 / 192}rem;
           z-index:19999
         `
         vcTooltipDom.setAttribute('id', 'vc-tooltip')

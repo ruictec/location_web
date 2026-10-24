@@ -633,10 +633,10 @@
                   <el-pagination
                     @size-change="handleSizeChangeHis"
                     @current-change="handleCurrentChangeHis"
-                    v-model:current-page="currentPage1"
+                    v-model:current-page="currentPageHis"
                     :page-sizes="[10, 20, 30, 40, 50]"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="total"
+                    :total="totalHis"
                     :page-size="pageCountHis"
                   >
                   </el-pagination>
@@ -1576,11 +1576,13 @@ export default {
       taskList: [],
       taskInfoTimeList: [], //巡检历史时间
       total: 0,
+      totalHis: 0,
       totalMember: 0,
       pageCount: 20,
       pageCountHis: 20,
       pageCountMem: 20,
       currentPage1: 1,
+      currentPageHis: 1,
       edit: false,
       editData: {
         id: "",
@@ -2055,12 +2057,24 @@ export default {
       return result;
     },
 
+    // 清理巡检历史勾选（避免切 tab 后界面无勾选但内存仍保留）
+    clearHistorySelection() {
+      this.multipleSelection = [];
+      this.currentRowHis = null;
+      this.$nextTick(() => {
+        const table = this.$refs.multipleTableHis;
+        if (table && typeof table.clearSelection === "function") {
+          table.clearSelection();
+        }
+      });
+    },
     //切换标签
     changeTab(tab, event) {
       var that = this;
       switch (resolveElTab(tab).index) {
         case "0":
           //巡检任务
+          that.clearHistorySelection();
           that.searchList = {
             projectid: this.$store.state.projectid,
             begintime: "",
@@ -2077,21 +2091,11 @@ export default {
           that.getTaskManagementLists();
           break;
         case "1":
-          //巡检历史
-          that.searchListHis = {
-            userid: "",
-            taskid: "",
-            projectid: that.$store.state.projectid,
-            taskdate: "",
-            taskstatus: "",
-            begintaskstatus: "",
-            endtaskstatus: "",
-            page: 1,
-            count: 20,
-          };
-          that.currentPage1 = 1;
-          that.pageCountHis = 20;
-          that.taskData = [];
+          //巡检历史：保留筛选/分页，仅刷新数据并清理勾选
+          that.clearHistorySelection();
+          that.searchListHis.projectid = that.$store.state.projectid;
+          that.currentPageHis = that.searchListHis.page || 1;
+          that.pageCountHis = that.searchListHis.count || that.pageCountHis || 20;
           that.taskHis = true;
           that.getTaskNameIds();
           that.getMemberLists2();
@@ -4539,6 +4543,8 @@ export default {
       // this.searchListHis.begindate = this.begindate;
       // this.searchListHis.enddate = this.enddate;
       that.searchListHis.page = 1;
+      that.currentPageHis = 1;
+      that.clearHistorySelection();
       getTaskInfoList(
         this.searchListHis,
         this.tenantkey_A,
@@ -4547,7 +4553,7 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.tableDataHis = res.data.list;
-          that.total = res.data.size;
+          that.totalHis = res.data.size;
           if (res.data.size > 0) {
             that.$message({
               message: that.$t("buildingmanagement.searchsuccess"),
@@ -4587,13 +4593,15 @@ export default {
     handleCurrentChangeHis(val) {
       this.searchListHis.page = val;
       this.searchListHis.count = this.pageCountHis;
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
     handleSizeChangeHis(val1) {
       this.pageCountHis = val1;
       this.searchListHis.count = val1;
       this.searchListHis.page = 1;
-      this.currentPage1 = 1;
+      this.currentPageHis = 1;
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
 
@@ -4624,7 +4632,8 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.tableDataHis = res.data.list;
-          that.total = res.data.size;
+          that.totalHis = res.data.size;
+          that.clearHistorySelection();
         }
       });
     },
@@ -4658,12 +4667,13 @@ export default {
         page: 1,
         count: 20,
       };
-      this.currentPage1 = 1;
+      this.currentPageHis = 1;
       this.pageCountHis = 20;
       this.taskData = [
         // new Date().getTime() - (1 * 60 * 60 * 1000 * 24 - 1),
         // new Date(),
       ];
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
     //删除巡检任务
@@ -4898,8 +4908,10 @@ export default {
         (res) => {
           if (res.code == 1001) {
             that.delHis = false;
+            that.deleteData = [];
             that.searchListHis.page = 1;
-            that.currentPage1 = 1;
+            that.currentPageHis = 1;
+            that.clearHistorySelection();
             that.getTaskInfoLists();
             that.$message({
               message: that.$t("downlink.deletesuccess"),

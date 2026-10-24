@@ -2546,11 +2546,11 @@ export const delMemberType = (datas, tenantkey_A, tenantid_A, username) => { //�
     }).then(res => res)
 };
 
-export const delDepartmenType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除资产类型
+export const delDepartmentType = (datas, tenantkey_A, tenantid_A, username) => { //根据id删除资产类型
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/service/delDepartmenType" + datas + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/delDepartmentType" + datas + tenantkey_A + time_A)
     return service({
-        url: "service/delDepartmenType",
+        url: "service/delDepartmentType",
         method: 'delete',
         headers: {
             ts: time_A,
@@ -3415,6 +3415,57 @@ export const getMemberNameId = (query, tenantkey_A, tenantid_A, username) => { /
     let sha_A = hex_sha1("/v1/service/getMemberNameId" + tenantkey_A + time_A)
     return service({
         url: "service/getMemberNameId",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getMemberStepRank = (query, tenantkey_A, tenantid_A, username) => { //按步数排名查询员工信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getMemberStepRank" + tenantkey_A + time_A)
+    return service({
+        url: "service/getMemberStepRank",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getMemberVibstateRank = (query, tenantkey_A, tenantid_A, username) => { //按活跃度排名查询员工信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getMemberVibstateRank" + tenantkey_A + time_A)
+    return service({
+        url: "service/getMemberVibstateRank",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getRunInfoDateList = (query, tenantkey_A, tenantid_A, username) => { //按姓名日期查询运动/活跃度明细
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getRunInfoDateList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getRunInfoDateList",
         method: 'get',
         processData: false,
         headers: {
@@ -5423,5 +5474,22 @@ export const delTenantOperateNs = (datas, tenantkey_A, tenantid_A, username) => 
             username: username
         },
         data: datas
+    }).then(res => res)
+};
+
+export const getDevHealthListAsc = (query, tenantkey_A, tenantid_A, username) => { //获取设备健康记录（时间升序） query: { projectid, username, begintime, endtime }
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getDevHealthListAsc" + tenantkey_A + time_A)
+    return service({
+        url: "service/getDevHealthListAsc",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
     }).then(res => res)
 };

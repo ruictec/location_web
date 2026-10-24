@@ -31,14 +31,14 @@
           }}</el-menu-item>
           <el-menu-item
             index="/device/security"
-            v-if="assetgw || aoagw || smoke || alertor || blesensor || camera"
+            v-if="aoagw || smoke || alertor || blesensor || camera"
             >{{ $t("list.Securitymanagement") }}</el-menu-item>
           <el-menu-item index="/device/gateway">{{
             $t("list.Basestationmanagement")
           }}</el-menu-item>
           <el-menu-item
             index="/device/audiorecording"
-            v-if="$store.state.userInfo.prionum == 5"
+            v-if="audio"
             >{{ $t("list.Audiorecording") }}</el-menu-item>
         </el-sub-menu>
 
@@ -105,7 +105,7 @@
           }}</el-menu-item>
           <el-menu-item
             index="/staff/taskmanagement"
-            v-if="$store.state.userInfo.prionum == 5"
+            v-if="locateManage"
             >{{ $t("list.Taskmanagement") }}</el-menu-item>
         </el-sub-menu>
         <el-sub-menu ref="subMenu" index="/location">
@@ -129,29 +129,29 @@
           <el-menu-item index="/location/buildingdetails">{{
             $t("list.Floordetails")
           }}</el-menu-item>
-          <el-sub-menu index="outdoor" class="el-submenu2" v-if="outDoor">
-            <template #title>{{
-              $t("list.Outdoorpositioning")
-            }}</template>
-            <el-menu-item index="/location/outdoor/locationoutdoor">{{
-              $t("list.Locationquery")
-            }}</el-menu-item>
-            <el-menu-item index="/location/outdoor/historical">{{
-              $t("list.Historicaltrack")
-            }}</el-menu-item>
-          </el-sub-menu>
-          <el-sub-menu index="indoor" class="el-submenu2" v-if="inDoor">
-            <template #title>{{ $t("list.Indoorpositioning") }}</template>
-            <el-menu-item index="/location/indoor/locationindoor">{{
-              $t("list.Locationquery")
-            }}</el-menu-item>
-            <!-- <el-menu-item index="/location/indoor/historicaltrack">
-              {{ $t("list.Historicaltrack") }}
-            </el-menu-item> -->
-            <el-menu-item index="/location/indoor/historical">
-              {{ $t("list.Dataanalysis") }}
-            </el-menu-item>
-          </el-sub-menu>
+          <el-menu-item index="/location/historytrajectory">{{
+            $t("list.Historicaltrack")
+          }}</el-menu-item>
+          <!-- 室外定位：扁平为一级菜单（原「室外定位 > 定位查询」） -->
+          <el-menu-item
+            index="/location/outdoor/locationoutdoor"
+            v-if="outDoor"
+            >{{ $t("list.Outdoorpositioning") }}</el-menu-item>
+          <!-- 室外定位-历史轨迹：暂时下线，统一走「历史轨迹」页
+          <el-menu-item index="/location/outdoor/historical">{{
+            $t("list.Historicaltrack")
+          }}</el-menu-item>
+          -->
+          <!-- 室内定位：扁平为一级菜单（原「室内定位 > 定位查询」） -->
+          <el-menu-item
+            index="/location/indoor/locationindoor"
+            v-if="inDoor"
+            >{{ $t("list.Indoorpositioning") }}</el-menu-item>
+          <!-- 数据分析：从「室内定位」下提升为定位管理一级菜单 -->
+          <el-menu-item
+            index="/location/indoor/historical"
+            v-if="inDoor"
+            >{{ $t("list.Dataanalysis") }}</el-menu-item>
           <!-- <el-menu-item index="indoor3d">indoor3d</el-menu-item> -->
         </el-sub-menu>
         <el-sub-menu ref="subMenu" index="/user">
@@ -184,7 +184,7 @@ export default {
     return {
       devgw: this.$store.state.functionParts.devgw,
       scanbeacon: this.$store.state.functionParts.scanbeacon,
-      assetgw: this.$store.state.functionParts.assetgw,
+      audio: this.$store.state.functionParts.audio,
       aoagw: this.$store.state.functionParts.aoagw,
       smoke: this.$store.state.functionParts.smoke,
       alertor: this.$store.state.functionParts.alertor,
@@ -197,6 +197,7 @@ export default {
       tbox: this.$store.state.functionParts.tbox,
       attendance: this.$store.state.functionParts.attendance,
       task: this.$store.state.functionParts.task,
+      locateManage: this.$store.state.functionParts.locateManage,
       inDoor: this.$store.state.functionParts.inDoor,
       outDoor: this.$store.state.functionParts.outDoor,
       maprio: this.$store.state.userInfo.maprio,
@@ -245,10 +246,12 @@ export default {
       this.tbox = val.tbox;
       this.attendance = val.attendance;
       this.task = val.task;
+      this.locateManage = val.locateManage;
       this.inDoor = val.inDoor;
       this.outDoor = val.outDoor;
-
-      this.assetgw = val.assetgw;
+      this.devgw = val.devgw;
+      this.scanbeacon = val.scanbeacon;
+      this.audio = val.audio;
       this.aoagw = val.aoagw;
       this.smoke = val.smoke;
       this.alertor = val.alertor;

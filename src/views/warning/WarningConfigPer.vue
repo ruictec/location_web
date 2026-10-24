@@ -134,7 +134,7 @@
                 fixed="right"
                 :label="$t('warning.operate')"
                 align="center"
-                min-width="100"
+                min-width="120"
               >
                 <template #default="scope">
                   <el-tooltip
@@ -146,7 +146,7 @@
                     <el-button
                       type="primary"
                       size="small"
-                      class="editss"
+                      class="editss icon_button"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -160,7 +160,7 @@
                     <el-button
                       type="danger"
                       size="small"
-                      class="edits"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -191,7 +191,8 @@
             v-model="add"
             width="30%"
             style="text-align: center"
-            @close="addCancel(addData)"
+            destroy-on-close
+            @closed="addCancel"
           >
             <el-form
               :model="addData"
@@ -268,9 +269,20 @@
                 <el-select
                   v-model="addTranches"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleAddTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <!-- :label="
                       item.building + '/' + item.ground + '楼/' + item.name
                     " -->
@@ -342,11 +354,7 @@
               <el-form-item :label="$t('warning.threshold1')" prop="warnum">
                 <el-input
                   v-model="addData.warnum"
-                  :placeholder="
-                    addData.type == 4
-                      ? $t('warning.text7Passing')
-                      : $t('warning.text7')
-                  "
+                  :placeholder="warnumPlaceholder(addData.type)"
                 ></el-input>
                 <el-tooltip
                   class="item"
@@ -361,16 +369,30 @@
                   "
                 >
                   <template #content><div>
-                    <p>
-                      {{
-                        addData.type == 4
-                          ? $t("warning.title2AssetPassing")
-                          : $t("warning.title2")
-                      }}
-                    </p>
+                    <p>{{ warnumTip(addData.type) }}</p>
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="addData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="addData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
@@ -382,7 +404,7 @@
               </el-form-item>
             </el-form>
             <template #footer><div class="dialog-footer">
-              <el-button @click="addCancel(addData)">
+              <el-button @click="add = false">
                 {{ $t("warning.Cancel") }}
               </el-button>
               <el-button
@@ -447,9 +469,20 @@
                 <el-select
                   v-model="editTranches"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleEditTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <el-option
                     v-for="item in trancheLists"
                     :key="item.id"
@@ -480,11 +513,7 @@
               <el-form-item :label="$t('warning.threshold1')" prop="warnum">
                 <el-input
                   v-model="editData.warnum"
-                  :placeholder="
-                    editData.type == 4
-                      ? $t('warning.text7Passing')
-                      : $t('warning.text7')
-                  "
+                  :placeholder="warnumPlaceholder(editData.type)"
                 ></el-input>
                 <el-tooltip
                   class="item"
@@ -499,16 +528,30 @@
                   "
                 >
                   <template #content><div>
-                    <p>
-                      {{
-                        editData.type == 4
-                          ? $t("warning.title2AssetPassing")
-                          : $t("warning.title2")
-                      }}
-                    </p>
+                    <p>{{ warnumTip(editData.type) }}</p>
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="editData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="editData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
@@ -642,6 +685,8 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 1,
         meth: "",
         postype: "",
@@ -676,6 +721,14 @@ export default {
             trigger: "blur",
           },
         ],
+        tel: [
+          {
+            required: false,
+            pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+            message: this.$t("companymanagement.clienttelrule3"),
+            trigger: "blur",
+          },
+        ],
       },
       edit: false,
       editWorktypes: "", //编辑角色集合
@@ -690,6 +743,8 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         id: "",
         cate: 1,
         postype: "",
@@ -731,6 +786,20 @@ export default {
     },
   },
   methods: {
+    // 低电/心跳/体温：角色、区域、定位类型可不设置
+    isDeviceMetricType(type) {
+      return [6, 7, 8].includes(Number(type));
+    },
+    warnumPlaceholder(type) {
+      if (type == 4) return this.$t("warning.text7Passing");
+      if (this.isDeviceMetricType(type)) return this.$t("warning.thresholdDouble");
+      return this.$t("warning.text7");
+    },
+    warnumTip(type) {
+      if (type == 4) return this.$t("warning.title2AssetPassing");
+      if (this.isDeviceMetricType(type)) return this.$t("warning.title2DeviceMetric");
+      return this.$t("warning.title2");
+    },
     // 越界告警显示触发方式；门限始终可填（参考资产告警）
     changeType(val) {
       this.showWarnum = val != 4;
@@ -742,8 +811,13 @@ export default {
         }
       });
     },
-    // 滞留/聚集/异常静止：门限必填正整数；越界：门限选填，填了须为 >=0 的整数
+    // 滞留/聚集/异常静止：正整数；越界：选填整数；低电/心跳/体温：必填 double
+    // 未选类型时门限不校验，避免再次打开弹窗立刻红字提示
     updateWarnumRules(type) {
+      if (type === "" || type === null || type === undefined) {
+        this.addRules.warnum = [];
+        return;
+      }
       if (type == 4) {
         this.addRules.warnum = [
           {
@@ -758,6 +832,15 @@ export default {
                 callback();
               }
             },
+            trigger: "blur",
+          },
+        ];
+      } else if (this.isDeviceMetricType(type)) {
+        this.addRules.warnum = [
+          {
+            required: true,
+            pattern: /^(?:0|[1-9]\d*)(?:\.\d+)?$/,
+            message: this.$t("warning.thresholdDouble"),
             trigger: "blur",
           },
         ];
@@ -779,6 +862,9 @@ export default {
         }
         return /^(0|[1-9]\d*)$/.test(String(value));
       }
+      if (this.isDeviceMetricType(type)) {
+        return /^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(String(value));
+      }
       return /^[1-9]\d*$/.test(String(value));
     },
     // 生成区域展示名称
@@ -794,36 +880,20 @@ export default {
       };
     },
     handleTrancheChange(values, target) {
-      const ids = values || [];
+      const SELECT_ALL = "__TRANCHE_ALL__";
+      const SELECT_CLEAR = "__TRANCHE_CLEAR__";
+      let ids = values || [];
+      if (ids.includes(SELECT_CLEAR)) {
+        ids = [];
+        this[target] = ids;
+      } else if (ids.includes(SELECT_ALL)) {
+        ids = (this.trancheLists || []).map((item) => item.id);
+        this[target] = ids;
+      }
       const selected = this.trancheLists.filter((item) => ids.includes(item.id));
       const hasOutdoor = selected.some((item) => item.groundid === 0);
       const hasIndoor = selected.some((item) => item.groundid !== 0);
-
-      if (hasOutdoor && hasIndoor) {
-        // 混选室内和室外围栏时，保留最后选择的类型
-        const lastId = ids[ids.length - 1];
-        const lastItem = this.trancheLists.find((item) => item.id === lastId);
-        if (lastItem) {
-          const keepOutdoor = lastItem.groundid === 0;
-          const filtered = selected
-            .filter((item) => (item.groundid === 0) === keepOutdoor)
-            .map((item) => item.id);
-          this[target] = filtered;
-          this.setPostypeBySelection(target, keepOutdoor);
-          
-          // 使用i18n翻译的提示消息
-          const fenceTypeLabel = keepOutdoor 
-            ? this.$t("warningVoice.outdoorGps") 
-            : this.$t("warningVoice.indoorBle");
-          const message = this.$t("warningVoice.cannotMixFence", { type: fenceTypeLabel });
-          
-          this.$message({
-            message: message,
-            type: "warning",
-          });
-        }
-        return;
-      }
+      // 室内外可同时选择；有室外时 postype 优先记为室外
       if (hasOutdoor) {
         this.setPostypeBySelection(target, true);
       } else if (hasIndoor) {
@@ -861,13 +931,28 @@ export default {
       }
       return typeName || "-";
     },
-    // 聚集告警显示「人」，其余显示「分钟」
+    // 聚集显示「人」；低电显示「%」、心率显示「次/分」、体温显示「°C」；其余显示「分钟」
     formatWarnum(row) {
       if (row.warnum === "" || row.warnum === null || row.warnum === undefined) {
         return "-";
       }
       if (row.type == 2) {
         return row.warnum + this.$t("warning.people");
+      }
+      if (this.isDeviceMetricType(row.type)) {
+        if (row.type == 6) {
+          // 低电告警：百分比
+          return row.warnum + this.$t("warning.unitPercent");
+        }
+        if (row.type == 7) {
+          // 心率异常：次/分
+          return row.warnum + this.$t("warning.unitBpm");
+        }
+        if (row.type == 8) {
+          // 体温异常：°C
+          return row.warnum + this.$t("warning.unitCelsius");
+        }
+        return String(row.warnum);
       }
       return row.warnum + this.$t("warning.minutes");
     },
@@ -1026,6 +1111,9 @@ export default {
       this.getFenceManageAndPointLists();
       this.addWorktypes = "";
       this.addTranches = [];
+      this.loading = false;
+      this.showWarnum = true;
+      this.updateWarnumRules("");
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
@@ -1035,38 +1123,53 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 1,
         meth: "",
         postype: "",
       };
       this.add = true;
-      this.showWarnum = true;
-      this.updateWarnumRules("");
+      this.$nextTick(() => {
+        const form = this.$refs.addData;
+        if (form) {
+          form.clearValidate();
+        }
+      });
     },
-    addCancel(addData) {
+    addCancel() {
       this.add = false;
       this.loading = false;
-      this.$refs.addData.resetFields();
+      this.showWarnum = true;
+      this.updateWarnumRules("");
+      this.addWorktypes = "";
+      this.addTranches = [];
+      const form = this.$refs.addData;
+      if (form) {
+        form.clearValidate();
+        form.resetFields();
+      }
     },
     addTrue(addData) {
       this.$refs.addData.validate((valid) => {
         if (valid) {
           var that = this;
-          if (that.addWorktypes.length == 0) {
+          const skipRoleArea = that.isDeviceMetricType(that.addData.type);
+          if (!skipRoleArea && that.addWorktypes.length == 0) {
             that.$message({
               message: this.$t("beacon.Pleasework"),
               type: "warning",
             });
             return;
           }
-          if (that.addTranches.length == 0) {
+          if (!skipRoleArea && that.addTranches.length == 0) {
             that.$message({
               message: this.$t("beacon.Pleasearea"),
               type: "warning",
             });
             return;
           }
-          if (!that.addData.postype) {
+          if (!skipRoleArea && !that.addData.postype) {
             that.$message({
               message: this.$t("project.Locationtype"),
               type: "warning",
@@ -1109,13 +1212,17 @@ export default {
             });
             return;
           }
-          that.addData.tranches = that.addTranches.join(",");
+          that.addData.tranches = (that.addTranches || []).join(",");
           if (that.addData.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
             });
             return;
+          }
+          if (skipRoleArea) {
+            that.addData.warnum = Number(that.addData.warnum);
+            if (!that.addData.postype) that.addData.postype = "";
           }
           that.loading = true;
           addWarningConfig(
@@ -1134,9 +1241,7 @@ export default {
                 type: "success",
               });
               that.loading = false;
-              that.$refs.addData.resetFields();
             } else {
-              that.add = false;
               that.$message({
                 message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
                 type: "error",
@@ -1158,8 +1263,14 @@ export default {
       this.editTranche = "";
       this.editData.worktypes = "";
       this.editData.tranches = "";
-      this.editWorktypes = this.tableData[index].worktypes.split(",");
-      this.editTranche = this.tableData[index].tranches.split(",");
+      this.editWorktypes = (this.tableData[index].worktypes || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      this.editTranche = (this.tableData[index].tranches || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
@@ -1172,6 +1283,8 @@ export default {
       this.editData.begintime = this.tableData[index].begintime;
       this.editData.warnum = this.tableData[index].warnum;
       this.editData.memo = this.tableData[index].memo;
+      this.editData.principal = this.tableData[index].principal || "";
+      this.editData.tel = this.tableData[index].tel || "";
       this.editData.id = this.tableData[index].id;
       const selectedItems = this.trancheLists.filter((item) =>
         this.editTranche.includes(String(item.id)) ||
@@ -1190,38 +1303,43 @@ export default {
     },
     editTrue(editData) {
       var that = this;
+      const skipRoleArea = that.isDeviceMetricType(that.editData.type);
       if (
         that.editData.warnum === "" ||
         that.editData.warnum === null ||
         that.editData.warnum === undefined
       ) {
-        that.editData.warnum = 0;
+        // 越界门限可空默认 0；低电/心跳/体温须填数值，不默认
+        if (that.editData.type == 4) {
+          that.editData.warnum = 0;
+        }
       }
       if (!that.validateWarnum(that.editData.warnum, that.editData.type)) {
         that.$message({
-          message:
-            that.editData.type == 4
+          message: that.isDeviceMetricType(that.editData.type)
+            ? that.$t("warning.thresholdDouble")
+            : that.editData.type == 4
               ? that.$t("warning.nonNegativeInteger")
               : that.$t("beacon.positiveinteger"),
           type: "warning",
         });
         return;
       }
-      if (that.editWorktypes.length == 0) {
+      if (!skipRoleArea && that.editWorktypes.length == 0) {
         that.$message({
           message: this.$t("beacon.Pleasework"),
           type: "warning",
         });
         return;
       }
-      if (that.editTranches.length == 0) {
+      if (!skipRoleArea && that.editTranches.length == 0) {
         that.$message({
           message: this.$t("beacon.Pleasearea"),
           type: "warning",
         });
         return;
       }
-      if (!that.editData.postype) {
+      if (!skipRoleArea && !that.editData.postype) {
         that.$message({
           message: this.$t("project.Locationtype"),
           type: "warning",
@@ -1258,7 +1376,11 @@ export default {
         that.editData.worktypes.length - 1
       );
 
-      that.editData.tranches = that.editTranches.join(",");
+      that.editData.tranches = (that.editTranches || []).join(",");
+      if (skipRoleArea) {
+        that.editData.warnum = Number(that.editData.warnum);
+        if (!that.editData.postype) that.editData.postype = "";
+      }
       updateWarningConfig(
         that.editData,
         that.tenantkey_A,
@@ -1409,6 +1531,18 @@ export default {
           index: 4,
           value: this.$t("warning.Passingalarm"),
         },
+        {
+          index: 6,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 7,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 8,
+          value: this.$t("warning.TemperatureAbnormal"),
+        },
       ];
     } else if (this.$store.state.intoProjectType == 2) {
       this.typeList = [
@@ -1423,6 +1557,18 @@ export default {
         {
           index: 4,
           value: this.$t("warning.Passingalarm"),
+        },
+        {
+          index: 6,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 7,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 8,
+          value: this.$t("warning.TemperatureAbnormal"),
         },
       ];
     }
@@ -1450,6 +1596,18 @@ export default {
             index: 4,
             value: this.$t("warning.Passingalarm"),
           },
+          {
+            index: 6,
+            value: this.$t("warning.LowBatteryAlarm"),
+          },
+          {
+            index: 7,
+            value: this.$t("warning.HeartbeatAbnormal"),
+          },
+          {
+            index: 8,
+            value: this.$t("warning.TemperatureAbnormal"),
+          },
         ];
       } else if (this.$store.state.intoProjectType == 2) {
         this.typeList = [
@@ -1464,6 +1622,18 @@ export default {
           {
             index: 4,
             value: this.$t("warning.Passingalarm"),
+          },
+          {
+            index: 6,
+            value: this.$t("warning.LowBatteryAlarm"),
+          },
+          {
+            index: 7,
+            value: this.$t("warning.HeartbeatAbnormal"),
+          },
+          {
+            index: 8,
+            value: this.$t("warning.TemperatureAbnormal"),
           },
         ];
       }

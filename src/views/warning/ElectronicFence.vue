@@ -47,7 +47,8 @@
                   placement="bottom"
                   width="auto"
                   trigger="click"
-                  v-model="showFenceTypePopover"
+                  :hide-after="0"
+                  v-model:visible="showFenceTypePopover"
                 >
                   <div style="display: flex; gap: 10px; padding: 5px 0;">
                     <el-button
@@ -137,10 +138,26 @@
                 </template>
               </el-table-column>
               <el-table-column
+                v-if="$store.state.i18n == 'zh'"
+                property="principal"
+                :label="$t('warning.fencePrincipal')"
+                show-overflow-tooltip
+                align="center"
+              >
+              </el-table-column>
+              <el-table-column
+                v-if="$store.state.i18n == 'zh'"
+                property="tel"
+                :label="$t('warning.fenceTel')"
+                show-overflow-tooltip
+                align="center"
+              >
+              </el-table-column>
+              <el-table-column
                 fixed="right"
                 :label="$t('warning.operate')"
                 align="center"
-                min-width="100"
+                min-width="120"
               >
                 <template #default="scope">
                   <el-tooltip
@@ -152,7 +169,7 @@
                     <el-button
                       type="primary"
                       size="small"
-                      class="editss"
+                      class="editss icon_button"
                       @click="EditFenceCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -166,7 +183,7 @@
                     <el-button
                       type="danger"
                       size="small"
-                      class="edits"
+                      class="edits icon_button"
                       @click="DelFenceCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -202,6 +219,7 @@
             >
               <el-form
                 :model="mapData"
+                :rules="mapRules"
                 class="fence-map-form"
                 label-width="auto"
                 ref="mapData"
@@ -216,15 +234,13 @@
                       v-model="mapData.name"
                       class="fence-name-input"
                     ></el-input>
-                    <!-- 添加和编辑时都显示颜色选择器 -->
                     <input
-                      v-if="add || edit"
                       type="color"
                       v-model="fillColor"
                       class="fence-color-input"
                       :title="$t('warning.FenceColor')"
                     />
-                    <div v-if="add || edit" class="fence-opacity-field">
+                    <div class="fence-opacity-field">
                       <span class="fence-opacity-label">{{
                         $t("warning.FenceOpacity")
                       }}</span>
@@ -248,14 +264,27 @@
                     >
                       {{ $t("warning.Redraw") }}
                     </el-button>
-                    <el-button
-                      v-if="edit"
-                      type="primary"
-                      :loading="loading"
-                      @click="mapTrue(mapData)"
-                    >
-                      {{ $store.state.i18n == "zh" ? "保存" : "Save" }}
-                    </el-button>
+                    <template v-if="$store.state.i18n == 'zh'">
+                      <span class="fence-inline-label">{{
+                        $t("warning.fencePrincipal")
+                      }}</span>
+                      <el-input
+                        v-model="mapData.principal"
+                        class="fence-principal-input"
+                        :placeholder="$t('warning.enterFencePrincipal')"
+                      ></el-input>
+                      <span class="fence-inline-label">{{
+                        $t("warning.fenceTel")
+                      }}</span>
+                      <el-form-item prop="tel" class="fence-inline-tel-item">
+                        <el-input
+                          v-model="mapData.tel"
+                          class="fence-tel-input"
+                          :placeholder="$t('warning.enterFenceTel')"
+                          maxlength="11"
+                        ></el-input>
+                      </el-form-item>
+                    </template>
                   </div>
                 </el-form-item>
               </el-form>
@@ -263,22 +292,34 @@
                 <MapLayerSwitcher :map="map" />
                 <div id="map" ref="map"></div>
               </div>
-              <template #footer><div class="dialog-footer" v-if="add">
-                <el-button @click="mapCancel(mapData)">
-                  {{ $t("warning.Cancel") }}
-                </el-button>
-                <el-button
-                  type="primary"
-                  :loading="loading"
-                  @click="mapTrue(mapData)"
-                >
-                  {{ $t("warning.Sure") }}</el-button>
-              </div></template>
+              <template #footer>
+                <div class="dialog-footer" v-if="add || edit">
+                  <el-button @click="mapCancel(mapData)">
+                    {{ $t("warning.Cancel") }}
+                  </el-button>
+                  <el-button
+                    v-if="add"
+                    type="primary"
+                    :loading="loading"
+                    @click="mapTrue(mapData)"
+                  >
+                    {{ $t("warning.Sure") }}
+                  </el-button>
+                  <el-button
+                    v-if="edit"
+                    type="primary"
+                    :loading="loading"
+                    @click="mapTrue(mapData)"
+                  >
+                    {{ $store.state.i18n == "zh" ? "保存" : "Save" }}
+                  </el-button>
+                </div>
+              </template>
             </el-dialog>
 
             <!-- 楼栋楼层选择对话框 -->
             <el-dialog
-              :title="$t('warning.selectFenceType')"
+              :title="$t('warning.selectBuildingFloor')"
               v-model="showBuildingFloorDialog"
               width="30%"
               style="text-align: center"
@@ -414,9 +455,34 @@
               width="500px"
               :close-on-click-modal="false"
             >
-              <el-form :model="fenceForm" label-width="120px">
+              <el-form
+                :model="fenceForm"
+                :rules="fenceFormRules"
+                ref="fenceForm"
+                label-width="120px"
+              >
                 <el-form-item :label="$t('warning.FenceName')">
                   <el-input v-model="fenceForm.name" :placeholder="$t('warning.EnterFenceName')"></el-input>
+                </el-form-item>
+                <el-form-item
+                  v-if="$store.state.i18n == 'zh'"
+                  :label="$t('warning.fencePrincipal')"
+                >
+                  <el-input
+                    v-model="fenceForm.principal"
+                    :placeholder="$t('warning.enterFencePrincipal')"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  v-if="$store.state.i18n == 'zh'"
+                  :label="$t('warning.fenceTel')"
+                  prop="tel"
+                >
+                  <el-input
+                    v-model="fenceForm.tel"
+                    :placeholder="$t('warning.enterFenceTel')"
+                    maxlength="11"
+                  ></el-input>
                 </el-form-item>
                 <el-form-item :label="$t('warning.FenceColor')">
                   <el-color-picker v-model="fenceForm.colour"></el-color-picker>
@@ -528,6 +594,29 @@ export default {
       mapData: {
         projectid: "",
         name: "",
+        principal: "",
+        tel: "",
+      },
+      // 手机号选填；有值时按项目统一正则校验
+      mapRules: {
+        tel: [
+          {
+            required: false,
+            pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+            message: this.$t("companymanagement.clienttelrule3"),
+            trigger: "blur",
+          },
+        ],
+      },
+      fenceFormRules: {
+        tel: [
+          {
+            required: false,
+            pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+            message: this.$t("companymanagement.clienttelrule3"),
+            trigger: "blur",
+          },
+        ],
       },
       loading: false,
 
@@ -582,6 +671,8 @@ export default {
       showFenceDialog: false, // 显示设置电子围栏信息对话框
       fenceForm: {
         name: "",
+        principal: "",
+        tel: "",
         colour: "#FF0000",
         opacity: 1,
         flag: true, // 是否开启电子围栏，true为启用，false为停用
@@ -835,33 +926,39 @@ export default {
     },
     // 处理室外电子围栏
     handleOutdoorFence() {
+      // 先关掉「添加」类型选择气泡，再打开地图弹框（避免鼠标未移动时气泡残留）
       this.showFenceTypePopover = false;
-      // 室外电子围栏 - 使用现有逻辑
-      this.mapData = {
-        projectid: this.$store.state.intoProjectid,
-        name: "",
-        colour: "",
-      };
-      this.centerX = this.$store.state.longis;
-      this.centerY = this.$store.state.latis;
-      this.fillColor = "#000000";
-      this.fillOpacity = 1;
-      this.fenceID = "";
-      this.showMap = true;
-      this.add = true;
-      this.edit = false;
+      this.$nextTick(() => {
+        this.mapData = {
+          projectid: this.$store.state.intoProjectid,
+          name: "",
+          principal: "",
+          tel: "",
+          colour: "",
+        };
+        this.centerX = this.$store.state.longis;
+        this.centerY = this.$store.state.latis;
+        this.fillColor = "#000000";
+        this.fillOpacity = 1;
+        this.fenceID = "";
+        this.showMap = true;
+        this.add = true;
+        this.edit = false;
+      });
     },
     // 处理室内电子围栏
     handleIndoorFence() {
       this.showFenceTypePopover = false;
-      // 重置选择
-      this.selectedBuildingId = "";
-      this.selectedGroundId = "";
-      this.groundList = [];
-      // 显示楼栋楼层选择对话框
-      this.showBuildingFloorDialog = true;
-      // 获取楼栋列表
-      this.getBuildings();
+      this.$nextTick(() => {
+        // 重置选择
+        this.selectedBuildingId = "";
+        this.selectedGroundId = "";
+        this.groundList = [];
+        // 显示楼栋楼层选择对话框
+        this.showBuildingFloorDialog = true;
+        // 获取楼栋列表
+        this.getBuildings();
+      });
     },
     // 获取楼栋列表
     getBuildings() {
@@ -2284,6 +2381,8 @@ export default {
       // 设置颜色和名称
       that.fenceForm.colour = fenceData ? (fenceData.colour || "#FF0000") : "#FF0000";
       that.fenceForm.name = fenceData ? (fenceData.name || "") : "";
+      that.fenceForm.principal = fenceData ? (fenceData.principal || "") : "";
+      that.fenceForm.tel = fenceData ? (fenceData.tel || "") : "";
       that.fenceForm.flag = fenceData ? (fenceData.flag !== false) : true;
       that.fenceForm.opacity = that.normalizeFenceOpacity(
         fenceData ? fenceData.opacity : 1
@@ -2606,6 +2705,8 @@ export default {
       that.clearPolygonMarker();
       that.clearFencePointMarkers();
       that.fenceForm.name = "";
+      that.fenceForm.principal = "";
+      that.fenceForm.tel = "";
       that.fenceForm.colour = "#FF0000";
       that.fenceForm.opacity = 1;
       that.fenceForm.flag = true;
@@ -2651,43 +2752,58 @@ export default {
     // 确认创建/编辑3D电子围栏
     confirmCreateFence3d() {
       var that = this;
+      var doSubmit = function () {
+        if (!that.fenceForm.name || !that.fenceForm.name.trim()) {
+          that.$message({
+            message: that.$t("warning.EnterFenceName"),
+            type: "warning",
+          });
+          return;
+        }
 
-      if (!that.fenceForm.name || !that.fenceForm.name.trim()) {
-        that.$message({
-          message: that.$t("warning.EnterFenceName"),
-          type: "warning",
-        });
-        return;
-      }
+        if (that.fencePoints.length < 3) {
+          that.$message({
+            message: that.$t("warning.AtLeastThreePoints"),
+            type: "warning",
+          });
+          return;
+        }
 
-      if (that.fencePoints.length < 3) {
-        that.$message({
-          message: that.$t("warning.AtLeastThreePoints"),
-          type: "warning",
-        });
-        return;
-      }
+        if (!that.currentGroundInfo) {
+          that.$message({
+            message: "楼层信息不存在",
+            type: "error",
+          });
+          return;
+        }
 
-      if (!that.currentGroundInfo) {
-        that.$message({
-          message: "楼层信息不存在",
-          type: "error",
-        });
-        return;
-      }
-
-      // 构建提交数据
-      var data = {
-        name: that.fenceForm.name.trim(),
-        projectid: that.currentGroundInfo.projectid || that.$store.state.intoProjectid,
-        groundid: that.currentGroundInfo.id,
-        list: that.fencePoints.map(function (point) {
-          return { pointX: point.x, pointY: point.y };
-        }),
-        colour: that.fenceForm.colour || "#FF0000",
-        opacity: that.normalizeFenceOpacity(that.fenceForm.opacity),
-        flag: that.fenceForm.flag, // true为启用，false为停用
+        // 构建提交数据
+        var data = {
+          name: that.fenceForm.name.trim(),
+          principal: (that.fenceForm.principal || "").trim(),
+          tel: (that.fenceForm.tel || "").trim(),
+          projectid: that.currentGroundInfo.projectid || that.$store.state.intoProjectid,
+          groundid: that.currentGroundInfo.id,
+          list: that.fencePoints.map(function (point) {
+            return { pointX: point.x, pointY: point.y };
+          }),
+          colour: that.fenceForm.colour || "#FF0000",
+          opacity: that.normalizeFenceOpacity(that.fenceForm.opacity),
+          flag: that.fenceForm.flag, // true为启用，false为停用
+        };
+        that.submitFenceManage(data);
       };
+
+      if (that.$refs.fenceForm) {
+        that.$refs.fenceForm.validate((valid) => {
+          if (valid) doSubmit();
+        });
+      } else {
+        doSubmit();
+      }
+    },
+    submitFenceManage(data) {
+      var that = this;
 
       // 如果是编辑模式，添加id字段（支持2D和3D）
       if ((that.isEditingFence3d && that.editingFenceId) || (that.isEditingFence2d && that.editingFenceId2d)) {
@@ -2704,11 +2820,14 @@ export default {
                 : that.$t("warning.CreateSuccess"),
               type: "success",
             });
-            // 保存是否是从列表编辑进入的状态（在重置前）
+            // 点「结束」后 isCreatingFence* 已是 false，不能靠它判断新建；
+            // 无编辑态即视为新建成功
             var wasEditFromList = that.isEditFromList;
             var wasEditing = that.isEditingFence3d || that.isEditingFence2d;
+            // 新建成功，或从列表进入编辑完成：关闭室内地图大弹框
+            var shouldCloseIndoorMap = !wasEditing || wasEditFromList;
             
-            // 关闭对话框
+            // 关闭设置围栏信息对话框
             that.showFenceDialog = false;
             // 清除3D地图的标记
             that.clearPolygonMarker();
@@ -2736,6 +2855,8 @@ export default {
             that.editingFenceData = null;
             that.fencePoints = [];
             that.fenceForm.name = "";
+            that.fenceForm.principal = "";
+            that.fenceForm.tel = "";
             that.fenceForm.colour = "#FF0000";
             that.fenceForm.opacity = 1;
             that.fenceForm.flag = true;
@@ -2751,17 +2872,16 @@ export default {
               that.map2d.removeInteraction(that.modifyInteraction2d);
               that.modifyInteraction2d = null;
             }
-            // 重新获取电子围栏列表
-            that.getFenceManageData(that.currentGroundInfo.projectid || that.$store.state.intoProjectid, that.currentGroundInfo.id);
+            // 不关闭室内地图时，刷新地图上的围栏；关闭时由 handleCancelIndoorMap 刷新列表
+            if (!shouldCloseIndoorMap && that.currentGroundInfo) {
+              that.getFenceManageData(that.currentGroundInfo.projectid || that.$store.state.intoProjectid, that.currentGroundInfo.id);
+            }
             
-            // 如果是从列表编辑进入的，编辑完成后关闭弹框
-            if (wasEditFromList && wasEditing) {
-              // 重置标志
+            if (shouldCloseIndoorMap) {
               that.isEditFromList = false;
-              // 延迟关闭，确保数据已保存
               setTimeout(() => {
                 that.handleCancelIndoorMap();
-              }, 500);
+              }, 300);
             }
           } else {
             that.$message({
@@ -3060,9 +3180,11 @@ export default {
         });
       }
 
-      // 设置颜色和名称
+      // 设置颜色、名称、负责人
       that.fenceForm.colour = fenceData ? (fenceData.colour || "#FF0000") : "#FF0000";
       that.fenceForm.name = fenceData ? (fenceData.name || "") : "";
+      that.fenceForm.principal = fenceData ? (fenceData.principal || "") : "";
+      that.fenceForm.tel = fenceData ? (fenceData.tel || "") : "";
       that.fenceForm.flag = fenceData ? (fenceData.flag !== false) : true; // 默认启用
       that.fenceForm.opacity = that.normalizeFenceOpacity(
         fenceData ? fenceData.opacity : 1
@@ -3412,6 +3534,8 @@ export default {
             });
             let data = {
               name: that.mapData.name,
+              principal: (that.mapData.principal || "").trim(),
+              tel: (that.mapData.tel || "").trim(),
               projectid: this.projectid,
               list: list,
               id: that.fenceID ? that.fenceID : "",
@@ -3505,10 +3629,6 @@ export default {
       
       // 如果 groundid 为 0，表示是室外电子围栏，使用原有逻辑
       if (groundid === 0 || groundid === null || groundid === undefined) {
-        this.mapData = {
-          projectid: this.$store.state.intoProjectid,
-          name: "",
-        };
         this.fillColor = fenceData.colour;
         this.fillOpacity = this.normalizeFenceOpacity(fenceData.opacity);
         this.centerX =
@@ -3521,9 +3641,10 @@ export default {
             : 0;
         this.mapData = {
           projectid: this.$store.state.intoProjectid,
-          name: "",
+          name: fenceData.name || "",
+          principal: fenceData.principal || "",
+          tel: fenceData.tel || "",
         };
-        this.mapData.name = fenceData.name;
         this.fenceID = fenceData.id;
         let list = fenceData.list;
         let editFences = [];
@@ -3941,7 +4062,7 @@ export default {
   position: relative;
 }
 
-/* 室外围栏弹框：名称 / 颜色 / 操作同一行，间距统一 */
+/* 室外围栏弹框：名称/颜色/透明度/负责人等同排，统一间距 */
 .fence-map-form {
   display: flex;
   flex-wrap: nowrap;
@@ -3957,7 +4078,7 @@ export default {
 .fence-map-form :deep(.el-form-item__label) {
   width: auto !important;
   min-width: auto !important;
-  padding: 0 6px 0 0 !important;
+  padding: 0 8px 0 0 !important;
   margin: 0 !important;
   justify-content: flex-start !important;
   text-align: left !important;
@@ -3981,15 +4102,17 @@ export default {
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 10px;
+  gap: 12px;
   width: auto;
   min-width: 0;
 }
-.fence-name-color .fence-name-input {
-  flex: 0 0 180px;
-  width: 180px !important;
-  min-width: 180px;
-  max-width: 180px;
+.fence-name-color .fence-name-input,
+.fence-name-color .fence-principal-input,
+.fence-name-color .fence-tel-input {
+  flex: 0 0 160px;
+  width: 160px !important;
+  min-width: 160px;
+  max-width: 160px;
   display: inline-flex !important;
   margin: 0 !important;
 }
@@ -3999,6 +4122,31 @@ export default {
 .fence-name-color :deep(.el-button) {
   margin: 0 !important;
   flex: 0 0 auto;
+}
+.fence-inline-label {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: #606266;
+  white-space: nowrap;
+  line-height: 32px;
+}
+.fence-inline-tel-item {
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  width: auto !important;
+  flex: 0 0 auto !important;
+}
+.fence-inline-tel-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  line-height: normal;
+}
+.fence-inline-tel-item :deep(.el-form-item__error) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 2px;
+  white-space: nowrap;
 }
 .fence-color-input {
   flex: 0 0 40px;
@@ -4019,7 +4167,7 @@ export default {
   display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 .fence-opacity-field.is-dialog {
@@ -4027,7 +4175,7 @@ export default {
 }
 .fence-opacity-label {
   flex-shrink: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #606266;
   white-space: nowrap;
 }

@@ -1491,6 +1491,15 @@ export default {
         case i18n.global.t("warning.Firealarm"):
           data.type = 8;
           break;
+        case i18n.global.t("warning.LowBatteryAlarm"):
+          data.type = 11;
+          break;
+        case i18n.global.t("warning.HeartbeatAbnormal"):
+          data.type = 12;
+          break;
+        case i18n.global.t("warning.TemperatureAbnormal"):
+          data.type = 13;
+          break;
         default:
           break;
       }
@@ -1693,6 +1702,36 @@ export default {
             },
           });
           break;
+        case i18n.global.t("warning.LowBatteryAlarm"):
+          type = 11;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
+        case i18n.global.t("warning.HeartbeatAbnormal"):
+          type = 12;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
+        case i18n.global.t("warning.TemperatureAbnormal"):
+          type = 13;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
       }
     },
 
@@ -1722,9 +1761,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -1732,6 +1771,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data1);
 
@@ -1775,7 +1815,7 @@ export default {
         superid: this.$store.state.userInfo.superid,
         projectid: row.projectid,
         status: 1,
-        endtype: 8,
+        endtype: 13,
       };
       var that = this;
       getWarningNum(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
@@ -3087,6 +3127,24 @@ export default {
             {
               type: 1,
               typestr: i18n.global.t("warning.Firealarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.LowBatteryAlarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.HeartbeatAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.TemperatureAbnormal"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },

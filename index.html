@@ -6,9 +6,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <script>
     (function () {
+      // 与 src/utils/flexible.js 保持一致：支持到 4K（3840）
       var width = document.documentElement.getBoundingClientRect().width
       if (width < 1024) width = 1024
-      if (width > 2560) width = 2560
+      if (width > 3840) width = 3840
       document.documentElement.style.fontSize = width / 10 + 'px'
     })()
   </script>

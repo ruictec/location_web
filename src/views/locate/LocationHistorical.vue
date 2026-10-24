@@ -72,7 +72,7 @@
             <el-checkbox
               v-model="showLine"
               @change="changeShow()"
-              :disabled="showTime"
+              :disabled="showTime || showDistance"
               class="showline"
               >{{ $t("locationoutdoorh.showline") }}</el-checkbox>
             <el-checkbox
@@ -80,6 +80,11 @@
               @change="changeShow()"
               :disabled="!showLine"
               >{{ $t("locationoutdoorh.showtime") }}</el-checkbox>
+            <el-checkbox
+              v-model="showDistance"
+              @change="changeShow()"
+              :disabled="!showLine"
+              >{{ $t("locationoutdoorh.showdistance") }}</el-checkbox>
           </div>
         </el-form-item>
       </el-form>
@@ -201,7 +206,7 @@ export default {
       endMarker: null, // 结束标记
       styles: {
         route: new Style({
-          // 线的样式
+          // 线的样式（标准底图深蓝，其他底图黄色，见 updateRouteStyle）
           stroke: new Stroke({
             width: 6,
             color: [255, 255, 0, 0.8],
@@ -241,10 +246,12 @@ export default {
         }),
       },
       showTime: false,
+      showDistance: false,
       // 在data中添加一个数组来保存所有文字图层
       textLayers: [],
       showLine: false,
-      vectorLayer: null, // 矢量图层
+      vectorLayer: null, // 矢量图层（路线/起终点）
+      vectorLayer2: null, // 移动人标图层
       vectorLayerText: null, // 矢量图层
       center: [],
 
@@ -310,6 +317,9 @@ export default {
           this.userName
         ).then((res) => {
           if (res.code == 1001) {
+            if (that.animating) {
+              that.stop(false);
+            }
             that.routeCoords = [];
             if (res.data.list.length > 0) {
               that.$message({
@@ -366,8 +376,11 @@ export default {
       this.begingTime = "";
       this.endTime = "";
       this.routeCoords = [];
-
-      this.addLayers();
+      this.TrackData = [];
+      if (this.animating) {
+        this.stop(false);
+      }
+      this.clearTrackLayers();
       this.getMemberNames();
     },
     fitMapToRoute() {
@@ -496,7 +509,131 @@ export default {
      * 删除图层
      */
     removeVectorLayer(vectorLayer) {
-      if (vectorLayer) this.map.removeLayer(vectorLayer);
+      if (vectorLayer && this.map) this.map.removeLayer(vectorLayer);
+    },
+    /** 清理轨迹相关图层（含可能残留的旧图层），并解除回放监听 */
+    clearTrackLayers() {
+      if (this.vectorLayer) {
+        this.vectorLayer.un("postrender", this.moveFeature);
+      }
+      this.removeVectorLayer(this.vectorLayer);
+      this.removeVectorLayer(this.vectorLayer2);
+      this.vectorLayer = null;
+      this.vectorLayer2 = null;
+      this.geoMarker = null;
+      this.startMarker = null;
+      this.endMarker = null;
+      (this.textLayers || []).forEach((layer) => {
+        this.removeVectorLayer(layer);
+      });
+      this.textLayers = [];
+      // 兜底：按标记清除未挂到引用上的残留轨迹图层
+      if (this.map) {
+        this.map
+          .getLayers()
+          .getArray()
+          .slice()
+          .forEach((layer) => {
+            if (layer.get && layer.get("isHistoricalTrack")) {
+              this.map.removeLayer(layer);
+            }
+          });
+      }
+    },
+    /** 仅刷新时间/距离标注，不影响路线与回放人标 */
+    refreshTextLabels() {
+      const that = this;
+      (this.textLayers || []).forEach((layer) => {
+        this.removeVectorLayer(layer);
+      });
+      this.textLayers = [];
+      if (!this.map || !this.TrackData || this.TrackData.length === 0) return;
+
+      const timeMarks = this.TrackData;
+      const needLabel = this.showTime || this.showDistance;
+      if (!needLabel) return;
+
+      const cumDistM = [];
+      if (this.showDistance) {
+        let distSumM = 0;
+        timeMarks.forEach((item, index) => {
+          if (index === 0) {
+            cumDistM.push(0);
+            return;
+          }
+          const prev = timeMarks[index - 1];
+          distSumM +=
+            that.getDistance(
+              parseFloat(prev.y),
+              parseFloat(prev.x),
+              parseFloat(item.y),
+              parseFloat(item.x)
+            ) * 1000;
+          cumDistM.push(distSumM);
+        });
+      }
+
+      timeMarks.forEach((item, index) => {
+        const itemStyle = new Style({
+          text: new Text({
+            textAlign: "center",
+            // 标注画在点上方，避免压住轨迹上的人标
+            textBaseline: "bottom",
+            offsetY: -18,
+            font: "bold 13px 微软雅黑",
+            text: that.buildPointLabel(item, index, timeMarks, cumDistM),
+            fill: new Fill({ color: "#587de5" }),
+            stroke: new Stroke({ color: "#ffcc33", width: 3 }),
+          }),
+        });
+        const featureItem = new Feature({
+          geometry: new Point([item.x, item.y]),
+        });
+        featureItem.setStyle(itemStyle);
+        const vectorLayerText = new VectorLayer({
+          source: new VectorSource({
+            features: [featureItem],
+          }),
+          renderMode: "vector",
+          style: null,
+          zIndex: 4,
+        });
+        vectorLayerText.set("isHistoricalTrack", true);
+        that.map.addLayer(vectorLayerText);
+        that.textLayers.push(vectorLayerText);
+      });
+    },
+    /** 标准矢量底图用深蓝，影像/地形等保持黄色 */
+    getRouteStrokeColor() {
+      if (this.mapBaseStyle === "vec") {
+        return [0, 70, 160, 0.9];
+      }
+      return [255, 255, 0, 0.8];
+    },
+    updateRouteStyle() {
+      if (!this.styles || !this.styles.route) return;
+      this.styles.route.getStroke().setColor(this.getRouteStrokeColor());
+      if (this.vectorLayer) {
+        this.vectorLayer.changed();
+      }
+    },
+    onMapStyleChange(style) {
+      mapStyleMixin.methods.onMapStyleChange.call(this, style);
+      this.updateRouteStyle();
+    },
+    createMovingMarkerStyle(rotation) {
+      if (!this._movingMarkerStyle) {
+        this._movingMarkerStyle = new Style({
+          image: new Icon({
+            anchor: [0.5, 0.5],
+            scale: 0.5,
+            src: (process.env.BASE_URL || "/") + "static/user2.png",
+            rotateWithView: true,
+          }),
+        });
+      }
+      this._movingMarkerStyle.getImage().setRotation(rotation || 0);
+      return this._movingMarkerStyle;
     },
 
     //时间转换
@@ -507,6 +644,62 @@ export default {
       let date = new Date(parseInt(row) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
+    },
+    /** Haversine，入参为纬度、经度，返回公里 */
+    getDistance(lat1, lng1, lat2, lng2) {
+      var radLat1 = (lat1 * Math.PI) / 180.0;
+      var radLat2 = (lat2 * Math.PI) / 180.0;
+      var a = radLat1 - radLat2;
+      var b = (lng1 * Math.PI) / 180.0 - (lng2 * Math.PI) / 180.0;
+      var s =
+        2 *
+        Math.asin(
+          Math.sqrt(
+            Math.pow(Math.sin(a / 2), 2) +
+              Math.cos(radLat1) *
+                Math.cos(radLat2) *
+                Math.pow(Math.sin(b / 2), 2)
+          )
+        );
+      s = s * 6378.137;
+      s = Math.round(s * 10000) / 10000;
+      return s;
+    },
+    formatTrackDistance(meters) {
+      if (!Number.isFinite(meters) || meters <= 0) return "0m";
+      if (meters >= 1000) return (meters / 1000).toFixed(2) + "km";
+      return meters.toFixed(1) + "m";
+    },
+    formatTrackAvgSpeed(mps) {
+      if (!Number.isFinite(mps) || mps <= 0) return "0km/h";
+      return (mps * 3.6).toFixed(2) + "km/h";
+    },
+    /**
+     * 按勾选拼标注：时间、路程/均速可单独或同时显示（相对轨迹起点）
+     */
+    buildPointLabel(item, index, trackData, cumDistM) {
+      const parts = [];
+      if (this.showTime) {
+        const timeStr = this.formatDatetime(item.gpstime);
+        if (timeStr) parts.push(timeStr);
+      }
+      if (this.showDistance) {
+        const distM = cumDistM[index] || 0;
+        const startT = parseInt(trackData[0].gpstime, 10);
+        const curT = parseInt(item.gpstime, 10);
+        const dt = curT - startT;
+        const avgMps = dt > 0 ? distM / dt : 0;
+        parts.push(
+          this.$t("locationoutdoorh.distance") +
+            ":" +
+            this.formatTrackDistance(distM) +
+            "  " +
+            this.$t("locationoutdoorh.avgSpeed") +
+            ":" +
+            this.formatTrackAvgSpeed(avgMps)
+        );
+      }
+      return parts.join("  ");
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -530,64 +723,32 @@ export default {
       return dateStr;
     },
     changeShow() {
-      this.addLayers();
-      if (this.textContent === "停止") {
-        this.stop(false);
+      // 取消「显示路线」时，同步取消时间/距离标注
+      if (!this.showLine) {
+        this.showTime = false;
+        this.showDistance = false;
       }
+      if (!this.routeCoords.length) return;
+      // 图层已存在时只刷新路线显隐与标注，避免重建人标导致回放重置/鬼影
+      if (this.vectorLayer && this.geoMarker) {
+        this.vectorLayer.changed();
+        this.refreshTextLabels();
+        return;
+      }
+      this.addLayers();
     },
     addLayers() {
       let that = this;
-      // 第二次以后渲染轨迹的时候把上次的图层先删除
-      this.removeVectorLayer(this.vectorLayer);
-      this.removeVectorLayer(this.vectorLayer2);
-      that.textLayers.forEach((layer) => {
-        that.map.removeLayer(layer);
-      });
-      that.textLayers = []; // 清空引用
+      const wasAnimating = this.animating;
+      // 重建前先停掉回放并清掉全部轨迹图层，避免残留人标
+      if (wasAnimating) {
+        this.animating = false;
+        this.textContent = this.$t("locationoutdoorh.start");
+      }
+      this.clearTrackLayers();
       if (that.routeCoords.length > 0) {
         that.routeLength = that.routeCoords.length;
         that.route = new LineString(that.routeCoords);
-
-        let timeMarks = that.TrackData;
-        that.textLayers = []; // 每次清空之前的
-        timeMarks.forEach((item) => {
-          let itemStyle = new Style({
-            text: new Text({
-              // 位置
-              textAlign: "center",
-              // 基准线
-              textBaseline: "middle",
-              // 文字样式
-              font: "bold 13px 微软雅黑",
-              // 文本内容
-              text: that.showTime ? that.formatDatetime(item.gpstime) : "",
-              // 文字颜色
-              fill: new Fill({ color: "#587de5" }),
-              // 文字背景
-              stroke: new Stroke({ color: "#ffcc33", width: 3 }),
-            }),
-          });
-
-          let featureItem = new Feature({
-            geometry: new Point([item.x, item.y]),
-          });
-          featureItem.setStyle(itemStyle);
-
-          // this.vectorLayerText = new VectorLayer({
-          let vectorLayerText = new VectorLayer({
-            source: new VectorSource({
-              features: [featureItem],
-            }),
-            renderMode: "vector",
-            style: null,
-          });
-          if (this.showTime) {
-            // that.map.addLayer(this.vectorLayerText);
-            that.map.addLayer(vectorLayerText);
-          }
-          // 保存图层引用，方便后续移除
-          that.textLayers.push(vectorLayerText);
-        });
 
         that.routeFeature = new Feature({
           type: "route",
@@ -605,50 +766,38 @@ export default {
           type: "end",
           geometry: new Point(that.routeCoords[that.routeLength - 1]),
         });
+        that.updateRouteStyle();
         that.vectorLayer = new VectorLayer({
           source: new VectorSource({
             features: [
               that.routeFeature,
-              // that.geoMarker,
               that.startMarker,
               that.endMarker,
             ],
-            // 线、标记、开始标记、结束标记
           }),
           renderMode: "vector",
+          zIndex: 5,
           style: function (feature) {
-            // 如果动画处于活动状态，则隐藏标记
             if (!that.showLine && feature.get("type") === "route") {
               return null;
             }
             return that.styles[feature.get("type")];
           },
         });
-        if (that.vectorLayer2) {
-          this.map.removeLayer(that.vectorLayer2);
-        }
+        that.vectorLayer.set("isHistoricalTrack", true);
         that.vectorLayer2 = new VectorLayer({
           source: new VectorSource({
-            features: [
-              // that.routeFeature,
-              that.geoMarker,
-            ],
-            // 线、标记、开始标记、结束标记
+            features: [that.geoMarker],
           }),
           renderMode: "vector",
-          style: new Style({
-            // 设置标记样式
-            image: new Icon({
-              anchor: [0.5, 0.5], // 偏移位置
-              // 控制大小
-              scale: 0.5,
-              src: (process.env.BASE_URL || '/') + 'static/user2.png',
-              rotateWithView: true,
-            }),
-          }),
+          // 人标在标注之上，避免时间和距离文字挡住当前位置
+          zIndex: 10,
+          style: that.createMovingMarkerStyle(0),
         });
+        that.vectorLayer2.set("isHistoricalTrack", true);
         this.map.addLayer(that.vectorLayer);
         this.map.addLayer(that.vectorLayer2);
+        this.refreshTextLabels();
         refreshBaseTiles(this.map);
       }
     },
@@ -668,21 +817,20 @@ export default {
     // 运动轨迹开关
     handlerPlay() {
       if (this.routeCoords.length == 0) return;
-      if (this.textContent === "停止") {
+      if (this.animating) {
         this.stop(false);
       } else {
         this.start();
       }
     },
 
-    // 轨迹移动
+    // 轨迹移动：只更新高层级人标位置，保证不被时间/距离标注遮挡
     moveFeature(event) {
       const that = this;
       let frameState = event.frameState;
       if (this.animating) {
         let elapsedTime = frameState.time - this.now;
         let index = Math.round((this.speed * elapsedTime) / 1000);
-        // 进度条
         this.progress = Math.floor(
           ((100 / this.routeLength) * (this.speed * elapsedTime)) / 1000
         );
@@ -693,53 +841,48 @@ export default {
         }
 
         let currentPoint = new Point(that.routeCoords[index]);
-        let currentPoint1;
-        if (index > 0) {
-          currentPoint1 = new Point(that.routeCoords[index - 1]);
-        }
-
-        //改变位置
-        that.geoMarker.setGeometry(new Point(currentPoint.flatCoordinates));
-        if (currentPoint1) {
-          //改变方向
-          this.vectorLayer2
-            .getStyle()
-            .getImage()
-            .setRotation(
-              this._map_p_rotation(
+        that.geoMarker.setGeometry(currentPoint);
+        if (index > 0 && that.vectorLayer2) {
+          that.vectorLayer2.setStyle(
+            that.createMovingMarkerStyle(
+              that._map_p_rotation(
                 currentPoint.flatCoordinates,
-                currentPoint1.flatCoordinates
+                that.routeCoords[index - 1]
               )
-            );
+            )
+          );
         }
       }
-      this.map.render(); // 开始移动动画
+      this.map.render();
     },
 
     // 开始动画
     start() {
+      if (!this.geoMarker || !this.vectorLayer) return;
       if (this.animating) {
         this.stop(false);
-      } else {
-        this.animating = true;
-        this.textContent = this.$t("locationoutdoorh.stop");
-        this.now = new Date().getTime();
-        this.geoMarker.setStyle(null); // hide geoMarker 隐藏标记
-        this.map.getView().setCenter(this.center); // 设置下中心点
-        this.vectorLayer.on("postrender", this.moveFeature);
-        this.map.render();
+        return;
       }
+      this.animating = true;
+      this.textContent = this.$t("locationoutdoorh.stop");
+      this.now = new Date().getTime();
+      this.map.getView().setCenter(this.center);
+      this.vectorLayer.on("postrender", this.moveFeature);
+      this.map.render();
     },
     // 停止
     stop(ended) {
       this.progress = 0;
       this.animating = false;
       this.textContent = this.$t("locationoutdoorh.start");
+      if (this.vectorLayer) {
+        this.vectorLayer.un("postrender", this.moveFeature);
+      }
+      if (!this.geoMarker || !this.routeCoords.length) return;
       let coord = ended
         ? this.routeCoords[this.routeLength - 1]
         : this.routeCoords[0];
       this.geoMarker.getGeometry().setCoordinates(coord);
-      this.vectorLayer.un("postrender", this.moveFeature); // 删除侦听器
     },
 
     // 描线（南海）
@@ -900,9 +1043,30 @@ export default {
                 };
               });
             that.allList = that.userList.concat(that.tboxList);
+            that.applyRouteQuery();
           }
         }
       );
+    },
+    // 从定位查询页带入姓名/车牌
+    applyRouteQuery() {
+      const name =
+        this.$route.query && this.$route.query.username
+          ? String(this.$route.query.username)
+          : "";
+      if (!name) return;
+      this.searchList.username = name;
+      const matched = (this.allList || []).filter((item) => {
+        return (
+          (item.username && item.username === name) ||
+          (item.value && item.value === name) ||
+          (item.maplabel && item.maplabel === name)
+        );
+      });
+      this.allOptions =
+        matched.length > 0
+          ? matched
+          : [{ username: name, maplabel: name, value: name }];
     },
     //输入框模糊查询
     remoteUserMethod(query) {
@@ -964,6 +1128,8 @@ export default {
     this.getMemberNames();
   },
   mounted() {
+    // 列表若已加载完则立即回填；否则等 getTboxSnIds 回调里 applyRouteQuery
+    this.applyRouteQuery();
     setTimeout(() => {
       if (this.map) this.map.updateSize();
     }, 200);

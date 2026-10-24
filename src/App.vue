@@ -935,9 +935,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -945,6 +945,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data);
 
@@ -1353,6 +1354,18 @@ export default {
           warningTitle = this.$t("warning.DoorOpenalarm");
           warningContent = this.$t("terminal.deveui");
           break;
+        case 11:
+          warningTitle = this.$t("warning.LowBatteryAlarm");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 12:
+          warningTitle = this.$t("warning.HeartbeatAbnormal");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 13:
+          warningTitle = this.$t("warning.TemperatureAbnormal");
+          warningContent = this.$t("terminal.deveui");
+          break;
         default:
           break;
       }
@@ -1387,23 +1400,23 @@ export default {
            ${sosA.deveui}
           </p></div><br/>
           <div class="sosfooter">
-          <button ${
-            sosA.type == 1 ? "" : 'class="hidefooter"'
-          } style="font-size: 12px;"   class="${sosA.deveuiIcon}30 el-button"
-          >${this.$t("warning.search")}</button>
-          <button ${
-            sosA.type == 1 ? "" : 'class="hidefooter"'
-          } style="font-size: 12px;" class="${sosA.deveuiIcon}20 el-button"
-          >${this.$t("myorder.close")}</button><button onclick="GoMap('${
-            sosA.deveui
-          }','${sosA.postype}','${sosA.devtype}',` +
+          ${
+            Number(sosA.type) === 1
+              ? `<button class="${sosA.deveuiIcon}30 el-button">${this.$t(
+                  "warning.search"
+                )}</button><button class="${
+                  sosA.deveuiIcon
+                }20 el-button">${this.$t("myorder.close")}</button>`
+              : ""
+          }<button onclick="GoMap('${sosA.deveui}','${sosA.postype}','${
+            sosA.devtype
+          }',` +
           sosAss +
-          `)" style="font-size: 12px;" class= "el-button el-button--primary
-          ${sosA.deveui}"
+          `)" class="el-button el-button--primary ${sosA.deveui}"
           >${this.$t("tet.Jumpmap")}</button></div></div>
-          <div class= "  mini ${
+          <div class="mini sos-minibox ${
             sosA.deveuiIcon
-          }minibox" style ="display:none"><div class="sosheader  ${
+          }minibox"><div class="sosheader  ${
             sosA.deveuiIcon
           }10"><i class="sosIcon"></i>${warningTitle}<i onclick="showNotify('${
             sosA.deveuiIcon
@@ -1749,7 +1762,7 @@ export default {
           superid: this.$store.state.userInfo.superid,
           projectid: this.$store.state.intoProjectid,
           status: 1,
-          endtype: 8,
+          endtype: 13,
         };
       }
       var that = this;
@@ -2012,6 +2025,12 @@ body {
   margin: 14px;
   margin-left: 18px;
   margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sos-minibox {
+  display: none;
 }
 
 .sosfooter {
@@ -2022,12 +2041,16 @@ body {
   margin-right: 10px;
 }
 
+.sosfooter .el-button,
 .sosfooter button {
   padding: 10px 13px !important;
+  /* 用 px 走 pxtorem，随 4K 根字号放大；勿用内联 px（不会转 rem） */
+  font-size: 14px !important;
+  line-height: 1.2 !important;
 }
 
 .hidefooter {
-  display: none;
+  display: none !important;
 }
 
 .sosIcon {

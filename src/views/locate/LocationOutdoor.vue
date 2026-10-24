@@ -530,10 +530,33 @@ export default {
       }
       return 0;
     },
-    // 跳转历史轨迹
+    // 跳转定位管理-历史轨迹页（带上已选人员/车辆）
     goHis() {
+      const query = {};
+      if (this.perDeveui) {
+        const item =
+          (this.userOptions || []).find(
+            (i) => i.maplabel === this.perDeveui
+          ) ||
+          (this.userList || []).find((i) => i.maplabel === this.perDeveui);
+        query.perDeveui = this.perDeveui;
+        if (item && item.username) {
+          query.username = item.username;
+        }
+      } else if (this.tboxDeveui) {
+        const item =
+          (this.tboxOptions || []).find(
+            (i) => i.maplabel === this.tboxDeveui
+          ) ||
+          (this.tboxList || []).find((i) => i.maplabel === this.tboxDeveui);
+        query.tboxDeveui = this.tboxDeveui;
+        if (item && item.sn) {
+          query.sn = item.sn;
+        }
+      }
       this.$router.push({
-        path: "/location/outdoor/historical",
+        path: "/location/historytrajectory",
+        query,
       });
     },
     // 清空个人信息和车辆信息

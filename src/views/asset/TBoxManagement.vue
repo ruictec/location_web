@@ -135,6 +135,18 @@
                 show-overflow-tooltip
               ></el-table-column>
               <el-table-column
+                property="driver"
+                :label="$t('car.driver')"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
+                property="tel"
+                :label="$t('car.tel')"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
                 property="memo"
                 :label="$t('car.Remark3')"
                 align="center"
@@ -349,6 +361,20 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item :label="$t('car.driverLabel')" prop="driver">
+                <el-input
+                  v-model="addData.driver"
+                  maxlength="64"
+                  :placeholder="$t('car.driverPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('car.telLabel')" prop="tel">
+                <el-input
+                  v-model="addData.tel"
+                  maxlength="20"
+                  :placeholder="$t('car.telPlaceholder')"
+                ></el-input>
+              </el-form-item>
 
               <el-form-item :label="$t('car.Remark1')">
                 <el-input
@@ -485,6 +511,20 @@
                   >
                   </el-option>
                 </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('car.driverLabel')" prop="driver">
+                <el-input
+                  v-model="editData.driver"
+                  maxlength="64"
+                  :placeholder="$t('car.driverPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('car.telLabel')" prop="tel">
+                <el-input
+                  v-model="editData.tel"
+                  maxlength="20"
+                  :placeholder="$t('car.telPlaceholder')"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('car.Remark1')">
                 <el-input
@@ -831,6 +871,17 @@ export default {
         callback(new Error(this.$t("tet.tet5")));
       }
     };
+    var telValid = (rule, value, callback) => {
+      if (!value) {
+        callback();
+        return;
+      }
+      if (/^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) {
+        callback();
+      } else {
+        callback(new Error(this.$t("companymanagement.clienttelrule3")));
+      }
+    };
     return {
       i8n: this.$store.state.i18n,
       //时间选择限制
@@ -910,6 +961,8 @@ export default {
         maplabel: "", //
         memo: "", //
         depart: "",
+        driver: "",
+        tel: "",
       },
       ProjectTye: "",
       edit: false,
@@ -923,6 +976,8 @@ export default {
         memo: "", //
         filename: "",
         depart: "",
+        driver: "",
+        tel: "",
       },
       editRules: {
         // sn: [{ required: true, validator: carPhoneValid, trigger: blur }],
@@ -933,6 +988,7 @@ export default {
             trigger: blur,
           },
         ],
+        tel: [{ validator: telValid, trigger: "blur" }],
       },
       deleId: "",
       deleTenantid: "",
@@ -1665,10 +1721,17 @@ export default {
         return;
       }
       let data = {
-        branchs: this.tboxList.filter(item => !item.id).map(({id,...item})=>item),
+        branchs: this.tboxList
+          .filter((item) => !item.id)
+          .map(({ id, ...item }) => item),
         tenantid: this.tenantid_A,
         projectid: this.$store.state.projectid,
       };
+      // 没有新增车辆类型时直接关闭弹框，不调用接口（与员工管理角色弹框一致）
+      if (data.branchs.length == 0) {
+        that.addAssets = false;
+        return;
+      }
       data.branchs = JSON.stringify(data.branchs);
       addTboxType(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
         (res) => {
@@ -1955,6 +2018,8 @@ export default {
         maplabel: "", //
         memo: "", //
         depart: "",
+        driver: "",
+        tel: "",
       };
 
       Promise.all([
@@ -1984,6 +2049,8 @@ export default {
             that.userIdForPic.maplabel = that.addData.maplabel;
             that.userIdForPic.memo = that.addData.memo;
             that.userIdForPic.depart = that.addData.depart;
+            that.userIdForPic.driver = that.addData.driver;
+            that.userIdForPic.tel = that.addData.tel;
             that.$refs.upload.submit();
           } else {
             addTbox(
@@ -2041,6 +2108,8 @@ export default {
       this.editData.memo = row.memo;
       this.editData.filename = row.filename;
       this.editData.depart = row.depart;
+      this.editData.driver = row.driver || "";
+      this.editData.tel = row.tel || "";
       Promise.all([
         this.getMemberLists(),
         this.getDevDeveuis(this.$store.state.projectid),
@@ -2063,6 +2132,8 @@ export default {
             that.userIdForPicEdit.memo = that.editData.memo;
             that.userIdForPicEdit.maplabel = that.editData.maplabel;
             that.userIdForPicEdit.depart = that.editData.depart;
+            that.userIdForPicEdit.driver = that.editData.driver;
+            that.userIdForPicEdit.tel = that.editData.tel;
             that.$refs.upload.submit();
           } else {
             if (that.delImage) {

@@ -135,7 +135,7 @@
                 fixed="right"
                 :label="$t('warning.operate')"
                 align="center"
-                min-width="100"
+                min-width="120"
               >
                 <template #default="scope">
                   <el-tooltip
@@ -147,7 +147,7 @@
                     <el-button
                       type="primary"
                       size="small"
-                      class="editss"
+                      class="editss icon_button"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -161,7 +161,7 @@
                     <el-button
                       type="danger"
                       size="small"
-                      class="edits"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -269,9 +269,20 @@
                 <el-select
                   v-model="addTranches"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleAddTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <!-- :label="
                       item.building + '/' + item.ground + '楼/' + item.name
                     " -->
@@ -373,6 +384,26 @@
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="addData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="addData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
+              </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
                   type="textarea"
@@ -448,9 +479,20 @@
                 <el-select
                   v-model="editTranches"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleEditTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <el-option
                     v-for="item in trancheLists"
                     :key="item.id"
@@ -510,6 +552,26 @@
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="editData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="editData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
@@ -643,6 +705,8 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 3,
         meth: "",
         postype: "",
@@ -677,6 +741,14 @@ export default {
             trigger: "blur",
           },
         ],
+        tel: [
+          {
+            required: false,
+            pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+            message: this.$t("companymanagement.clienttelrule3"),
+            trigger: "blur",
+          },
+        ],
       },
       edit: false,
       editWorktypes: "", //编辑资产类型集合
@@ -691,6 +763,8 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         id: "",
         cate: 3,
         postype: "",
@@ -796,36 +870,20 @@ export default {
       };
     },
     handleTrancheChange(values, target) {
-      const ids = values || [];
+      const SELECT_ALL = "__TRANCHE_ALL__";
+      const SELECT_CLEAR = "__TRANCHE_CLEAR__";
+      let ids = values || [];
+      if (ids.includes(SELECT_CLEAR)) {
+        ids = [];
+        this[target] = ids;
+      } else if (ids.includes(SELECT_ALL)) {
+        ids = (this.trancheLists || []).map((item) => item.id);
+        this[target] = ids;
+      }
       const selected = this.trancheLists.filter((item) => ids.includes(item.id));
       const hasOutdoor = selected.some((item) => item.groundid === 0);
       const hasIndoor = selected.some((item) => item.groundid !== 0);
-
-      if (hasOutdoor && hasIndoor) {
-        // 混选室内和室外围栏时，保留最后选择的类型
-        const lastId = ids[ids.length - 1];
-        const lastItem = this.trancheLists.find((item) => item.id === lastId);
-        if (lastItem) {
-          const keepOutdoor = lastItem.groundid === 0;
-          const filtered = selected
-            .filter((item) => (item.groundid === 0) === keepOutdoor)
-            .map((item) => item.id);
-          this[target] = filtered;
-          this.setPostypeBySelection(target, keepOutdoor);
-          
-          // 使用i18n翻译的提示消息
-          const fenceTypeLabel = keepOutdoor 
-            ? this.$t("warningVoice.outdoorGps") 
-            : this.$t("warningVoice.indoorBle");
-          const message = this.$t("warningVoice.cannotMixFence", { type: fenceTypeLabel });
-          
-          this.$message({
-            message: message,
-            type: "warning",
-          });
-        }
-        return;
-      }
+      // 室内外可同时选择；有室外时 postype 优先记为室外
       if (hasOutdoor) {
         this.setPostypeBySelection(target, true);
       } else if (hasIndoor) {
@@ -1038,6 +1096,8 @@ export default {
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 3,
         meth: "",
         postype: "",
@@ -1161,8 +1221,14 @@ export default {
       this.editTranche = "";
       this.editData.worktypes = "";
       this.editData.tranches = "";
-      this.editWorktypes = this.tableData[index].worktypes.split(",");
-      this.editTranche = this.tableData[index].tranches.split(",");
+      this.editWorktypes = (this.tableData[index].worktypes || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      this.editTranche = (this.tableData[index].tranches || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
@@ -1175,6 +1241,8 @@ export default {
       this.editData.begintime = this.tableData[index].begintime;
       this.editData.warnum = this.tableData[index].warnum;
       this.editData.memo = this.tableData[index].memo;
+      this.editData.principal = this.tableData[index].principal || "";
+      this.editData.tel = this.tableData[index].tel || "";
       this.editData.id = this.tableData[index].id;
       const selectedItems = this.trancheLists.filter((item) =>
         this.editTranche.includes(String(item.id)) ||

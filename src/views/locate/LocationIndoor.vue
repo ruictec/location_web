@@ -68,7 +68,7 @@
       >
         <el-form
           class="demo-form-inline"
-          style="display: flex; white-space: nowrap; margin-left: 1%"
+          style="display: flex; white-space: nowrap; margin-left: 0"
           :model="searchLists"
           v-if="searchShow"
         >
@@ -155,6 +155,9 @@
             </el-button>
             <el-button type="primary" class="reset" @click="clearBtn()">{{
               $t("LocationIndoor.reset")
+            }}</el-button>
+            <el-button type="primary" class="reset" @click="goHis()">{{
+              $t("Breadcrumb.Historicaltrack")
             }}</el-button>
           </el-form-item>
         </el-form>
@@ -1067,7 +1070,7 @@ export default {
 
       gl: "",
       timer: null,
-      searchShow: false,
+      searchShow: true,
       buildShow: false,
       groundShow: false,
       settingShow: false,
@@ -1132,6 +1135,35 @@ export default {
         query: {
           username: username,
         },
+      });
+    },
+    // 跳转定位管理-历史轨迹页（与室外定位 goHis 一致：带上筛选中已选人员/车辆）
+    goHis() {
+      const query = {};
+      if (this.perDeveui) {
+        const item =
+          (this.userOptions || []).find(
+            (i) => i.maplabel === this.perDeveui
+          ) ||
+          (this.userList || []).find((i) => i.maplabel === this.perDeveui);
+        query.perDeveui = this.perDeveui;
+        if (item && item.username) {
+          query.username = item.username;
+        }
+      } else if (this.tboxDeveui) {
+        const item =
+          (this.tboxOptions || []).find(
+            (i) => i.maplabel === this.tboxDeveui
+          ) ||
+          (this.tboxList || []).find((i) => i.maplabel === this.tboxDeveui);
+        query.tboxDeveui = this.tboxDeveui;
+        if (item && item.sn) {
+          query.sn = item.sn;
+        }
+      }
+      this.$router.push({
+        path: "/location/historytrajectory",
+        query,
       });
     },
     // 点击信息弹框中的卡号,跳转查询
@@ -2501,6 +2533,11 @@ export default {
           case 10:
             imgsrc = "../../../static/10.png";
             break;
+          case 11:
+          case 12:
+          case 13:
+            imgsrc = "../../../static/alarm.png";
+            break;
           default:
             imgsrc = "../../../static/user1.png";
             break;
@@ -3797,6 +3834,11 @@ export default {
             break;
           case 10:
             imgsrc = "../../../static/10.png";
+            break;
+          case 11:
+          case 12:
+          case 13:
+            imgsrc = "../../../static/alarm.png";
             break;
           default:
             imgsrc = "../../../static/user1.png";
@@ -5913,9 +5955,35 @@ a {
 .imags_ul li {
   margin-top: 20px;
 }
+.location-indoor {
+  text-align: left !important;
+}
 .inputContent {
   padding-top: 10px;
-  margin-bottom: -10px;
+  padding-bottom: 0;
+  /* 与人员管理等页筛选行一致：靠左但留边距；底部与地图留一点间距 */
+  margin: 0 1% 6px 1% !important;
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start !important;
+  align-items: center;
+  gap: 8px 16px;
+  text-align: left !important;
+}
+.inputContent .demo-form-inline {
+  justify-content: flex-start !important;
+  align-items: center;
+  gap: 8px 16px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+  width: auto !important;
+  max-width: 100%;
+}
+.inputContent .demo-form-inline > .el-form-item {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 .show_echarts {
   border: 2px solid #f2f2f2;

@@ -65,7 +65,8 @@ export default {
           this.$store.commit("changeActiveName", name);
           break;
         case "historical":
-          this.$router.push("/outdoor/historical");
+          // 原室外历史轨迹已下线，统一跳定位管理-历史轨迹
+          this.$router.push("/location/historytrajectory");
           this.$store.commit("changeActiveName", name);
           break;
         default:

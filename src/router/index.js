@@ -24,10 +24,12 @@ const buildingManagement = () => import('../views/locate/buildingManagement')
 const GroundDetails = () => import('../views/locate/GroundDetails')
 const LocationOutdoor = () => import('../views/locate/LocationOutdoor')
 const Outdoor = () => import('../views/locate/Outdoor')
-const Historical = () => import('../views/locate/LocationHistorical')
+// 室外定位-历史轨迹页暂时下线（LocationHistorical），统一使用 HistoryTrajectory
+// const Historical = () => import('../views/locate/LocationHistorical')
 const Indoor = () => import('../views/locate/Indoor')
 const LocationIndoor = () => import('../views/locate/LocationIndoor')
-const LocationIndoorHis = () => import('../views/locate/LocationIndoorHis')
+const DataAnalysis = () => import('../views/locate/DataAnalysis')
+const HistoryTrajectory = () => import('../views/locate/HistoryTrajectory')
 
 
 const StaffManagement = () => import('../views/staff/StaffManagement')
@@ -207,10 +209,15 @@ export const adminRoutes = [
           component: LocationOutdoor,
           meta: { requireAuth: true }
         },
+        // 室外历史轨迹暂时下线，旧链接跳到定位管理-历史轨迹
         {
           path: 'historical',
-          component: Historical,
-          meta: { requireAuth: true }
+          redirect: (to) => ({
+            path: '/location/historytrajectory',
+            query: to.query || {},
+          }),
+          // component: Historical,
+          // meta: { requireAuth: true }
         },
       ]
     },
@@ -228,7 +235,7 @@ export const adminRoutes = [
         },
         {
           path: 'historical',
-          component: LocationIndoorHis,
+          component: DataAnalysis,
           meta: { requireAuth: true }
         },
       ]
@@ -557,44 +564,55 @@ export const userRoutes = [
           meta: { title: 'router.floorDetails', noCache: true }
         },
         {
+          path: 'historytrajectory',
+          component: HistoryTrajectory,
+          name: 'historytrajectory',
+          meta: { title: 'router.historyTrajectory', noCache: true }
+        },
+        {
           path: 'outdoor',
           component: Outdoor,
           name: 'outdoor',
           redirect: '/location/outdoor/locationoutdoor',
-          meta: { title: 'router.outdoorPositioning', noCache: true },
+          // 菜单已扁平为「室外定位」，父级不参与面包屑，避免多出「定位查询」一层
+          meta: { title: 'router.outdoorPositioning', noCache: true, breadcrumb: false },
           children: [{
             path: 'locationoutdoor',
             component: LocationOutdoor,
             name: 'locationoutdoor',
-            meta: { title: 'router.locationQuery', noCache: true },
+            meta: { title: 'router.outdoorPositioning', noCache: true },
 
           },
+          // 室外历史轨迹页暂时下线，旧链接统一跳到定位管理-历史轨迹
           {
             path: 'historical',
-            component: Historical,
-            // Vue Router 4：同名路由后注册会顶掉先注册的记录；室内外不可共用 name
-            name: 'outdoorHistorical',
-            meta: { title: 'router.historicalTrack', noCache: true },
-
+            redirect: (to) => ({
+              path: '/location/historytrajectory',
+              query: to.query || {},
+            }),
+            // component: Historical,
+            // name: 'outdoorHistorical',
+            // meta: { title: 'router.historicalTrack', noCache: true },
           }]
         },
         {
           path: 'indoor',
           component: Indoor,
           name: 'indoor',
-          meta: { title: 'router.indoorPositioning', noCache: true },
+          meta: { title: 'router.indoorPositioning', noCache: true, breadcrumb: false },
           redirect: '/location/indoor/locationindoor',
           children: [{
             path: 'locationindoor',
             component: LocationIndoor,
             name: 'locationindoor',
-            meta: { title: 'router.locationQuery', noCache: true },
+            meta: { title: 'router.indoorPositioning', noCache: true },
 
           },
           {
             path: 'historical',
-            component: LocationIndoorHis,
-            name: 'indoorHistorical',
+            component: DataAnalysis,
+            name: 'dataAnalysis',
+            // 菜单已提升为「定位管理 > 数据分析」；路径暂保持 historical 兼容旧链接
             meta: { title: 'router.dataAnalysis', noCache: true },
 
           }]

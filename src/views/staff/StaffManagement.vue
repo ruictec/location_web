@@ -322,6 +322,23 @@
                       ><img src="../../../static/trajectory2.png"
                     /></el-button>
                   </el-tooltip>
+
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('staff.health')"
+                    placement="top-start"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="edits icon_button"
+                      style="margin-left: 0"
+                      @click="openHealthDialog(scope.row)"
+                    >
+                      <el-icon :size="16"><FirstAidKit /></el-icon>
+                    </el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
@@ -794,6 +811,68 @@
             </div>
           </el-dialog>
 
+          <!-- 设备健康记录查询 -->
+          <el-dialog
+            :title="$t('staff.healthTitle')"
+            v-model="healthDialog"
+            width="70%"
+            class="health-dialog"
+            @opened="onHealthDialogOpened"
+            @closed="disposeHealthCharts"
+          >
+            <div class="health-query-bar">
+              <span class="health-query-label">{{
+                $t("staff.healthTime")
+              }}</span>
+              <el-date-picker
+                v-model="healthTimeRange"
+                type="datetimerange"
+                class="health-date-picker"
+                format="YYYY-MM-DD HH:mm"
+                style="width: 320px; max-width: 320px"
+                :shortcuts="pickerOptions.shortcuts"
+                :range-separator="$t('beacon.to')"
+                :start-placeholder="$t('beacon.starttime')"
+                :end-placeholder="$t('beacon.endtime')"
+              ></el-date-picker>
+              <el-button
+                type="primary"
+                class="health-query-btn"
+                :loading="healthLoading"
+                @click="queryDevHealth"
+                >{{ $t("staff.search") }}</el-button
+              >
+            </div>
+            <div v-if="healthResult !== null" style="text-align: left">
+              <div
+                v-if="healthData.length === 0"
+                style="text-align: center; color: #999; padding: 20px 0"
+              >
+                {{ $t("staff.healthEmpty") }}
+              </div>
+              <template v-else>
+                <div style="font-weight: bold; margin: 10px 0 4px">
+                  {{ $t("staff.healthHeartrate") }}（{{
+                    $t("staff.healthUnitBpm")
+                  }}）
+                </div>
+                <div
+                  ref="heartChart"
+                  style="width: 100%; height: 260px"
+                ></div>
+                <div style="font-weight: bold; margin: 16px 0 4px">
+                  {{ $t("staff.healthTemperature") }}（{{
+                    $t("staff.healthUnitCelsius")
+                  }}）
+                </div>
+                <div
+                  ref="temChart"
+                  style="width: 100%; height: 260px"
+                ></div>
+              </template>
+            </div>
+          </el-dialog>
+
           <!-- 删除 -->
           <el-dialog
             :title="$t('staff.text4')"
@@ -1190,7 +1269,7 @@ import {
   getDepartmentType,
   getDevGpsOne,
   getDevGpsAction,
-  delDepartmenType,
+  delDepartmentType,
   delMemberType,
   addMemberType,
   addDepartmentType,
@@ -1199,10 +1278,12 @@ import {
   importMember,
   getBuildGroundList,
   importBranch,
+  getDevHealthListAsc,
 } from "../../axios/api";
 import Location from "./outdoorTrajectory.vue";
 import Trajectory from "./trajectory.vue";
 import Trajectorys from "./trajectory3d.vue";
+import { FirstAidKit } from "@element-plus/icons-vue";
 
 export default {
   components: {
@@ -1211,6 +1292,7 @@ export default {
     Location,
     Trajectory,
     Trajectorys,
+    FirstAidKit,
   },
   name: "StaffManagement",
   data() {
@@ -1424,6 +1506,14 @@ export default {
       IconSrc9: "../../../static/9.png",
       IconSrc10: "../../../static/10.png",
       headlistdata: "",
+      healthDialog: false,
+      healthTimeRange: [],
+      healthUsername: "",
+      healthLoading: false,
+      healthResult: null,
+      healthData: [],
+      heartChartInst: null,
+      temChartInst: null,
     };
   },
   computed: {
@@ -2395,7 +2485,7 @@ export default {
           projectid: projectid,
           name: name,
         };
-        delDepartmenType(
+        delDepartmentType(
           JSON.stringify(data),
           this.tenantkey_A,
           this.tenantid_A,
@@ -2942,6 +3032,214 @@ export default {
         return;
       }
       this.actions = true;
+    },
+
+    // 设备健康记录：打开弹框
+    openHealthDialog(row) {
+      this.healthDialog = true;
+      this.healthUsername = row.username;
+      this.healthTimeRange = [];
+      this.healthResult = null;
+      this.healthData = [];
+      this.disposeHealthCharts();
+    },
+
+    disposeHealthCharts() {
+      if (this.heartChartInst) {
+        this.heartChartInst.dispose();
+        this.heartChartInst = null;
+      }
+      if (this.temChartInst) {
+        this.temChartInst.dispose();
+        this.temChartInst = null;
+      }
+    },
+
+    // 弹框打开动画结束后，图表尺寸已确定，重新 resize 防止首帧尺寸错误
+    onHealthDialogOpened() {
+      var that = this;
+      this.$nextTick(() => {
+        if (that.heartChartInst) that.heartChartInst.resize();
+        if (that.temChartInst) that.temChartInst.resize();
+      });
+    },
+
+    // 根据接口返回值渲染心率/体温折线图
+    renderHealthCharts() {
+      var that = this;
+      this.disposeHealthCharts();
+      this.$nextTick(() => {
+        if (!that.healthData || that.healthData.length === 0) return;
+        var fullTimes = []; // 完整时间，用于 tooltip
+        var axisTimes = []; // X 轴短标签（只到时分秒），避免标签过长被画布裁切
+        var rawTimes = [];
+        var hearts = [];
+        var tems = [];
+        for (var i = 0; i < that.healthData.length; i++) {
+          var item = that.healthData[i];
+          var t = item.dataTime ? item.dataTime * 1000 : null;
+          rawTimes.push(t);
+          fullTimes.push(
+            t ? util.formatDate.format(new Date(t), "yyyy-MM-dd hh:mm:ss") : "-"
+          );
+          // 0 视为未读数（设备未上报有效值），置为 null 避免误导
+          hearts.push(item.heartrate > 0 ? item.heartrate : null);
+          tems.push(item.tem > 0 ? item.tem : null);
+        }
+        // 同一天只显示时分秒；跨天时补上日期，保证时间可辨识
+        var sameDay = true;
+        if (rawTimes.length > 1 && rawTimes[0] && rawTimes[rawTimes.length - 1]) {
+          sameDay =
+            new Date(rawTimes[0]).toDateString() ===
+            new Date(rawTimes[rawTimes.length - 1]).toDateString();
+        }
+        var axisPattern = sameDay ? "hh:mm:ss" : "MM-dd hh:mm";
+        for (var j = 0; j < rawTimes.length; j++) {
+          axisTimes.push(
+            rawTimes[j]
+              ? util.formatDate.format(new Date(rawTimes[j]), axisPattern)
+              : "-"
+          );
+        }
+        // 每个图单独构建 option，避免共享引用被 echarts 修改
+        var buildOption = function (seriesName, data, unit) {
+          return {
+            tooltip: {
+              trigger: "axis",
+              formatter: function (params) {
+                if (!params || !params.length) return "";
+                var p = params[0];
+                var full = fullTimes[p.dataIndex] || p.axisValue;
+                var val =
+                  p.value === null || p.value === undefined ? "-" : p.value;
+                return (
+                  full +
+                  "<br/>" +
+                  p.marker +
+                  seriesName +
+                  "：" +
+                  val +
+                  (unit || "")
+                );
+              },
+            },
+            // containLabel: true 让 echarts 自动预留坐标轴文字空间，标签不会被画布裁切
+            grid: {
+              left: 10,
+              right: 24,
+              top: 24,
+              bottom: 10,
+              containLabel: true,
+            },
+            xAxis: {
+              type: "category",
+              data: axisTimes,
+              boundaryGap: false,
+              axisTick: { alignWithLabel: true },
+              axisLabel: {
+                // 短标签 + 不旋转，保证时间完整显示；重叠时自动抽稀
+                rotate: 0,
+                fontSize: 11,
+                margin: 10,
+                hideOverlap: true,
+                interval: "auto",
+              },
+            },
+            yAxis: {
+              type: "value",
+              scale: false,
+              axisLabel: { fontSize: 11, margin: 10 },
+              splitLine: { lineStyle: { type: "dashed" } },
+            },
+            series: [
+              {
+                name: seriesName,
+                type: "line",
+                smooth: false,
+                connectNulls: false,
+                symbolSize: 6,
+                data: data,
+              },
+            ],
+          };
+        };
+        var initChart = function (refName, option, instKey) {
+          var el = that.$refs[refName];
+          if (!el) return;
+          var inst = that.$echarts.init(el);
+          that[instKey] = inst;
+          inst.setOption(option);
+          inst.resize();
+        };
+        initChart(
+          "heartChart",
+          buildOption(
+            that.$t("staff.healthHeartrate"),
+            hearts,
+            that.$t("staff.healthUnitBpm")
+          ),
+          "heartChartInst"
+        );
+        initChart(
+          "temChart",
+          buildOption(
+            that.$t("staff.healthTemperature"),
+            tems,
+            that.$t("staff.healthUnitCelsius")
+          ),
+          "temChartInst"
+        );
+      });
+    },
+
+    // 设备健康记录：按时间范围查询接口
+    queryDevHealth() {
+      var that = this;
+      if (!this.healthTimeRange || this.healthTimeRange.length !== 2) {
+        this.$message({
+          message: this.$t("staff.healthTimeRequired"),
+          type: "warning",
+        });
+        return;
+      }
+      let begingTime = util.formatDate.format(
+        new Date(this.healthTimeRange[0]),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+      let endTime = util.formatDate.format(
+        new Date(this.healthTimeRange[1]),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+      begingTime = Date.parse(new Date(begingTime)) / 1000;
+      endTime = Date.parse(new Date(endTime)) / 1000;
+      let query = {
+        projectid: this.$store.state.projectid,
+        username: this.healthUsername,
+        begintime: begingTime,
+        endtime: endTime,
+      };
+      this.healthLoading = true;
+      getDevHealthListAsc(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          console.log("getDevHealthListAsc response:", res);
+          that.healthResult = res;
+          var list = res && res.data ? res.data : [];
+          that.healthData = list;
+          that.renderHealthCharts();
+        })
+        .catch((err) => {
+          console.error("getDevHealthListAsc error:", err);
+          that.healthResult = err;
+          that.healthData = [];
+        })
+        .finally(() => {
+          that.healthLoading = false;
+        });
     },
 
     searchAction() {
@@ -4017,6 +4315,8 @@ export default {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+
+/* 设备健康弹框查询条样式见 element-plus-compat.css（dialog teleport 后 scoped 无效） */
 
 </style>
 

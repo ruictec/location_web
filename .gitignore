@@ -10,3 +10,7 @@ debug.log
 .env.development.local
 .env.production.local
 rct-platform_oldCode/
+# 平台使用文档与素材（仅本机保留，勿入库）
+docs-assets/
+docs-solutions/
+平台使用文档.html

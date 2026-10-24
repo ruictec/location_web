@@ -21,7 +21,7 @@
           @click="goLink('home')"
           style="position: relative"
         >
-          <i class="icon1 home" style="font-size: 28px"></i>
+          <i class="icon1 home"></i>
         </span>
       </el-tooltip>
       <!-- 告警信息 -->
@@ -36,7 +36,7 @@
           @click="goLink('warning')"
           style="position: relative"
         >
-          <i class="icon1 sos" style="font-size: 28px"></i>
+          <i class="icon1 sos"></i>
           <el-badge
             class="warningbox"
             :value="warningNum"
@@ -54,7 +54,7 @@
         v-if="task"
       >
         <span class="golink hover-effect" @click="goLink('inspection')">
-          <i class="icon1 patrol" style="font-size: 28px"></i>
+          <i class="icon1 patrol"></i>
         </span>
       </el-tooltip>
       <!-- 行为分析 -->
@@ -66,7 +66,7 @@
         v-if="employee"
       >
         <span class="golink hover-effect" @click="goLink('trajectory')">
-          <i class="icon1 active" style="font-size: 28px"></i>
+          <i class="icon1 active"></i>
         </span>
       </el-tooltip>
       <!-- 室内定位 -->
@@ -78,7 +78,7 @@
         v-if="inDoor"
       >
         <span class="golink hover-effect" @click="goLink('indoor')">
-          <i class="icon1 indoor" style="font-size: 28px"></i></span>
+          <i class="icon1 indoor"></i></span>
       </el-tooltip>
       <!-- 室外定位 -->
       <el-tooltip
@@ -89,7 +89,7 @@
         v-if="outDoor"
       >
         <span class="golink hover-effect" @click="goLink('outdoor')">
-          <i class="icon1 outdoor" style="font-size: 28px"></i>
+          <i class="icon1 outdoor"></i>
         </span>
       </el-tooltip>
 
@@ -98,7 +98,7 @@
 
       <el-dropdown style="z-index: 999" class="perDropdown">
         <span class="el-dropdown-link perSpan">
-          <i class="icon menu1" style="font-size: 24px"></i>
+          <i class="icon menu1"></i>
         </span>
         <template #dropdown><el-dropdown-menu>
           <el-dropdown-item @click="goCenter">{{
@@ -147,7 +147,7 @@
         >
           <span class="el-dropdown-link1 el-dropdown-link perSpan1">
             <!-- <i class="perIcon1"> -->
-            <i class="icon bell" style="font-size: 24px"></i>
+            <i class="icon bell"></i>
             <el-badge
               :value="msgtable.length"
               class="msgbox"
@@ -197,7 +197,7 @@
       <!-- 帮助菜单 -->
       <el-dropdown style="z-index: 100" class="perDropdown" v-if="i8n == 'zh'">
         <span class="el-dropdown-link perSpan">
-          <i class="more icon" style="font-size: 24px"></i>
+          <i class="more icon"></i>
         </span>
         <template #dropdown><el-dropdown-menu>
           <el-dropdown-item @click="Onlinedocumentation">
@@ -993,9 +993,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -1003,6 +1003,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data);
 

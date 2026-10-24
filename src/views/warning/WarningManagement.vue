@@ -60,8 +60,8 @@
               >
                 <el-select
                   v-model="types"
+                  clearable
                   :placeholder="$t('warning.text3')"
-                  @change="typeChange"
                 >
                   <el-option
                     v-for="item in contrForPrionum == 5 ? typeList1 : typeList"
@@ -79,6 +79,7 @@
               >
                 <el-select
                   v-model="searchList.status"
+                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -183,6 +184,7 @@
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
                 align="center"
+                :formatter="formatAlertType"
               >
               </el-table-column>
               <el-table-column
@@ -223,6 +225,22 @@
                     >
                       <img src="../../../static/location.png"
                     /></el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-if="isHealthType(scope.row.type)"
+                    class="item"
+                    effect="dark"
+                    :content="$t('staff.health')"
+                    placement="top-start"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="edits icon_button"
+                      @click="openHealthDialog(scope.row)"
+                    >
+                      <el-icon :size="16"><FirstAidKit /></el-icon>
+                    </el-button>
                   </el-tooltip>
                   <el-tooltip
                     class="item"
@@ -283,6 +301,7 @@
                 :property="i8n == 'zh' ? 'typestr' : 'entype'"
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
+                :formatter="formatAlertType"
               >
               </el-table-column>
               <el-table-column
@@ -304,6 +323,31 @@
                 >{{ $t("warning.Sure") }}</el-button>
             </div></template>
           </el-dialog>
+
+          <!-- 心率/体温异常告警：健康数据折线图 -->
+          <el-dialog
+            :title="healthTitle"
+            v-model="healthDialog"
+            width="70%"
+            @opened="onHealthDialogOpened"
+            @closed="disposeHealthChart"
+          >
+            <div style="text-align: left; color: #666; margin-bottom: 8px">
+              {{ healthRangeText }}
+            </div>
+            <div
+              v-if="healthEmpty"
+              style="text-align: center; color: #999; padding: 40px 0"
+            >
+              {{ $t("staff.healthEmpty") }}
+            </div>
+            <div
+              v-else
+              ref="healthChart"
+              style="width: 100%; height: 320px"
+              v-loading="healthLoading"
+            ></div>
+          </el-dialog>
         </el-main>
       </el-container>
     </div>
@@ -313,11 +357,14 @@
 <script>
 import Menu from "../../components/menu/Menu";
 import Data from "../../components/data/data";
-import { getWarningList, delWarning } from "../../axios/api";
+import { getWarningList, delWarning, getDevHealthListAsc } from "../../axios/api";
+import util from "../../common/util";
+import { FirstAidKit } from "@element-plus/icons-vue";
 export default {
   components: {
     Menu,
     Data,
+    FirstAidKit,
   },
   name: "WarningManagement",
   data() {
@@ -421,7 +468,7 @@ export default {
           value: this.$t("warning.assets"),
         },
       ],
-      //状态()
+      //状态：仅未解除 / 已解除，与告警类型无关
       statusList: [
         {
           index: 1,
@@ -430,10 +477,6 @@ export default {
         {
           index: 2,
           value: this.$t("warning.Released"),
-        },
-        {
-          index: 3,
-          value: this.$t("tet.event"),
         },
       ],
       //告警类型（typeList / typeList1 保持一致）
@@ -478,6 +521,18 @@ export default {
           index: 10,
           value: this.$t("warning.DoorOpenalarm"),
         },
+        {
+          index: 11,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 12,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 13,
+          value: this.$t("warning.TemperatureAbnormal"),
+        },
       ],
 
       typeList1: [
@@ -521,7 +576,28 @@ export default {
           index: 10,
           value: this.$t("warning.DoorOpenalarm"),
         },
+        {
+          index: 11,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 12,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 13,
+          value: this.$t("warning.TemperatureAbnormal"),
+        },
       ],
+      // 心率/体温异常告警的健康数据弹框
+      healthDialog: false,
+      healthLoading: false,
+      healthMetric: "heartrate", // heartrate | tem
+      healthTitle: "",
+      healthRangeText: "",
+      healthData: [],
+      healthEmpty: false,
+      healthChartInst: null,
     };
   },
   computed: {
@@ -531,14 +607,9 @@ export default {
     },
   },
   methods: {
-    typeChange(type) {
-      let arr = [
-        {
-          index: 3,
-          value: this.$t("tet.event"),
-        },
-      ];
-      let arr1 = [
+    //重置状态选择框选项
+    resetStatus() {
+      this.statusList = [
         {
           index: 1,
           value: this.$t("warning.Notreleased"),
@@ -548,45 +619,6 @@ export default {
           value: this.$t("warning.Released"),
         },
       ];
-      if (type > 10) {
-        this.statusList = arr;
-        this.searchList.status = 3;
-      } else {
-        this.statusList = arr1;
-        this.searchList.status =
-          this.searchList.status == 3 ? "" : this.searchList.status;
-      }
-      // this.resetStatus()
-    },
-    //重置状态选择框选项
-    resetStatus() {
-      if (this.contrForPrionum == 5) {
-        this.statusList = [
-          {
-            index: 1,
-            value: this.$t("warning.Notreleased"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Released"),
-          },
-        ];
-      } else {
-        this.statusList = [
-          {
-            index: 1,
-            value: this.$t("warning.Notreleased"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Released"),
-          },
-          {
-            index: 3,
-            value: this.$t("tet.event"),
-          },
-        ];
-      }
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -626,6 +658,210 @@ export default {
       let date = new Date(parseInt(row.statustime) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
+    },
+    // 低电 / 心率异常 / 体温异常：类型后附带 memo 实测值
+    formatAlertType(row) {
+      const typeName = this.i8n == "zh" ? row.typestr : row.entype;
+      const type = Number(row.type);
+      const memo = row.memo;
+      if (
+        (type === 11 || type === 12 || type === 13) &&
+        memo !== "" &&
+        memo != null &&
+        memo !== undefined
+      ) {
+        return `${typeName || ""}（${memo}）`;
+      }
+      return typeName || "-";
+    },
+
+    // 心率异常(12) / 体温异常(13) 才显示健康数据按钮
+    isHealthType(type) {
+      var t = Number(type);
+      return t === 12 || t === 13;
+    },
+    // 秒级时间戳转本地时间字符串
+    formatTimeStamp(sec) {
+      if (!sec) return "-";
+      return util.formatDate.format(
+        new Date(parseInt(sec) * 1000),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+    },
+    // 打开健康数据弹框：以告警时间为中点，取前后 1 小时
+    openHealthDialog(row) {
+      var that = this;
+      var isHeart = Number(row.type) === 12;
+      this.healthMetric = isHeart ? "heartrate" : "tem";
+      this.healthTitle = isHeart
+        ? this.$t("staff.healthHeartrate") +
+          "（" +
+          this.$t("staff.healthUnitBpm") +
+          "）"
+        : this.$t("staff.healthTemperature") +
+          "（" +
+          this.$t("staff.healthUnitCelsius") +
+          "）";
+      var center = parseInt(row.time) || 0;
+      var begin = center - 3600;
+      var end = center + 3600;
+      this.healthRangeText =
+        this.formatTimeStamp(begin) + " ~ " + this.formatTimeStamp(end);
+      this.healthData = [];
+      this.healthEmpty = false;
+      this.disposeHealthChart();
+      this.healthDialog = true;
+      this.$nextTick(() => {
+        that.fetchHealthData(row, begin, end);
+      });
+    },
+    // 调用 getDevHealthListAsc 拉取告警时间点前后 1 小时的数据
+    fetchHealthData(row, begin, end) {
+      var that = this;
+      var query = {
+        projectid:
+          row.projectid ||
+          this.projectid ||
+          this.$store.state.intoProjectid ||
+          "",
+        username: row.username,
+        begintime: begin,
+        endtime: end,
+      };
+      this.healthLoading = true;
+      getDevHealthListAsc(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          that.healthData = res && res.data ? res.data : [];
+          that.renderHealthChart();
+        })
+        .catch((err) => {
+          console.error("getDevHealthListAsc error:", err);
+          that.healthData = [];
+          that.healthEmpty = true;
+        })
+        .finally(() => {
+          that.healthLoading = false;
+        });
+    },
+    disposeHealthChart() {
+      if (this.healthChartInst) {
+        this.healthChartInst.dispose();
+        this.healthChartInst = null;
+      }
+    },
+    onHealthDialogOpened() {
+      if (this.healthChartInst) this.healthChartInst.resize();
+    },
+    // 渲染单指标（心率或体温）折线图
+    renderHealthChart() {
+      var that = this;
+      this.disposeHealthChart();
+      this.$nextTick(() => {
+        var list = that.healthData || [];
+        var isHeart = that.healthMetric === "heartrate";
+        var fullTimes = [];
+        var rawTimes = [];
+        var values = [];
+        for (var i = 0; i < list.length; i++) {
+          var item = list[i];
+          var t = item.dataTime ? item.dataTime * 1000 : null;
+          rawTimes.push(t);
+          fullTimes.push(that.formatTimeStamp(item.dataTime));
+          var v = isHeart ? item.heartrate : item.tem;
+          // 0 视为未读数（设备未上报有效值），置为 null 避免误导
+          values.push(v > 0 ? v : null);
+        }
+        var hasValue = false;
+        for (var k = 0; k < values.length; k++) {
+          if (values[k] !== null) {
+            hasValue = true;
+            break;
+          }
+        }
+        that.healthEmpty = !hasValue;
+        if (that.healthEmpty) return;
+        // 同一天只显示时分秒；跨天时补上日期，保证时间可辨识
+        var sameDay = true;
+        if (rawTimes.length > 1 && rawTimes[0] && rawTimes[rawTimes.length - 1]) {
+          sameDay =
+            new Date(rawTimes[0]).toDateString() ===
+            new Date(rawTimes[rawTimes.length - 1]).toDateString();
+        }
+        var axisPattern = sameDay ? "hh:mm:ss" : "MM-dd hh:mm";
+        var axisTimes = [];
+        for (var j = 0; j < rawTimes.length; j++) {
+          axisTimes.push(
+            rawTimes[j]
+              ? util.formatDate.format(new Date(rawTimes[j]), axisPattern)
+              : "-"
+          );
+        }
+        var seriesName = isHeart
+          ? that.$t("staff.healthHeartrate")
+          : that.$t("staff.healthTemperature");
+        var unit = isHeart
+          ? that.$t("staff.healthUnitBpm")
+          : that.$t("staff.healthUnitCelsius");
+        var option = {
+          tooltip: {
+            trigger: "axis",
+            formatter: function (params) {
+              if (!params || !params.length) return "";
+              var p = params[0];
+              var full = fullTimes[p.dataIndex] || p.axisValue;
+              var val = p.value === null || p.value === undefined ? "-" : p.value;
+              return full + "<br/>" + p.marker + seriesName + "：" + val + unit;
+            },
+          },
+          // containLabel: true 让 echarts 自动预留坐标轴文字空间，标签不会被画布裁切
+          grid: {
+            left: 10,
+            right: 24,
+            top: 24,
+            bottom: 10,
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: axisTimes,
+            boundaryGap: false,
+            axisTick: { alignWithLabel: true },
+            axisLabel: {
+              rotate: 0,
+              fontSize: 11,
+              margin: 10,
+              hideOverlap: true,
+              interval: "auto",
+            },
+          },
+          yAxis: {
+            type: "value",
+            axisLabel: { fontSize: 11, margin: 10 },
+            splitLine: { lineStyle: { type: "dashed" } },
+          },
+          series: [
+            {
+              name: seriesName,
+              type: "line",
+              smooth: false,
+              connectNulls: false,
+              symbolSize: 6,
+              data: values,
+            },
+          ],
+        };
+        var el = that.$refs.healthChart;
+        if (!el) return;
+        var inst = that.$echarts.init(el);
+        that.healthChartInst = inst;
+        inst.setOption(option);
+        inst.resize();
+      });
     },
     //分页
     handleCurrentChange(val) {
@@ -717,7 +953,7 @@ export default {
           status: "",
           username: "",
           devtype: "",
-          endtype: 9,
+          endtype: 13,
         };
         this.types = "";
         this.getWarningLists();
@@ -1062,7 +1298,7 @@ export default {
         count: 20,
         status: "",
         devtype: "",
-        endtype: 9,
+        endtype: 13,
       };
 
       // 判断是否从首页点击跳转过来

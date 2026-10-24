@@ -119,6 +119,17 @@
                   }}</el-radio>
                 </p>
               </div>
+              <div class="list_options">
+                <p>{{ $t("list.Taskmanagement") }}：</p>
+                <p>
+                  <el-radio v-model="locateManage" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="locateManage" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
             </el-collapse-item>
 
             <el-collapse-item :title="$t('list.Locationmanagement')" name="3">
@@ -173,23 +184,20 @@
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
+              <div class="list_options">
+                <p>{{ $t("list.Audiorecording") }}：</p>
+                <p>
+                  <el-radio v-model="audio" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="audio" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
             </el-collapse-item>
 
             <el-collapse-item :title="$t('list.Securitymanagement')" name="5">
-              <div class="list_options">
-                <p>{{ $t("otherDev.assetGateway") }}：</p>
-                <p>
-                  <el-radio v-model="assetgw" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio
-                    v-model="assetgw"
-                    :label="false"
-                    :disabled="assetgwNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio>
-                </p>
-              </div>
-
               <div class="list_options">
                 <p>{{ $t("otherDev.aoaGateway") }}：</p>
                 <p>
@@ -302,14 +310,14 @@ export default {
       tboxNum: 0, //车辆数量
       checkwork: "true", //考勤管理
       inspection: "true", //巡检管理
+      locateManage: false, //任务管理
       locationoutdoor: "true", //室外定位
       locationindoor: "true", //室内定位
       devgw: "true", //终端管理
       devgwNum: 0, //终端管理数量
       scanbeacon: "true", //信标管理
       scanbeaconNum: 0, //信标管理数量
-      assetgw: "true", //资产网关
-      assetgwNum: 0, //资产网关数量
+      audio: false, //录音管理
       aoagw: "true", //AOA网关
       aoagwNum: 0, //AOA网关数量
       smoke: "true", //烟感
@@ -345,10 +353,9 @@ export default {
           that.tboxNum = res.data.tboxNum;
           that.checkwork = res.data.attendance;
           that.inspection = res.data.task;
+          that.locateManage = !!res.data.locateManage;
           that.locationindoor = res.data.inDoor;
           that.locationoutdoor = res.data.outDoor;
-          that.assetgw = res.data.assetgw;
-          that.assetgwNum = res.data.assetgwNum || 0;
           that.aoagw = res.data.aoagw;
           that.aoagwNum = res.data.aoagwNum || 0;
           that.smoke = res.data.smoke;
@@ -363,6 +370,7 @@ export default {
           that.devgwNum = res.data.devgwNum;
           that.scanbeacon = res.data.scanbeacon;
           that.scanbeaconNum = res.data.scanbeaconNum;
+          that.audio = !!res.data.audio;
         }
       });
     },
@@ -408,7 +416,6 @@ export default {
         return;
       }
       if (
-        !this.assetgw &&
         !this.aoagw &&
         !this.smoke &&
         !this.alertor &&
@@ -432,9 +439,9 @@ export default {
         attendance: this.checkwork,
         tbox: this.tboxManagement,
         task: this.inspection,
+        locateManage: this.locateManage,
         outDoor: this.locationoutdoor,
         inDoor: this.locationindoor,
-        assetgw: this.assetgw,
         aoagw: this.aoagw,
         smoke: this.smoke,
         alertor: this.alertor,
@@ -442,6 +449,7 @@ export default {
         camera: this.camera,
         devgw: this.devgw,
         scanbeacon: this.scanbeacon,
+        audio: this.audio,
       };
       updateProjectConfig(
         data,

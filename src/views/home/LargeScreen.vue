@@ -1919,6 +1919,24 @@ export default {
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
+            {
+              type: 1,
+              typestr: this.$t("warning.LowBatteryAlarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: this.$t("warning.HeartbeatAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: this.$t("warning.TemperatureAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
           ];
           if (res.data.warnNumList && res.data.warnNumList.length > 0) {
             that.alarmData.forEach((item) => {

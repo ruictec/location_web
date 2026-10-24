@@ -92,12 +92,18 @@
     function refreshRem() {
         // PC 管理端按视口宽度等比缩放：html font-size = 宽度 / 10
         // 1920 宽时 1rem = 192px，与 postcss-pxtorem rootValue 对齐
+        // 上限 3840：4K 显示器可继续放大，避免停在 2560 后界面偏小
+        // Element Plus 样式已由 pxtorem 转为 rem，只改根字号即可同步放大，
+        // 不要再用 JS 写入放大后的 px 变量，否则会与 rem 规则叠加错乱。
         var width = docEl.getBoundingClientRect().width;
         if (width < 1024) width = 1024;
-        if (width > 2560) width = 2560;
+        if (width > 3840) width = 3840;
         var rem = width / 10;
         docEl.style.fontSize = rem + 'px';
         flexible.rem = win.rem = rem;
+        // 供表格列宽/弹框等固定 px 与 rem 同步（见 src/utils/uiScale.js）
+        flexible.scale = win.__UI_SCALE__ = rem / 192;
+        docEl.style.setProperty('--ui-scale', String(flexible.scale));
     }
  
     win.addEventListener('resize', function() {
@@ -114,11 +120,10 @@
     if (doc.readyState === 'complete') {
         doc.body.style.fontSize = 12 * dpr + 'px';
     } else {
-        doc.addEventListener('DOMContentLoaded', function(e) {
+        doc.addEventListener('DOMContentLoaded', function() {
             doc.body.style.fontSize = 12 * dpr + 'px';
         }, false);
     }
- 
  
     refreshRem();
  

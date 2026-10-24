@@ -138,7 +138,7 @@
                 fixed="right"
                 :label="$t('warning.operate')"
                 align="center"
-                min-width="100"
+                min-width="120"
               >
                 <template #default="scope">
                   <el-tooltip
@@ -150,7 +150,7 @@
                     <el-button
                       type="primary"
                       size="small"
-                      class="editss"
+                      class="editss icon_button"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -164,7 +164,7 @@
                     <el-button
                       type="danger"
                       size="small"
-                      class="edits"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -606,6 +606,18 @@ export default {
         {
           index: 9,
           value: this.$t("warning.DoorOpenalarm"),
+        },
+        {
+          index: 10,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 11,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 12,
+          value: this.$t("warning.TemperatureAbnormal"),
         },
       ],
       //   告警时间
