@@ -1795,6 +1795,7 @@ const zh = {
         nonNegativeInteger: '请输入大于等于0的整数',
         people: '人',
         minutes: '分钟',
+        unitPeople: '人',
         unitBpm: '次/分',
         unitCelsius: '°C',
         unitPercent: '%',

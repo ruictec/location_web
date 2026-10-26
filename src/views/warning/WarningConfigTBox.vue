@@ -111,6 +111,9 @@
                 show-overflow-tooltip
                 align="center"
               >
+                <template #default="scope">
+                  {{ formatWarnum(scope.row) }}
+                </template>
               </el-table-column>
               <el-table-column
                 property="memo"
@@ -214,9 +217,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.vehicletype1')">
+              <el-form-item
+                :label="$t('warning.vehicletype1')"
+                prop="worktypesSelect"
+                :required="isWorktypeRequired(addData.type)"
+              >
                 <el-select
-                  v-model="addWorktypes"
+                  v-model="addData.worktypesSelect"
                   multiple
                   :placeholder="$t('warning.text8')"
                 >
@@ -376,9 +383,13 @@
               >
                 <span>{{ formatMeth(editData.meth) }}</span>
               </el-form-item>
-              <el-form-item :label="$t('warning.vehicletype1')">
+              <el-form-item
+                :label="$t('warning.vehicletype1')"
+                prop="worktypesSelect"
+                :required="isWorktypeRequired(editData.type)"
+              >
                 <el-select
-                  v-model="editWorktypes"
+                  v-model="editData.worktypesSelect"
                   multiple
                   :placeholder="$t('warning.text8')"
                 >
@@ -611,6 +622,7 @@ export default {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
         begintime: "",
         endtime: "",
@@ -623,7 +635,6 @@ export default {
         postype: "",
       },
 
-      addWorktypes: "", //添加角色集合
       addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
@@ -646,6 +657,23 @@ export default {
             trigger: "change",
           },
         ],
+        worktypesSelect: [
+          {
+            validator: (rule, value, callback) => {
+              const type = this.edit ? this.editData.type : this.addData.type;
+              if (!this.isWorktypeRequired(type)) {
+                callback();
+                return;
+              }
+              if (!value || !value.length) {
+                callback(new Error(this.$t("beacon.Pvehicletype")));
+                return;
+              }
+              callback();
+            },
+            trigger: "change",
+          },
+        ],
         warnum: [
           {
             required: true,
@@ -664,13 +692,13 @@ export default {
         ],
       },
       edit: false,
-      editWorktypes: "", //编辑角色集合
       editTranches: [], //编辑区域集合
       editTranche: "", //编辑区域集合,用来拼接
       editData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
         begintime: "",
         endtime: "",
@@ -738,6 +766,16 @@ export default {
     },
   },
   methods: {
+    buildWarningPayload(formData) {
+      const data = Object.assign({}, formData);
+      data.worktypes = (formData.worktypesSelect || []).join(",");
+      delete data.worktypesSelect;
+      return data;
+    },
+    // 选了告警类型后车辆种类必填
+    isWorktypeRequired(type) {
+      return !(type === "" || type === null || type === undefined);
+    },
     // 越界(4)隐藏门限并显示触发方式；开门告警(5)隐藏门限且不显示触发方式
     changeType(val) {
       if (val == 4 || val == 5) {
@@ -750,6 +788,11 @@ export default {
         this.addData.meth = "";
       }
       this.typeval = val;
+      this.$nextTick(() => {
+        if (this.$refs.addData) {
+          this.$refs.addData.validateField("worktypesSelect");
+        }
+      });
     },
     // 处理区域选择变化
     handleTrancheChange(values, target) {
@@ -803,6 +846,26 @@ export default {
         }
       }
       return typeName || "-";
+    },
+    // 英文：数值与单位之间加空格；中文：紧挨单位
+    formatValueWithUnit(value, unitKey) {
+      const unit = String(this.$t(unitKey) || "").trim();
+      if (!unit) return String(value);
+      const lang = this.i8n || this.$store.state.i18n;
+      return lang === "en" ? `${value} ${unit}` : `${value}${unit}`;
+    },
+    // 聚集显示「人」；越界/开门无门限；其余显示「分钟」
+    formatWarnum(row) {
+      if (row.warnum === "" || row.warnum === null || row.warnum === undefined) {
+        return "-";
+      }
+      if (row.type == 4 || row.type == 5) {
+        return "-";
+      }
+      if (row.type == 2) {
+        return this.formatValueWithUnit(row.warnum, "warning.unitPeople");
+      }
+      return this.formatValueWithUnit(row.warnum, "warning.minutes");
     },
     handleAddTrancheChange(val) {
       this.handleTrancheChange(val, "addTranches");
@@ -960,12 +1023,12 @@ export default {
     addWarning() {
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.addWorktypes = "";
       this.addTranches = [];
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
         begintime: "",
         endtime: "",
@@ -979,6 +1042,9 @@ export default {
       };
       this.add = true;
       this.showWarnum = true;
+      this.$nextTick(() => {
+        if (this.$refs.addData) this.$refs.addData.clearValidate();
+      });
     },
     addCancel(addData) {
       this.add = false;
@@ -989,13 +1055,6 @@ export default {
       this.$refs.addData.validate((valid) => {
         if (valid) {
           var that = this;
-          if (that.addWorktypes.length == 0) {
-            that.$message({
-              message: this.$t("beacon.Pvehicletype"),
-              type: "warning",
-            });
-            return;
-          }
           if (that.addTranches.length == 0) {
             that.$message({
               message: this.$t("beacon.Pleasearea"),
@@ -1031,22 +1090,16 @@ export default {
             });
             return;
           }
-          for (let i = 0; i < that.addWorktypes.length; i++) {
-            that.addData.worktypes += that.addWorktypes[i] + ",";
-          }
-          that.addData.worktypes = that.addData.worktypes.slice(
-            0,
-            that.addData.worktypes.length - 1
-          );
-          if (that.addData.worktypes.length > 320) {
+          const payload = that.buildWarningPayload(that.addData);
+          if (payload.worktypes.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
             });
             return;
           }
-          that.addData.tranches = that.addTranches.join(",");
-          if (that.addData.tranches.length > 320) {
+          payload.tranches = that.addTranches.join(",");
+          if (payload.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
@@ -1055,7 +1108,7 @@ export default {
           }
           that.loading = true;
           addWarningConfig(
-            that.addData,
+            payload,
             that.tenantkey_A,
             that.tenantid_A,
             that.userName
@@ -1089,14 +1142,13 @@ export default {
       var that = this;
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.editWorktypes = "";
       this.editTranches = [];
       this.editData.worktypes = "";
-      this.editData.tranches = "";
-      this.editWorktypes = (this.tableData[index].worktypes || "")
+      this.editData.worktypesSelect = (this.tableData[index].worktypes || "")
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
+      this.editData.tranches = "";
       const trancheIds = (this.tableData[index].tranches || "")
         .split(",")
         .map((s) => s.trim())
@@ -1125,6 +1177,7 @@ export default {
           trancheIds.includes(String(item.id))
         );
         this.editTranches = selectedItems.map((item) => item.id);
+        if (this.$refs.editData) this.$refs.editData.clearValidate();
       });
       
       this.edit = true;
@@ -1136,74 +1189,62 @@ export default {
     },
     editTrue(editData) {
       var that = this;
-      if (that.editWorktypes.length == 0) {
-        that.$message({
-          message: this.$t("beacon.Pvehicletype"),
-          type: "warning",
-        });
-        return;
-      }
-      if (that.editTranches.length == 0) {
-        that.$message({
-          message: this.$t("beacon.Pleasearea"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.begintime == "" || this.editData.begintime == null) {
-        that.$message({
-          message: this.$t("beacon.Pleasestarttime"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.endtime == "" || this.editData.endtime == null) {
-        that.$message({
-          message: this.$t("beacon.Pleaseendtime"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.endtime == this.editData.begintime) {
-        that.$message({
-          message: this.$t("beacon.Startendtime"),
-          type: "warning",
-        });
-        return;
-      }
-      for (let i = 0; i < that.editWorktypes.length; i++) {
-        that.editData.worktypes += that.editWorktypes[i] + ",";
-      }
-      that.editData.worktypes = that.editData.worktypes.slice(
-        0,
-        that.editData.worktypes.length - 1
-      );
-
-      // 直接使用选中的id数组
-      that.editData.tranches = that.editTranches.join(",");
-      updateWarningConfig(
-        that.editData,
-        that.tenantkey_A,
-        that.tenantid_A,
-        that.userName
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.edit = false;
-          that.getWarningLists();
+      this.$refs.editData.validate((valid) => {
+        if (!valid) return;
+        if (that.editTranches.length == 0) {
           that.$message({
-            message: that.$t("beacon.editsuccess"),
-            type: "success",
+            message: this.$t("beacon.Pleasearea"),
+            type: "warning",
           });
-          that.loading = false;
-          that.$refs.editData.resetFields();
-        } else {
-          that.edit = false;
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-            type: "error",
-          });
-          that.loading = false;
+          return;
         }
+        if (this.editData.begintime == "" || this.editData.begintime == null) {
+          that.$message({
+            message: this.$t("beacon.Pleasestarttime"),
+            type: "warning",
+          });
+          return;
+        }
+        if (this.editData.endtime == "" || this.editData.endtime == null) {
+          that.$message({
+            message: this.$t("beacon.Pleaseendtime"),
+            type: "warning",
+          });
+          return;
+        }
+        if (this.editData.endtime == this.editData.begintime) {
+          that.$message({
+            message: this.$t("beacon.Startendtime"),
+            type: "warning",
+          });
+          return;
+        }
+        const payload = that.buildWarningPayload(that.editData);
+        payload.tranches = that.editTranches.join(",");
+        updateWarningConfig(
+          payload,
+          that.tenantkey_A,
+          that.tenantid_A,
+          that.userName
+        ).then((res) => {
+          if (res.code == 1001) {
+            that.edit = false;
+            that.getWarningLists();
+            that.$message({
+              message: that.$t("beacon.editsuccess"),
+              type: "success",
+            });
+            that.loading = false;
+            that.$refs.editData.resetFields();
+          } else {
+            that.edit = false;
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+            that.loading = false;
+          }
+        });
       });
     },
     // 显示区域详情
