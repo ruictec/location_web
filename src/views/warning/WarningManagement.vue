@@ -148,6 +148,7 @@
                 :label="$t('warning.DeviceNo1')"
                 show-overflow-tooltip
                 align="center"
+                :formatter="formatDeveui"
               >
               </el-table-column>
               <el-table-column
@@ -288,6 +289,7 @@
                 property="deveui"
                 :label="$t('warning.DeviceNo1')"
                 show-overflow-tooltip
+                :formatter="formatDeveui"
               >
               </el-table-column>
               <el-table-column
@@ -658,6 +660,37 @@ export default {
       let date = new Date(parseInt(row.statustime) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
+    },
+    // 聚集告警：新数据 deveui 为门限级别（1/2/3…），旧数据可能是区域名称
+    isGatherType(type) {
+      return Number(type) === 2;
+    },
+    isGatherLevelValue(deveui) {
+      return /^[1-9]\d*$/.test(String(deveui == null ? "" : deveui).trim());
+    },
+    // 聚集级别：中文用一/二/三，英文用罗马数字Ⅰ/Ⅱ/Ⅲ
+    formatGatherLevelLabel(level) {
+      const n = Number(level);
+      if (!(n >= 1 && n <= 10)) return String(level);
+      const lang = this.i8n || this.$store.state.i18n;
+      if (lang === "en") {
+        return ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"][n];
+      }
+      return ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n];
+    },
+    formatDeveui(row) {
+      if (this.isGatherType(row.type)) {
+        const level = String(row.deveui == null ? "" : row.deveui).trim();
+        if (!level) return "-";
+        // 仅纯数字级别显示「N级聚集告警」；旧数据区域名原样展示
+        if (this.isGatherLevelValue(level)) {
+          return this.$t("warning.gatherLevelAlarm", {
+            n: this.formatGatherLevelLabel(level),
+          });
+        }
+        return level;
+      }
+      return row.deveui || "-";
     },
     // 低电 / 心率异常 / 体温异常：类型后附带 memo 实测值
     formatAlertType(row) {
@@ -1175,111 +1208,101 @@ export default {
         return;
       }
 
-      if (row.type == 2) {
-        that.$router.push({
-          path: "/location/indoor/locationindoor",
-          query: {
-            buildid: row.buildid,
-            ground: row.ground,
-          },
-        });
-      } else {
-        let data = row;
-        that.$store.commit("changesosData", data);
+      let data = row;
+      that.$store.commit("changesosData", data);
 
-        //室内
-        if (data.postype == 1) {
-          if (row.status == 1) {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else if (row.devtype == 3) {
-              //资产告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  assetDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  deveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            }
+      //室内
+      if (data.postype == 1) {
+        if (row.status == 1) {
+          if (row.devtype == 4) {
+            //车辆告警
+            that.$router.push({
+              path: "/location/indoor/locationindoor",
+              query: {
+                tboxDeveui: data.deveui,
+                sostype: true,
+                warning: true,
+              },
+            });
+          } else if (row.devtype == 3) {
+            //资产告警
+            that.$router.push({
+              path: "/location/indoor/locationindoor",
+              query: {
+                assetDeveui: data.deveui,
+                sostype: true,
+                warning: true,
+              },
+            });
           } else {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: { deveui: data.deveui, warning: true },
-              });
-            }
+            //人告警
+            that.$router.push({
+              path: "/location/indoor/locationindoor",
+              query: {
+                deveui: data.deveui,
+                sostype: true,
+                warning: true,
+              },
+            });
           }
-        } else if (data.postype == 2) {
-          //室外
-          if (row.status == 1) {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  deveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            }
+        } else {
+          if (row.devtype == 4) {
+            //车辆告警
+            that.$router.push({
+              path: "/location/indoor/locationindoor",
+              query: {
+                tboxDeveui: data.deveui,
+                warning: true,
+              },
+            });
           } else {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: { deveui: data.deveui, warning: true },
-              });
-            }
+            //人告警
+            that.$router.push({
+              path: "/location/indoor/locationindoor",
+              query: { deveui: data.deveui, warning: true },
+            });
+          }
+        }
+      } else if (data.postype == 2) {
+        //室外
+        if (row.status == 1) {
+          if (row.devtype == 4) {
+            //车辆告警
+            that.$router.push({
+              path: "/location/outdoor/locationoutdoor",
+              query: {
+                tboxDeveui: data.deveui,
+                sostype: true,
+                warning: true,
+              },
+            });
+          } else {
+            //人告警
+            that.$router.push({
+              path: "/location/outdoor/locationoutdoor",
+              query: {
+                deveui: data.deveui,
+                sostype: true,
+                warning: true,
+              },
+            });
+          }
+        } else {
+          if (row.devtype == 4) {
+            //车辆告警
+            that.$router.push({
+              path: "/location/outdoor/locationoutdoor",
+              query: {
+                tboxDeveui: data.deveui,
+                warning: true,
+              },
+            });
+          } else {
+            //人告警
+            that.$router.push({
+              path: "/location/outdoor/locationoutdoor",
+              query: { deveui: data.deveui, warning: true },
+            });
           }
         }
       }
@@ -1357,10 +1380,6 @@ export default {
       Object.assign(
         this.$data.statusList,
         this.$options.data.call(this).statusList
-      );
-      Object.assign(
-        this.$data.statusList1,
-        this.$options.data.call(this).statusList1
       );
       Object.assign(
         this.$data.typeList,

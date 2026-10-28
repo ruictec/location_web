@@ -1137,7 +1137,7 @@ export default {
         },
       });
     },
-    // 跳转定位管理-历史轨迹页（与室外定位 goHis 一致：带上筛选中已选人员/车辆）
+    // 跳转定位管理-历史轨迹页：带上筛选中已选人员/资产/车辆
     goHis() {
       const query = {};
       if (this.perDeveui) {
@@ -1149,6 +1149,16 @@ export default {
         query.perDeveui = this.perDeveui;
         if (item && item.username) {
           query.username = item.username;
+        }
+      } else if (this.assetDeveui) {
+        const item =
+          (this.assetOptions || []).find(
+            (i) => i.beaconid === this.assetDeveui
+          ) ||
+          (this.assetList || []).find((i) => i.beaconid === this.assetDeveui);
+        query.assetDeveui = this.assetDeveui;
+        if (item && item.name) {
+          query.username = item.name;
         }
       } else if (this.tboxDeveui) {
         const item =

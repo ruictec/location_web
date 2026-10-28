@@ -1313,15 +1313,35 @@ export default {
       let warningContent;
       let sosAs = JSON.stringify(sosA);
       let sosAss = this.htmlspecialchars(sosAs);
+      // 聚集告警 deveui 存的是门限级别，内容区展示区域名
+      let warningContentValue = sosA.deveui;
       switch (sosA.type) {
         case 1:
           warningTitle = this.$t("warning.SOSalarm");
           warningContent = this.$t("terminal.deveui");
           break;
-        case 2:
-          warningTitle = this.$t("warning.Aggregatealarm");
+        case 2: {
+          const level = String(sosA.deveui == null ? "" : sosA.deveui).trim();
+          // 新数据 deveui 为 1/2/3…；旧数据可能是区域名，不加「级」
+          const isLevel = /^[1-9]\d*$/.test(level);
+          const n = Number(level);
+          let levelLabel = level;
+          if (isLevel && n >= 1 && n <= 10) {
+            const lang = this.$store.state.i18n;
+            levelLabel =
+              lang === "en"
+                ? ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"][n]
+                : ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n];
+          }
+          warningTitle = isLevel
+            ? this.$t("warning.gatherLevelAlarm", { n: levelLabel })
+            : this.$t("warning.Aggregatealarm");
           warningContent = this.$t("warning.area1");
+          warningContentValue = isLevel
+            ? sosA.tranche || ""
+            : level || sosA.tranche || "";
           break;
+        }
         case 3:
           warningTitle = this.$t("warning.Passingalarm");
           warningContent = this.$t("terminal.deveui");
@@ -1397,7 +1417,7 @@ export default {
           </p><p>${this.$t("warning.time")}
           ${sosA.time}
           </p><p>${warningContent}
-           ${sosA.deveui}
+           ${warningContentValue}
           </p></div><br/>
           <div class="sosfooter">
           ${
@@ -1953,6 +1973,11 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+html {
+  /* 预留滚动条槽位，避免弹框锁滚动时右上角图标左右跳动 */
+  scrollbar-gutter: stable;
 }
 
 body {

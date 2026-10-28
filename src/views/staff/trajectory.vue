@@ -364,6 +364,14 @@ export default {
       }
     },
 
+    /** 右上角展示名：优先 username，为空则用 deveui */
+    resolveTrackDisplayName(item) {
+      if (!item) return "";
+      const name = item.username == null ? "" : String(item.username).trim();
+      if (name) return name;
+      const deveui = item.deveui == null ? "" : String(item.deveui).trim();
+      return deveui;
+    },
     search(arr, begintime, endtime, devtype) {
       this.mapSwitching = false;
       if (this.nextMapTimer) {
@@ -382,7 +390,7 @@ export default {
       var that = this;
       this.groundLength = 0;
       this.actionTableDataArr = arr;
-      that.trajectoryUserame = arr[0][0].username;
+      that.trajectoryUserame = that.resolveTrackDisplayName(arr[0][0]);
       this.devType = devtype;
 
       if (devtype == 1) {

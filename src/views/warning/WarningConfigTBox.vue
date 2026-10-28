@@ -235,9 +235,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(addData.type)"
+              >
                 <el-select
-                  v-model="addTranches"
+                  v-model="addData.tranchesSelect"
                   multiple
                   clearable
                   :placeholder="$t('warning.text6')"
@@ -283,7 +287,64 @@
               <el-form-item
                 :label="$t('warning.threshold1')"
                 prop="warnum"
-                v-if="showWarnum"
+                class="gather-warnum-item"
+                v-if="showWarnum && isGatherType(addData.type)"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in addWarnumList"
+                    :key="'add-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="addWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="addWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('add')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('add', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === addWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('add')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                        <template #content><div>
+                          <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ $t("warning.title2Gather") }}</p>
+                        </div></template>
+                        <i class="el-icon-question gather-warnum-help" />
+                      </el-tooltip>
+                      <span
+                        v-else
+                        class="gather-warnum-help-placeholder"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                v-else-if="showWarnum"
               >
                 <el-input
                   v-model="addData.warnum"
@@ -302,7 +363,7 @@
                   "
                 >
                   <template #content><div>
-                    <p>
+                    <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">
                       {{ $t("warning.title2") }}
                     </p>
                   </div></template>
@@ -401,9 +462,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(editData.type)"
+              >
                 <el-select
-                  v-model="editTranches"
+                  v-model="editData.tranchesSelect"
                   multiple
                   clearable
                   :placeholder="$t('warning.text6')"
@@ -449,7 +514,64 @@
               <el-form-item
                 :label="$t('warning.threshold1')"
                 prop="warnum"
-                v-if="showWarnum"
+                class="gather-warnum-item"
+                v-if="showWarnum && isGatherType(editData.type)"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in editWarnumList"
+                    :key="'edit-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="editWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="editWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('edit')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('edit', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === editWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('edit')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                        <template #content><div>
+                          <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ $t("warning.title2Gather") }}</p>
+                        </div></template>
+                        <i class="el-icon-question gather-warnum-help" />
+                      </el-tooltip>
+                      <span
+                        v-else
+                        class="gather-warnum-help-placeholder"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                v-else-if="showWarnum"
               >
                 <el-input
                   v-model="editData.warnum"
@@ -618,12 +740,15 @@ export default {
       pageCount: 20,
       add: false,
       showWarnum: true,
+      addWarnumList: [""],
+      editWarnumList: [""],
       addData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -635,7 +760,6 @@ export default {
         postype: "",
       },
 
-      addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
       posTypeVal: "",
@@ -674,6 +798,23 @@ export default {
             trigger: "change",
           },
         ],
+        tranchesSelect: [
+          {
+            validator: (rule, value, callback) => {
+              const type = this.edit ? this.editData.type : this.addData.type;
+              if (!this.isAreaRequired(type)) {
+                callback();
+                return;
+              }
+              if (!value || !value.length) {
+                callback(new Error(this.$t("beacon.Pleasearea")));
+                return;
+              }
+              callback();
+            },
+            trigger: "change",
+          },
+        ],
         warnum: [
           {
             required: true,
@@ -692,14 +833,13 @@ export default {
         ],
       },
       edit: false,
-      editTranches: [], //编辑区域集合
-      editTranche: "", //编辑区域集合,用来拼接
       editData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -766,15 +906,93 @@ export default {
     },
   },
   methods: {
+    isGatherType(type) {
+      return Number(type) === 2;
+    },
+    parseWarnumToList(warnum) {
+      if (warnum === "" || warnum === null || warnum === undefined) {
+        return [""];
+      }
+      const parts = String(warnum)
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+      return parts.length ? parts : [""];
+    },
+    syncGatherWarnum(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      const joined = (list || [])
+        .map((s) => String(s == null ? "" : s).trim())
+        .filter((s) => s !== "")
+        .join(",");
+      if (mode === "edit") {
+        this.editData.warnum = joined;
+      } else {
+        this.addData.warnum = joined;
+      }
+    },
+    addGatherWarnumLevel(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      list.push("");
+      this.syncGatherWarnum(mode);
+    },
+    removeGatherWarnumLevel(mode, index) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      if (list.length <= 1) return;
+      list.splice(index, 1);
+      this.syncGatherWarnum(mode);
+    },
+    updateGatherWarnumRules(type) {
+      if (this.isGatherType(type)) {
+        this.addRules.warnum = [
+          {
+            validator: (rule, value, callback) => {
+              const list = this.edit ? this.editWarnumList : this.addWarnumList;
+              const parts = (list || []).map((s) =>
+                String(s == null ? "" : s).trim()
+              );
+              if (!parts.length || parts.some((p) => !/^[1-9]\d*$/.test(p))) {
+                callback(new Error(this.$t("warning.positiveinteger")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ];
+      } else {
+        this.addRules.warnum = [
+          {
+            required: true,
+            pattern: /^[1-9]\d*$/,
+            message: this.$t("warning.positiveinteger"),
+            trigger: "blur",
+          },
+        ];
+      }
+    },
     buildWarningPayload(formData) {
       const data = Object.assign({}, formData);
       data.worktypes = (formData.worktypesSelect || []).join(",");
+      data.tranches = (formData.tranchesSelect || []).join(",");
       delete data.worktypesSelect;
+      delete data.tranchesSelect;
+      if (this.isGatherType(data.type)) {
+        data.warnum = String(data.warnum || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "")
+          .join(",");
+      }
       return data;
     },
     // 选了告警类型后车辆种类必填
     isWorktypeRequired(type) {
       return !(type === "" || type === null || type === undefined);
+    },
+    // 区域必填规则与车辆种类一致
+    isAreaRequired(type) {
+      return this.isWorktypeRequired(type);
     },
     // 越界(4)隐藏门限并显示触发方式；开门告警(5)隐藏门限且不显示触发方式
     changeType(val) {
@@ -787,43 +1005,51 @@ export default {
       if (val != 4) {
         this.addData.meth = "";
       }
+      if (this.isGatherType(val)) {
+        this.addWarnumList = this.parseWarnumToList(this.addData.warnum);
+        this.syncGatherWarnum("add");
+      } else {
+        this.addWarnumList = [""];
+      }
+      this.updateGatherWarnumRules(val);
       this.typeval = val;
       this.$nextTick(() => {
         if (this.$refs.addData) {
-          this.$refs.addData.validateField("worktypesSelect");
+          this.$refs.addData.clearValidate("warnum");
+          this.$refs.addData.clearValidate("worktypesSelect");
+          this.$refs.addData.clearValidate("tranchesSelect");
+          if (this.isWorktypeRequired(val)) {
+            this.$refs.addData.validateField("worktypesSelect");
+          }
+          if (this.isAreaRequired(val)) {
+            this.$refs.addData.validateField("tranchesSelect");
+          }
         }
       });
     },
     // 处理区域选择变化
-    handleTrancheChange(values, target) {
+    handleTrancheChange(values, mode) {
       const SELECT_ALL = "__TRANCHE_ALL__";
       const SELECT_CLEAR = "__TRANCHE_CLEAR__";
+      const formData = mode === "edit" ? this.editData : this.addData;
       let ids = values || [];
       if (ids.includes(SELECT_CLEAR)) {
         ids = [];
-        this[target] = ids;
+        formData.tranchesSelect = ids;
       } else if (ids.includes(SELECT_ALL)) {
         ids = (this.trancheLists || []).map((item) => item.id);
-        this[target] = ids;
+        formData.tranchesSelect = ids;
       }
       const selected = this.trancheLists.filter((item) => ids.includes(item.id));
       const hasOutdoor = selected.some((item) => item.groundid === 0);
       const hasIndoor = selected.some((item) => item.groundid !== 0);
       // 室内外可同时选择；有室外时 postype 优先记为室外
       if (hasOutdoor) {
-        this.setPostypeBySelection(target, true);
+        formData.postype = 2;
       } else if (hasIndoor) {
-        this.setPostypeBySelection(target, false);
+        formData.postype = 1;
       } else {
-        this.setPostypeBySelection(target, null);
-      }
-    },
-    setPostypeBySelection(target, isOutdoor) {
-      const value = isOutdoor === null ? "" : isOutdoor ? 2 : 1;
-      if (target === "addTranches") {
-        this.addData.postype = value;
-      } else {
-        this.editData.postype = value;
+        formData.postype = "";
       }
     },
     formatMeth(meth) {
@@ -863,15 +1089,22 @@ export default {
         return "-";
       }
       if (row.type == 2) {
-        return this.formatValueWithUnit(row.warnum, "warning.unitPeople");
+        const parts = String(row.warnum)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "");
+        if (!parts.length) return "-";
+        return parts
+          .map((p) => this.formatValueWithUnit(p, "warning.unitPeople"))
+          .join(",");
       }
       return this.formatValueWithUnit(row.warnum, "warning.minutes");
     },
     handleAddTrancheChange(val) {
-      this.handleTrancheChange(val, "addTranches");
+      this.handleTrancheChange(val, "add");
     },
     handleEditTrancheChange(val) {
-      this.handleTrancheChange(val, "editTranches");
+      this.handleTrancheChange(val, "edit");
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -1023,13 +1256,14 @@ export default {
     addWarning() {
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.addTranches = [];
+      this.addWarnumList = [""];
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -1042,6 +1276,7 @@ export default {
       };
       this.add = true;
       this.showWarnum = true;
+      this.updateGatherWarnumRules("");
       this.$nextTick(() => {
         if (this.$refs.addData) this.$refs.addData.clearValidate();
       });
@@ -1049,20 +1284,20 @@ export default {
     addCancel(addData) {
       this.add = false;
       this.loading = false;
+      this.addWarnumList = [""];
       this.$refs.addData.resetFields();
     },
     addTrue(addData) {
+      if (this.isGatherType(this.addData.type)) {
+        this.syncGatherWarnum("add");
+      }
       this.$refs.addData.validate((valid) => {
         if (valid) {
           var that = this;
-          if (that.addTranches.length == 0) {
-            that.$message({
-              message: this.$t("beacon.Pleasearea"),
-              type: "warning",
-            });
-            return;
-          }
-          if (!that.addData.postype) {
+          if (
+            that.isAreaRequired(that.addData.type) &&
+            !that.addData.postype
+          ) {
             that.$message({
               message: this.$t("project.Locationtype"),
               type: "warning",
@@ -1098,7 +1333,6 @@ export default {
             });
             return;
           }
-          payload.tranches = that.addTranches.join(",");
           if (payload.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
@@ -1142,7 +1376,6 @@ export default {
       var that = this;
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.editTranches = [];
       this.editData.worktypes = "";
       this.editData.worktypesSelect = (this.tableData[index].worktypes || "")
         .split(",")
@@ -1166,6 +1399,13 @@ export default {
       this.editData.endtime = this.tableData[index].endtime;
       this.editData.begintime = this.tableData[index].begintime;
       this.editData.warnum = this.tableData[index].warnum;
+      this.editWarnumList = this.isGatherType(this.editData.type)
+        ? this.parseWarnumToList(this.editData.warnum)
+        : [""];
+      this.updateGatherWarnumRules(this.editData.type);
+      if (this.isGatherType(this.editData.type)) {
+        this.syncGatherWarnum("edit");
+      }
       this.editData.memo = this.tableData[index].memo;
       this.editData.principal = this.tableData[index].principal || "";
       this.editData.tel = this.tableData[index].tel || "";
@@ -1176,7 +1416,7 @@ export default {
         const selectedItems = this.trancheLists.filter((item) => 
           trancheIds.includes(String(item.id))
         );
-        this.editTranches = selectedItems.map((item) => item.id);
+        this.editData.tranchesSelect = selectedItems.map((item) => item.id);
         if (this.$refs.editData) this.$refs.editData.clearValidate();
       });
       
@@ -1185,15 +1425,22 @@ export default {
     editCancel(editData) {
       this.edit = false;
       this.loading = false;
+      this.editWarnumList = [""];
       this.$refs.editData.resetFields();
     },
     editTrue(editData) {
       var that = this;
+      if (that.isGatherType(that.editData.type)) {
+        that.syncGatherWarnum("edit");
+      }
       this.$refs.editData.validate((valid) => {
         if (!valid) return;
-        if (that.editTranches.length == 0) {
+        if (
+          that.isAreaRequired(that.editData.type) &&
+          !that.editData.postype
+        ) {
           that.$message({
-            message: this.$t("beacon.Pleasearea"),
+            message: this.$t("project.Locationtype"),
             type: "warning",
           });
           return;
@@ -1220,7 +1467,6 @@ export default {
           return;
         }
         const payload = that.buildWarningPayload(that.editData);
-        payload.tranches = that.editTranches.join(",");
         updateWarningConfig(
           payload,
           that.tenantkey_A,
@@ -1376,6 +1622,72 @@ export default {
 </script>
 
 <style scoped>
+.gather-warnum-item :deep(.el-form-item__content) {
+  width: 100%;
+}
+.gather-warnum-list {
+  width: 100%;
+}
+.gather-warnum-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.gather-warnum-row:last-child {
+  margin-bottom: 0;
+}
+.gather-warnum-level {
+  flex: 0 0 64px;
+  width: 64px;
+  color: #606266;
+  font-size: 13px;
+  line-height: 32px;
+  white-space: nowrap;
+  text-align: right;
+}
+.gather-warnum-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+.gather-warnum-row :deep(.gather-warnum-input),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__wrapper),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__inner) {
+  width: 100% !important;
+}
+.gather-warnum-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+.gather-warnum-btn {
+  padding: 7px 12px !important;
+  margin: 0 !important;
+  min-width: 56px;
+}
+.gather-warnum-btn-placeholder {
+  display: inline-block;
+  width: 56px;
+  height: 1px;
+}
+.gather-warnum-help {
+  font-size: 130%;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 18px;
+  width: 18px;
+  text-align: center;
+}
+.gather-warnum-help-placeholder {
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  flex: 0 0 18px;
+}
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);

@@ -874,6 +874,8 @@ export default {
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
+        // 避免锁滚动条导致右上角图标位置跳动
+        lockScroll: false,
       })
         .then(() => {
           var that = this;
@@ -1217,14 +1219,47 @@ export default {
     line-height: 50px;
     display: flex;
     align-items: center;
+    gap: 0;
     overflow: visible;
     &:focus {
       outline: none;
     }
-    .right-menu-item {
-      display: inline-block;
-      padding: 0 8px;
+    /* 所有快捷图标统一槽位，避免下拉/提示包装层把间距撑开 */
+    > .golink,
+    > .right-menu-item,
+    > .perDropdown,
+    > .itemMessage {
+      flex: 0 0 36px;
+      width: 36px;
+      min-width: 36px;
+      max-width: 36px;
       height: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    > .itemMessage :deep(.perDropdown),
+    > .itemMessage :deep(.el-dropdown),
+    > .perDropdown :deep(.el-dropdown),
+    > .perDropdown.el-dropdown {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    > .warning_button {
+      flex: 0 0 auto;
+      margin-left: 6px !important;
+    }
+    .right-menu-item {
       font-size: 18px;
       color: #5a5e66;
       vertical-align: text-bottom;
@@ -1283,7 +1318,7 @@ export default {
   display: none;
 }
 .el-dropdown-link1 {
-  margin-left: 10px;
+  margin-left: 0;
   position: relative;
   overflow: visible !important;
 }
@@ -1343,11 +1378,14 @@ export default {
   display: flex;
 }
 .perDropdown {
-  margin-right: 0;
-  width: 30px;
+  margin: 0;
   cursor: pointer;
   height: 100%;
   overflow: visible !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 .perDropdown:hover .el-dropdown-link {
   background-color: rgb(248, 248, 248);
@@ -1355,12 +1393,8 @@ export default {
 .perDropdown .el-dropdown-link {
   // padding-bottom: 22px;
 }
-
-.el-dropdown {
-  width: 30px;
-}
 .perDropdown1 {
-  margin-left: 2%;
+  margin-left: 0;
 }
 .hover-effect {
   display: flex !important;
@@ -1370,11 +1404,13 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 .perSpan1 {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   position: relative;
   overflow: visible !important;
 }
@@ -1437,12 +1473,12 @@ export default {
   color: #409eff;
 }
 .perSpan1 {
-  margin-right: 0;
+  margin: 0;
   position: relative;
   overflow: visible !important;
 }
 .el-dropdown-link1 {
-  margin-left: 4px;
+  margin-left: 0;
   position: relative;
   overflow: visible !important;
 }
@@ -1450,12 +1486,11 @@ export default {
   color: #409eff;
 }
 .itemMessage {
-  width: 30px;
   overflow: visible !important;
 }
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   display: inline-block;
   background-color: #4c4c4d;
   mask-repeat: no-repeat !important;
@@ -1519,9 +1554,6 @@ export default {
 .golink {
   position: relative;
   overflow: visible !important;
-  display: inline-block;
-  padding: 0 8px;
-  height: 100%;
   font-size: 18px;
   color: #5a5e66;
   vertical-align: text-bottom;

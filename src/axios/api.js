@@ -3427,6 +3427,40 @@ export const getMemberNameId = (query, tenantkey_A, tenantid_A, username) => { /
     }).then(res => res)
 };
 
+export const getMemberTboxAssetName = (query, tenantkey_A, tenantid_A, username) => { //查询人员、车辆、资产的名称
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getMemberTboxAssetName" + tenantkey_A + time_A)
+    return service({
+        url: "service/getMemberTboxAssetName",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getUsedDeveui = (query, tenantkey_A, tenantid_A, username) => { //查询人员、车辆、资产已经使用的设备号
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getUsedDeveui" + tenantkey_A + time_A)
+    return service({
+        url: "service/getUsedDeveui",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
 export const getMemberStepRank = (query, tenantkey_A, tenantid_A, username) => { //按步数排名查询员工信息
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/service/getMemberStepRank" + tenantkey_A + time_A)

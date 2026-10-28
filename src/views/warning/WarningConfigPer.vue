@@ -263,15 +263,19 @@
                 >
                   <template #content><div>
                     <p>
-                      {{ $t("warning.title3") }}
+                      {{ worktypeTip(addData.type) }}
                     </p>
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(addData.type)"
+              >
                 <el-select
-                  v-model="addTranches"
+                  v-model="addData.tranchesSelect"
                   multiple
                   clearable
                   :placeholder="$t('warning.text6')"
@@ -287,9 +291,6 @@
                     :label="$t('warning.clearAllAreas')"
                     :value="'__TRANCHE_CLEAR__'"
                   ></el-option>
-                  <!-- :label="
-                      item.building + '/' + item.ground + '楼/' + item.name
-                    " -->
                   <el-option
                     v-for="item in trancheLists"
                     :key="item.id"
@@ -311,7 +312,7 @@
                 >
                   <template #content><div>
                     <p>
-                      {{ $t("warning.title4") }}
+                      {{ areaTip(addData.type) }}
                     </p>
                   </div></template>
                   <i class="el-icon-question" />
@@ -355,7 +356,68 @@
                 </el-time-picker>
               </el-form-item>
 
-              <el-form-item :label="$t('warning.threshold1')" prop="warnum">
+              <el-form-item
+                v-if="isGatherType(addData.type)"
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                class="gather-warnum-item"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in addWarnumList"
+                    :key="'add-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="addWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="addWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('add')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('add', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === addWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('add')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                    <template #content><div>
+                      <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ warnumTip(addData.type) }}</p>
+                    </div></template>
+                    <i class="el-icon-question gather-warnum-help" />
+                  </el-tooltip>
+                  <span
+                    v-else
+                    class="gather-warnum-help-placeholder"
+                  ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                v-else
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+              >
                 <el-input
                   v-model="addData.warnum"
                   :placeholder="warnumPlaceholder(addData.type)"
@@ -373,7 +435,7 @@
                   "
                 >
                   <template #content><div>
-                    <p>{{ warnumTip(addData.type) }}</p>
+                    <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ warnumTip(addData.type) }}</p>
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
@@ -473,9 +535,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(editData.type)"
+              >
                 <el-select
-                  v-model="editTranches"
+                  v-model="editData.tranchesSelect"
                   multiple
                   clearable
                   :placeholder="$t('warning.text6')"
@@ -518,7 +584,68 @@
                 </el-time-picker>
               </el-form-item>
 
-              <el-form-item :label="$t('warning.threshold1')" prop="warnum">
+              <el-form-item
+                v-if="isGatherType(editData.type)"
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                class="gather-warnum-item"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in editWarnumList"
+                    :key="'edit-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="editWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="editWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('edit')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('edit', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === editWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('edit')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                    <template #content><div>
+                      <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ warnumTip(editData.type) }}</p>
+                    </div></template>
+                    <i class="el-icon-question gather-warnum-help" />
+                  </el-tooltip>
+                  <span
+                    v-else
+                    class="gather-warnum-help-placeholder"
+                  ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                v-else
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+              >
                 <el-input
                   v-model="editData.warnum"
                   :placeholder="warnumPlaceholder(editData.type)"
@@ -536,7 +663,7 @@
                   "
                 >
                   <template #content><div>
-                    <p>{{ warnumTip(editData.type) }}</p>
+                    <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ warnumTip(editData.type) }}</p>
                   </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
@@ -690,6 +817,7 @@ export default {
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -701,7 +829,6 @@ export default {
         postype: "",
       },
 
-      addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
       trancheLists: [],
@@ -738,6 +865,23 @@ export default {
             trigger: "change",
           },
         ],
+        tranchesSelect: [
+          {
+            validator: (rule, value, callback) => {
+              const type = this.edit ? this.editData.type : this.addData.type;
+              if (!this.isAreaRequired(type)) {
+                callback();
+                return;
+              }
+              if (!value || !value.length) {
+                callback(new Error(this.$t("beacon.Pleasearea")));
+                return;
+              }
+              callback();
+            },
+            trigger: "change",
+          },
+        ],
         warnum: [
           {
             required: true,
@@ -756,14 +900,13 @@ export default {
         ],
       },
       edit: false,
-      editTranches: [], //编辑区域集合
-      editTranche: "", //编辑区域集合,用来拼接
       editData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -802,6 +945,8 @@ export default {
         },
       ],
       showWarnum: true,
+      addWarnumList: [""],
+      editWarnumList: [""],
     };
   },
   computed: {
@@ -815,36 +960,119 @@ export default {
     isDeviceMetricType(type) {
       return [6, 7, 8].includes(Number(type));
     },
-    // 滞留/聚集/异常静止/越界：角色必选
+    // 聚集告警
+    isGatherType(type) {
+      return Number(type) === 2;
+    },
+    // 滞留/聚集/异常静止/越界：角色必选；低电/心跳/体温可不选
     isWorktypeRequired(type) {
       if (type === "" || type === null || type === undefined) return false;
       return !this.isDeviceMetricType(type);
     },
+    // 区域必填规则与角色一致
+    isAreaRequired(type) {
+      return this.isWorktypeRequired(type);
+    },
+    worktypeTip(type) {
+      if (this.isDeviceMetricType(type)) return this.$t("warning.title2DeviceMetric");
+      return this.$t("warning.title3");
+    },
+    areaTip(type) {
+      if (this.isDeviceMetricType(type)) return this.$t("warning.title2DeviceMetric");
+      return this.$t("warning.title4");
+    },
+    parseWarnumToList(warnum) {
+      if (warnum === "" || warnum === null || warnum === undefined) {
+        return [""];
+      }
+      const parts = String(warnum)
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+      return parts.length ? parts : [""];
+    },
+    syncGatherWarnum(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      const joined = (list || [])
+        .map((s) => String(s == null ? "" : s).trim())
+        .filter((s) => s !== "")
+        .join(",");
+      if (mode === "edit") {
+        this.editData.warnum = joined;
+      } else {
+        this.addData.warnum = joined;
+      }
+    },
+    addGatherWarnumLevel(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      list.push("");
+      this.syncGatherWarnum(mode);
+    },
+    removeGatherWarnumLevel(mode, index) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      if (list.length <= 1) return;
+      list.splice(index, 1);
+      this.syncGatherWarnum(mode);
+    },
     buildWarningPayload(formData) {
       const data = Object.assign({}, formData);
       data.worktypes = (formData.worktypesSelect || []).join(",");
+      data.tranches = (formData.tranchesSelect || []).join(",");
       delete data.worktypesSelect;
+      delete data.tranchesSelect;
+      if (this.isGatherType(data.type)) {
+        data.warnum = String(data.warnum || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "")
+          .join(",");
+      }
+      // 低电/心跳/体温：角色与区域可不设置
+      if (this.isDeviceMetricType(data.type)) {
+        if (!data.postype) data.postype = "";
+        data.warnum = Number(data.warnum);
+      }
       return data;
     },
     warnumPlaceholder(type) {
       if (type == 4) return this.$t("warning.text7Passing");
       if (this.isDeviceMetricType(type)) return this.$t("warning.thresholdDouble");
+      if (this.isGatherType(type)) return this.$t("warning.text7Gather");
       return this.$t("warning.text7");
     },
     warnumTip(type) {
       if (type == 4) return this.$t("warning.title2AssetPassing");
       if (this.isDeviceMetricType(type)) return this.$t("warning.title2DeviceMetric");
+      if (this.isGatherType(type)) return this.$t("warning.title2Gather");
       return this.$t("warning.title2");
     },
     // 越界告警显示触发方式；门限始终可填（参考资产告警）
     changeType(val) {
       this.showWarnum = val != 4;
       this.typeval = val;
+      if (this.isGatherType(val)) {
+        this.addWarnumList = this.parseWarnumToList(this.addData.warnum);
+        this.syncGatherWarnum("add");
+      } else if (Array.isArray(this.addWarnumList) && this.addWarnumList.length) {
+        const first = String(this.addWarnumList[0] || "").trim();
+        if (first && (this.addData.warnum === "" || String(this.addData.warnum).includes(","))) {
+          this.addData.warnum = first;
+        }
+        this.addWarnumList = [""];
+      }
       this.updateWarnumRules(val);
       this.$nextTick(() => {
         if (this.$refs.addData) {
           this.$refs.addData.clearValidate("warnum");
-          this.$refs.addData.validateField("worktypesSelect");
+          this.$refs.addData.clearValidate("worktypesSelect");
+          this.$refs.addData.clearValidate("tranchesSelect");
+          // 切换类型后按新规则刷新角色/区域必填态
+          if (this.isWorktypeRequired(val)) {
+            this.$refs.addData.validateField("worktypesSelect");
+          }
+          if (this.isAreaRequired(val)) {
+            this.$refs.addData.validateField("tranchesSelect");
+          }
         }
       });
     },
@@ -865,6 +1093,21 @@ export default {
               }
               if (!/^(0|[1-9]\d*)$/.test(String(value))) {
                 callback(new Error(this.$t("warning.nonNegativeInteger")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ];
+      } else if (this.isGatherType(type)) {
+        this.addRules.warnum = [
+          {
+            validator: (rule, value, callback) => {
+              const list = this.edit ? this.editWarnumList : this.addWarnumList;
+              const parts = (list || []).map((s) => String(s == null ? "" : s).trim());
+              if (!parts.length || parts.some((p) => !/^[1-9]\d*$/.test(p))) {
+                callback(new Error(this.$t("beacon.positiveinteger")));
               } else {
                 callback();
               }
@@ -899,6 +1142,13 @@ export default {
         }
         return /^(0|[1-9]\d*)$/.test(String(value));
       }
+      if (this.isGatherType(type)) {
+        const parts = String(value || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "");
+        return parts.length > 0 && parts.every((p) => /^[1-9]\d*$/.test(p));
+      }
       if (this.isDeviceMetricType(type)) {
         return /^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(String(value));
       }
@@ -916,35 +1166,28 @@ export default {
         optionname: isOutdoor ? `${outdoorLabel}-${name}` : `${building}-${ground}-${name}`,
       };
     },
-    handleTrancheChange(values, target) {
+    handleTrancheChange(values, mode) {
       const SELECT_ALL = "__TRANCHE_ALL__";
       const SELECT_CLEAR = "__TRANCHE_CLEAR__";
+      const formData = mode === "edit" ? this.editData : this.addData;
       let ids = values || [];
       if (ids.includes(SELECT_CLEAR)) {
         ids = [];
-        this[target] = ids;
+        formData.tranchesSelect = ids;
       } else if (ids.includes(SELECT_ALL)) {
         ids = (this.trancheLists || []).map((item) => item.id);
-        this[target] = ids;
+        formData.tranchesSelect = ids;
       }
       const selected = this.trancheLists.filter((item) => ids.includes(item.id));
       const hasOutdoor = selected.some((item) => item.groundid === 0);
       const hasIndoor = selected.some((item) => item.groundid !== 0);
       // 室内外可同时选择；有室外时 postype 优先记为室外
       if (hasOutdoor) {
-        this.setPostypeBySelection(target, true);
+        formData.postype = 2;
       } else if (hasIndoor) {
-        this.setPostypeBySelection(target, false);
+        formData.postype = 1;
       } else {
-        this.setPostypeBySelection(target, null);
-      }
-    },
-    setPostypeBySelection(target, isOutdoor) {
-      const value = isOutdoor === null ? "" : isOutdoor ? 2 : 1;
-      if (target === "addTranches") {
-        this.addData.postype = value;
-      } else {
-        this.editData.postype = value;
+        formData.postype = "";
       }
     },
     formatMeth(meth) {
@@ -981,7 +1224,14 @@ export default {
         return "-";
       }
       if (row.type == 2) {
-        return this.formatValueWithUnit(row.warnum, "warning.unitPeople");
+        const parts = String(row.warnum)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "");
+        if (!parts.length) return "-";
+        return parts
+          .map((p) => this.formatValueWithUnit(p, "warning.unitPeople"))
+          .join(",");
       }
       if (this.isDeviceMetricType(row.type)) {
         if (row.type == 6) {
@@ -998,10 +1248,10 @@ export default {
       return this.formatValueWithUnit(row.warnum, "warning.minutes");
     },
     handleAddTrancheChange(val) {
-      this.handleTrancheChange(val, "addTranches");
+      this.handleTrancheChange(val, "add");
     },
     handleEditTrancheChange(val) {
-      this.handleTrancheChange(val, "editTranches");
+      this.handleTrancheChange(val, "edit");
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -1150,16 +1400,17 @@ export default {
     addWarning() {
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.addTranches = [];
       this.loading = false;
       this.showWarnum = true;
       this.updateWarnumRules("");
+      this.addWarnumList = [""];
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
         worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
@@ -1183,7 +1434,7 @@ export default {
       this.loading = false;
       this.showWarnum = true;
       this.updateWarnumRules("");
-      this.addTranches = [];
+      this.addWarnumList = [""];
       const form = this.$refs.addData;
       if (form) {
         form.clearValidate();
@@ -1191,18 +1442,17 @@ export default {
       }
     },
     addTrue(addData) {
+      if (this.isGatherType(this.addData.type)) {
+        this.syncGatherWarnum("add");
+      }
       this.$refs.addData.validate((valid) => {
         if (valid) {
           var that = this;
-          const skipRoleArea = that.isDeviceMetricType(that.addData.type);
-          if (!skipRoleArea && that.addTranches.length == 0) {
-            that.$message({
-              message: this.$t("beacon.Pleasearea"),
-              type: "warning",
-            });
-            return;
-          }
-          if (!skipRoleArea && !that.addData.postype) {
+          // 非低电/心跳/体温：选了区域后应能推导定位类型
+          if (
+            that.isAreaRequired(that.addData.type) &&
+            !that.addData.postype
+          ) {
             that.$message({
               message: this.$t("project.Locationtype"),
               type: "warning",
@@ -1239,17 +1489,12 @@ export default {
             });
             return;
           }
-          payload.tranches = (that.addTranches || []).join(",");
           if (payload.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
             });
             return;
-          }
-          if (skipRoleArea) {
-            payload.warnum = Number(payload.warnum);
-            if (!payload.postype) payload.postype = "";
           }
           that.loading = true;
           addWarningConfig(
@@ -1285,15 +1530,13 @@ export default {
       var that = this;
       this.getBranchNameList();
       await this.getFenceManageAndPointLists();
-      this.editTranches = [];
-      this.editTranche = "";
       this.editData.worktypes = "";
       this.editData.worktypesSelect = (this.tableData[index].worktypes || "")
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
       this.editData.tranches = "";
-      this.editTranche = (this.tableData[index].tranches || "")
+      const trancheIds = (this.tableData[index].tranches || "")
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
@@ -1308,15 +1551,21 @@ export default {
       this.editData.endtime = this.tableData[index].endtime;
       this.editData.begintime = this.tableData[index].begintime;
       this.editData.warnum = this.tableData[index].warnum;
+      this.editWarnumList = this.isGatherType(this.editData.type)
+        ? this.parseWarnumToList(this.editData.warnum)
+        : [""];
+      if (this.isGatherType(this.editData.type)) {
+        this.syncGatherWarnum("edit");
+      }
       this.editData.memo = this.tableData[index].memo;
       this.editData.principal = this.tableData[index].principal || "";
       this.editData.tel = this.tableData[index].tel || "";
       this.editData.id = this.tableData[index].id;
-      const selectedItems = this.trancheLists.filter((item) =>
-        this.editTranche.includes(String(item.id)) ||
-        this.editTranche.includes(item.id)
+      const selectedItems = this.trancheLists.filter(
+        (item) =>
+          trancheIds.includes(String(item.id)) || trancheIds.includes(item.id)
       );
-      this.editTranches = selectedItems.map((item) => item.id);
+      this.editData.tranchesSelect = selectedItems.map((item) => item.id);
       const hasOutdoor = selectedItems.some((item) => item.groundid === 0);
       const hasIndoor = selectedItems.some((item) => item.groundid !== 0);
       this.editData.postype = hasOutdoor ? 2 : hasIndoor ? 1 : "";
@@ -1332,7 +1581,9 @@ export default {
     },
     editTrue(editData) {
       var that = this;
-      const skipRoleArea = that.isDeviceMetricType(that.editData.type);
+      if (that.isGatherType(that.editData.type)) {
+        that.syncGatherWarnum("edit");
+      }
       if (
         that.editData.warnum === "" ||
         that.editData.warnum === null ||
@@ -1356,14 +1607,10 @@ export default {
         });
         return;
       }
-      if (!skipRoleArea && that.editTranches.length == 0) {
-        that.$message({
-          message: this.$t("beacon.Pleasearea"),
-          type: "warning",
-        });
-        return;
-      }
-      if (!skipRoleArea && !that.editData.postype) {
+      if (
+        that.isAreaRequired(that.editData.type) &&
+        !that.editData.postype
+      ) {
         that.$message({
           message: this.$t("project.Locationtype"),
           type: "warning",
@@ -1393,11 +1640,6 @@ export default {
       }
 
       const payload = that.buildWarningPayload(that.editData);
-      payload.tranches = (that.editTranches || []).join(",");
-      if (skipRoleArea) {
-        payload.warnum = Number(payload.warnum);
-        if (!payload.postype) payload.postype = "";
-      }
       updateWarningConfig(
         payload,
         that.tenantkey_A,
@@ -1683,6 +1925,73 @@ export default {
 </script>
 
 <style scoped>
+.gather-warnum-item :deep(.el-form-item__content) {
+  width: 100%;
+}
+.gather-warnum-list {
+  width: 100%;
+}
+.gather-warnum-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.gather-warnum-row:last-child {
+  margin-bottom: 0;
+}
+.gather-warnum-level {
+  flex: 0 0 64px;
+  width: 64px;
+  color: #606266;
+  font-size: 13px;
+  line-height: 32px;
+  white-space: nowrap;
+  text-align: right;
+}
+.gather-warnum-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+.gather-warnum-row :deep(.gather-warnum-input),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__wrapper),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__inner) {
+  width: 100% !important;
+}
+.gather-warnum-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+.gather-warnum-btn {
+  padding: 7px 12px !important;
+  margin: 0 !important;
+  min-width: 56px;
+}
+.gather-warnum-btn-placeholder {
+  display: inline-block;
+  width: 56px;
+  height: 1px;
+}
+.gather-warnum-help {
+  font-size: 130%;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 18px;
+  width: 18px;
+  text-align: center;
+}
+.gather-warnum-help-placeholder {
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  flex: 0 0 18px;
+}
+
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);

@@ -9,56 +9,47 @@
         :model="actionData"
       >
         <el-form-item
-          :label="$t('staff.name1')"
+          :label="$t('locationoutdoorh.name')"
           class="terminal-filter-item"
         >
           <el-select
             clearable
             filterable
-            remote
-            :remote-method="remoteUserMethod"
-            v-model="perDeveui"
+            allow-create
+            default-first-option
+            v-model="searchUsername"
             :placeholder="$t('staffmanagement.text')"
-            @change="onPersonChange"
+            @change="onNameSelectChange"
           >
             <el-option
-              v-for="item in userOptions"
-              :key="item.maplabel"
-              :label="item.username"
-              :value="item.maplabel"
+              v-for="item in nameList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             >
-              <span style="float: left">{{ item.username }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{
-                item.maplabel
-              }}</span>
             </el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item
-          :label="$t('car.Numberplate')"
+          :label="$t('terminal.deveui')"
           class="terminal-filter-item"
-          v-if="intoProjectType == 1"
         >
           <el-select
             clearable
             filterable
-            remote
-            :remote-method="remoteTBoxMethod"
-            v-model="tboxDeveui"
+            allow-create
+            default-first-option
+            v-model="searchDeveui"
             :placeholder="$t('staffmanagement.text')"
-            @change="onTboxChange"
+            @change="onDeveuiSelectChange"
           >
             <el-option
-              v-for="item in tboxOptions"
-              :key="item.maplabel"
-              :label="item.sn"
-              :value="item.maplabel"
+              v-for="item in deveuiList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             >
-              <span style="float: left">{{ item.sn }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{
-                item.maplabel
-              }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -157,8 +148,8 @@
 import util from "../../common/util";
 import {
   getDevGpsAction,
-  getTboxSnId,
-  getMemberNameId,
+  getMemberTboxAssetName,
+  getUsedDeveui,
   getBuildGroundList,
 } from "../../axios/api";
 import Trajectory from "../staff/trajectory.vue";
@@ -210,19 +201,16 @@ export default {
       intoProjectType: this.$store.state.intoProjectType,
       actionData: {
         projectid: this.$store.state.intoProjectid || this.$store.state.projectid,
-        maplabel: "",
         username: "",
-        sn: "",
+        deveui: "",
       },
       actionTableData: [],
       actionTableDataArr: [],
       actionTime: "",
-      perDeveui: "",
-      tboxDeveui: "",
-      userList: [],
-      tboxList: [],
-      userOptions: [],
-      tboxOptions: [],
+      searchUsername: "",
+      searchDeveui: "",
+      nameList: [],
+      deveuiList: [],
       showTrajectory2d: false,
       showTrajectory3d: false,
       pendingViewTrack: false,
@@ -235,146 +223,162 @@ export default {
     },
   },
   methods: {
-    onPersonChange() {
-      if (this.perDeveui) {
-        this.tboxDeveui = "";
-      }
+    /** 与侧栏菜单一致：员工管理 / 资产管理 / 车辆管理 显示才纳入对应名称 */
+    isMenuPartOn(val) {
+      return val === true || val === "true" || val === 1 || val === "1";
     },
-    onTboxChange() {
-      if (this.tboxDeveui) {
-        this.perDeveui = "";
+    /** getMemberTboxAssetName: data = { memberList, tboxList, assetList } */
+    normalizeNameOptions(data) {
+      const parts = this.$store.state.functionParts || {};
+      const showMember = this.isMenuPartOn(parts.employee);
+      const showAsset = this.isMenuPartOn(parts.asset);
+      // 车辆管理菜单：正向项目(intoProjectType==1) 且开启车辆
+      const projectType =
+        this.$store.state.intoProjectType ||
+        this.$store.state.intoProjectprojectType;
+      const showTbox =
+        this.isMenuPartOn(parts.tbox) && String(projectType) === "1";
+
+      const rows = [];
+      if (Array.isArray(data)) {
+        rows.push(...data);
+      } else if (data && typeof data === "object") {
+        if (showMember) rows.push(...(data.memberList || []));
+        if (showTbox) rows.push(...(data.tboxList || []));
+        if (showAsset) rows.push(...(data.assetList || []));
       }
+      const seen = new Set();
+      const options = [];
+      for (const item of rows) {
+        if (item == null) continue;
+        let name = "";
+        if (typeof item === "string" || typeof item === "number") {
+          name = String(item).trim();
+        } else {
+          name = String(
+            item.username || item.name || item.sn || item.label || item.value || ""
+          ).trim();
+        }
+        if (!name || seen.has(name)) continue;
+        seen.add(name);
+        options.push({ value: name, label: name });
+      }
+      return options;
+    },
+    /** getUsedDeveui: data = { beaconList, devList, devOtherList } 均为字符串数组 */
+    normalizeDeveuiOptions(data) {
+      const rows = [];
+      if (Array.isArray(data)) {
+        rows.push(...data);
+      } else if (data && typeof data === "object") {
+        rows.push(
+          ...(data.devList || []),
+          ...(data.beaconList || []),
+          ...(data.devOtherList || []),
+          ...(data.list || [])
+        );
+      }
+      const seen = new Set();
+      const options = [];
+      for (const item of rows) {
+        if (item == null) continue;
+        let deveui = "";
+        if (typeof item === "string" || typeof item === "number") {
+          deveui = String(item).trim();
+        } else {
+          deveui = String(
+            item.deveui || item.maplabel || item.beaconid || item.value || item.label || ""
+          ).trim();
+        }
+        if (!deveui || seen.has(deveui)) continue;
+        seen.add(deveui);
+        options.push({ value: deveui, label: deveui });
+      }
+      return options;
+    },
+    ensureOption(list, value) {
+      const v = value == null ? "" : String(value).trim();
+      if (!v) return list;
+      if (list.some((i) => i.value === v)) return list;
+      return [{ value: v, label: v }, ...list];
+    },
+    onNameSelectChange(val) {
+      this.nameList = this.ensureOption(this.nameList, val);
+    },
+    onDeveuiSelectChange(val) {
+      this.deveuiList = this.ensureOption(this.deveuiList, val);
     },
     resetAll() {
-      this.perDeveui = "";
-      this.tboxDeveui = "";
+      this.searchUsername = "";
+      this.searchDeveui = "";
       this.actionTime = "";
-      this.actionData.maplabel = "";
       this.actionData.username = "";
-      this.actionData.sn = "";
+      this.actionData.deveui = "";
       this.actionTableData = [];
       this.actionTableDataArr = [];
-      this.userOptions = [];
-      this.tboxOptions = [];
       this.pendingViewTrack = false;
       this.trackDevType = 1;
       this.clearTrackView();
     },
-    getMemberNames() {
+    getMemberTboxAssetNames() {
       var that = this;
-      return getMemberNameId(
-        { projectid: this.$store.state.projectid || this.$store.state.intoProjectid },
+      const projectid =
+        this.$store.state.projectid || this.$store.state.intoProjectid;
+      if (!projectid) return Promise.resolve();
+      return getMemberTboxAssetName(
+        { projectid },
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.userList = (res.data || [])
-            .map((item) => ({
-              value: `${item.maplabel}`,
-              maplabel: `${item.maplabel}`,
-              username: `${item.username}`,
-            }))
-            .filter((item) => item.maplabel && item.maplabel !== "null");
+          that.nameList = that.normalizeNameOptions(res.data);
         }
       });
     },
-    getTboxSnIds() {
+    getUsedDeveuis() {
       var that = this;
-      return getTboxSnId(
-        { projectid: this.$store.state.projectid || this.$store.state.intoProjectid },
+      const projectid =
+        this.$store.state.projectid || this.$store.state.intoProjectid;
+      if (!projectid) return Promise.resolve();
+      return getUsedDeveui(
+        { projectid },
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
       ).then((res) => {
         if (res.code == 1001) {
-          that.tboxList = (res.data || [])
-            .filter((item) => item.maplabel)
-            .map((item) => ({
-              value: `${item.maplabel}`,
-              maplabel: `${item.maplabel}`,
-              sn: `${item.sn}`,
-            }));
+          that.deveuiList = that.normalizeDeveuiOptions(res.data);
         }
       });
     },
-    /** 接收室外定位等页面跳转带来的人员/车辆参数 */
+    /** 接收室内/室外定位等页面跳转带来的名称/设备号参数 */
     applyRouteQuery() {
       const q = (this.$route && this.$route.query) || {};
-      const perDeveui = q.perDeveui ? String(q.perDeveui) : "";
-      const tboxDeveui = q.tboxDeveui ? String(q.tboxDeveui) : "";
       const username = q.username ? String(q.username) : "";
       const sn = q.sn ? String(q.sn) : "";
+      const perDeveui = q.perDeveui ? String(q.perDeveui) : "";
+      const tboxDeveui = q.tboxDeveui ? String(q.tboxDeveui) : "";
+      const assetDeveui = q.assetDeveui ? String(q.assetDeveui) : "";
+      const deveui = q.deveui
+        ? String(q.deveui)
+        : perDeveui || tboxDeveui || assetDeveui || "";
+      const name = username || sn || "";
 
-      if (perDeveui) {
-        this.tboxDeveui = "";
-        this.perDeveui = perDeveui;
-        let user = this.userList.find((i) => i.maplabel === perDeveui);
-        if (!user && username) {
-          user = {
-            value: perDeveui,
-            maplabel: perDeveui,
-            username: username,
-          };
-        }
-        if (!user && username) {
-          user = this.userList.find((i) => i.username === username);
-          if (user) this.perDeveui = user.maplabel;
-        }
-        if (user) {
-          this.userOptions = [user];
-          this.actionData.maplabel = user.maplabel;
-          this.actionData.username = user.username;
-          this.actionData.sn = "";
-        }
-        return true;
+      let has = false;
+      if (name) {
+        this.searchUsername = name;
+        this.nameList = this.ensureOption(this.nameList, name);
+        this.actionData.username = name;
+        has = true;
       }
-
-      if (tboxDeveui) {
-        this.perDeveui = "";
-        this.tboxDeveui = tboxDeveui;
-        let car = this.tboxList.find((i) => i.maplabel === tboxDeveui);
-        if (!car && sn) {
-          car = {
-            value: tboxDeveui,
-            maplabel: tboxDeveui,
-            sn: sn,
-          };
-        }
-        if (!car && sn) {
-          car = this.tboxList.find((i) => i.sn === sn);
-          if (car) this.tboxDeveui = car.maplabel;
-        }
-        if (car) {
-          this.tboxOptions = [car];
-          this.actionData.maplabel = car.maplabel;
-          this.actionData.sn = car.sn;
-          this.actionData.username = car.sn;
-        }
-        return true;
+      if (deveui) {
+        this.searchDeveui = deveui;
+        this.deveuiList = this.ensureOption(this.deveuiList, deveui);
+        this.actionData.deveui = deveui;
+        has = true;
       }
-
-      // 兼容旧链接只带 username
-      if (username) {
-        const user = this.userList.find((i) => i.username === username);
-        const car = this.tboxList.find((i) => i.sn === username);
-        if (user) {
-          this.perDeveui = user.maplabel;
-          this.userOptions = [user];
-          this.actionData.maplabel = user.maplabel;
-          this.actionData.username = user.username;
-          return true;
-        }
-        if (car) {
-          this.tboxDeveui = car.maplabel;
-          this.tboxOptions = [car];
-          this.actionData.maplabel = car.maplabel;
-          this.actionData.sn = car.sn;
-          this.actionData.username = car.sn;
-          return true;
-        }
-      }
-      return false;
+      return has;
     },
     ensureDefaultActionTime() {
       if (this.actionTime && this.actionTime.length === 2) return;
@@ -383,61 +387,18 @@ export default {
       start.setTime(start.getTime() - 3600 * 1000);
       this.actionTime = [start, end];
     },
-    remoteUserMethod(query) {
-      if (query !== "") {
-        this.userOptions = this.userList.filter((item) => {
-          const q = query.toLowerCase();
-          return (
-            (item.value || "").toLowerCase().indexOf(q) > -1 ||
-            (item.username || "").toLowerCase().indexOf(q) > -1
-          );
-        });
-      } else {
-        this.userOptions = [];
-      }
-    },
-    remoteTBoxMethod(query) {
-      if (query !== "") {
-        this.tboxOptions = this.tboxList.filter((item) => {
-          const q = query.toLowerCase();
-          return (
-            (item.value || "").toLowerCase().indexOf(q) > -1 ||
-            (item.sn || "").toLowerCase().indexOf(q) > -1
-          );
-        });
-      } else {
-        this.tboxOptions = [];
-      }
-    },
     resolveSelection() {
-      if (this.perDeveui && this.tboxDeveui) {
+      this.actionData.username = this.searchUsername || "";
+      this.actionData.deveui = this.searchDeveui || "";
+      if (!this.actionData.username && !this.actionData.deveui) {
         this.$message({
-          message: this.$t("locationoutdoor.text2"),
+          message: this.$t("locationoutdoor.text3"),
           type: "warning",
         });
         return false;
       }
-      if (this.perDeveui) {
-        const user = this.userList.find((i) => i.maplabel === this.perDeveui);
-        this.actionData.maplabel = this.perDeveui;
-        this.actionData.username = user ? user.username : "";
-        this.actionData.sn = "";
-        this.trackDevType = this.intoProjectType == 1 ? 1 : 2;
-        return true;
-      }
-      if (this.tboxDeveui) {
-        const car = this.tboxList.find((i) => i.maplabel === this.tboxDeveui);
-        this.actionData.maplabel = this.tboxDeveui;
-        this.actionData.sn = car ? car.sn : "";
-        this.actionData.username = this.actionData.sn;
-        this.trackDevType = 4;
-        return true;
-      }
-      this.$message({
-        message: this.$t("locationoutdoor.text3"),
-        type: "warning",
-      });
-      return false;
+      this.trackDevType = this.intoProjectType == 1 ? 1 : 2;
+      return true;
     },
     buildTimeRange() {
       var that = this;
@@ -485,7 +446,7 @@ export default {
         this.$store.state.intoProjectid || this.$store.state.projectid;
       let data = {
         projectid: this.actionData.projectid,
-        deveui: this.actionData.maplabel,
+        deveui: this.actionData.deveui,
         username: this.actionData.username,
         begintime: timeRange.begintime,
         endtime: timeRange.endtime,
@@ -738,10 +699,7 @@ export default {
     },
   },
   beforeMount() {
-    const tasks = [this.getMemberNames()];
-    if (this.intoProjectType == 1) {
-      tasks.push(this.getTboxSnIds());
-    }
+    const tasks = [this.getMemberTboxAssetNames(), this.getUsedDeveuis()];
     Promise.all(tasks).then(() => {
       const hasSelection = this.applyRouteQuery();
       if (hasSelection) {
