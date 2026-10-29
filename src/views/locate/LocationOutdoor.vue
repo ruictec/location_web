@@ -626,6 +626,88 @@ export default {
         this.searchList.deveui = tbox;
         this.searchList.devtype = 4;
       }
+
+      // 告警跳转：用 getWarningPointByWarningid 写入的 sosData.points 打点
+      if (that.$route.query.warning == "true") {
+        let sosData = that.$store.state.sosData || {};
+        const points = Array.isArray(sosData.points) ? sosData.points : [];
+        const isMulti = Number(sosData.type) === 2 || points.length > 1;
+
+        if (!points.length) {
+          that.$message({
+            message: that.$t("tet.tet8"),
+            type: "warning",
+          });
+          return;
+        }
+
+        const plotPoint = (p) => {
+          const info = {
+            ...sosData,
+            ...p,
+            projectid: sosData.projectid || p.projectid,
+            deveui: p.deveui,
+            username: p.username,
+            x: p.x,
+            y: p.y,
+            gpstime: p.gpstime,
+            devtype: p.devtype != null ? p.devtype : sosData.devtype || 1,
+          };
+          that.delFeature(info);
+          if (Number(info.devtype) === 4) {
+            that.applyVehicleAlarm(info.deveui, info.alarm, true);
+            that.addTBoxIconMarker(that.map, info, true);
+          } else {
+            that.addIconMarker(that.map, info, true);
+          }
+        };
+
+        if (isMulti) {
+          that.perDeveui = "";
+          that.tboxDeveui = "";
+          const keepSos = that.sostype;
+          setTimeout(() => {
+            points.forEach((p) => {
+              that.sostype = keepSos;
+              plotPoint(p);
+            });
+            that.sostype = false;
+            if (points[0]) {
+              const center = fromLonLat([points[0].x, points[0].y]);
+              that.map.getView().setCenter(center);
+            }
+          }, 100);
+          return;
+        }
+
+        const first = points[0];
+        const eui = first.deveui || sosData.deveui;
+        if (tbox || that.tboxDeveui || sosData.devtype == 4) {
+          that.remoteTBoxMethod(eui);
+          setTimeout(() => {
+            that.perDeveui = "";
+            that.tboxDeveui = eui;
+          }, 201);
+          setTimeout(() => {
+            plotPoint({ ...first, devtype: 4 });
+            const center = fromLonLat([first.x, first.y]);
+            that.map.getView().setCenter(center);
+          }, 100);
+        } else {
+          that.remoteUserMethod(eui);
+          setTimeout(() => {
+            that.tboxDeveui = "";
+            that.perDeveui = eui;
+          }, 201);
+          setTimeout(() => {
+            plotPoint(first);
+            const center = fromLonLat([first.x, first.y]);
+            that.map.getView().setCenter(center);
+          }, 100);
+        }
+        return;
+      }
+
       if (!this.searchList.deveui) {
         this.$message({
           message: this.$t("locationoutdoor.text3"),
@@ -633,39 +715,7 @@ export default {
         });
         return;
       }
-      //判断是否从告警管理页面跳转过来的，如果是，就使用触发告警时的信息
-      if (that.$route.query.warning == "true") {
-        console.log('warning == "true"');
-        let sosData = that.$store.state.sosData;
-        if (per) {
-          that.remoteUserMethod(sosData.deveui);
-          setTimeout(() => {
-            that.tboxDeveui = "";
-            that.perDeveui = sosData.deveui;
-          }, 201);
-          that.delFeature(sosData);
-          setTimeout(() => {
-            that.addIconMarker(that.map, sosData, true);
-            const center = fromLonLat([sosData.x, sosData.y]);
-            that.map.getView().setCenter(center);
-          }, 100);
-        }
-        if (tbox) {
-          that.remoteTBoxMethod(sosData.deveui);
-          setTimeout(() => {
-            that.perDeveui = "";
-            that.tboxDeveui = sosData.deveui;
-          }, 201);
-          that.delFeature(sosData);
-          setTimeout(() => {
-            that.applyVehicleAlarm(sosData.deveui, sosData.alarm, true);
-            that.addTBoxIconMarker(that.map, sosData, true);
-            const center = fromLonLat([sosData.x, sosData.y]);
-            that.map.getView().setCenter(center);
-          }, 100);
-        }
-      } else {
-        getDevGpsOne(
+      getDevGpsOne(
           this.searchList,
           this.tenantkey_A,
           this.tenantid_A,
@@ -743,7 +793,6 @@ export default {
             });
           }
         });
-      }
     },
     //刷新
     clearBtn() {
@@ -2167,6 +2216,13 @@ export default {
       this.initMap();
       setTimeout(() => {
         this.searchInfo("", this.$route.query.tboxDeveui);
+      }, 0);
+    } else if (this.$route.query.warning == "true") {
+      // 聚集告警等：无单设备号，用 store 中多点位加载
+      this.sostype = this.$route.query.sostype == "true";
+      this.initMap();
+      setTimeout(() => {
+        this.searchInfo();
       }, 0);
     } else {
       console.log(this.sostype);

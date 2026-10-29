@@ -935,6 +935,7 @@ export default {
       homeGround: "", //用户从首页点击跳转传过来的楼层
       warningBuildingId: "", //用户从告警信息（人群聚集）点击跳转传过来的楼栋id
       warningGround: "", //用户从告警信息（人群聚集）点击跳转传过来的楼层
+      warningPoints: null, // 告警点位（getWarningPointByWarningid），聚集可多人
       isactiveGround: false,
       buildings: "", //所有楼栋
       building: "", //当前选中楼栋
@@ -2078,37 +2079,42 @@ export default {
         return;
       }
 
-      //判断是否从告警管理页面跳转过来的，如果是，就使用触发告警时的信息
+      //判断是否从告警管理页面跳转过来的：楼栋/楼层用告警信息，坐标用接口点位
       if (that.$route.query.warning == "true") {
-        let sosData = that.$store.state.sosData;
+        let sosData = that.$store.state.sosData || {};
         let isactive1 = sosData.buildid;
         let isactiveGround1 = sosData.groundid;
+        const points = Array.isArray(sosData.points) ? sosData.points : [];
+        const isMulti = Number(sosData.type) === 2 || points.length > 1;
 
         if (val) {
-          that.remoteUserMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteUserMethod(eui);
           setTimeout(() => {
-            that.perDeveui = sosData.deveui;
+            that.perDeveui = eui;
             that.assetDeveui = "";
             that.tboxDeveui = "";
           }, 201);
         }
         if (assetVal) {
-          that.remoteAssetMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteAssetMethod(eui);
           setTimeout(() => {
             that.perDeveui = "";
-            that.assetDeveui = sosData.deveui;
+            that.assetDeveui = eui;
             that.tboxDeveui = "";
           }, 201);
         }
         if (tboxVal) {
-          that.remoteTBoxMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteTBoxMethod(eui);
           setTimeout(() => {
             that.perDeveui = "";
             that.assetDeveui = "";
-            that.tboxDeveui = sosData.deveui;
+            that.tboxDeveui = eui;
           }, 201);
         }
-        if (vals) {
+        if (vals || isMulti) {
           that.searchLists.perDeveui = "";
           that.searchLists.assetDeveui = "";
           that.searchLists.tboxDeveui = "";
@@ -2119,10 +2125,47 @@ export default {
         if (that.websock) {
           that.websock.close(); //断开websocket
         }
-        let mapInfo = sosData;
+
+        // 点位来自 getWarningPointByWarningid；楼栋楼层仍用告警信息
+        that.warningPoints = isMulti
+          ? points.map((p) => ({
+              ...p,
+              projectid: sosData.projectid,
+              ground: sosData.ground,
+              groundid: sosData.groundid,
+              buildid: sosData.buildid,
+              devtype: p.devtype || sosData.devtype || 1,
+            }))
+          : null;
+
+        const first = points[0] || {};
+        let mapInfo = isMulti
+          ? null
+          : {
+              ...sosData,
+              ...first,
+              deveui: first.deveui || sosData.deveui,
+              username: first.username || sosData.username,
+              projectid: sosData.projectid,
+              ground: sosData.ground,
+              groundid: sosData.groundid,
+              buildid: sosData.buildid,
+              devtype: sosData.devtype || first.devtype || 1,
+              x: first.x,
+              y: first.y,
+              gpstime: first.gpstime,
+            };
+
         var found = that.buildings.find(function (item) {
           return item.id == sosData.buildid;
         });
+        if (!found) {
+          that.$message({
+            message: that.$t("tet.tet8"),
+            type: "warning",
+          });
+          return;
+        }
         // 2D
         if (found.buildtypestr == "2D") {
           that.mapTypes = true;
@@ -2171,7 +2214,6 @@ export default {
           // 3D
           that.showAllGround = found.flag;
           that.mapTypes = false;
-          // that.getMapid(found.id);
           // 3D地图下，获取该楼栋下所有的楼层，设定新的楼层数与楼层的id的对应关系
           let data = {
             buildid: sosData.buildid,
@@ -3289,7 +3331,19 @@ export default {
         this.map.addLayer(this.layerMap.tbox);
         this.loadIndoorFences();
 
-        if (mapInfo && this.searchLists.perDeveui) {
+        if (that.warningPoints && that.warningPoints.length) {
+          that.warningPoints.forEach((p) => {
+            const dtype = Number(p.devtype);
+            if (dtype === 4) {
+              that.addOrUpdateFeature("tbox", p);
+            } else if (dtype === 3) {
+              that.addOrUpdateFeature("asset", p);
+            } else {
+              that.addOrUpdateFeature("person", p);
+            }
+          });
+          that.warningPoints = null;
+        } else if (mapInfo && this.searchLists.perDeveui) {
           // this.addIconMarker(this.map, mapInfo);
           this.addOrUpdateFeature("person", mapInfo);
         } else if (mapInfo && this.searchLists.assetDeveui) {
@@ -3469,7 +3523,10 @@ export default {
       let src = "";
 
       if (type === "person") {
-        if (info.status === 3) {
+        // 与室外 addIconMarker / 旧 2D addIconMarker 一致：告警跳转 sostype 用红色图标
+        if (this.sostype) {
+          src = "../../../static/usersos.png";
+        } else if (info.status === 3) {
           src = "../../../static/user1down.png";
         } else if (info.colour) {
           // 说明：图片地址改为从环境变量读取基础地址
@@ -4483,7 +4540,24 @@ export default {
                 mapInfo.newground = item.newground;
               }
             });
-            if (mapInfo && that.searchLists.perDeveui) {
+            if (that.warningPoints && that.warningPoints.length) {
+              that.warningPoints.forEach((p) => {
+                that.groundListCopy.forEach((item) => {
+                  if (item.ground == p.ground || item.groundid == p.groundid) {
+                    p.newground = item.newground;
+                  }
+                });
+                const dtype = Number(p.devtype);
+                if (dtype === 4) {
+                  that.addTBox(groundVal, p);
+                } else if (dtype === 3) {
+                  that.addAsset(groundVal, p);
+                } else {
+                  that.addMarker(groundVal, p);
+                }
+              });
+              that.warningPoints = null;
+            } else if (mapInfo && that.searchLists.perDeveui) {
               that.addMarker(groundVal, mapInfo);
             } else if (mapInfo && that.searchLists.assetDeveui) {
               that.addAsset(groundVal, mapInfo);

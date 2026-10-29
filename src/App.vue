@@ -234,6 +234,7 @@ import {
   getProjectFirstList,
   getWarningPopoutList,
 } from "./axios/api";
+import { jumpToWarningLocation } from "./utils/warningLocation";
 export default {
   name: "App",
 
@@ -1585,72 +1586,8 @@ export default {
     },
     //点击弹出的信息框跳转到相应的定位页面
     GoMap(deveui, postype, devtype, info) {
-      var that = this;
-      that.$store.commit("changesosData", info);
-      if (postype == 1) {
-        if (devtype == 4) {
-          //车辆告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              tboxDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else if (devtype == 3) {
-          //资产告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              assetDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else {
-          //人告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              deveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        }
-      } else if (postype == 2) {
-        if (devtype == 4) {
-          //车辆告警
-          that.$router.push({
-            path: "/location/outdoor/locationoutdoor",
-            query: {
-              tboxDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else {
-          //人告警
-          that.$router.push({
-            path: "/location/outdoor/locationoutdoor",
-            query: {
-              deveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        }
-      } else {
-        //聚集告警
-        that.$router.push({
-          path: "/location/indoor/locationindoor",
-          query: {
-            sostype: true,
-            warning: true,
-          },
-        });
-      }
+      // 无 postype 则无位置；有则先按告警 id 查点位再跳转（聚集可多人）
+      jumpToWarningLocation(this, info, { active: true });
     },
 
     // 发送远程搜索命令

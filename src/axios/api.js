@@ -2183,6 +2183,23 @@ export const getWarningNum = (query, tenantkey_A, tenantid_A, username) => { //�
     }).then(res => res)
 };
 
+export const getWarningPointByWarningid = (query, tenantkey_A, tenantid_A, username) => { //根据告警id查询告警位置信息
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getWarningPointByWarningid" + tenantkey_A + time_A)
+    return service({
+        url: "service/getWarningPointByWarningid",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
 
 export const getWarnSos = (query, tenantkey_A, tenantid_A, username) => { //获取SOS
     let time_A = getTime()

@@ -362,6 +362,7 @@ import Data from "../../components/data/data";
 import { getWarningList, delWarning, getDevHealthListAsc } from "../../axios/api";
 import util from "../../common/util";
 import { FirstAidKit } from "@element-plus/icons-vue";
+import { jumpToWarningLocation } from "../../utils/warningLocation";
 export default {
   components: {
     Menu,
@@ -1195,117 +1196,8 @@ export default {
 
     // 点击跳转到定位页面
     goLocation(row) {
-      var that = this;
-      if (
-        (row.x == "" || row.x == null) &&
-        (row.y == "" || row.y == null) &&
-        (row.tranche == "" || row.tranche == null)
-      ) {
-        this.$message({
-          message: this.$t("tet.tet8"),
-          type: "warning",
-        });
-        return;
-      }
-
-      let data = row;
-      that.$store.commit("changesosData", data);
-
-      //室内
-      if (data.postype == 1) {
-        if (row.status == 1) {
-          if (row.devtype == 4) {
-            //车辆告警
-            that.$router.push({
-              path: "/location/indoor/locationindoor",
-              query: {
-                tboxDeveui: data.deveui,
-                sostype: true,
-                warning: true,
-              },
-            });
-          } else if (row.devtype == 3) {
-            //资产告警
-            that.$router.push({
-              path: "/location/indoor/locationindoor",
-              query: {
-                assetDeveui: data.deveui,
-                sostype: true,
-                warning: true,
-              },
-            });
-          } else {
-            //人告警
-            that.$router.push({
-              path: "/location/indoor/locationindoor",
-              query: {
-                deveui: data.deveui,
-                sostype: true,
-                warning: true,
-              },
-            });
-          }
-        } else {
-          if (row.devtype == 4) {
-            //车辆告警
-            that.$router.push({
-              path: "/location/indoor/locationindoor",
-              query: {
-                tboxDeveui: data.deveui,
-                warning: true,
-              },
-            });
-          } else {
-            //人告警
-            that.$router.push({
-              path: "/location/indoor/locationindoor",
-              query: { deveui: data.deveui, warning: true },
-            });
-          }
-        }
-      } else if (data.postype == 2) {
-        //室外
-        if (row.status == 1) {
-          if (row.devtype == 4) {
-            //车辆告警
-            that.$router.push({
-              path: "/location/outdoor/locationoutdoor",
-              query: {
-                tboxDeveui: data.deveui,
-                sostype: true,
-                warning: true,
-              },
-            });
-          } else {
-            //人告警
-            that.$router.push({
-              path: "/location/outdoor/locationoutdoor",
-              query: {
-                deveui: data.deveui,
-                sostype: true,
-                warning: true,
-              },
-            });
-          }
-        } else {
-          if (row.devtype == 4) {
-            //车辆告警
-            that.$router.push({
-              path: "/location/outdoor/locationoutdoor",
-              query: {
-                tboxDeveui: data.deveui,
-                warning: true,
-              },
-            });
-          } else {
-            //人告警
-            that.$router.push({
-              path: "/location/outdoor/locationoutdoor",
-              query: { deveui: data.deveui, warning: true },
-            });
-          }
-        }
-      }
+      // 无 postype 不可跳；有则查 getWarningPointByWarningid 再进室内/室外
+      return jumpToWarningLocation(this, row, { active: row.status == 1 });
     },
   },
   beforeMount() {
