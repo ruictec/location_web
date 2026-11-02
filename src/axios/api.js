@@ -3478,11 +3478,11 @@ export const getUsedDeveui = (query, tenantkey_A, tenantid_A, username) => { //�
     }).then(res => res)
 };
 
-export const getMemberStepRank = (query, tenantkey_A, tenantid_A, username) => { //按步数排名查询员工信息
+export const getRunInfoStepsList = (query, tenantkey_A, tenantid_A, username) => { //按步数排名查询员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/service/getMemberStepRank" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getRunInfoStepsList" + tenantkey_A + time_A)
     return service({
-        url: "service/getMemberStepRank",
+        url: "service/getRunInfoStepsList",
         method: 'get',
         processData: false,
         headers: {
@@ -3495,11 +3495,11 @@ export const getMemberStepRank = (query, tenantkey_A, tenantid_A, username) => {
     }).then(res => res)
 };
 
-export const getMemberVibstateRank = (query, tenantkey_A, tenantid_A, username) => { //按活跃度排名查询员工信息
+export const getRunInfoVibstateList = (query, tenantkey_A, tenantid_A, username) => { //按活跃度排名查询员工信息
     let time_A = getTime()
-    let sha_A = hex_sha1("/v1/service/getMemberVibstateRank" + tenantkey_A + time_A)
+    let sha_A = hex_sha1("/v1/service/getRunInfoVibstateList" + tenantkey_A + time_A)
     return service({
-        url: "service/getMemberVibstateRank",
+        url: "service/getRunInfoVibstateList",
         method: 'get',
         processData: false,
         headers: {

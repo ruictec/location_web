@@ -2665,6 +2665,7 @@ export default {
     searchInfo() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getMapInfoList(
         this.searchList,
@@ -2688,12 +2689,12 @@ export default {
             });
           }
         }
-        that.searchList.count = 20;
       });
     },
 
     //刷新
     clearBtn() {
+      this.pageCount = 20;
       if (
         this.$store.state.userInfo.prionum == 1 ||
         this.$store.state.userInfo.prionum == 2
@@ -2701,7 +2702,7 @@ export default {
         this.searchList = {
           mapid: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           projectid: "",
         };
       } else if (
@@ -2712,7 +2713,7 @@ export default {
         this.searchList = {
           mapid: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           projectid: this.$store.state.intoProjectid,
         };
       }

@@ -88,7 +88,16 @@
       </div>
       <div class="chart-card">
         <div class="chart-header">
-          <div class="chart-title">{{ chartTitleBottom }}</div>
+          <div class="chart-title">
+            <span>{{ chartTitleBottom }}</span>
+            <el-tooltip
+              effect="dark"
+              placement="top"
+              :content="$t('LocationIndoorHis.activityRankTip')"
+            >
+              <i class="el-icon-question chart-title-tip" />
+            </el-tooltip>
+          </div>
           <div v-if="viewMode === 'rank'" class="chart-sort">
             <el-button
               size="small"
@@ -111,11 +120,12 @@
 </template>
 
 <script>
+import { markRaw } from "vue";
 import * as echarts from "echarts";
 import {
   getMemberNameId,
-  getMemberStepRank,
-  getMemberVibstateRank,
+  getRunInfoStepsList,
+  getRunInfoVibstateList,
   getRunInfoDateList,
 } from "../../axios/api";
 
@@ -138,10 +148,13 @@ export default {
       vibSort: 2,
       // rank | detail
       viewMode: "rank",
-      chartTop: null,
-      chartBottom: null,
-      resizeHandler: null,
     };
+  },
+  created() {
+    // 不要放进 data：Vue3 响应式 Proxy 会导致 echarts 内部 coordinateSystem 异常
+    this.chartTop = null;
+    this.chartBottom = null;
+    this.resizeHandler = null;
   },
   computed: {
     filterLangClass() {
@@ -216,12 +229,32 @@ export default {
       if (Array.isArray(d.ranklist)) return d.ranklist;
       return [];
     },
-    initCharts() {
-      if (this.$refs.chartTop) {
-        this.chartTop = echarts.init(this.$refs.chartTop);
+    getRunInfoTimeRaw(item) {
+      if (!item) return null;
+      return item.time != null
+        ? item.time
+        : item.gpstime || item.steptime || item.createtime;
+    },
+    formatRunInfoTime(item) {
+      const t = this.getRunInfoTimeRaw(item);
+      if (t == null) return "-";
+      if (typeof t === "number") {
+        const ms = t > 1e12 ? t : t * 1000;
+        const d = new Date(ms);
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        const ss = String(d.getSeconds()).padStart(2, "0");
+        return `${hh}:${mm}:${ss}`;
       }
-      if (this.$refs.chartBottom) {
-        this.chartBottom = echarts.init(this.$refs.chartBottom);
+      const s = String(t);
+      return s.length > 16 ? s.slice(11, 19) : s;
+    },
+    initCharts() {
+      if (this.$refs.chartTop && !this.chartTop) {
+        this.chartTop = markRaw(echarts.init(this.$refs.chartTop));
+      }
+      if (this.$refs.chartBottom && !this.chartBottom) {
+        this.chartBottom = markRaw(echarts.init(this.$refs.chartBottom));
       }
     },
     disposeCharts() {
@@ -252,7 +285,6 @@ export default {
     },
     renderEmpty(chart) {
       if (!chart) return;
-      chart.clear();
       chart.setOption(
         {
           title: {
@@ -265,15 +297,25 @@ export default {
               fontWeight: "normal",
             },
           },
+          xAxis: { show: false, type: "category", data: [] },
+          yAxis: { show: false, type: "value" },
+          series: [],
+          tooltip: { show: false },
         },
-        true
+        { notMerge: true }
       );
     },
     renderBar(chart, names, values, color) {
       if (!chart) return;
+      // 人多时默认只展示前若干名，其余靠 dataZoom 横向拖动，避免 X 轴姓名挤成一团
+      const crowded = names.length > 15;
+      const endPct = crowded
+        ? Math.min(100, Math.max(12, (15 / names.length) * 100))
+        : 100;
       chart.setOption(
         {
           color: [color || "#409EFF"],
+          title: { show: false },
           tooltip: {
             trigger: "axis",
             axisPointer: { type: "shadow" },
@@ -283,14 +325,38 @@ export default {
             left: 50,
             right: 24,
             top: 36,
-            bottom: names.length > 12 ? 70 : 40,
+            bottom: crowded ? 78 : names.length > 12 ? 70 : 40,
           },
+          dataZoom: crowded
+            ? [
+                {
+                  type: "slider",
+                  xAxisIndex: 0,
+                  height: 18,
+                  bottom: 8,
+                  start: 0,
+                  end: endPct,
+                  brushSelect: false,
+                  showDetail: false,
+                },
+                {
+                  type: "inside",
+                  xAxisIndex: 0,
+                  start: 0,
+                  end: endPct,
+                  zoomOnMouseWheel: false,
+                  moveOnMouseWheel: true,
+                  moveOnMouseMove: true,
+                },
+              ]
+            : [],
           xAxis: {
             type: "category",
             data: names,
             axisLabel: {
               interval: 0,
               rotate: names.length > 10 ? 35 : 0,
+              hideOverlap: true,
             },
           },
           yAxis: { type: "value", minInterval: 1 },
@@ -311,7 +377,7 @@ export default {
             },
           ],
         },
-        true
+        { notMerge: true }
       );
     },
     renderLine(chart, times, values, color) {
@@ -320,6 +386,7 @@ export default {
       chart.setOption(
         {
           color: [color || "#409EFF"],
+          title: { show: false },
           tooltip: {
             show: true,
             trigger: "axis",
@@ -387,7 +454,7 @@ export default {
             },
           ],
         },
-        true
+        { notMerge: true }
       );
     },
     rankQuery(sort) {
@@ -399,6 +466,8 @@ export default {
         stepdate: this.searchForm.stepdate,
         sort,
         count: 50,
+        // 未指定具体人员：排行统计
+        stattype: 1,
       };
     },
     /** @returns {boolean} 是否空数据（接口成功但列表为空） */
@@ -447,7 +516,7 @@ export default {
     },
     loadStepRank() {
       this.viewMode = "rank";
-      return getMemberStepRank(
+      return getRunInfoStepsList(
         this.rankQuery(this.stepSort),
         this.tenantkey_A,
         this.tenantid_A,
@@ -456,7 +525,7 @@ export default {
     },
     loadVibRank() {
       this.viewMode = "rank";
-      return getMemberVibstateRank(
+      return getRunInfoVibstateList(
         this.rankQuery(this.vibSort),
         this.tenantkey_A,
         this.tenantid_A,
@@ -501,6 +570,8 @@ export default {
           username: this.searchForm.username,
           projectid: this.projectid,
           stepdate: this.searchForm.stepdate,
+          // 查询具体人员明细
+          stattype: 0,
         },
         this.tenantkey_A,
         this.tenantid_A,
@@ -514,28 +585,17 @@ export default {
             });
             return;
           }
-          const list = this.pickList(res);
-          if (!list.length) {
+          const rawList = this.pickList(res);
+          if (!rawList.length) {
             this.renderEmpty(this.chartTop);
             this.renderEmpty(this.chartBottom);
             this.tipNoData();
             return;
           }
           // 接口字段：time 时间、steps 步数、vibstate 活跃度
-          const times = list.map((i) => {
-            const t = i.time != null ? i.time : i.gpstime || i.steptime || i.createtime;
-            if (t == null) return "-";
-            if (typeof t === "number") {
-              const ms = t > 1e12 ? t : t * 1000;
-              const d = new Date(ms);
-              const hh = String(d.getHours()).padStart(2, "0");
-              const mm = String(d.getMinutes()).padStart(2, "0");
-              const ss = String(d.getSeconds()).padStart(2, "0");
-              return `${hh}:${mm}:${ss}`;
-            }
-            const s = String(t);
-            return s.length > 16 ? s.slice(11, 19) : s;
-          });
+          // 接口返回顺序倒序后再画图（不依赖 time 字段解析）
+          const list = rawList.slice().reverse();
+          const times = list.map((i) => this.formatRunInfoTime(i));
           const steps = list.map((i) => Number(i.steps != null ? i.steps : 0));
           const vibs = list.map((i) =>
             Number(i.vibstate != null ? i.vibstate : 0)
@@ -798,14 +858,36 @@ export default {
   box-sizing: border-box;
 }
 .chart-title {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
   padding: 0;
   font-weight: 600;
   color: #303133;
   text-align: left !important;
-  margin: 0 !important;
+  margin: 0 auto 0 0 !important;
   line-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.chart-title > span {
+  flex: 0 0 auto;
+}
+.chart-title :deep(.el-tooltip__trigger),
+.chart-title :deep(.el-only-child__content) {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+.chart-title-tip {
+  flex: 0 0 auto;
+  font-size: 14px;
+  color: #909399;
+  cursor: help;
+  font-weight: normal;
+  margin: 0 !important;
 }
 .chart-sort {
   flex: 0 0 auto;

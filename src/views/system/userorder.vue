@@ -608,6 +608,7 @@ export default {
       // this.searchList.beginstatus = "";
       this.currentPage1 = 1;
 
+      this.searchList.count = this.pageCount;
       getQuestion(
         this.searchList,
         this.tenantkey_A,
@@ -629,12 +630,12 @@ export default {
             });
           }
         }
-        this.searchList.count = 20;
       });
     },
 
     //重置搜索输入
     clearBtn() {
+      this.pageCount = 20;
       if (
         this.$store.state.userInfo.prionum == 3 ||
         this.$store.state.userInfo.prionum == 4

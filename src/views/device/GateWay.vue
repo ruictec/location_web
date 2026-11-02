@@ -91,6 +91,24 @@
                 </el-select>
               </el-form-item>
               <el-form-item
+                :label="$t('gateway.Accessmode')"
+                class="terminal-filter-item"
+              >
+                <el-select
+                  v-model="searchList.network"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in typeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item
                 :label="$t('terminal.Project1')"
                 class="terminal-filter-item"
                 v-if="contrForPrionum == 3 || contrForPrionum == 4"
@@ -1848,14 +1866,16 @@ export default {
 
     // 刷新
     clearButton() {
+      this.pageCount = 10;
       if (this.$store.state.userInfo.prionum == 1 || this.$store.state.userInfo.prionum == 2) {
         this.searchList = {
           deveui: '',
           scheme: '',
           tenantid: '',
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: '',
         }
       } else if (this.$store.state.userInfo.prionum == 5) {
@@ -1864,8 +1884,9 @@ export default {
           scheme: '',
           tenantid: this.$store.state.intoProjectSuperid,
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: this.$store.state.projectid,
         }
       } else {
@@ -1874,8 +1895,9 @@ export default {
           scheme: '',
           tenantid: this.$store.state.userInfo.tenantid,
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: '',
         }
       }
@@ -1984,6 +2006,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: '',
       }
     }
@@ -1995,6 +2018,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: this.$store.state.projectid,
       }
     }
@@ -2006,6 +2030,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: '',
       }
       this.getSearchProjectList(this.$store.state.userInfo.tenantid)

@@ -2758,6 +2758,7 @@ export default {
 
     //重置搜索
     clearBtn() {
+      this.pageCount = 20;
       var that = this;
       this.searchList = {
         username: "", //员工名称
@@ -2768,7 +2769,7 @@ export default {
         depart: "", //部门
         maplabel: "", //工卡号或信标号
         page: 1,
-        count: this.pageCount,
+        count: 20,
         ontime: "", //在线时间
         offtime: "", //离线时间
       };
@@ -3521,6 +3522,7 @@ export default {
     searchStaff() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getMemberList(
         this.searchList,
@@ -3536,7 +3538,6 @@ export default {
             type: "success",
           });
         }
-        this.searchList.count = 10;
       });
     },
 

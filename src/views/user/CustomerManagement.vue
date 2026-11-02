@@ -1307,6 +1307,7 @@ export default {
     searchInfo() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getCustomerByTenantid(
         this.searchList,
@@ -1323,12 +1324,12 @@ export default {
             type: "success",
           });
         }
-        this.searchList.count = 20;
       });
     },
 
     //重置搜索输入
     clearBtn() {
+      this.pageCount = 20;
       this.searchList = {
         tenantid: "",
         superid: this.$store.state.userInfo.tenantid,

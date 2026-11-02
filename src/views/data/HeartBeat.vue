@@ -501,6 +501,7 @@ export default {
       var that = this;
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       if (this.tasktime && this.tasktime.length > 0) {
         this.searchList.begintime =
           Date.parse(new Date(that.tasktime[0])) / 1000;
@@ -530,7 +531,6 @@ export default {
             });
           }
         } else {
-          that.searchList.count = 20;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
@@ -588,6 +588,7 @@ export default {
     },
     // 刷新
     clearBtn() {
+      this.pageCount = 20;
       this.tasktime = [];
       this.searchList = {
         tenantid: this.$store.state.userInfo.tenantid,
@@ -595,7 +596,7 @@ export default {
         begintime: "",
         endtime: "",
         page: 1,
-        count: this.pageCount,
+        count: 20,
       };
       this.currentPage1 = 1;
       this.getStatusRecordLists();

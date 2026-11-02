@@ -407,6 +407,7 @@ export default {
       this.searchList.page = 1;
       this.currentPage1 = 1;
 
+      this.searchList.count = this.pageCount;
       getSysLog(
         this.searchList,
         this.tenantkey_A,
@@ -421,12 +422,12 @@ export default {
             type: "success",
           });
         }
-        this.searchList.count = 20;
       });
     },
 
     //重置搜索输入
     clearBtn() {
+      this.pageCount = 20;
       if (
         this.$store.state.userInfo.prionum == 1 ||
         this.$store.state.userInfo.prionum == 2

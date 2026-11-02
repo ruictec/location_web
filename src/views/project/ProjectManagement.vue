@@ -2771,6 +2771,7 @@ export default {
     searchProject() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getProjectList(
         this.searchList,
@@ -2791,12 +2792,12 @@ export default {
             type: "error",
           });
         }
-        this.searchList.count = 10;
       });
     },
 
     //重置搜索框
     clearProject() {
+      this.pageCount = 10;
       if (this.$router.query) {
         this.$router.push({ query: {} });
       }
@@ -2808,7 +2809,7 @@ export default {
         tenantid: "",
         superid: this.$store.state.userInfo.tenantid,
         page: 1,
-        count: this.pageCount,
+        count: 10,
         projectype: "",
       };
       this.currentPage1 = 1;

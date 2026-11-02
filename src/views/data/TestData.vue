@@ -441,6 +441,7 @@ export default {
       this.searchList.page = 1;
       this.currentPage1 = 1;
   
+      this.searchList.count = this.pageCount;
       getDevRssiList(
         this.searchList,
         this.tenantkey_A,
@@ -462,7 +463,6 @@ export default {
             });
           }
         } else {
-          that.searchList.count = 20;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
@@ -520,13 +520,14 @@ export default {
     },
     // 刷新
     clearBtn() {
+      this.pageCount = 20;
       this.searchList = {
         tenantid: this.$store.state.userInfo.tenantid,
         deveui: "",
         type: "",
         flag: "",
         page: 1,
-        count: this.pageCount,
+        count: 20,
       };
       this.currentPage1 = 1;
       this.getDevRssiLists();

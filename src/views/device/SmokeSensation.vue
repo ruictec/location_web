@@ -1217,6 +1217,7 @@ export default {
     },
     // 刷新
     clearBtn() {
+      this.pageCount = 20;
       if (
         this.$store.state.userInfo.prionum == 1 ||
         this.$store.state.userInfo.prionum == 2
@@ -1232,7 +1233,7 @@ export default {
           inuse: "",
           workstate: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           memo: "",
         };
       }
@@ -1251,7 +1252,7 @@ export default {
           inuse: "",
           workstate: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           memo: "",
         };
       }
@@ -1267,7 +1268,7 @@ export default {
           inuse: "",
           workstate: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           memo: "",
         };
       }
@@ -1277,6 +1278,7 @@ export default {
     // 查询
     searchInfo() {
       var that = this;
+      this.searchList.count = this.pageCount;
       getDevOtherList(
         this.searchList,
         this.tenantkey_A,
@@ -1298,7 +1300,6 @@ export default {
             });
           }
         } else {
-          that.searchList.count = 20;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
