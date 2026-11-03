@@ -2,20 +2,17 @@
   <div class="main_box">
     <el-container class="asi">
       <el-main>
-        <el-row
-          :gutter="25"
-          class="panel-group"
-          style="margin-left: -4px; maring-right: -4px"
-        >
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+        <div class="home-grid" ref="homeGrid">
+        <div class="home-cards panel-group">
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--1">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card1") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="max_num_buildName">
                       {{ max_num_buildName }}
                     </h4>
                   </div>
@@ -31,22 +28,22 @@
                   <span class="badge badge-soft-success font-size-11"
                     ><i class="mdi mdi-menu-up"></i> {{ $t("homepage.livedata") }} </span><span class="ml-2 text-muted"
                     >{{ $t("homepage.people") }}{{ max_num_buildNum }}</span>
-                  <span style="float: right"
+                  <span class="card-panel-rank"
                     ><a @click="ranking(1)">{{ $t("homepage.Buildingranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+          </div>
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--2">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card2") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="max_num_groundName">
                       {{ max_num_groundName }}
                     </h4>
                   </div>
@@ -62,22 +59,22 @@
                   <span class="badge badge-soft-success font-size-11"
                     ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
                     >{{ $t("homepage.people") }}{{ max_num_groundNum }}</span>
-                  <span style="float: right"
+                  <span class="card-panel-rank"
                     ><a @click="ranking(2)">{{ $t("homepage.Floorranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+          </div>
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--3">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card3") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="memberMaxStepName">
                       {{ memberMaxStepName }}
                     </h4>
                   </div>
@@ -93,22 +90,17 @@
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
                     ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
-                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span><span style="float: right"
+                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span><span class="card-panel-rank"
                     ><a @click="ranking(3)">{{ $t("homepage.Stepranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
+          </div>
+        </div>
 
-          <el-col
-            :xs="12"
-            :sm="12"
-            :lg="8"
-            class="card-panel-col"
-            style="position: relative; z-index: 100"
-          >
-            <el-card style="height: 46vh; width: 108%; position: absolute">
+          <div class="home-device">
+            <el-card class="home-device-card">
               <template #header><div
                
                 class="clearfix"
@@ -118,23 +110,12 @@
                   $t("homepage.equipmentstatus")
                 }}</span>
               </div></template>
-              <div id="main" style="height: 40vh; width: 100%"></div>
+              <div id="main" class="home-device-chart"></div>
             </el-card>
 
-            <div
-              class="count"
-              ref="count"
-              id="count"
-              style="
-                height: 15vh;
-                width: 108%;
-                position: absolute;
-                top: 47.5vh;
-                box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
-              "
-            >
+            <div class="count norem" ref="count" id="count">
               <div
-                class="count-item"
+                class="count-item count-item--total"
                 @click="
                   $router.push({
                     path: '/device/terminal',
@@ -143,7 +124,6 @@
                 style="cursor: pointer"
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="
                     devTypeNum.dev_online +
@@ -154,13 +134,13 @@
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Totaldevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Totaldevice") }}
                 </p>
               </div>
 
               <div
-                class="count-item"
+                class="count-item count-item--online"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -170,18 +150,17 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_online || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.onlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.onlinedevice") }}
                 </p>
               </div>
               <div
-                class="count-item"
+                class="count-item count-item--offline"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -191,20 +170,19 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_offline || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Offlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Offlinedevice") }}
                 </p>
               </div>
 
               <div
-                class="count-item"
+                class="count-item count-item--unknown"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -214,23 +192,21 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_unknown || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Neveronlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Neveronlinedevice") }}
                 </p>
               </div>
             </div>
-          </el-col>
-        </el-row>
-        <el-row :gutter="25" style="margin-left: -4px; maring-right: -4px">
-          <el-col :xs="24" :sm="24" :lg="15">
-            <div class="maps" style="position: relative">
+          </div>
+
+          <div class="home-map">
+            <div class="maps">
               <MapLayerSwitcher
                 :map="map"
                 bottom="10px"
@@ -319,14 +295,10 @@
                 </el-tooltip>
               </div>
             </div>
-          </el-col>
-        </el-row>
-        <el-row
-          :gutter="25"
-          class="panel-group"
-          style="margin-left: -4px; maring-right: -4px"
-        >
-          <el-col :xs="26" :sm="26" :lg="7" style="height: 40vh">
+          </div>
+
+          <div class="home-bottom">
+          <div class="home-bottom-item">
             <el-card class="box-card soscard" style="width: 100%; height: 100%">
               <template #header><div
                
@@ -341,7 +313,8 @@
                 <el-table
                   :key="tableKey"
                   :data="warnNumList"
-                  border
+                  height="100%"
+                  scrollbar-always-on
                   fit
                   class="table sostable"
                   @cell-click="handdle"
@@ -364,10 +337,10 @@
                     min-width="55"
                   >
                     <template #default="scope">
-                      <span v-if="scope.row.warn_status1_num == 0">{{
+                      <span v-if="scope.row.warn_status1_num == 0" class="warn-num--zero">{{
                         scope.row.warn_status1_num
                       }}</span>
-                      <span v-else style="border-bottom: 1px solid">{{
+                      <span v-else class="warn-num warn-num--open">{{
                         scope.row.warn_status1_num
                       }}</span>
                     </template>
@@ -380,10 +353,10 @@
                     min-width="50"
                   >
                     <template #default="scope">
-                      <span v-if="scope.row.warn_status2_num == 0">{{
+                      <span v-if="scope.row.warn_status2_num == 0" class="warn-num--zero">{{
                         scope.row.warn_status2_num
                       }}</span>
-                      <span v-else style="border-bottom: 1px solid">{{
+                      <span v-else class="warn-num warn-num--closed">{{
                         scope.row.warn_status2_num
                       }}</span>
                     </template>
@@ -403,6 +376,8 @@
                         <el-button
                           type="primary"
                           size="small"
+                          plain
+                          round
                           class="editss"
                           @click.stop="getWarnWeekNumLists(scope.$index)"
                         >
@@ -414,8 +389,8 @@
                 </el-table>
               </div>
             </el-card>
-          </el-col>
-          <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="attenFlag">
+          </div>
+          <div class="home-bottom-item" v-show="attenFlag">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
@@ -428,25 +403,27 @@
                 </div>
               </template>
               <div class="member">
-                <div class="add">
-                  <span>{{ $t("homepage.Today") }}</span>
-                  <span>{{ $t("homepage.Attendanceattendance") }} </span>
-                  <span style="font-size: 18px; font-weight: 600; margin-right: 10px">
-                    {{ attendance ? memberNum.member_attendance_num || 0 : 0 }}
+                <div class="add atten-summary">
+                  <span class="atten-today">{{ $t("homepage.Today") }}</span>
+                  <span class="atten-chip atten-chip--yes">
+                    <i></i>{{ $t("homepage.Attendanceattendance") }}
+                    <b>{{ attendance ? memberNum.member_attendance_num || 0 : 0 }}</b>
                   </span>
-                  <span>{{ $t("homepage.Unattendedattendance") }} </span><span style="font-size: 18px; font-weight: 600; margin-right: 10px">
-                    {{
+                  <span class="atten-chip atten-chip--no">
+                    <i></i>{{ $t("homepage.Unattendedattendance") }}
+                    <b>{{
                       attendance
                         ? memberNum.member_sum_num - memberNum.member_attendance_num || 0
                         : 0
-                    }}</span>
+                    }}</b>
+                  </span>
                 </div>
                 <div id="main6" style="height: 100%; width: 100%"></div>
               </div>
             </el-card>
-          </el-col>
+          </div>
 
-          <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="!attenFlag">
+          <div class="home-bottom-item" v-show="!attenFlag">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
@@ -459,9 +436,9 @@
                 <div id="main7" class="home-chart home-chart-fill"></div>
               </div>
             </el-card>
-          </el-col>
+          </div>
 
-          <el-col :xs="24" :sm="24" :lg="9" style="height: 40vh">
+          <div class="home-bottom-item">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title home-card-title-polar">
@@ -498,17 +475,41 @@
                   indicator-position="outside"
                   @change="onPolarCarouselChange"
                 >
-                  <el-carousel-item v-for="item in 3" :key="'polar-' + item">
-                    <div :id="'main' + item" class="home-chart-polar"></div>
-                    <p class="polar-total">
-                      {{ $t("homepage.Total") }}{{ $data[`memberNum${item}`] }}
-                    </p>
+                  <el-carousel-item
+                    v-for="item in 3"
+                    :key="'polar-' + item"
+                    :class="['polar-tile', 'polar-tile--' + item]"
+                  >
+                    <div class="polar-gauge">
+                      <span class="polar-orbit"></span>
+                      <div :id="'main' + item" class="home-chart-polar"></div>
+                    </div>
+                    <div class="polar-stats">
+                      <span
+                        class="polar-stat polar-stat--online"
+                        @click="goPolarList(item, true, $event)"
+                      >
+                        <i></i>{{ $t("homepage.online") }}
+                        <b>{{ polarStats[item - 1].online }}</b>
+                      </span>
+                      <span
+                        class="polar-stat polar-stat--offline"
+                        @click="goPolarList(item, false, $event)"
+                      >
+                        <i></i>{{ $t("homepage.offline") }}
+                        <b>{{ polarStats[item - 1].offline }}</b>
+                      </span>
+                      <span class="polar-stat polar-stat--total">
+                        {{ $t("homepage.Total") }}<b>{{ polarStats[item - 1].total }}</b>
+                      </span>
+                    </div>
                   </el-carousel-item>
                 </el-carousel>
               </div>
             </el-card>
-          </el-col>
-        </el-row>
+          </div>
+          </div>
+        </div>
       </el-main>
     </el-container>
     <!-- 选择项目（权限5登录后必选，不可关闭） -->
@@ -607,10 +608,37 @@
     </el-dialog>
 
     <el-dialog
-      :title="$t('Breadcrumb.AlarmStatistics')"
       v-model="warningWeek"
+      width="760px"
+      class="warn-week-dialog"
       @close="closeWarningWeek()"
     >
+      <template #header>
+        <div class="ww-header">
+          <span class="ww-header-icon"><i class="el-icon-data-analysis"></i></span>
+          <div class="ww-header-text">
+            <p class="ww-title">{{ $t("Breadcrumb.AlarmStatistics") }}</p>
+            <p class="ww-subtitle">
+              <span class="ww-type">{{ warnWeekStat.name }}</span>
+              <span class="ww-range">{{ $t("homepage.last7days") }}</span>
+            </p>
+          </div>
+        </div>
+      </template>
+      <div class="ww-summary">
+        <div class="ww-stat ww-stat--open">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.Notlifted") }}</span>
+          <b>{{ warnWeekStat.open }}</b>
+        </div>
+        <div class="ww-stat ww-stat--closed">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.Lifted") }}</span>
+          <b>{{ warnWeekStat.closed }}</b>
+        </div>
+        <div class="ww-stat ww-stat--total">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.sum") }}</span>
+          <b>{{ warnWeekStat.open + warnWeekStat.closed }}</b>
+        </div>
+      </div>
       <div id="warningweekdatas"></div>
     </el-dialog>
 
@@ -742,6 +770,14 @@ import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
 import { markRaw } from "vue";
+import { CHART_TONES, chartGradient } from "../../utils/homeChartTheme";
+
+// 与样式中 .polar-tile--1/2/3 的 --polar-* 变量保持一致
+const POLAR_THEMES = {
+  1: { c1: "#2F7BFF", c2: "#22D3EE", rgb: "47,123,255" },
+  2: { c1: "#8B5CF6", c2: "#EC4899", rgb: "139,92,246" },
+  3: { c1: "#059669", c2: "#34D399", rgb: "5,150,105" },
+};
 
 export default {
   mixins: [mapStyleMixin],
@@ -789,9 +825,6 @@ export default {
       max_num_buildName: "",
       max_num_buildNum: "",
       memberNum: {},
-      memberNum1: 0,
-      memberNum2: 0,
-      memberNum3: 0,
       member_indoor_num: 0,
       member_outdoor_num: 0,
       tbox_indoor_num: 0,
@@ -800,6 +833,7 @@ export default {
       asset_outdoor_num: 0,
       warningWeek: false,
       myChartWarning: "",
+      warnWeekStat: { name: "", open: 0, closed: 0 },
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -918,36 +952,38 @@ export default {
       el.style.margin = "0";
       el.style.width = "100%";
 
+      // 尺寸只按容器算，不读图表自身上次写入的像素高度，否则卡片变矮时图表缩不回去
       if (el.id === "main7") {
         const member = el.closest(".member");
         const cardBody = el.closest(".el-card__body");
-        const targetH = Math.max(
-          (member && member.clientHeight) || 0,
-          (cardBody && cardBody.clientHeight - 4) || 0,
-          fallbackH || 260
-        );
+        let bodyContentH = 0;
+        if (cardBody) {
+          const cs = getComputedStyle(cardBody);
+          bodyContentH =
+            cardBody.clientHeight -
+            (parseFloat(cs.paddingTop) || 0) -
+            (parseFloat(cs.paddingBottom) || 0);
+        }
+        const targetH =
+          Math.max((member && member.clientHeight) || 0, bodyContentH) ||
+          fallbackH ||
+          160;
         el.style.height = targetH + "px";
-        el.style.minHeight = targetH + "px";
+        el.style.minHeight = "0";
         el.style.flex = "1 1 auto";
         return {
-          width: Math.max(el.clientWidth || el.offsetWidth || 0, 280),
+          width: Math.max((member && member.clientWidth) || el.clientWidth || 0, 160),
           height: targetH,
         };
       }
 
-      const parent = el.closest(".el-carousel-item") || el.parentElement;
-      let width = el.clientWidth || el.offsetWidth || 0;
-      let height = el.clientHeight || el.offsetHeight || 0;
-      if (parent) {
-        width = Math.max(width, parent.clientWidth || 0);
-        // card 模式下侧卡偏窄，至少给中心卡可用高度
-        const parentH = parent.clientHeight || 0;
-        height = Math.max(height, parentH > 40 ? parentH - 36 : 0, fallbackH || 200);
-      }
-      height = Math.max(height, fallbackH || 200);
-      width = Math.max(width, 200);
+      // .polar-gauge 的高度已由 flex 扣除下方统计行
+      const parent = el.closest(".polar-gauge") || el.parentElement;
+      const parentH = (parent && parent.clientHeight) || 0;
+      const width = Math.max((parent && parent.clientWidth) || el.clientWidth || 0, 120);
+      const height = parentH > 40 ? parentH : fallbackH || 120;
       el.style.height = height + "px";
-      el.style.minHeight = height + "px";
+      el.style.minHeight = "0";
       return { width, height };
     },
     ensureChart(id, key, theme) {
@@ -962,7 +998,7 @@ export default {
           exist.dispose();
         } catch (e) {}
       }
-      const size = this.measureChartBox(el, id === "main7" ? 280 : 200);
+      const size = this.measureChartBox(el, id === "main7" ? 160 : 120);
       const instance = echarts.init(el, theme, {
         width: size.width,
         height: size.height,
@@ -978,7 +1014,7 @@ export default {
       const max = tries == null ? 30 : tries;
       const el = this.getChartDom(id);
       if (el) {
-        this.measureChartBox(el, id === "main7" ? 280 : 200);
+        this.measureChartBox(el, id === "main7" ? 160 : 120);
         if (el.clientWidth > 0 && el.clientHeight > 0) {
           run(el);
           return;
@@ -995,95 +1031,133 @@ export default {
         this.whenChartDomReady(id, run, max - 1);
       }, 50);
     },
-    polarBarColor() {
-      if (echarts.graphic && echarts.graphic.LinearGradient) {
-        return new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-          { offset: 0, color: "#518FEF" },
-          { offset: 1, color: "#5CBEFF" },
-        ]);
-      }
-      return "#559BF4";
-    },
-    buildPolarRingOption(percent, title, onlineName, offlineName, offlineNum, onlineNum) {
+    buildPolarRingOption(percent, title, onlineName, onlineNum, themeIndex) {
       let P = Number(percent);
       if (isNaN(P)) P = 0;
-      // 对齐大屏已验证可显示的 ECharts5 极坐标写法
+      const theme = POLAR_THEMES[themeIndex] || POLAR_THEMES[1];
+      const alpha = (a) => `rgba(${theme.rgb},${a})`;
+      const digits = Number.isInteger(P) ? 0 : 2;
+      const ring = {
+        type: "gauge",
+        startAngle: 90,
+        endAngle: -270,
+        min: 0,
+        max: 100,
+        center: ["50%", "50%"],
+        pointer: { show: false },
+        anchor: { show: false },
+        axisLabel: { show: false },
+        title: { show: false },
+      };
       return {
-        backgroundColor: "#ffffff",
-        title: {
-          text: P + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 22,
-          },
-          subtext: title,
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 14,
-          },
-          itemGap: 12,
-          left: "center",
-          top: "38%",
-        },
+        backgroundColor: "transparent",
         tooltip: {
-          formatter: function (params) {
-            if (params.seriesName === onlineName || params.name === onlineName) {
-              return onlineName + "：" + onlineNum;
-            }
-            return offlineName + "：" + offlineNum;
-          },
-        },
-        polar: {
-          radius: ["62%", "78%"],
-          center: ["50%", "50%"],
-        },
-        angleAxis: {
-          max: 100,
-          show: false,
-          clockwise: false,
-        },
-        radiusAxis: {
-          type: "category",
-          show: false,
+          formatter: () => onlineName + "：" + onlineNum,
         },
         series: [
           {
+            ...ring,
+            radius: "92%",
+            silent: true,
+            splitNumber: 12,
+            axisLine: { show: false },
+            progress: { show: false },
+            splitLine: {
+              distance: 0,
+              length: 5,
+              lineStyle: { color: alpha(0.75), width: 2 },
+            },
+            axisTick: {
+              distance: 0,
+              length: 3,
+              splitNumber: 4,
+              lineStyle: { color: alpha(0.28), width: 1 },
+            },
+            detail: { show: false },
+            data: [],
+          },
+          {
+            ...ring,
             name: onlineName,
-            type: "bar",
+            radius: "74%",
+            animationDuration: 1600,
+            animationEasingUpdate: "cubicOut",
+            axisLine: {
+              roundCap: true,
+              lineStyle: { width: 11, color: [[1, alpha(0.12)]] },
+            },
+            progress: {
+              // 值为 0 时圆头会在顶部画出一个点
+              show: P > 0,
+              roundCap: true,
+              width: 11,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
+                  { offset: 0, color: theme.c1 },
+                  { offset: 1, color: theme.c2 },
+                ]),
+                shadowColor: alpha(0.55),
+                shadowBlur: 10,
+              },
+            },
+            splitLine: { show: false },
+            axisTick: { show: false },
+            detail: {
+              valueAnimation: true,
+              offsetCenter: [0, 0],
+              lineHeight: 18,
+              formatter: (v) => `{v|${Number(v).toFixed(digits)}}{u|%}\n{t|${title}}`,
+              rich: {
+                v: { fontSize: 20, fontWeight: 700, color: theme.c1, fontFamily: "DIN Alternate, Arial" },
+                u: { fontSize: 12, fontWeight: 600, color: theme.c1, padding: [0, 0, 4, 2] },
+                t: { fontSize: 11, color: "#8a94a6", padding: [4, 0, 0, 0] },
+              },
+            },
+            emphasis: { disabled: true },
             data: [{ name: onlineName, value: P }],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 16,
-            showBackground: true,
-            backgroundStyle: {
-              color: "rgba(220,220,220,1)",
-            },
-            itemStyle: {
-              color: this.polarBarColor(),
-            },
-            emphasis: {
-              disabled: true,
-            },
           },
         ],
       };
     },
+    goPolarList(item, online, event) {
+      // card 走马灯里点非当前卡片是切换卡片，不跳转
+      const tile = event && event.currentTarget && event.currentTarget.closest(".el-carousel__item");
+      if (tile && !tile.classList.contains("is-active")) return;
+      const target = {
+        1: { enabled: this.employee, mutation: "changeStaffEuis", list: "member_online_dev_list", path: "/staff/staffmanagement" },
+        2: { enabled: this.asset, mutation: "changeAssetEuis", list: "asset_online_dev_list", path: "/staff/assetManagement" },
+        3: { enabled: this.tbox, mutation: "changeTBoxEuis", list: "tbox_online_dev_list", path: "/staff/tboxManagement" },
+      }[item];
+      if (!target || !target.enabled) return;
+      this.$store.commit(target.mutation, this.memberNum[target.list]);
+      this.$router.push({
+        path: target.path,
+        query: {
+          timeStamp: new Date(new Date().setHours(0, 0, 0, 0)) / 1000,
+          euis: true,
+          flag: online,
+        },
+      });
+    },
     scheduleHomeChartsResize() {
       const run = () => {
-        const beaconEl = this.getChartDom("main7");
-        if (beaconEl && this.myChartBeacon && !this.myChartBeacon.isDisposed?.()) {
-          const size = this.measureChartBox(beaconEl, 260);
-          try {
-            this.myChartBeacon.resize({ width: size.width, height: size.height });
-          } catch (e) {}
-        }
+        // 这几张图 init 时传了固定宽高，resize() 不带参数不会跟随容器，需显式传尺寸
         [
-          this.myChart1,
-          this.myChart2,
-          this.myChart3,
-          this.myChart4,
-          this.myChart5,
-        ].forEach((chart) => {
+          ["main7", "myChartBeacon", 160],
+          ["main1", "myChart3", 120],
+          ["main2", "myChart4", 120],
+          ["main3", "myChart5", 120],
+        ].forEach(([id, key, fallbackH]) => {
+          const el = this.getChartDom(id);
+          const chart = this[key];
+          if (el && chart && !chart.isDisposed?.()) {
+            const size = this.measureChartBox(el, fallbackH);
+            try {
+              chart.resize({ width: size.width, height: size.height });
+            } catch (e) {}
+          }
+        });
+        [this.myChart1, this.myChart2].forEach((chart) => {
           if (chart && chart.resize && !chart.isDisposed?.()) {
             try {
               chart.resize();
@@ -1548,56 +1622,94 @@ export default {
     },
     // 绘制一周内每天的告警信息柱状图
     echartsWarningWeek(warningName, warningDate, warningData1, warningData2) {
-      var that = this;
-      var chartDom = document.getElementById("warningweekdatas");
-      this.myChartWarning = echarts.init(chartDom);
-      var option;
-      option = {
-        title: {
-          text: warningName,
+      const chartDom = document.getElementById("warningweekdatas");
+      if (!chartDom) return;
+      this.disposeChart("myChartWarning");
+      const exist = echarts.getInstanceByDom(chartDom);
+      if (exist) exist.dispose();
+      this.myChartWarning = markRaw(echarts.init(chartDom));
+
+      const num = (v) => Number(v) || 0;
+      const dates = [...warningDate].reverse();
+      const closed = [...warningData2].reverse().map(num);
+      const open = [...warningData1].reverse().map(num);
+      this.warnWeekStat = {
+        name: warningName,
+        open: open.reduce((a, b) => a + b, 0),
+        closed: closed.reduce((a, b) => a + b, 0),
+      };
+
+      const barSeries = (name, data, tone) => ({
+        name,
+        type: "bar",
+        barMaxWidth: 18,
+        barGap: "30%",
+        itemStyle: {
+          borderRadius: [6, 6, 2, 2],
+          color: chartGradient(tone, 0, 0, 0, 1),
+          shadowBlur: 8,
+          shadowColor: `rgba(${tone.rgb},0.35)`,
+          shadowOffsetY: 2,
         },
+        label: {
+          show: true,
+          position: "top",
+          distance: 4,
+          fontSize: 11,
+          fontWeight: 700,
+          color: tone.c1,
+          formatter: (p) => (p.value ? p.value : ""),
+        },
+        emphasis: { itemStyle: { shadowBlur: 14 } },
+        animationDelay: (idx) => idx * 60,
+        data,
+      });
+
+      const option = {
         tooltip: {
           trigger: "axis",
           axisPointer: {
             type: "shadow",
+            shadowStyle: { color: "rgba(47,123,255,0.06)" },
           },
+          backgroundColor: "rgba(255,255,255,0.96)",
+          borderColor: "#e2e8f0",
+          textStyle: { color: "#334155", fontSize: 12 },
+          extraCssText: "box-shadow: 0 6px 20px rgba(15,23,42,0.12); border-radius: 8px;",
         },
-        color: ["#52ca52", "#d72a14"],
-        legend: {},
-        grid: {
-          left: "3%",
-          right: "4%",
-          bottom: "3%",
-          containLabel: true,
+        legend: {
+          top: 0,
+          right: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
-
+        grid: { left: 4, right: 8, top: 36, bottom: 4, containLabel: true },
         xAxis: {
           type: "category",
-          data: warningDate.reverse(),
+          data: dates,
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          axisLabel: { color: "#64748b", fontSize: 12 },
         },
         yAxis: {
           type: "value",
           minInterval: 1,
-          boundaryGap: [0, 0.01],
+          axisLabel: { color: "#94a3b8", fontSize: 11 },
+          splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
         },
         series: [
-          {
-            message: i18n.global.t("homepage.Lifted"),
-            type: "bar",
-            data: warningData2.reverse(),
-          },
-          {
-            message: i18n.global.t("homepage.Notlifted"),
-            type: "bar",
-            data: warningData1.reverse(),
-          },
+          barSeries(i18n.global.t("homepage.Notlifted"), open, CHART_TONES.red),
+          barSeries(i18n.global.t("homepage.Lifted"), closed, CHART_TONES.blue),
         ],
       };
 
-      option && this.myChartWarning.setOption(option);
+      this.myChartWarning.setOption(option, true);
     },
     closeWarningWeek() {
-      echarts.init(document.getElementById("warningweekdatas")).dispose(); //销毁
+      this.disposeChart("myChartWarning");
     },
     // 跳转到告警信息页面
     handdle(row, column, cell, event) {
@@ -2331,181 +2443,45 @@ export default {
       map.addLayer(this.layerVetor);
     },
 
-    myEcharts3() {
-      var that = this;
-      this.myChart3 = this.ensureChart("main1", "myChart3");
-      if (!this.myChart3) return;
-      this.memberNum.member_online_num = this.employee
-        ? this.memberNum.member_online_num
-        : 0;
-      this.memberNum.member_sum_num = this.employee ? this.memberNum.member_sum_num : 0;
-      let P = (
-        (this.memberNum.member_online_num / this.memberNum.member_sum_num) *
-        100
-      ).toFixed(2);
-      if (isNaN(P)) {
+    renderPolarRing(item) {
+      const cfg = {
+        1: { key: "myChart3", enabled: this.employee, online: "member_online_num", sum: "member_sum_num", t: ["home.tet1", "home.tet2"] },
+        2: { key: "myChart4", enabled: this.asset, online: "asset_online_num", sum: "asset_sum_num", t: ["home.tet4", "home.tet5"] },
+        3: { key: "myChart5", enabled: this.tbox, online: "tbox_online_num", sum: "tbox_sum_num", t: ["home.tet7", "home.tet8"] },
+      }[item];
+      const chart = this.ensureChart("main" + item, cfg.key);
+      if (!chart) return;
+      const n = this.memberNum;
+      n[cfg.online] = cfg.enabled ? n[cfg.online] : 0;
+      n[cfg.sum] = cfg.enabled ? n[cfg.sum] : 0;
+      let P = ((n[cfg.online] / n[cfg.sum]) * 100).toFixed(2);
+      if (isNaN(P) || !isFinite(P)) {
         P = "0";
       }
-      var offLineNum = this.memberNum.member_sum_num - this.memberNum.member_online_num;
-      const option = this.buildPolarRingOption(
-        P,
-        i18n.global.t("home.tet1"),
-        i18n.global.t("home.tet2"),
-        i18n.global.t("home.tet3"),
-        offLineNum,
-        this.memberNum.member_online_num
-      );
+      const onlineName = i18n.global.t(cfg.t[1]);
+      const option = this.buildPolarRingOption(P, i18n.global.t(cfg.t[0]), onlineName, n[cfg.online], item);
       try {
-        this.myChart3.clear();
-        this.myChart3.setOption(option, true);
-        this.myChart3.resize();
+        chart.clear();
+        chart.setOption(option, true);
+        chart.resize();
       } catch (e) {
         console.warn(e);
       }
-      this.myChart3.off("click");
-      this.myChart3.on("click", function (params) {
-        if (!that.employee) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == i18n.global.t("home.tet2")) {
-          that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
-          that.$router.push({
-            path: "/staff/staffmanagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == i18n.global.t("home.tet3")) {
-          that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
-          that.$router.push({
-            path: "/staff/staffmanagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
+      chart.off("click");
+      chart.on("click", (params) => {
+        if (params.name == onlineName) {
+          this.goPolarList(item, true, { currentTarget: chart.getDom() });
         }
       });
+    },
+    myEcharts3() {
+      this.renderPolarRing(1);
     },
     myEcharts4() {
-      var that = this;
-      this.myChart4 = this.ensureChart("main2", "myChart4");
-      if (!this.myChart4) return;
-      this.memberNum.asset_online_num = this.asset ? this.memberNum.asset_online_num : 0;
-      this.memberNum.asset_sum_num = this.asset ? this.memberNum.asset_sum_num : 0;
-      let P = (
-        (this.memberNum.asset_online_num / this.memberNum.asset_sum_num) *
-        100
-      ).toFixed(2);
-      if (isNaN(P)) {
-        P = "0";
-      }
-      var offLineNum = this.asset ? this.memberNum.asset_offline_num : 0;
-      const option = this.buildPolarRingOption(
-        P,
-        i18n.global.t("home.tet4"),
-        i18n.global.t("home.tet5"),
-        i18n.global.t("home.tet6"),
-        offLineNum,
-        this.memberNum.asset_online_num
-      );
-      try {
-        this.myChart4.clear();
-        this.myChart4.setOption(option, true);
-        this.myChart4.resize();
-      } catch (e) {
-        console.warn(e);
-      }
-      this.myChart4.off("click");
-      this.myChart4.on("click", function (params) {
-        if (!that.asset) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == i18n.global.t("home.tet5")) {
-          that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
-          that.$router.push({
-            path: "/staff/assetManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == i18n.global.t("home.tet6")) {
-          that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
-          that.$router.push({
-            path: "/staff/assetManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
-        }
-      });
+      this.renderPolarRing(2);
     },
     myEcharts5() {
-      var that = this;
-      this.myChart5 = this.ensureChart("main3", "myChart5");
-      if (!this.myChart5) return;
-      this.memberNum.tbox_online_num = this.tbox ? this.memberNum.tbox_online_num : 0;
-      this.memberNum.tbox_sum_num = this.tbox ? this.memberNum.tbox_sum_num : 0;
-      let P = (
-        (this.memberNum.tbox_online_num / this.memberNum.tbox_sum_num) *
-        100
-      ).toFixed(2);
-      if (isNaN(P)) {
-        P = "0";
-      }
-      var offLineNum = this.tbox ? this.memberNum.tbox_offline_num : 0;
-      const option = this.buildPolarRingOption(
-        P,
-        i18n.global.t("home.tet7"),
-        i18n.global.t("home.tet8"),
-        i18n.global.t("home.tet9"),
-        offLineNum,
-        this.memberNum.tbox_online_num
-      );
-      try {
-        this.myChart5.clear();
-        this.myChart5.setOption(option, true);
-        this.myChart5.resize();
-      } catch (e) {
-        console.warn(e);
-      }
-      this.myChart5.off("click");
-      this.myChart5.on("click", function (params) {
-        if (!that.tbox) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == i18n.global.t("home.tet8")) {
-          that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
-          that.$router.push({
-            path: "/staff/tboxManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == i18n.global.t("home.tet9")) {
-          that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
-          that.$router.push({
-            path: "/staff/tboxManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
-        }
-      });
+      this.renderPolarRing(3);
     },
     //用户视角
     myEcharts1() {
@@ -2527,145 +2503,132 @@ export default {
       const instance = echarts.init(chartDom, "macarons");
       this.myChart1 = instance ? markRaw(instance) : null;
       if (!this.myChart1) return;
-      var option;
-      let bgColor = "#fff";
-      let title = "总量";
-
-      let echartData = [
-        {
-          name: i18n.global.t("home.tet10"),
-          value: this.devBatTimeNum.bat_0_20,
-          itemStyle: {
-            color: "#d72a14",
-          },
-        },
-        {
-          itemStyle: {
-            color: "#E1D95B",
-          },
-          name: i18n.global.t("home.tet11"),
-          value: this.devBatTimeNum.bat_20_60,
-        },
-        {
-          itemStyle: {
-            color: "#52ca52",
-          },
-          name: i18n.global.t("home.tet12"),
-          value: this.devBatTimeNum.bat_60_100,
-        },
+      const bat = this.devBatTimeNum || {};
+      const dev = this.devTypeNum || {};
+      const num = (v) => Number(v) || 0;
+      const batData = [
+        { name: i18n.global.t("home.tet10"), value: num(bat.bat_0_20), tone: CHART_TONES.red },
+        { name: i18n.global.t("home.tet11"), value: num(bat.bat_20_60), tone: CHART_TONES.yellow },
+        { name: i18n.global.t("home.tet12"), value: num(bat.bat_60_100), tone: CHART_TONES.green },
       ];
-      let echartData2 = [
-        {
-          name: i18n.global.t("home.Unused"),
-          value: this.devTypeNum.inuse_no,
-        },
-        {
-          name: i18n.global.t("home.Used"),
-          value: this.devTypeNum.inuse_yes,
-        },
+      const useData = [
+        { name: i18n.global.t("home.Used"), value: num(dev.inuse_yes), tone: CHART_TONES.blue },
+        { name: i18n.global.t("home.Unused"), value: num(dev.inuse_no), tone: CHART_TONES.gray },
       ];
-      let total = echartData.reduce((a, b) => {
-        return a + b.value * 1;
-      }, 0);
+      const useTotal = useData[0].value + useData[1].value;
+      const usedRate = useTotal ? (useData[0].value / useTotal) * 100 : 0;
+      const rateDigits = Number.isInteger(usedRate) ? 0 : 1;
+      const center = ["50%", "47%"];
+      const toPieItem = (d) => ({
+        name: d.name,
+        value: d.value,
+        itemStyle: {
+          color: chartGradient(d.tone, 0, 0, 1, 1),
+          shadowBlur: 8,
+          shadowColor: `rgba(${d.tone.rgb},0.45)`,
+        },
+        label: { rich: { v: { color: d.tone.c1 } } },
+      });
 
-      option = {
-        backgroundColor: bgColor,
+      const option = {
+        backgroundColor: "transparent",
         tooltip: {
           trigger: "item",
           formatter: "{b}: {c} ({d}%)",
         },
         legend: {
-          type: "scroll",
-          icon: "rect",
-
-          bottom: "0",
-
-          textStyle: {
-            rich: {
-              name: {
-                fontSize: 12,
-              },
-              value: {
-                fontSize: 16,
-                padding: [0, 5, 0, 15],
-              },
-              unit: {
-                fontSize: 12,
-              },
-            },
-          },
+          bottom: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          data: useData.map((d) => d.name),
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
         series: [
-          //第一环
           {
-            type: "pie",
-            selectedMode: "single",
-            radius: ["20%", "35%"],
-            center: ["50%", "50%"],
-            itemStyle: {
-              normal: {
-                borderColor: bgColor,
-                borderWidth: 2,
-              },
-            },
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-
-            data: echartData2,
+            type: "gauge",
+            silent: true,
+            center,
+            radius: "57%",
+            startAngle: 90,
+            endAngle: -270,
+            splitNumber: 12,
+            pointer: { show: false },
+            progress: { show: false },
+            axisLine: { show: false },
+            axisLabel: { show: false },
+            detail: { show: false },
+            splitLine: { distance: 0, length: 3, lineStyle: { color: "rgba(100,116,139,0.55)", width: 2 } },
+            axisTick: { distance: 0, length: 2, splitNumber: 5, lineStyle: { color: "rgba(148,163,184,0.45)", width: 1 } },
+            data: [],
           },
-
           {
             type: "pie",
-            radius: ["45%", "60%"],
-            center: ["50%", "50%"],
-            data: echartData,
-            hoverAnimation: true,
+            silent: true,
+            center,
+            radius: [0, "40%"],
+            animationDuration: 1600,
             itemStyle: {
-              normal: {
-                borderColor: bgColor,
-                borderWidth: 2,
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 120,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
+              color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                { offset: 0, color: `rgba(${CHART_TONES.blue.rgb},0.14)` },
+                { offset: 1, color: `rgba(${CHART_TONES.blue.rgb},0)` },
+              ]),
             },
             label: {
-              normal: {
-                formatter: (params) => {
-                  return "{icon|●}{name|" + params.name + "}{value|" + params.value + "}";
-                },
-                padding: [0, -100, 25, -100],
-                rich: {
-                  icon: {
-                    fontSize: 16,
-                  },
-                  name: {
-                    fontSize: 14,
-                    padding: [0, 10, 0, 4],
-                    color: "#666666",
-                  },
-                  value: {
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    color: "#333333",
-                  },
-                },
+              show: true,
+              position: "center",
+              lineHeight: 18,
+              formatter: () =>
+                `{v|${usedRate.toFixed(rateDigits)}}{u|%}\n{t|${i18n.global.t("home.Used")}}`,
+              rich: {
+                v: { fontSize: 22, fontWeight: 700, color: CHART_TONES.blue.c1, fontFamily: "DIN Alternate, Arial" },
+                u: { fontSize: 12, fontWeight: 600, color: CHART_TONES.blue.c1, padding: [0, 0, 5, 2] },
+                t: { fontSize: 11, color: "#8a94a6", padding: [4, 0, 0, 0] },
               },
             },
+            labelLine: { show: false },
+            data: [{ value: 1 }],
+          },
+          {
+            type: "pie",
+            center,
+            radius: ["42%", "50%"],
+            padAngle: useData.filter((d) => d.value > 0).length > 1 ? 3 : 0,
+            itemStyle: { borderRadius: 4 },
+            label: { show: false },
+            labelLine: { show: false },
+            emphasis: { scaleSize: 4 },
+            data: useData.map(toPieItem),
+          },
+          {
+            type: "pie",
+            center,
+            radius: ["62%", "74%"],
+            padAngle: batData.filter((d) => d.value > 0).length > 1 ? 3 : 0,
+            minAngle: 4,
+            itemStyle: { borderRadius: 6 },
+            emphasis: { scaleSize: 5 },
+            animationType: "scale",
+            animationEasing: "elasticOut",
+            labelLine: {
+              length: 8,
+              length2: 10,
+              smooth: true,
+              lineStyle: { color: "#cbd5e1" },
+            },
+            label: {
+              alignTo: "edge",
+              edgeDistance: 6,
+              minMargin: 4,
+              lineHeight: 16,
+              formatter: "{n|{b}}\n{v|{c}}",
+              rich: {
+                n: { fontSize: 11, color: "#64748b" },
+                v: { fontSize: 15, fontWeight: 700, fontFamily: "DIN Alternate, Arial" },
+              },
+            },
+            data: batData.filter((d) => d.value > 0).map(toPieItem),
           },
         ],
       };
@@ -2754,48 +2717,32 @@ export default {
         },
         legend: {
           data: [i18n.global.t("checkwork.Attendance"), i18n.global.t("checkwork.Noattendance")],
-          bottom: "0",
-          textStyle: {
-            color: "#666",
-          },
+          bottom: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
+        grid: { left: 4, right: 8, top: 16, bottom: 26, containLabel: true },
         xAxis: {
           type: "category",
           data: category,
-          axisTick: {
-            alignWithLabel: true,
-          },
-
-          splitLine: {
-            show: false,
-          },
-          axisLabel: {
-            fontsize: 2,
-            align: "center",
-            color: "#666",
-          },
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          splitLine: { show: false },
+          axisLabel: { color: "#64748b", fontSize: 11 },
         },
         yAxis: [
           {
             type: "value",
             minInterval: 1,
-            splitLine: {
-              show: true,
-              lineStyle: {
-                color: "#666",
-              },
-            },
-            axisLine: {
-              show: false,
-            },
+            splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
+            axisLine: { show: false },
             axisLabel: {
-              formatter: function (data) {
-                if (data < 0) return -data;
-                else return data;
-              },
-              fontWeight: 10,
-              fontsize: 5,
-              color: "#666",
+              formatter: (data) => Math.abs(data),
+              color: "#94a3b8",
+              fontSize: 11,
             },
           },
         ],
@@ -2805,15 +2752,12 @@ export default {
             name: i18n.global.t("checkwork.Attendance"),
             type: "bar",
             stack: "总量",
-            barWidth: 14,
+            barWidth: 12,
             itemStyle: {
-              normal: {
-                barBorderRadius: 25,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#4aa3ff" },
-                  { offset: 1, color: "#5664d2" },
-                ]),
-              },
+              borderRadius: [6, 6, 0, 0],
+              color: chartGradient(CHART_TONES.blue, 0, 0, 0, 1),
+              shadowBlur: 6,
+              shadowColor: `rgba(${CHART_TONES.blue.rgb},0.35)`,
             },
             data: barData2,
           },
@@ -2822,22 +2766,10 @@ export default {
             name: i18n.global.t("checkwork.Noattendance"),
             type: "bar",
             stack: "总量",
-            barWidth: 14,
+            barWidth: 12,
             itemStyle: {
-              normal: {
-                barBorderRadius: 25,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#74788d" },
-                  { offset: 1, color: "#ccc" },
-                ]),
-              },
-            },
-            label: {
-              show: false,
-              formatter: (value) => {
-                // 值都是负数的 所以需要取反一下
-                return -value.data;
-              },
+              borderRadius: [0, 0, 6, 6],
+              color: chartGradient(CHART_TONES.gray, 0, 1, 0, 0),
             },
             data: barData1,
           },
@@ -2887,53 +2819,80 @@ export default {
           beacon_data[i].value = 0;
         }
       }
-      let dev_beacon_xAx = [];
-      let dev_beacon_yAy = [];
-      for (let i = 0; i < beacon_data.length; i++) {
-        dev_beacon_xAx.push(beacon_data[i].name);
-        dev_beacon_yAy.push(beacon_data[i].value);
-      }
-      var option;
-      option = {
-        tooltip: {},
+      const beaconTones = [
+        CHART_TONES.green,
+        CHART_TONES.yellow,
+        CHART_TONES.red,
+        CHART_TONES.green,
+        CHART_TONES.yellow,
+        CHART_TONES.red,
+      ];
+      const option = {
+        tooltip: {
+          trigger: "item",
+          formatter: (p) => p.marker + p.name + "：" + p.value,
+        },
         grid: {
-          left: 40,
-          right: 20,
-          top: 30,
-          bottom: 60,
+          left: 4,
+          right: 8,
+          top: 22,
+          bottom: 2,
+          containLabel: true,
         },
         xAxis: {
-          data: dev_beacon_xAx,
+          type: "category",
+          data: beacon_data.map((d) => d.name),
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          axisTick: { show: false },
           axisLabel: {
             interval: 0,
-            rotate: 30,
-          },
-          axisTick: {
-            alignWithLabel: true,
+            color: "#64748b",
+            fontSize: 11,
+            lineHeight: 13,
+            width: 56,
+            overflow: "break",
           },
         },
         yAxis: {
           type: "value",
           minInterval: 1,
+          axisLabel: { color: "#94a3b8", fontSize: 11 },
+          splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
         },
         series: [
           {
             type: "bar",
-            itemStyle: {
-              color: function (params) {
-                var colorList = [
-                  "#52ca52",
-                  "#E1D95B",
-                  "#d72a14",
-                  "#52ca52",
-                  "#E1D95B",
-                  "#d72a14",
-                ];
-                return colorList[params.dataIndex];
-              },
+            barWidth: "38%",
+            showBackground: true,
+            backgroundStyle: {
+              color: "rgba(148,163,184,0.12)",
+              borderRadius: [8, 8, 3, 3],
             },
-            barCategoryGap: "60%",
-            data: dev_beacon_yAy,
+            label: {
+              show: true,
+              position: "top",
+              distance: 4,
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "DIN Alternate, Arial",
+            },
+            emphasis: {
+              itemStyle: { shadowBlur: 14 },
+            },
+            animationDuration: 1000,
+            animationEasing: "cubicOut",
+            animationDelay: (idx) => idx * 90,
+            data: beacon_data.map((d, i) => ({
+              value: d.value,
+              itemStyle: {
+                borderRadius: [8, 8, 3, 3],
+                color: chartGradient(beaconTones[i], 0, 0, 0, 1),
+                shadowBlur: 8,
+                shadowColor: `rgba(${beaconTones[i].rgb},0.4)`,
+                shadowOffsetY: 2,
+              },
+              label: { color: beaconTones[i].c1 },
+            })),
           },
         ],
       };
@@ -3163,9 +3122,6 @@ export default {
 
           if (that.contrForPrionum == 5) {
             that.memberNum = res.data;
-            that.memberNum1 = that.employee ? res.data.member_sum_num : 0;
-            that.memberNum2 = that.asset ? res.data.asset_sum_num : 0;
-            that.memberNum3 = that.tbox ? res.data.tbox_sum_num : 0;
             that.$nextTick(() => {
               that.renderPolarCharts();
               if (that.attendanceNum.length > 0) {
@@ -3325,10 +3281,6 @@ export default {
       this.outdoorBaseLayers = createOutdoorBaseLayers(
         this.$store.state.i18n == "zh"
       );
-      var count = document.getElementById("count");
-      if (count) {
-        count.style.height = 15 + "vh";
-      }
       clearInterval(this.timer);
       this.timer = null;
       clearInterval(this.timerMap);
@@ -3363,6 +3315,19 @@ export default {
 
   mounted() {
     this.bootstrapHomePage();
+    // 首页高度随窗口按比例分配，容器尺寸一变就要重绘地图和图表
+    if (window.ResizeObserver && this.$refs.homeGrid) {
+      this._homeResizeObserver = new ResizeObserver(() => {
+        clearTimeout(this._homeResizeTimer);
+        this._homeResizeTimer = setTimeout(() => {
+          if (this.map && this.map.updateSize) {
+            this.map.updateSize();
+          }
+          this.scheduleHomeChartsResize();
+        }, 100);
+      });
+      this._homeResizeObserver.observe(this.$refs.homeGrid);
+    }
   },
   computed: {
     isFullscreen() {
@@ -3381,6 +3346,23 @@ export default {
     latis() {
       return this.$store.state.latis;
     },
+    polarStats() {
+      const n = this.memberNum || {};
+      const num = (v) => Number(v) || 0;
+      const stat = (enabled, online, total, offline) =>
+        enabled
+          ? {
+              online: num(online),
+              offline: offline == null ? Math.max(num(total) - num(online), 0) : num(offline),
+              total: num(total),
+            }
+          : { online: 0, offline: 0, total: 0 };
+      return [
+        stat(this.employee, n.member_online_num, n.member_sum_num),
+        stat(this.asset, n.asset_online_num, n.asset_sum_num, n.asset_offline_num),
+        stat(this.tbox, n.tbox_online_num, n.tbox_sum_num, n.tbox_offline_num),
+      ];
+    },
   },
   watch: {
     isFullscreen(val, oldVal) {
@@ -3395,19 +3377,6 @@ export default {
         that.myChart5.resize();
         if (that.myChartBeacon) {
           that.myChartBeacon.resize();
-        }
-        var count = document.getElementById("count");
-        //全屏样式修改
-        if (
-          document.fullscreen ||
-          document.mozFullScreen ||
-          document.webkitIsFullScreen ||
-          document.msFullscreenElement ||
-          window.fullScreen
-        ) {
-          count.style.height = 12.5 + "vh";
-        } else {
-          count.style.height = 15 + "vh";
         }
       }
     },
@@ -3455,6 +3424,11 @@ export default {
   },
 
   unmounted() {
+    if (this._homeResizeObserver) {
+      this._homeResizeObserver.disconnect();
+      this._homeResizeObserver = null;
+    }
+    clearTimeout(this._homeResizeTimer);
     clearTimeout(this._chartResizeTimer1);
     clearTimeout(this._chartResizeTimer2);
     clearInterval(this.polarTimer);
@@ -3557,9 +3531,12 @@ h6 {
   cursor: pointer;
 }
 
-#beaconPower,
-#projectType {
+#beaconPower {
   height: 300px;
+}
+
+#projectType {
+  height: 100%;
 }
 
 #projectType >>> .el-table th {
@@ -3626,7 +3603,7 @@ a {
   margin-left: 0;
   position: relative;
   box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
-  height: 44vh;
+  height: 100%;
   background-color: #fff;
 }
 .maps .tips {
@@ -3917,13 +3894,122 @@ a {
 
 main.el-main {
   margin: 0 !important;
-  padding: 0;
-  padding-top: 0px !important;
-  padding-left: 15px !important;
-  padding-bottom: 30px !important;
+  /* 底部让出 App.vue 中 position: fixed 的 .changeLanguage 页脚（高 30px） */
+  padding: 12px 12px 42px 15px !important;
+  box-sizing: border-box;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-width: none;
+}
+
+// 首页一屏布局：指标卡按内容高度，地图行与统计行按比例分剩余高度；
+// 内容区低于 min-height 时才出现滚动，避免过矮屏幕把图表挤坏
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 15fr) minmax(0, 9fr);
+  grid-template-rows: auto minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-areas:
+    "cards device"
+    "map device"
+    "bottom bottom";
+  gap: 12px;
+  height: 100%;
+  min-height: 560px;
+  box-sizing: border-box;
+}
+
+// 抵消 App.vue 全局 * { margin: 0 auto }，否则网格项会收缩成内容宽度
+.home-grid > *,
+.home-cards > *,
+.home-bottom > *,
+.home-device > * {
+  margin: 0 !important;
+  min-width: 0;
+}
+
+.home-cards {
+  grid-area: cards;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 0;
+
+  .card-panel-col {
+    margin-bottom: 0;
+  }
+
+  .card-panel {
+    height: 100%;
+  }
+}
+
+.home-card-value {
+  color: #676767;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-device {
+  grid-area: device;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.home-device-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.home-device-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.home-device .count {
+  flex: 0 0 auto;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+}
+
+.home-map {
+  grid-area: map;
+  min-height: 0;
+}
+
+.home-bottom {
+  grid-area: bottom;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 8fr) minmax(0, 9fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.home-bottom-item {
+  min-height: 0;
+  height: 100%;
+}
+
+// 窄屏不再强求一屏：改为单列纵向排布，允许滚动。
+// 高度用 vh：px 会被 pxtorem 按窗口宽度缩小，窄屏下各块会过矮
+@media (max-width: 1100px) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 60vh 50vh auto;
+    grid-template-areas:
+      "cards"
+      "device"
+      "map"
+      "bottom";
+    height: auto;
+  }
+
+  .home-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 45vh;
+  }
 }
 .el-main::-webkit-scrollbar {
   display: none;
@@ -4090,7 +4176,7 @@ h4.mb-0 {
 .home-stat-card :deep(.el-carousel__item),
 .home-stat-card :deep(.home-chart),
 .home-stat-card :deep(.home-chart-polar),
-.home-stat-card :deep(.polar-total),
+.home-stat-card :deep(.polar-stats),
 .home-stat-card :deep(.el-breadcrumb),
 .home-stat-card :deep(.home-card-title) {
   /* 覆盖 App.vue 全局 * { margin: 0 auto }，否则标题居中、内容被挤成窄条 */
@@ -4124,6 +4210,9 @@ h4.mb-0 {
 .home-card-title-polar {
   gap: 6px;
 }
+.home-card-title > span {
+  margin: 0 !important;
+}
 .home-card-title :deep(.el-breadcrumb) {
   display: inline-flex;
   align-items: center;
@@ -4139,18 +4228,78 @@ h4.mb-0 {
   cursor: help;
 }
 .count {
-  padding: 22px;
+  position: relative;
+  padding: 18px 8px;
   background-color: #fff;
   border-radius: 5px;
   display: flex;
+  overflow: hidden;
+}
+.count::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2f7bff, #22d3ee 35%, #34d399 65%, #8b5cf6);
 }
 .count-item {
-  border-right: 1px #ccc solid;
+  --count-color: #2f7bff;
+  position: relative;
   width: 25%;
+  padding: 4px 0;
+  border-radius: 8px;
+  transition: background-color 0.25s, transform 0.25s;
 }
-
-.count .count-item:last-child {
-  border-right: 0;
+.count-item + .count-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(203, 213, 225, 0), #cbd5e1, rgba(203, 213, 225, 0));
+}
+.count-item:hover {
+  background-color: rgba(148, 163, 184, 0.08);
+  transform: translateY(-2px);
+}
+.count-item--online {
+  --count-color: #10b981;
+}
+.count-item--offline {
+  --count-color: #f59e0b;
+}
+.count-item--unknown {
+  --count-color: #94a3b8;
+}
+/* .norem：字号保持原内联样式的固定 px，不随 pxtorem 缩小 */
+.count.norem .count-item :deep(.card-panel-num) {
+  display: block;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--count-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
+  text-shadow: 0 2px 10px color-mix(in srgb, var(--count-color) 30%, transparent);
+}
+.count.norem .count-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+.count-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--count-color);
+  box-shadow: 0 0 6px var(--count-color);
+  margin: 0 !important;
 }
 .el-container {
   color: #515a6e;
@@ -4173,7 +4322,7 @@ h4.mb-0 {
   flex: 0 0 auto;
 }
 #main6 {
-  margin-top: -9%;
+  margin-top: 4px !important;
   flex: 1;
   min-height: 0;
 }
@@ -4184,7 +4333,7 @@ h4.mb-0 {
 .home-chart-fill {
   flex: 1 1 auto !important;
   width: 100% !important;
-  min-height: 240px !important;
+  min-height: 0 !important;
   height: 100% !important;
 }
 .home-chart-carousel {
@@ -4212,19 +4361,154 @@ h4.mb-0 {
   padding: 6px 8px;
   box-sizing: border-box;
 }
-.home-chart-polar {
-  width: 100% !important;
-  flex: 1 1 auto;
-  min-height: 160px !important;
-  height: calc(100% - 28px) !important;
+.polar-tile--1 {
+  --polar-c1: #2f7bff;
+  --polar-c2: #22d3ee;
+  --polar-rgb: 47, 123, 255;
 }
-.polar-total {
-  margin: 0 !important;
-  line-height: 28px;
-  text-align: center;
-  flex: 0 0 auto;
+.polar-tile--2 {
+  --polar-c1: #8b5cf6;
+  --polar-c2: #ec4899;
+  --polar-rgb: 139, 92, 246;
+}
+.polar-tile--3 {
+  --polar-c1: #059669;
+  --polar-c2: #34d399;
+  --polar-rgb: 5, 150, 105;
+}
+.home-chart-carousel :deep(.el-carousel__item.polar-tile) {
+  border-radius: 12px;
+  border: 1px solid rgba(var(--polar-rgb), 0.18);
+  background: radial-gradient(
+      120% 80% at 50% 0%,
+      rgba(var(--polar-rgb), 0.1) 0%,
+      rgba(var(--polar-rgb), 0) 60%
+    ),
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  transition: box-shadow 0.3s, border-color 0.3s, transform 0.4s ease-in-out;
+}
+.home-chart-carousel :deep(.el-carousel__item.polar-tile.is-active) {
+  border-color: rgba(var(--polar-rgb), 0.4);
+  box-shadow: 0 6px 20px rgba(var(--polar-rgb), 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+.polar-gauge {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
+  margin: 0 !important;
+  /* 让光环用 cqmin 按图表短边取尺寸，与 ECharts 按 min(宽,高) 算半径一致 */
+  container-type: size;
+}
+.polar-gauge::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70cqmin;
+  height: 70cqmin;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(var(--polar-rgb), 0.14) 0%,
+    rgba(var(--polar-rgb), 0) 70%
+  );
+  pointer-events: none;
+}
+.polar-orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 97cqmin;
+  height: 97cqmin;
+  margin: 0 !important;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--polar-rgb), 0) 0deg,
+    rgba(var(--polar-rgb), 0) 220deg,
+    var(--polar-c2) 340deg,
+    var(--polar-c1) 360deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  opacity: 0.25;
+  pointer-events: none;
+}
+.home-chart-carousel :deep(.el-carousel__item.is-active) .polar-orbit {
+  opacity: 0.9;
+  animation: polar-orbit-spin 3.6s linear infinite;
+}
+@keyframes polar-orbit-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-chart-carousel :deep(.el-carousel__item.is-active) .polar-orbit {
+    animation: none;
+  }
+}
+.home-chart-polar {
+  position: relative;
+  z-index: 1;
+  width: 100% !important;
+  min-height: 0 !important;
+}
+.polar-stats {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 26px;
+  margin: 0 !important;
+  font-size: 12px;
+  color: #8a94a6;
   white-space: nowrap;
+  overflow: hidden;
+}
+.polar-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 !important;
+  line-height: 1;
+}
+.polar-stat b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #303a4b;
+  font-family: "DIN Alternate", Arial, sans-serif;
+}
+.polar-stat i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 2px 0 0 !important;
+}
+.polar-stat--online,
+.polar-stat--offline {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.polar-stat--online i {
+  background: var(--polar-c1);
+  box-shadow: 0 0 6px var(--polar-c1);
+}
+.polar-stat--online b {
+  color: var(--polar-c1);
+}
+.polar-stat--offline i {
+  background: #c0c6d0;
+}
+.polar-stat--online:hover,
+.polar-stat--offline:hover {
+  color: var(--polar-c1);
 }
 .box-card2 {
   display: flex;
@@ -4315,7 +4599,117 @@ h4.mb-0 {
 
 #warningweekdatas {
   width: 100%;
-  height: 500px;
+  height: 340px;
+}
+.ww-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+.ww-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  margin: 0 !important;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+}
+.ww-header-text {
+  margin: 0 !important;
+  min-width: 0;
+}
+.ww-title {
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.3;
+}
+.ww-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0 !important;
+  font-size: 12px;
+  color: #8a94a6;
+}
+.ww-type {
+  margin: 0 !important;
+  padding: 1px 8px;
+  border-radius: 10px;
+  color: #dc2626;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1);
+}
+.ww-range {
+  margin: 0 !important;
+}
+.ww-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px !important;
+}
+.ww-stat {
+  --ww-color: #2f7bff;
+  --ww-rgb: 47, 123, 255;
+  position: relative;
+  margin: 0 !important;
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-align: left;
+  overflow: hidden;
+  border: 1px solid rgba(var(--ww-rgb), 0.16);
+  background: linear-gradient(135deg, rgba(var(--ww-rgb), 0.1), rgba(var(--ww-rgb), 0.02));
+}
+.ww-stat::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(var(--ww-rgb), 0.08);
+}
+.ww-stat--open {
+  --ww-color: #dc2626;
+  --ww-rgb: 239, 68, 68;
+}
+.ww-stat--total {
+  --ww-color: #475569;
+  --ww-rgb: 100, 116, 139;
+}
+.ww-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  font-size: 12px;
+  color: #64748b;
+}
+.ww-stat-label i {
+  width: 6px;
+  height: 6px;
+  margin: 0 !important;
+  border-radius: 50%;
+  background: var(--ww-color);
+  box-shadow: 0 0 6px var(--ww-color);
+}
+.ww-stat b {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--ww-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
 }
 .el-carousel {
   height: 100%;
@@ -4352,6 +4746,247 @@ h4.mb-0 {
   line-height: 24px;
   margin-left: 5px;
 }
+
+// ===================== 首页卡片统一视觉 =====================
+.home-grid .el-card,
+.home-grid .count,
+.home-cards .card-panel {
+  border: 1px solid #eef1f6;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.home-grid .el-card:hover,
+.home-grid .count:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09) !important;
+}
+.home-grid :deep(.el-card__header) {
+  position: relative;
+  padding-left: 26px;
+  border-bottom-color: #f1f4f8;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+}
+.home-grid :deep(.el-card__header)::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, #22d3ee, #2f7bff);
+  box-shadow: 0 0 6px rgba(47, 123, 255, 0.45);
+}
+
+// 顶部三张指标卡
+.home-cards .card-panel {
+  --panel-c1: #2f7bff;
+  --panel-c2: #22d3ee;
+  --panel-rgb: 47, 123, 255;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(
+      90% 120% at 100% 0%,
+      rgba(var(--panel-rgb), 0.1) 0%,
+      rgba(var(--panel-rgb), 0) 55%
+    ),
+    #fff;
+}
+.home-cards .card-panel > .card-body {
+  width: 100%;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+.home-cards .card-panel .media-body {
+  margin: 0 !important;
+}
+.home-cards .card-panel--2 {
+  --panel-c1: #8b5cf6;
+  --panel-c2: #ec4899;
+  --panel-rgb: 139, 92, 246;
+}
+.home-cards .card-panel--3 {
+  --panel-c1: #059669;
+  --panel-c2: #34d399;
+  --panel-rgb: 16, 185, 129;
+}
+.home-cards .card-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(var(--panel-rgb), 0.16) !important;
+}
+.home-cards .card-panel .media-body p {
+  color: #8a94a6;
+}
+.home-cards .card-panel .home-card-value {
+  color: #1f2937;
+  font-weight: 700;
+}
+.home-cards .card-panel .card-panel-icon-wrapper,
+.home-cards .card-panel:hover .card-panel-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--panel-c2), var(--panel-c1));
+  box-shadow: 0 6px 14px rgba(var(--panel-rgb), 0.35);
+}
+.home-cards .card-panel:hover .card-panel-icon-wrapper {
+  transform: scale(1.06) rotate(-4deg);
+}
+.home-cards .card-panel .card-panel-icon {
+  font-size: 32px;
+  color: #fff;
+}
+.home-cards .card-panel .icon,
+.home-cards .card-panel:hover .icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 !important;
+  background-color: #fff;
+}
+.home-cards .card-panel .border-top {
+  margin-top: auto;
+  border-top-color: rgba(var(--panel-rgb), 0.1) !important;
+}
+.home-cards .badge-soft-success {
+  position: relative;
+  padding-left: 14px;
+}
+.home-cards .badge-soft-success::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: #1cbb8c;
+  animation: home-live-pulse 1.6s ease-out infinite;
+}
+@keyframes home-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(28, 187, 140, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(28, 187, 140, 0);
+  }
+}
+.card-panel-rank {
+  float: right;
+}
+.card-panel-rank a {
+  color: var(--panel-c1);
+  font-weight: 600;
+  cursor: pointer;
+}
+.card-panel-rank a::after {
+  content: " ›";
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.card-panel-rank a:hover::after {
+  transform: translateX(3px);
+}
+
+// 告警类型表格
+.sostable {
+  --el-table-border-color: #f1f4f8;
+  --el-table-header-bg-color: #f6f8fb;
+  --el-table-row-hover-bg-color: #f3f7ff;
+}
+.sostable :deep(th.el-table__cell) {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 12px;
+}
+.sostable :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+.warn-num {
+  display: inline-block;
+  min-width: 22px;
+  padding: 0 7px;
+  border-radius: 10px;
+  line-height: 18px;
+  font-weight: 700;
+  font-family: "DIN Alternate", Arial, sans-serif;
+  transition: transform 0.2s;
+}
+.warn-num--open {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2) inset;
+}
+.warn-num--closed {
+  color: #2f7bff;
+  background: rgba(47, 123, 255, 0.1);
+}
+.warn-num--zero {
+  color: #b6bfcc;
+}
+.sostable :deep(.cell-point) {
+  cursor: pointer;
+}
+.sostable :deep(.cell-point:hover) .warn-num {
+  transform: scale(1.12);
+}
+.sostable .editss {
+  height: 22px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+// 考勤统计
+.atten-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px !important;
+  font-size: 12px;
+  color: #64748b;
+}
+.atten-today {
+  margin: 0 !important;
+  font-weight: 600;
+}
+.atten-chip {
+  --chip-color: #2f7bff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(47, 123, 255, 0.08);
+}
+.atten-chip--no {
+  --chip-color: #64748b;
+  background: rgba(148, 163, 184, 0.14);
+}
+.atten-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 !important;
+  background: var(--chip-color);
+}
+.atten-chip b {
+  font-size: 16px;
+  color: var(--chip-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-cards .badge-soft-success::before {
+    animation: none;
+  }
+}
 </style>
 
 <style lang="scss">
@@ -4368,5 +5003,28 @@ h4.mb-0 {
   width: 100% !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
+}
+
+/* 告警统计弹框：el-dialog 被 teleport 到 body，scoped 样式作用不到外框 */
+.el-dialog.warn-week-dialog {
+  max-width: 92vw;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 0;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+.el-dialog.warn-week-dialog .el-dialog__header {
+  margin: 0;
+  padding: 18px 48px 16px 20px;
+  border-bottom: 1px solid #f1f4f8;
+  background: radial-gradient(120% 140% at 0% 0%, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0) 60%),
+    #fff;
+}
+.el-dialog.warn-week-dialog .el-dialog__headerbtn {
+  top: 14px;
+  right: 12px;
+}
+.el-dialog.warn-week-dialog .el-dialog__body {
+  padding: 18px 20px 20px;
 }
 </style>

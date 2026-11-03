@@ -8,6 +8,17 @@
       <div class="return" @click="brk">返回</div>
     </div>
     <div id="mapback"></div>
+    <!-- 地形底图转成与标准图一致的深蓝色调：先去色，再按亮度反向映射到深蓝色板（亮处变深） -->
+    <svg class="map-tone-defs" aria-hidden="true">
+      <filter id="lsMapToneTer" color-interpolation-filters="sRGB">
+        <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0.12 0.04 0 0 0" />
+          <feFuncG type="table" tableValues="0.4 0.22 0.12 0.07 0.04" />
+          <feFuncB type="table" tableValues="0.58 0.4 0.28 0.2 0.12" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
     <div class="frameBox">
       <div class="bottom">
         <div class="frame1">
@@ -2174,9 +2185,27 @@ $border: 1px solid red;
   }
 }
 
+// 标准矢量图 / OSM：反色成深蓝科技风
 .LargeScreen :deep(.baseLayerClass) {
   filter: grayscale(50%) sepia(45%) invert(100%) saturate(350%)
     hue-rotate(-46deg);
+}
+
+// 卫星是实景，反色会变成"底片"，只压暗以突出面板和文字
+.LargeScreen :deep(.baseLayerClass.baseLayer-img) {
+  filter: brightness(0.55) contrast(1.1) saturate(0.8);
+}
+
+// 地形用 SVG 双色调滤镜，整体色调与标准图一致
+.LargeScreen :deep(.baseLayerClass.baseLayer-ter) {
+  filter: url(#lsMapToneTer);
+}
+
+.map-tone-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .LargeScreen {

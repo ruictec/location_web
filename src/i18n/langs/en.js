@@ -1728,6 +1728,10 @@ const en = {
         vehicle: 'Vehicle',
         content1: 'Online means that there is a location data update within 10 minutes.',
         Total: 'Total：',
+        online: 'Online',
+        offline: 'Offline',
+        last7days: 'Last 7 days',
+        sum: 'Total',
         No: 'No',
         building: 'Building',
         floor: 'Floor',
@@ -2616,6 +2620,9 @@ const en = {
         activityTrend: 'Activity',
         pleaseNameAndDate: 'Please select name and date',
         nodata: 'No data',
+        statPeople: 'People',
+        statAvg: 'Avg',
+        statMax: 'Max',
     },
     //系统管理 我的工单
     myorder: {
@@ -2872,6 +2879,9 @@ const en = {
         tet10: 'Energy<20%',
         tet11: 'Energy>20%',
         tet12: 'Energy>60%',
+        beaconTotal: 'Beacons',
+        projectTotal: 'Projects',
+        deviceTotal: 'Devices',
     },
     //用户订单
     companyorder: {

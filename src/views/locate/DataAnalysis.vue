@@ -1,5 +1,5 @@
 <template>
-  <div class="data-analysis-page">
+  <div class="data-analysis-page norem">
     <div
       class="inputContent outdoor-filter-flow terminal-filter-flow"
       :class="filterLangClass"
@@ -66,9 +66,23 @@
     </div>
 
     <div class="chart-panel">
-      <div class="chart-card">
+      <div class="chart-card chart-card--steps">
         <div class="chart-header">
-          <div class="chart-title">{{ chartTitleTop }}</div>
+          <div class="chart-title">
+            <span class="chart-title-icon"><i class="el-icon-data-line"></i></span>
+            <span>{{ chartTitleTop }}</span>
+          </div>
+          <div v-if="stats.top" class="chart-stats">
+            <span v-if="viewMode === 'rank'" class="chart-stat">
+              <em>{{ $t("LocationIndoorHis.statPeople") }}</em><b>{{ stats.top.count }}</b>
+            </span>
+            <span class="chart-stat">
+              <em>{{ $t("LocationIndoorHis.statAvg") }}</em><b>{{ stats.top.avg }}</b>
+            </span>
+            <span class="chart-stat chart-stat--max">
+              <em>{{ $t("LocationIndoorHis.statMax") }}</em><b>{{ stats.top.max }}</b>
+            </span>
+          </div>
           <div v-if="viewMode === 'rank'" class="chart-sort">
             <el-button
               size="small"
@@ -86,9 +100,10 @@
         </div>
         <div ref="chartTop" class="chart-box"></div>
       </div>
-      <div class="chart-card">
+      <div class="chart-card chart-card--activity">
         <div class="chart-header">
           <div class="chart-title">
+            <span class="chart-title-icon"><i class="el-icon-lightning"></i></span>
             <span>{{ chartTitleBottom }}</span>
             <el-tooltip
               effect="dark"
@@ -97,6 +112,17 @@
             >
               <i class="el-icon-question chart-title-tip" />
             </el-tooltip>
+          </div>
+          <div v-if="stats.bottom" class="chart-stats">
+            <span v-if="viewMode === 'rank'" class="chart-stat">
+              <em>{{ $t("LocationIndoorHis.statPeople") }}</em><b>{{ stats.bottom.count }}</b>
+            </span>
+            <span class="chart-stat">
+              <em>{{ $t("LocationIndoorHis.statAvg") }}</em><b>{{ stats.bottom.avg }}</b>
+            </span>
+            <span class="chart-stat chart-stat--max">
+              <em>{{ $t("LocationIndoorHis.statMax") }}</em><b>{{ stats.bottom.max }}</b>
+            </span>
           </div>
           <div v-if="viewMode === 'rank'" class="chart-sort">
             <el-button
@@ -122,12 +148,19 @@
 <script>
 import { markRaw } from "vue";
 import * as echarts from "echarts";
+import { CHART_TONES, chartGradient } from "../../utils/homeChartTheme";
 import {
   getMemberNameId,
   getRunInfoStepsList,
   getRunInfoVibstateList,
   getRunInfoDateList,
 } from "../../axios/api";
+
+const MEDAL_TONES = [
+  { c1: "#D97706", c2: "#FCD34D", rgb: "245,158,11" },
+  { c1: "#7C8BA1", c2: "#DCE3EC", rgb: "124,139,161" },
+  { c1: "#C2410C", c2: "#FDBA74", rgb: "234,88,12" },
+];
 
 export default {
   name: "DataAnalysis",
@@ -148,6 +181,8 @@ export default {
       vibSort: 2,
       // rank | detail
       viewMode: "rank",
+      // 卡片标题右侧的统计：{ count, avg, max }，无数据时为 null
+      stats: { top: null, bottom: null },
     };
   },
   created() {
@@ -273,9 +308,74 @@ export default {
       const head = list[0].axisValueLabel || list[0].name || "";
       const lines = list.map((p) => {
         const val = p.value == null || p.value === "" ? "-" : p.value;
-        return `${p.marker}${val}`;
+        const tone = p.data && p.data.tone ? p.data.tone : null;
+        const dot = tone
+          ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:${tone.c1};box-shadow:0 0 6px rgba(${tone.rgb},.6)"></span>`
+          : p.marker;
+        const rank = p.data && p.data.rank ? `<span style="margin-left:8px;color:#94a3b8">#${p.data.rank}</span>` : "";
+        return `<div style="display:flex;align-items:center;margin-top:4px">${dot}<span style="color:#64748b">${p.seriesName || ""}</span><b style="margin-left:12px;font-size:14px;color:#1f2937;font-family:DIN Alternate,Arial">${val}</b>${rank}</div>`;
       });
-      return head ? `${head}<br/>${lines.join("<br/>")}` : lines.join("<br/>");
+      return `<div style="font-weight:600;color:#1f2937">${head}</div>${lines.join("")}`;
+    },
+    tooltipBase(trigger) {
+      return {
+        trigger,
+        confine: true,
+        backgroundColor: "rgba(255,255,255,0.96)",
+        borderColor: "#e2e8f0",
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: "#1f2937", fontSize: 12 },
+        extraCssText:
+          "border-radius:10px;box-shadow:0 10px 24px rgba(15,23,42,0.12);",
+        formatter: this.formatTooltip,
+      };
+    },
+    calcStats(values) {
+      if (!values.length) return null;
+      const sum = values.reduce((a, b) => a + b, 0);
+      return {
+        count: values.length,
+        avg: Math.round((sum / values.length) * 10) / 10,
+        max: Math.max(...values),
+      };
+    },
+    axisStyle() {
+      return {
+        axisLine: { lineStyle: { color: "#e2e8f0" } },
+        axisTick: { show: false },
+        axisLabel: { color: "#64748b", fontSize: 11 },
+      };
+    },
+    valueAxisStyle() {
+      return {
+        type: "value",
+        minInterval: 1,
+        axisLabel: { color: "#94a3b8", fontSize: 11 },
+        splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
+      };
+    },
+    avgMarkLine(tone, values) {
+      const s = this.calcStats(values);
+      if (!s) return undefined;
+      // 用全量平均值：type: "average" 只统计 dataZoom 可见区间，会与标题统计对不上
+      return {
+        silent: true,
+        symbol: "none",
+        data: [{ yAxis: s.avg }],
+        lineStyle: { color: `rgba(${tone.rgb},0.7)`, type: "dashed", width: 1 },
+        label: {
+          position: "insideEndTop",
+          color: tone.c1,
+          fontSize: 11,
+          fontWeight: 600,
+          padding: [2, 6],
+          borderRadius: 8,
+          backgroundColor: `rgba(${tone.rgb},0.1)`,
+          formatter: (p) =>
+            `${this.$t("LocationIndoorHis.statAvg")} ${Math.round(p.value * 10) / 10}`,
+        },
+      };
     },
     tipNoData() {
       this.$message({
@@ -285,14 +385,31 @@ export default {
     },
     renderEmpty(chart) {
       if (!chart) return;
+      if (chart === this.chartTop) this.stats.top = null;
+      if (chart === this.chartBottom) this.stats.bottom = null;
       chart.setOption(
         {
+          graphic: [
+            {
+              type: "circle",
+              left: "center",
+              top: "middle",
+              shape: { r: 46 },
+              style: {
+                fill: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                  { offset: 0, color: "rgba(47,123,255,0.12)" },
+                  { offset: 1, color: "rgba(47,123,255,0)" },
+                ]),
+              },
+              silent: true,
+            },
+          ],
           title: {
             text: this.$t("LocationIndoorHis.nodata"),
             left: "center",
             top: "middle",
             textStyle: {
-              color: "#909399",
+              color: "#94a3b8",
               fontSize: 14,
               fontWeight: "normal",
             },
@@ -305,39 +422,98 @@ export default {
         { notMerge: true }
       );
     },
-    renderBar(chart, names, values, color) {
+    renderBar(chart, names, values, tone, seriesName) {
       if (!chart) return;
+      this.setStats(chart, values);
       // 人多时默认只展示前若干名，其余靠 dataZoom 横向拖动，避免 X 轴姓名挤成一团
       const crowded = names.length > 15;
       const endPct = crowded
         ? Math.min(100, Math.max(12, (15 / names.length) * 100))
         : 100;
+      // 按数值取前三名，用金/银/铜色突出（与升降序无关）
+      const medalOf = {};
+      values
+        .map((v, i) => ({ v, i }))
+        .filter((d) => d.v > 0)
+        .sort((a, b) => b.v - a.v)
+        .slice(0, 3)
+        .forEach((d, k) => {
+          medalOf[d.i] = k;
+        });
+      const rankOf = {};
+      values
+        .map((v, i) => ({ v, i }))
+        .sort((a, b) => b.v - a.v)
+        .forEach((d, k) => {
+          rankOf[d.i] = k + 1;
+        });
+      const data = values.map((v, i) => {
+        const medal = medalOf[i];
+        const t = medal == null ? tone : MEDAL_TONES[medal];
+        return {
+          value: v,
+          tone: t,
+          rank: rankOf[i],
+          itemStyle: {
+            borderRadius: [8, 8, 2, 2],
+            color: chartGradient(t, 0, 0, 0, 1),
+            shadowBlur: medal == null ? 6 : 12,
+            shadowColor: `rgba(${t.rgb},${medal == null ? 0.3 : 0.5})`,
+            shadowOffsetY: 2,
+          },
+          label: {
+            show: medal != null || !crowded,
+            color: t.c1,
+          },
+        };
+      });
       chart.setOption(
         {
-          color: [color || "#409EFF"],
           title: { show: false },
           tooltip: {
-            trigger: "axis",
-            axisPointer: { type: "shadow" },
-            formatter: this.formatTooltip,
+            ...this.tooltipBase("axis"),
+            axisPointer: {
+              type: "shadow",
+              shadowStyle: { color: `rgba(${tone.rgb},0.06)` },
+            },
           },
           grid: {
-            left: 50,
+            left: 12,
             right: 24,
             top: 36,
-            bottom: crowded ? 78 : names.length > 12 ? 70 : 40,
+            bottom: crowded ? 36 : 10,
+            containLabel: true,
           },
           dataZoom: crowded
             ? [
                 {
                   type: "slider",
                   xAxisIndex: 0,
-                  height: 18,
+                  height: 14,
                   bottom: 8,
                   start: 0,
                   end: endPct,
                   brushSelect: false,
                   showDetail: false,
+                  borderColor: "transparent",
+                  backgroundColor: "#f1f5f9",
+                  fillerColor: `rgba(${tone.rgb},0.22)`,
+                  dataBackground: {
+                    lineStyle: { color: `rgba(${tone.rgb},0.4)` },
+                    areaStyle: { color: `rgba(${tone.rgb},0.12)` },
+                  },
+                  selectedDataBackground: {
+                    lineStyle: { color: tone.c1 },
+                    areaStyle: { color: `rgba(${tone.rgb},0.25)` },
+                  },
+                  handleSize: "120%",
+                  handleStyle: {
+                    color: "#fff",
+                    borderColor: tone.c1,
+                    shadowBlur: 4,
+                    shadowColor: `rgba(${tone.rgb},0.4)`,
+                  },
+                  moveHandleSize: 0,
                 },
                 {
                   type: "inside",
@@ -353,104 +529,159 @@ export default {
           xAxis: {
             type: "category",
             data: names,
+            ...this.axisStyle(),
             axisLabel: {
+              ...this.axisStyle().axisLabel,
               interval: 0,
               rotate: names.length > 10 ? 35 : 0,
               hideOverlap: true,
             },
           },
-          yAxis: { type: "value", minInterval: 1 },
+          yAxis: this.valueAxisStyle(),
           series: [
             {
               type: "bar",
-              data: values,
-              barMaxWidth: 36,
-              label: { show: false },
-              emphasis: {
-                label: {
-                  show: true,
-                  position: "top",
-                  color: "#606266",
-                  fontSize: 11,
-                },
+              name: seriesName,
+              data,
+              barMaxWidth: 28,
+              barMinHeight: 2,
+              showBackground: true,
+              backgroundStyle: {
+                color: "rgba(148,163,184,0.1)",
+                borderRadius: [8, 8, 2, 2],
               },
+              label: {
+                position: "top",
+                distance: 4,
+                fontSize: 11,
+                fontWeight: 700,
+                fontFamily: "DIN Alternate, Arial",
+              },
+              emphasis: {
+                label: { show: true },
+                itemStyle: { shadowBlur: 16 },
+              },
+              markLine: this.avgMarkLine(tone, values),
+              animationDuration: 900,
+              animationEasing: "cubicOut",
+              animationDelay: (idx) => Math.min(idx, 20) * 40,
             },
           ],
         },
         { notMerge: true }
       );
     },
-    renderLine(chart, times, values, color) {
+    setStats(chart, values) {
+      const s = this.calcStats(values);
+      if (chart === this.chartTop) this.stats.top = s;
+      if (chart === this.chartBottom) this.stats.bottom = s;
+    },
+    renderLine(chart, times, values, tone, seriesName) {
       if (!chart) return;
+      this.setStats(chart, values);
+      const pointer = {
+        color: `rgba(${tone.rgb},0.6)`,
+        width: 1,
+        type: "dashed",
+      };
       // 两图各自独立渲染；不使用 echarts.connect，避免轴指示线只出现在其中一个图上
       chart.setOption(
         {
-          color: [color || "#409EFF"],
           title: { show: false },
           tooltip: {
-            show: true,
-            trigger: "axis",
+            ...this.tooltipBase("axis"),
             triggerOn: "mousemove|click",
-            confine: true,
             axisPointer: {
               type: "line",
               snap: true,
               z: 100,
               label: { show: false },
-              lineStyle: {
-                color: "#909399",
-                width: 1,
-                type: "dashed",
-              },
+              lineStyle: pointer,
             },
-            formatter: this.formatTooltip,
           },
-          grid: { left: 50, right: 24, top: 40, bottom: 40 },
+          grid: { left: 12, right: 28, top: 40, bottom: 10, containLabel: true },
           xAxis: {
             type: "category",
             data: times,
             boundaryGap: false,
+            ...this.axisStyle(),
             axisPointer: {
               show: true,
               type: "line",
               snap: true,
-              lineStyle: {
-                color: "#909399",
-                width: 1,
-                type: "dashed",
-              },
+              lineStyle: pointer,
             },
           },
-          yAxis: {
-            type: "value",
-            scale: false,
-            splitNumber: 5,
-          },
+          yAxis: { ...this.valueAxisStyle(), splitNumber: 5 },
           series: [
             {
               type: "line",
-              data: values,
-              smooth: true,
-              showSymbol: true,
+              name: seriesName,
+              data: values.map((v) => ({ value: v, tone })),
+              smooth: 0.35,
+              smoothMonotone: "x",
+              showSymbol: values.length <= 48,
               symbol: "circle",
-              symbolSize: 8,
+              symbolSize: 7,
+              itemStyle: {
+                color: "#fff",
+                borderColor: tone.c1,
+                borderWidth: 2,
+              },
+              lineStyle: {
+                width: 3,
+                color: chartGradient(tone, 0, 0, 1, 0),
+                shadowBlur: 10,
+                shadowColor: `rgba(${tone.rgb},0.45)`,
+                shadowOffsetY: 6,
+              },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: `rgba(${tone.rgb},0.32)` },
+                  { offset: 0.7, color: `rgba(${tone.rgb},0.06)` },
+                  { offset: 1, color: `rgba(${tone.rgb},0)` },
+                ]),
+              },
               emphasis: {
-                scale: 1.4,
+                scale: 1.6,
                 itemStyle: {
-                  borderWidth: 2,
+                  color: tone.c1,
                   borderColor: "#fff",
+                  borderWidth: 2,
+                  shadowBlur: 10,
+                  shadowColor: `rgba(${tone.rgb},0.6)`,
                 },
                 label: {
                   show: true,
                   position: "top",
-                  distance: 6,
-                  color: "#606266",
+                  distance: 8,
+                  color: tone.c1,
                   fontSize: 12,
+                  fontWeight: 700,
                   formatter: (p) =>
                     p.value == null || p.value === "" ? "-" : String(p.value),
                 },
               },
               label: { show: false },
+              markPoint: {
+                symbol: "pin",
+                symbolSize: 40,
+                data: [{ type: "max" }],
+                itemStyle: {
+                  color: chartGradient(tone, 0, 0, 0, 1),
+                  shadowBlur: 8,
+                  shadowColor: `rgba(${tone.rgb},0.5)`,
+                },
+                label: {
+                  color: "#fff",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  fontFamily: "DIN Alternate, Arial",
+                },
+              },
+              markLine: this.avgMarkLine(tone, values),
+              animationDuration: 1200,
+              animationEasing: "cubicOut",
             },
           ],
         },
@@ -488,7 +719,13 @@ export default {
       }
       const names = list.map((i) => i.username || "-");
       const values = list.map((i) => Number(i.steps != null ? i.steps : 0));
-      this.renderBar(this.chartTop, names, values, "#409EFF");
+      this.renderBar(
+        this.chartTop,
+        names,
+        values,
+        CHART_TONES.blue,
+        this.$t("LocationIndoorHis.stepRank")
+      );
       return false;
     },
     /** @returns {boolean} 是否空数据（接口成功但列表为空） */
@@ -511,7 +748,13 @@ export default {
       const values = list.map((i) =>
         Number(i.vibstate != null ? i.vibstate : 0)
       );
-      this.renderBar(this.chartBottom, names, values, "#67C23A");
+      this.renderBar(
+        this.chartBottom,
+        names,
+        values,
+        CHART_TONES.green,
+        this.$t("LocationIndoorHis.activityRank")
+      );
       return false;
     },
     loadStepRank() {
@@ -600,8 +843,20 @@ export default {
           const vibs = list.map((i) =>
             Number(i.vibstate != null ? i.vibstate : 0)
           );
-          this.renderLine(this.chartTop, times, steps, "#409EFF");
-          this.renderLine(this.chartBottom, times, vibs, "#67C23A");
+          this.renderLine(
+            this.chartTop,
+            times,
+            steps,
+            CHART_TONES.blue,
+            this.$t("LocationIndoorHis.stepTrend")
+          );
+          this.renderLine(
+            this.chartBottom,
+            times,
+            vibs,
+            CHART_TONES.green,
+            this.$t("LocationIndoorHis.activityTrend")
+          );
         })
         .finally(() => {
           loading.close();
@@ -734,6 +989,10 @@ export default {
   text-align: left !important;
   overflow: hidden;
 }
+/* 底部给 App.vue 固定的 30px 语言栏留位；.norem 避免被 pxtorem 按屏宽缩小 */
+.data-analysis-page.norem {
+  padding-bottom: 40px;
+}
 .data-analysis-page > * {
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -833,18 +1092,46 @@ export default {
   align-items: stretch !important;
 }
 .chart-card {
+  --tone-c1: #2f7bff;
+  --tone-c2: #22d3ee;
+  --tone-rgb: 47, 123, 255;
+  position: relative;
   flex: 1 1 0 !important;
   min-height: 240px !important;
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  background: #fff;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  background: radial-gradient(
+      120% 80% at 100% 0%,
+      rgba(var(--tone-rgb), 0.06),
+      rgba(var(--tone-rgb), 0) 55%
+    ),
+    #fff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden;
   align-self: stretch !important;
+  transition: box-shadow 0.25s ease;
+}
+.chart-card:hover {
+  box-shadow: 0 8px 24px rgba(var(--tone-rgb), 0.12);
+}
+.chart-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--tone-c1), var(--tone-c2), transparent);
+}
+.chart-card--activity {
+  --tone-c1: #059669;
+  --tone-c2: #34d399;
+  --tone-rgb: 16, 185, 129;
 }
 .chart-header {
   flex-shrink: 0;
@@ -852,28 +1139,78 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 12px;
-  border-bottom: 1px solid #ebeef5;
+  padding: 10px 14px 6px;
   margin: 0 !important;
   box-sizing: border-box;
+}
+.chart-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  margin: 0 !important;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  background: linear-gradient(135deg, var(--tone-c2), var(--tone-c1));
+  box-shadow: 0 4px 10px rgba(var(--tone-rgb), 0.35);
+}
+.chart-stats {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+}
+.chart-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 3px 10px;
+  border-radius: 14px;
+  background: #f5f7fb;
+  border: 1px solid #eef2f7;
+}
+.chart-stat em {
+  font-style: normal;
+  font-size: 12px;
+  color: #8a94a6;
+}
+.chart-stat b {
+  font-size: 15px;
+  line-height: 1;
+  color: #1f2937;
+  font-family: "DIN Alternate", Arial, sans-serif;
+}
+.chart-stat--max {
+  background: rgba(var(--tone-rgb), 0.08);
+  border-color: rgba(var(--tone-rgb), 0.18);
+}
+.chart-stat--max b {
+  color: var(--tone-c1);
 }
 .chart-title {
   flex: 0 0 auto;
   width: auto;
   max-width: none;
   padding: 0;
-  font-weight: 600;
-  color: #303133;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1f2937;
   text-align: left !important;
   margin: 0 auto 0 0 !important;
   line-height: 28px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
+  gap: 8px;
 }
 .chart-title > span {
   flex: 0 0 auto;
+  margin: 0 !important;
 }
 .chart-title :deep(.el-tooltip__trigger),
 .chart-title :deep(.el-only-child__content) {
@@ -893,11 +1230,32 @@ export default {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   margin: 0 !important;
+  padding: 2px;
+  border-radius: 8px;
+  background: #f1f5f9;
 }
 .chart-sort :deep(.el-button) {
   margin: 0 !important;
+  height: 24px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 6px;
+  color: #64748b;
+  background: transparent;
+  box-shadow: none;
+}
+.chart-sort :deep(.el-button:hover) {
+  color: var(--tone-c1);
+}
+.chart-sort :deep(.el-button--primary) {
+  color: #fff;
+  background: linear-gradient(135deg, var(--tone-c2), var(--tone-c1));
+  box-shadow: 0 2px 6px rgba(var(--tone-rgb), 0.35);
+}
+.chart-sort :deep(.el-button--primary:hover) {
+  color: #fff;
 }
 .chart-box {
   flex: 1 1 0 !important;

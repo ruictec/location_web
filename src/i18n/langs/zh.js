@@ -1717,6 +1717,10 @@ const zh = {
         vehicle: '车辆',
         content1: '在线指10分钟内存在位置数据更新。',
         Total: '总数:',
+        online: '在线',
+        offline: '离线',
+        last7days: '近 7 天',
+        sum: '合计',
         No: '排名',
         building: '楼栋',
         floor: '楼层',
@@ -2605,6 +2609,9 @@ const zh = {
         activityTrend: '活跃度',
         pleaseNameAndDate: '请选择姓名和日期',
         nodata: '没有数据',
+        statPeople: '人数',
+        statAvg: '平均',
+        statMax: '最高',
     },
     //系统管理 我的工单
     myorder: {
@@ -2861,6 +2868,9 @@ const zh = {
         tet10: '电量<20%',
         tet11: '电量>20%',
         tet12: '电量>60%',
+        beaconTotal: '信标总数',
+        projectTotal: '项目总数',
+        deviceTotal: '设备总数',
 
     },
     //用户订单
