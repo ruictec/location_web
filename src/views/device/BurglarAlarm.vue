@@ -4,8 +4,8 @@
       <el-container>
         <el-main>
           <div
-            class="aoa_input terminal-filter-flow"
-            :class="filterLangClass"
+            class="aoa_input terminal-filter-flow page-panel"
+            :class="[filterLangClass, { 'filter-grid': show }]"
           >
             <!-- 第一行 -->
             <el-form
@@ -311,14 +311,15 @@
           </div>
 
           <!-- 烟感展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
+              class="device-table"
               style="width: 100%; text-align: center; margin-left: 0; z-index: 1"
               max-height="650"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -563,7 +564,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -581,11 +582,12 @@
 
           <!-- 添加 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('otherDev.addinfoAlarm')"
-            width="30%"
+            width="560px"
             v-model="add"
-            style="text-aling: center"
             @close="addCancel('addData')"
+            align-center
           >
             <el-form
               :model="addData"
@@ -676,11 +678,11 @@
           <!-- 编辑 -->
           <el-dialog
             :title="$t('otherDev.editinfoAlarm')"
-            width="30%"
-            class="edit"
+            width="560px"
+            class="edit device-dialog"
             v-model="edit"
-            style="text-aling: center"
             @close="editCancle('editData')"
+            align-center
           >
             <el-form
               :model="editData"
@@ -749,7 +751,13 @@
           </el-dialog>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('terminal.deletemsgs')" v-model="del">
+          <el-dialog
+            width="720px"
+            class="device-dialog"
+            :title="$t('terminal.deletemsgs')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -843,10 +851,10 @@
           <el-dialog
             :title="$t('otherDev.assigninfoAlarm')"
             v-model="assign"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
             @close="assignCancle('assignData')"
+            align-center
           >
             <el-form
               :model="assignData"
@@ -890,10 +898,10 @@
           <el-dialog
             :title="$t('otherDev.assigninfosAlarm')"
             v-model="assigns"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
             @close="assignsCancle('assignDatas')"
+            align-center
           >
             <el-form
               :model="assignDatas"
@@ -937,9 +945,9 @@
           <el-dialog
             :title="$t('beacon.deletemsgs1')"
             v-model="removeAoa"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -1370,6 +1378,10 @@ export default {
           : this.$t("otherDev.cancelAlarmtrue"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1417,6 +1429,10 @@ export default {
           this.$t("terminal.deletetermsg2"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1801,6 +1817,10 @@ export default {
           this.$t("terminal.deletetermsg2"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

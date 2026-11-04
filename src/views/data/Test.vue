@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -8,7 +8,7 @@
       <el-container class="asi">
         <el-aside><Data /></el-aside>
         <el-main>
-          <div class="ter_input terminal-filter-flow" :class="filterLangClass">
+          <div class="ter_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
             >
@@ -91,11 +91,11 @@
           </div>
 
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 97%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               @selection-change="handleSelectionChange"
@@ -345,8 +345,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -361,11 +360,17 @@
             </div>
           </div>
           <!-- 批量删除 -->
-          <el-dialog :title="$t('test.tet5')" v-model="del">
+          <el-dialog
+            width="80%"
+            class="device-dialog"
+            :title="$t('test.tet5')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
               <el-table-column
@@ -842,6 +847,10 @@ export default {
           this.$t("test.confirmdel3"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

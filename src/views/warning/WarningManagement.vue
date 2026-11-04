@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
       告警管理
@@ -10,7 +10,7 @@
           ><Data
         /></el-aside>
         <el-main>
-          <div class="warning_input terminal-filter-flow" :class="filterLangClass">
+          <div class="warning_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.DeviceNo')"
@@ -126,18 +126,18 @@
             </div>
           </div>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
+              class="device-table"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
                 z-index: 1;
               "
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
               max-height="660"
             >
@@ -261,7 +261,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -278,7 +278,13 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('warning.title')" v-model="del">
+          <el-dialog
+            width="720px"
+            class="device-dialog"
+            :title="$t('warning.title')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -328,27 +334,42 @@
 
           <!-- 心率/体温异常告警：健康数据折线图 -->
           <el-dialog
+            class="device-dialog health-dialog"
             :title="healthTitle"
             v-model="healthDialog"
             width="70%"
             @opened="onHealthDialogOpened"
             @closed="disposeHealthChart"
+            top="6vh"
           >
-            <div style="text-align: left; color: #666; margin-bottom: 8px">
-              {{ healthRangeText }}
-            </div>
-            <div
-              v-if="healthEmpty"
-              style="text-align: center; color: #999; padding: 40px 0"
-            >
+            <div class="health-range-text">{{ healthRangeText }}</div>
+            <div v-if="healthEmpty" class="health-empty">
               {{ $t("staff.healthEmpty") }}
             </div>
-            <div
-              v-else
-              ref="healthChart"
-              style="width: 100%; height: 320px"
-              v-loading="healthLoading"
-            ></div>
+            <div v-else class="health-chart-card is-single">
+              <div
+                :class="[
+                  'health-chart-title',
+                  healthMetric === 'heartrate' ? 'is-heart' : 'is-tem',
+                ]"
+              >
+                {{
+                  healthMetric === "heartrate"
+                    ? $t("staff.healthHeartrate")
+                    : $t("staff.healthTemperature")
+                }}
+                <span>{{
+                  healthMetric === "heartrate"
+                    ? $t("staff.healthUnitBpm")
+                    : $t("staff.healthUnitCelsius")
+                }}</span>
+              </div>
+              <div
+                ref="healthChart"
+                class="health-chart"
+                v-loading="healthLoading"
+              ></div>
+            </div>
           </el-dialog>
         </el-main>
       </el-container>
@@ -841,6 +862,8 @@ export default {
         var unit = isHeart
           ? that.$t("staff.healthUnitBpm")
           : that.$t("staff.healthUnitCelsius");
+        var color = isHeart ? "#f43f5e" : "#2f7bff";
+        var rgb = isHeart ? "244, 63, 94" : "47, 123, 255";
         var option = {
           tooltip: {
             trigger: "axis",
@@ -875,8 +898,19 @@ export default {
           },
           yAxis: {
             type: "value",
-            axisLabel: { fontSize: 11, margin: 10 },
-            splitLine: { lineStyle: { type: "dashed" } },
+            scale: !isHeart,
+            min: isHeart
+              ? null
+              : function (v) {
+                  return Math.floor(v.min - 1);
+                },
+            max: isHeart
+              ? null
+              : function (v) {
+                  return Math.ceil(v.max + 1);
+                },
+            axisLabel: { fontSize: 11, margin: 10, color: "#64748b" },
+            splitLine: { lineStyle: { type: "dashed", color: "#e2e8f0" } },
           },
           series: [
             {
@@ -885,6 +919,21 @@ export default {
               smooth: false,
               connectNulls: false,
               symbolSize: 6,
+              lineStyle: { width: 2, color: color },
+              itemStyle: { color: color, borderColor: "#fff", borderWidth: 1 },
+              areaStyle: {
+                color: {
+                  type: "linear",
+                  x: 0,
+                  y: 0,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [
+                    { offset: 0, color: "rgba(" + rgb + ", 0.22)" },
+                    { offset: 1, color: "rgba(" + rgb + ", 0.02)" },
+                  ],
+                },
+              },
               data: values,
             },
           ],
@@ -1038,6 +1087,10 @@ export default {
           this.$t("beacon.deletemsg3"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

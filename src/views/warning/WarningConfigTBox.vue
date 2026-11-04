@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
       <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
       {{ $t("warning.Vehiclewarning") }}
@@ -7,7 +7,7 @@
     <div class="content">
       <el-container>
         <el-main>
-          <div class="warning_input terminal-filter-flow" :class="filterLangClass">
+          <div class="warning_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.AlertType')"
@@ -39,12 +39,13 @@
             </el-form>
           </div>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%; z-index: 1"
-              border
+              class="device-table"
+              style="width: 100%; text-align: center; z-index: 1"
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -160,7 +161,7 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div class="block" style="text-align: center; width: 100%; margin-top: 1%">
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -176,10 +177,11 @@
 
           <!-- 添加告警设置 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('warning.title1')"
             v-model="add"
-            width="30%"
-            style="text-align: center"
+            width="480px"
+            align-center
             @close="addCancel(addData)"
           >
             <el-form
@@ -411,10 +413,11 @@
 
           <!-- 编辑告警设置 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('warning.title1')"
             v-model="edit"
-            width="30%"
-            style="text-align: center"
+            width="480px"
+            align-center
             @close="editCancel(editData)"
           >
             <el-form
@@ -637,10 +640,11 @@
           </el-dialog>
 
           <el-dialog
+            class="device-dialog"
             :title="$t('tet.Regionaldetails')"
             v-model="showTranchesDetails"
-            width="40%"
-            style="text-align: center"
+            width="640px"
+            align-center
             @close="closeAction"
           >
             <div style="padding-bottom: 3%">
@@ -1544,6 +1548,10 @@ export default {
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
       })
         .then(() => {
           let data = {

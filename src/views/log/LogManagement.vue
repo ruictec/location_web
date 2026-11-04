@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><System /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
           <el-form
             class="demo-form-inline terminal-filter-form"
             :model="searchList"
@@ -66,13 +66,13 @@
             </el-form-item>
           </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <!-- log展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="logData"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -147,8 +147,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -164,11 +163,17 @@
           </div>
 
           <!-- 批量删除日志信息 -->
-          <el-dialog :title="$t('logmanagement.logrule1')" v-model="del">
+          <el-dialog
+            width="760px"
+            class="device-dialog"
+            :title="$t('logmanagement.logrule1')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="delData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
               <el-table-column
@@ -195,6 +200,7 @@
               <el-table-column
                 property="time"
                 :label="$t('logmanagement.time')"
+                min-width="160"
                 show-overflow-tooltip
                 :formatter="formatDate"
               ></el-table-column>
@@ -475,6 +481,10 @@ export default {
         return;
       }
       this.$confirm(this.$t("logmanagement.tet"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><System /></el-aside>
         <el-main>
-          <div class="terminal-filter-flow" :class="filterLangClass">
+          <div class="terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -64,11 +64,11 @@
             </el-form>
           </div>
 
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="otaData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -133,7 +133,7 @@
                     <el-button
                       type="primary"
                       size="small"
-                      class="editss"
+                      class="icon_button"
                       @click="openEdit(scope.row)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -146,7 +146,7 @@
                   >
                     <el-button
                       type="danger"
-                      class="dels"
+                      class="icon_button"
                       @click="deleteOta(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -156,8 +156,7 @@
             </el-table>
 
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -173,10 +172,12 @@
           </div>
 
           <el-dialog
+            class="device-dialog"
             :title="$t('otamanagement.uploadtitle')"
             v-model="uploadVisible"
-            width="32%"
+            width="560px"
             @close="resetUpload()"
+            top="8vh"
           >
             <el-form
               :model="uploadForm"
@@ -252,10 +253,12 @@
           </el-dialog>
 
           <el-dialog
+            class="device-dialog"
             :title="$t('otamanagement.edittitle')"
             v-model="editVisible"
-            width="32%"
+            width="560px"
             @close="resetEdit()"
+            align-center
           >
             <el-form
               :model="editForm"
@@ -632,6 +635,10 @@ export default {
         this.$t("otamanagement.deletetip"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

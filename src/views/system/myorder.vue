@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><System /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
           <el-form
             class="demo-form-inline terminal-filter-form"
             :model="searchList"
@@ -82,18 +82,19 @@
           </div>
           <div class="content_user">
             <!-- 展示 -->
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="orderData"
               @selection-change="handleSelectionChange"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <!-- <el-table-column type="selection" width="55"> </el-table-column> -->
@@ -234,9 +235,10 @@
                 </template>
               </el-table-column>
             </el-table>
+            </div>
             <!--分页效果-->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -254,14 +256,15 @@
 
           <!-- 添加工单 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('myorder.Addticket')"
-            width="30%"
+            width="600px"
             v-model="add"
-            style="text-align: center"
+            top="8vh"
           >
             <el-form
               :model="addData"
-              label-width="150px"
+              label-width="120px"
               ref="addData"
               style="text-align: left"
               :rules="addRules"
@@ -343,10 +346,11 @@
 
           <!-- 编辑工单 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('myorder.editticket')"
-            width="30%"
+            width="600px"
             v-model="edit"
-            style="text-align: center"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -998,6 +1002,10 @@ export default {
         this.$t("myorderde.deletethejob"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1180,6 +1188,10 @@ export default {
         this.$t("myorderde.submitworkorder"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1212,6 +1224,10 @@ export default {
     closeOrder(index) {
       var that = this;
       this.$confirm(this.$t("myorderde.closejob"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1245,7 +1261,7 @@ export default {
     //工单详情
     orderDetail(index) {
       this.$router.push({
-        path: "/orderdetails",
+        path: this.contrForPrionum == 5 ? "/user/orderdetails" : "/orderdetails",
         query: { orderId: this.orderData[index].id, myorder: true },
       });
     },

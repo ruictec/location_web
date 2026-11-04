@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -13,7 +13,6 @@
         <el-main style="height: 100%">
           <el-breadcrumb
             separator="/"
-            style="margin-left: 0"
             v-if="contrForPrionum == 3 || contrForPrionum == 4"
           >
             <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
@@ -25,7 +24,7 @@
             }}</el-breadcrumb-item>
           </el-breadcrumb>
           <div class="containers ground-details-map" style="width: 100%; height: 95%">
-            <div v-if="mapTypes" class="mapConent">
+            <div v-if="mapTypes" class="mapConent page-panel">
               <div id="allmap" ref="map" class="allmap">
                 <!-- 楼栋选择 -->
                 <div class="selectBuild">
@@ -129,7 +128,7 @@
               </div>
             </div>
 
-            <div v-if="!mapTypes" class="mapConentD">
+            <div v-if="!mapTypes" class="mapConentD page-panel">
               <div id="fengMap">
                 <!-- 楼栋选择 -->
                 <div class="selectBuild">
@@ -1555,5 +1554,11 @@ li {
 .ground-details-map > .mapConentD {
   width: 100% !important;
   margin-left: 0 !important;
+}
+.admin-page .ground-details-map > .mapConent {
+  margin-left: 0 !important;
+}
+.admin-page .el-main > .el-breadcrumb {
+  margin: 0 0 10px 2px !important;
 }
 </style>

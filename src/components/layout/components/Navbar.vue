@@ -18,8 +18,8 @@
       >
         <span
           class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'home' }"
           @click="goLink('home')"
-          style="position: relative"
         >
           <i class="icon1 home"></i>
         </span>
@@ -33,8 +33,8 @@
       >
         <span
           class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'warning' }"
           @click="goLink('warning')"
-          style="position: relative"
         >
           <i class="icon1 sos"></i>
           <el-badge
@@ -53,7 +53,11 @@
         placement="bottom"
         v-if="task"
       >
-        <span class="golink hover-effect" @click="goLink('inspection')">
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'inspection' }"
+          @click="goLink('inspection')"
+        >
           <i class="icon1 patrol"></i>
         </span>
       </el-tooltip>
@@ -65,7 +69,11 @@
         placement="bottom"
         v-if="employee"
       >
-        <span class="golink hover-effect" @click="goLink('trajectory')">
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'trajectory' }"
+          @click="goLink('trajectory')"
+        >
           <i class="icon1 active"></i>
         </span>
       </el-tooltip>
@@ -77,7 +85,11 @@
         placement="bottom"
         v-if="inDoor"
       >
-        <span class="golink hover-effect" @click="goLink('indoor')">
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'indoor' }"
+          @click="goLink('indoor')"
+        >
           <i class="icon1 indoor"></i></span>
       </el-tooltip>
       <!-- 室外定位 -->
@@ -88,34 +100,55 @@
         placement="bottom"
         v-if="outDoor"
       >
-        <span class="golink hover-effect" @click="goLink('outdoor')">
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'outdoor' }"
+          @click="goLink('outdoor')"
+        >
           <i class="icon1 outdoor"></i>
         </span>
       </el-tooltip>
 
+      <i class="nav-divider"></i>
+
       <!-- 全屏 -->
       <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-      <el-dropdown style="z-index: 999" class="perDropdown">
+      <el-dropdown
+        style="z-index: 999"
+        class="perDropdown"
+        popper-class="nav-menu-popper"
+        placement="bottom-end"
+      >
         <span class="el-dropdown-link perSpan">
           <i class="icon menu1"></i>
         </span>
         <template #dropdown><el-dropdown-menu>
-          <el-dropdown-item @click="goCenter">{{
-            $t("navbar.PersonalCenter")
-          }}</el-dropdown-item>
-
+          <div class="nav-menu-head">
+            <span class="nav-menu-avatar">{{ userInitial }}</span>
+            <div class="nav-menu-meta">
+              <p class="nav-menu-name">{{ userName }}</p>
+              <p class="nav-menu-sub">{{ roleLabel }}</p>
+            </div>
+          </div>
+          <el-dropdown-item @click="goCenter">
+            <el-icon><User /></el-icon>{{ $t("navbar.PersonalCenter") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="contrForPrioNum == 5 && $store.state.projectTable.length > 1"
             @click="selectProject"
-            >{{ $t("navbar.Selectitem") }}</el-dropdown-item>
+          >
+            <el-icon><SwitchIcon /></el-icon>{{ $t("navbar.Selectitem") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="logoprio == 1 || clogoprio == 1"
             @click="goSetLogo"
-            >{{ $t("navbar.Logosettings") }}</el-dropdown-item>
-          <el-dropdown-item @click="goscreen" v-if="i8n == 'zh'">{{
-            $t("index.largescreen")
-          }}</el-dropdown-item>
+          >
+            <el-icon><Picture /></el-icon>{{ $t("navbar.Logosettings") }}
+          </el-dropdown-item>
+          <el-dropdown-item @click="goscreen" v-if="i8n == 'zh'">
+            <el-icon><Monitor /></el-icon>{{ $t("index.largescreen") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="
               contrForPrioNum == 1 ||
@@ -124,10 +157,12 @@
               contrForPrioNum == 4
             "
             @click="sendMessage"
-            >{{ $t("navbar.Sendnotification") }}</el-dropdown-item>
-          <el-dropdown-item @click="logout">{{
-            $t("navbar.signout")
-          }}</el-dropdown-item>
+          >
+            <el-icon><Promotion /></el-icon>{{ $t("navbar.Sendnotification") }}
+          </el-dropdown-item>
+          <el-dropdown-item divided class="is-danger" @click="logout">
+            <el-icon><SwitchButton /></el-icon>{{ $t("navbar.signout") }}
+          </el-dropdown-item>
         </el-dropdown-menu></template>
       </el-dropdown>
 
@@ -195,45 +230,51 @@
         </el-dropdown>
       </el-tooltip>
       <!-- 帮助菜单 -->
-      <el-dropdown style="z-index: 100" class="perDropdown" v-if="i8n == 'zh'">
+      <el-dropdown
+        style="z-index: 100"
+        class="perDropdown"
+        popper-class="nav-menu-popper"
+        placement="bottom-end"
+        v-if="i8n == 'zh'"
+      >
         <span class="el-dropdown-link perSpan">
-          <i class="more icon"></i>
+          <i class="icon help"></i>
         </span>
         <template #dropdown><el-dropdown-menu>
+          <p class="nav-menu-title">{{ $t("navbar.helpCenter") }}</p>
           <el-dropdown-item @click="Onlinedocumentation">
-            {{ $t("navbar.Onlinedocumentation") }}
+            <el-icon><Document /></el-icon>{{ $t("navbar.Onlinedocumentation") }}
           </el-dropdown-item>
-
           <el-dropdown-item @click="commonproblem">
-            {{ $t("navbar.commonproblem") }}
+            <el-icon><ChatLineRound /></el-icon>{{ $t("navbar.commonproblem") }}
           </el-dropdown-item>
-
           <el-dropdown-item v-if="contrForPrioNum != 5">
-            <a href="javascript:;" class="helpitem">{{
-              $t("navbar.Resourcedownload")
-            }}</a>
+            <el-icon><Download /></el-icon>{{ $t("navbar.Resourcedownload") }}
           </el-dropdown-item>
         </el-dropdown-menu></template>
       </el-dropdown>
       <!-- 显示/隐藏告警弹框 -->
-      <el-button
+      <button
         v-show="showWarnignButton > 0"
-        type="primary"
-        size="small"
+        type="button"
         class="warning_button"
+        :class="{ 'is-on': $store.state.showWarningDialog }"
         @click="changeShowWarning()"
-        >{{ buttonText }}</el-button>
+      >
+        <i class="warning_button-dot"></i>{{ buttonText }}
+      </button>
     </div>
     <!-- 设置logo -->
     <el-dialog
       :title="$t('navbar.Setlogo')"
       v-model="setLogo"
-      class="edit"
-      width="30%"
-      style="text-align: center"
+      class="edit device-dialog"
+      width="480px"
       :append-to-body="true"
+      align-center
     >
       <el-upload
+        class="dialog-upload-center"
         :action="ImagePath"
         list-type="picture-card"
         :file-list="fileListAdd"
@@ -262,8 +303,12 @@
       </div></template>
     </el-dialog>
     <el-dialog
+      width="50%"
+      class="device-dialog"
+      :title="$t('navbar.Setlogo')"
       v-model="dialogVisible"
       :append-to-body="true"
+      align-center
     >
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
@@ -373,21 +418,18 @@
     <el-dialog
       :title="$t('index.sendmessage')"
       v-model="showSendMessage"
-      class="edit"
-      width="30%"
-      style="text-align: center"
+      class="edit device-dialog"
+      width="560px"
       :close-on-press-escape="false"
       :append-to-body="true"
+      align-center
     >
       <el-form
         :model="sendMessages"
-        style="margin-top: 20px"
-        class="demo-form-inline"
+        label-position="top"
+        class="send-message-form"
       >
-        <el-form-item
-          style="width: 60%; margin-left: 0; text-align: left"
-          :label="$t('navbar.Sendto')"
-        >
+        <el-form-item :label="$t('navbar.Sendto')">
           <el-select
             v-model="sendMessages.tenantid"
             clearable
@@ -413,7 +455,7 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <template #footer><div class="dialog-footer" style="margin-top: -10px">
+      <template #footer><div class="dialog-footer">
         <el-button @click="showSendMessage = false">{{
           $t("terminal.cancel")
         }}</el-button>
@@ -432,6 +474,15 @@ import Breadcrumb from "./Breadcrumb";
 import Hamburger from "./Hamburger";
 import host from "../../../host.js";
 import Screenfull from "./Screenfull";
+
+const NAV_PATHS = {
+  home: "/dashboard",
+  warning: "/warning/index",
+  inspection: "/staff/inspection",
+  trajectory: "/staff/staffmanagement",
+  indoor: "/location/indoor/locationindoor",
+  outdoor: "/location/outdoor/locationoutdoor",
+};
 import {
   loginout,
   getNotice,
@@ -442,6 +493,18 @@ import {
   insertNoticeList,
 } from "../../../axios/api";
 import { notifyAuthEvent } from "../../../utils/authSession";
+import { userInitial, roleLabelKey } from "../../../utils/navMenu";
+import {
+  User,
+  Switch as SwitchIcon,
+  Picture,
+  Monitor,
+  Promotion,
+  SwitchButton,
+  Document,
+  ChatLineRound,
+  Download,
+} from "@element-plus/icons-vue";
 export default {
   data() {
     return {
@@ -523,6 +586,15 @@ export default {
     Screenfull,
     // SizeSelect,
     // Search
+    User,
+    SwitchIcon,
+    Picture,
+    Monitor,
+    Promotion,
+    SwitchButton,
+    Document,
+    ChatLineRound,
+    Download,
   },
   created() {
     this.getProjectLists();
@@ -580,28 +652,7 @@ export default {
     },
 
     goLink(value) {
-      switch (value) {
-        case "warning":
-          this.$router.push({ path: "/warning/index" });
-          break;
-        case "trajectory":
-          this.$router.push({ path: "/staff/staffmanagement" });
-          break;
-        case "indoor":
-          this.$router.push({ path: "/location/indoor/locationindoor" });
-          break;
-        case "outdoor":
-          this.$router.push({ path: "/location/outdoor/locationoutdoor" });
-          break;
-        case "home":
-          this.$router.push({ path: "/dashboard" });
-          break;
-        case "inspection":
-          this.$router.push({ path: "/staff/inspection" });
-          break;
-        default:
-          break;
-      }
+      if (NAV_PATHS[value]) this.$router.push({ path: NAV_PATHS[value] });
     },
     toggleSideBar() {
       this.$store.commit("changeShow", !this.$store.state.show);
@@ -871,6 +922,10 @@ export default {
 
     logout() {
       this.$confirm(this.$t("index.surelogout"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1142,11 +1197,25 @@ export default {
     sosNums() {
       return this.$store.state.sosNums;
     },
+    activeNav() {
+      const path = this.$route.path;
+      const entry = Object.entries(NAV_PATHS).find(([, p]) => path === p);
+      return entry ? entry[0] : "";
+    },
+    userInitial() {
+      return userInitial(this.userName);
+    },
+    roleLabel() {
+      const key = roleLabelKey(this.contrForPrioNum);
+      return key ? this.$t(key) : "";
+    },
   },
   watch: {
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
-      this.buttonText = this.$t("navbar.showNotification");
+      this.buttonText = this.$store.state.showWarningDialog
+        ? this.$t("navbar.hideNotification")
+        : this.$t("navbar.showNotification");
 
       Object.assign(
         this.$data.msgtable,
@@ -1219,7 +1288,7 @@ export default {
     line-height: 50px;
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 4px;
     overflow: visible;
     &:focus {
       outline: none;
@@ -1229,15 +1298,48 @@ export default {
     > .right-menu-item,
     > .perDropdown,
     > .itemMessage {
-      flex: 0 0 36px;
-      width: 36px;
-      min-width: 36px;
-      max-width: 36px;
-      height: 100%;
+      flex: 0 0 34px;
+      width: 34px;
+      min-width: 34px;
+      max-width: 34px;
+      height: 34px;
       margin: 0 !important;
       padding: 0 !important;
       box-sizing: border-box;
       display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(47, 123, 255, 0.08) !important;
+
+        .icon,
+        .icon1,
+        :deep(.icon) {
+          background-color: #2f7bff;
+        }
+      }
+    }
+    > .golink.is-active {
+      background-color: rgba(47, 123, 255, 0.12) !important;
+
+      .icon1 {
+        background-color: #2f7bff;
+      }
+    }
+    > .right-menu-item :deep(.icon) {
+      width: 17px;
+      height: 17px;
+      background-color: #475569;
+      transition: background-color 0.2s;
+    }
+    > .right-menu-item > :deep(div),
+    > .right-menu-item :deep(.el-tooltip__trigger) {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
     }
@@ -1248,7 +1350,7 @@ export default {
       width: 100% !important;
       min-width: 0 !important;
       max-width: none !important;
-      height: 100%;
+      height: 34px;
       margin: 0 !important;
       padding: 0 !important;
       display: inline-flex !important;
@@ -1257,7 +1359,7 @@ export default {
     }
     > .warning_button {
       flex: 0 0 auto;
-      margin-left: 6px !important;
+      margin: 0 0 0 4px !important;
     }
     .right-menu-item {
       font-size: 18px;
@@ -1332,12 +1434,12 @@ export default {
   width: auto !important;
 }
 .msgbox {
-  top: 4px;
-  left: 14px;
+  top: -3px;
+  left: 10px;
 }
 .warningbox {
-  top: 4px;
-  right: -2px;
+  top: -3px;
+  right: -5px;
 }
 /* EP badge 默认 translateY(-50%) 会被父级裁切，只露出下半截数字 */
 .msgbox :deep(.el-badge__content),
@@ -1386,9 +1488,6 @@ export default {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-}
-.perDropdown:hover .el-dropdown-link {
-  background-color: rgb(248, 248, 248);
 }
 .perDropdown .el-dropdown-link {
   // padding-bottom: 22px;
@@ -1450,8 +1549,59 @@ export default {
   right: 0 !important;
 }
 
+.nav-divider {
+  flex: 0 0 1px;
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: #e2e8f0;
+}
+
 .warning_button {
-  padding: 6px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: #2f7bff;
+    border-color: rgba(47, 123, 255, 0.35);
+    background: #eff6ff;
+  }
+
+  &.is-on {
+    color: #e11d48;
+    background: #fff1f2;
+    border-color: #fecdd3;
+
+    &:hover {
+      background: #ffe4e6;
+    }
+
+    .warning_button-dot {
+      background: #f43f5e;
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18);
+    }
+  }
+}
+
+.warning_button-dot {
+  width: 6px;
+  height: 6px;
+  margin: 0;
+  border-radius: 50%;
+  background: #94a3b8;
 }
 
 .select-row {
@@ -1465,13 +1615,6 @@ export default {
   text-align: left !important;
 } */
 
-.helpitem {
-  text-decoration: none;
-  color: #606266;
-}
-.helpitem:hover {
-  color: #409eff;
-}
 .perSpan1 {
   margin: 0;
   position: relative;
@@ -1489,11 +1632,13 @@ export default {
   overflow: visible !important;
 }
 .icon {
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   display: inline-block;
-  background-color: #4c4c4d;
+  background-color: #475569;
   mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  transition: background-color 0.2s;
 }
 .icon.menu1 {
   mask: url("../../../assets/menu.svg");
@@ -1503,47 +1648,43 @@ export default {
   mask: url("../../../assets/bell.svg");
   mask-size: contain;
 }
-.icon.more {
-  mask: url("../../../assets/more.svg");
+.icon.help {
+  mask: url("../../../assets/help.svg");
   mask-size: contain;
 }
 .icon1 {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   display: inline-block;
-  background-color: #4c4c4d;
+  background-color: #475569;
   mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  transition: background-color 0.2s;
 }
 .icon1.outdoor {
   mask: url("../../../assets/outdoor.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.indoor {
   mask: url("../../../assets/indoor.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.sos {
   mask: url("../../../assets/sos.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.active {
   mask: url("../../../assets/active.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 
 .icon1.patrol {
   mask: url("../../../assets/patrol.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.home {
   mask: url("../../../assets/home.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 
 .images {
@@ -1558,13 +1699,5 @@ export default {
   color: #5a5e66;
   vertical-align: text-bottom;
 
-  &.hover-effect {
-    cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.025);
-    }
-  }
 }
 </style>

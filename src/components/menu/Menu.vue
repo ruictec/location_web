@@ -72,20 +72,34 @@
 
       <el-col :span="4" class="header_item perDiv">
         <!-- 个人中心 -->
-        <el-dropdown style="z-index: 999" class="perDropdown header-action">
+        <el-dropdown
+          style="z-index: 999"
+          class="perDropdown header-action"
+          popper-class="nav-menu-popper"
+          placement="bottom-end"
+        >
           <span class="el-dropdown-link perSpan">
             <i class="perIcon">
-              <img src="../../../static/menu.png" alt />
+              <el-icon :size="18"><Operation /></el-icon>
             </i>
           </span>
           <template #dropdown><el-dropdown-menu>
-            <el-dropdown-item @click="goCenter">{{
-              $t("index.PersonalCenter")
-            }}</el-dropdown-item>
+            <div class="nav-menu-head">
+              <span class="nav-menu-avatar">{{ userInitial }}</span>
+              <div class="nav-menu-meta">
+                <p class="nav-menu-name">{{ userName }}</p>
+                <p class="nav-menu-sub">{{ roleLabel }}</p>
+              </div>
+            </div>
+            <el-dropdown-item @click="goCenter">
+              <el-icon><User /></el-icon>{{ $t("index.PersonalCenter") }}
+            </el-dropdown-item>
             <el-dropdown-item
               v-if="logoprio == 1 || clogoprio == 1"
               @click="goSetLogo"
-              >{{ $t("index.Logosettings") }}</el-dropdown-item>
+            >
+              <el-icon><Picture /></el-icon>{{ $t("index.Logosettings") }}
+            </el-dropdown-item>
             <el-dropdown-item
               v-if="
                 contrForPrioNum == 1 ||
@@ -94,11 +108,12 @@
                 contrForPrioNum == 4
               "
               @click="sendMessage"
-              >{{ $t("index.Sendnotification") }}</el-dropdown-item>
-
-            <el-dropdown-item @click="logout">{{
-              $t("index.signout")
-            }}</el-dropdown-item>
+            >
+              <el-icon><Promotion /></el-icon>{{ $t("index.Sendnotification") }}
+            </el-dropdown-item>
+            <el-dropdown-item divided class="is-danger" @click="logout">
+              <el-icon><SwitchButton /></el-icon>{{ $t("index.signout") }}
+            </el-dropdown-item>
           </el-dropdown-menu></template>
         </el-dropdown>
 
@@ -119,7 +134,7 @@
           >
             <span class="el-dropdown-link1 perSpan1">
               <i class="perIcon1">
-                <img src="../../../static/message.png" alt />
+                <el-icon :size="18"><Bell /></el-icon>
                 <el-badge
                   :value="msgtable.length"
                   class="msgbox"
@@ -169,7 +184,7 @@
             @click="goMsg()"
           >
             <i class="perIcon1">
-              <img src="../../../static/message.png" alt />
+              <el-icon :size="18"><Bell /></el-icon>
               <el-badge
                 :value="msgtable.length"
                 class="msgbox"
@@ -181,25 +196,29 @@
         </el-tooltip>
 
         <!-- 帮助菜单 -->
-        <el-dropdown style="z-index: 100" class="header-action" v-if="i8n == 'zh'">
+        <el-dropdown
+          style="z-index: 100"
+          class="header-action"
+          popper-class="nav-menu-popper"
+          placement="bottom-end"
+          v-if="i8n == 'zh'"
+        >
           <span class="el-dropdown-link perSpan">
             <i class="perIcon">
-              <img src="../../../static/help.png" alt />
+              <i class="perIcon-help"></i>
             </i>
           </span>
           <template #dropdown><el-dropdown-menu>
-            <el-dropdown-item @click="Onlinedocumentation">{{
-              $t("index.Onlinedocumentation")
-            }}</el-dropdown-item>
-
-            <el-dropdown-item @click="commonproblem"
-              >{{ $t("index.commonproblem") }}
+            <p class="nav-menu-title">{{ $t("index.helpCenter") }}</p>
+            <el-dropdown-item @click="Onlinedocumentation">
+              <el-icon><Document /></el-icon>{{ $t("index.Onlinedocumentation") }}
             </el-dropdown-item>
-
-            <el-dropdown-item
-              ><a href="javascript:;" class="helpitem">{{
-                $t("index.Resourcedownload")
-              }}</a></el-dropdown-item>
+            <el-dropdown-item @click="commonproblem">
+              <el-icon><ChatLineRound /></el-icon>{{ $t("index.commonproblem") }}
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <el-icon><Download /></el-icon>{{ $t("index.Resourcedownload") }}
+            </el-dropdown-item>
           </el-dropdown-menu></template>
         </el-dropdown>
       </el-col>
@@ -208,11 +227,12 @@
       <el-dialog
         :title="$t('index.Setlogo')"
         v-model="setLogo"
-        class="edit"
-        width="30%"
-        style="text-align: center"
+        class="edit device-dialog"
+        width="480px"
+        align-center
       >
         <el-upload
+          class="dialog-upload-center"
           :action="ImagePath"
           list-type="picture-card"
           :file-list="fileListAdd"
@@ -242,8 +262,12 @@
         </div></template>
       </el-dialog>
       <el-dialog
+        width="50%"
+        class="device-dialog"
+        :title="$t('index.Setlogo')"
         v-model="dialogVisible"
         :append-to-body="true"
+        align-center
       >
         <img width="100%" :src="dialogImageUrl" alt />
       </el-dialog>
@@ -252,21 +276,18 @@
       <el-dialog
         :title="$t('index.sendmessage')"
         v-model="showSendMessage"
-        class="edit"
-        width="30%"
-        style="text-align: center"
+        class="edit device-dialog"
+        width="560px"
         :close-on-press-escape="false"
         :append-to-body="true"
+        align-center
       >
         <el-form
           :model="sendMessages"
-          style="margin-top: 20px"
-          class="demo-form-inline"
+          label-position="top"
+          class="send-message-form"
         >
-          <el-form-item
-            style="width: 60%; margin-left: 0; text-align: left"
-            :label="$t('index.Sendto')"
-          >
+          <el-form-item :label="$t('index.Sendto')">
             <el-select
               v-model="sendMessages.tenantid"
               clearable
@@ -293,7 +314,7 @@
             </el-input>
           </el-form-item>
         </el-form>
-        <template #footer><div class="dialog-footer" style="margin-top: -10px">
+        <template #footer><div class="dialog-footer">
           <el-button @click="showSendMessage = false">{{
             $t("index.Cancel")
           }}</el-button>
@@ -316,8 +337,31 @@ import {
   insertNoticeList,
 } from "../../axios/api";
 import { notifyAuthEvent } from "../../utils/authSession";
+import {
+  Bell,
+  Operation,
+  User,
+  Picture,
+  Promotion,
+  SwitchButton,
+  Document,
+  ChatLineRound,
+  Download,
+} from "@element-plus/icons-vue";
+import { userInitial, roleLabelKey } from "../../utils/navMenu";
 export default {
   name: "Menu",
+  components: {
+    Bell,
+    Operation,
+    User,
+    Picture,
+    Promotion,
+    SwitchButton,
+    Document,
+    ChatLineRound,
+    Download,
+  },
   data() {
     return {
       i8n: this.$store.state.i18n,
@@ -367,6 +411,13 @@ export default {
   computed: {
     headerMenuActive() {
       return this.resolveHeaderMenuIndex(this.$route.path);
+    },
+    userInitial() {
+      return userInitial(this.userName);
+    },
+    roleLabel() {
+      const key = roleLabelKey(this.contrForPrioNum);
+      return key ? this.$t(key) : "";
     },
   },
   beforeMount() {
@@ -458,6 +509,7 @@ export default {
           "/myorder",
           "/usercenter",
           "/userorder",
+          "/companyorder",
           "/orderdetails",
         ].includes(path)
       ) {
@@ -613,6 +665,9 @@ export default {
           this.isActiveClass = "system";
           break;
         case "/userorder":
+          this.isActiveClass = "system";
+          break;
+        case "/companyorder":
           this.isActiveClass = "system";
           break;
         case "/orderdetails":
@@ -806,6 +861,10 @@ export default {
     },
     logout() {
       this.$confirm(this.$t("index.surelogout"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -977,64 +1036,79 @@ export default {
 
 <style>
 .logo {
-  height: 60px;
-  margin-left: 10px;
+  display: block;
+  height: 40px;
+  max-width: 100%;
+  margin: 10px 0 10px 18px;
+  object-fit: contain;
 }
 
 .menu {
   height: 60px;
   display: flex;
-  justify-content: space-between !important;
+  justify-content: center !important;
+  gap: 6px;
   border: none !important;
-  background-color: #409eff !important;
-  --el-menu-bg-color: #409eff;
-  --el-menu-text-color: #ffffff;
-  --el-menu-hover-bg-color: #ffffff;
-  --el-menu-active-color: #844200;
+  background-color: transparent !important;
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: rgba(226, 232, 240, 0.78);
+  --el-menu-hover-bg-color: transparent;
+  --el-menu-active-color: #ffffff;
   --el-menu-horizontal-height: 60px;
 }
 
-.menu .el-menu-item {
-  height: 60px !important;
-  line-height: 60px !important;
-  color: #ffffff !important;
+.menu.el-menu--horizontal > .el-menu-item {
+  position: relative;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 10px 0 !important;
+  padding: 0 22px !important;
+  border-radius: 10px;
   border-bottom: none !important;
+  color: rgba(226, 232, 240, 0.78) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   background-color: transparent !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* 非当前项悬停：白底 + 深色字，避免白字叠白底看不见 */
 .menu.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
-.menu.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
-.menu .el-menu-item:hover,
-.menu .el-menu-item:focus {
-  background-color: #ffffff !important;
-  color: #844200 !important;
+.menu.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-.menu .el-menu-item.is-active,
-.menu .el-menu-item.is-active:hover,
-.menu .el-menu-item.is-active:focus,
-.menu.el-menu--horizontal > .el-menu-item.is-active {
-  background-color: #ffffff !important;
-  color: #844200 !important;
+.menu.el-menu--horizontal > .el-menu-item.is-active,
+.menu.el-menu--horizontal > .el-menu-item.selectMenu,
+.menu.el-menu--horizontal > .el-menu-item.selectMenu:hover,
+.menu.el-menu--horizontal > .el-menu-item.selectMenu:focus {
+  color: #ffffff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.4),
+    rgba(34, 211, 238, 0.16)
+  ) !important;
 }
 
-.menu .el-menu-item.selectMenu,
-.menu .el-menu-item.selectMenu:hover,
-.menu .el-menu-item.selectMenu:focus,
-.menu.el-menu--horizontal > .el-menu-item.selectMenu {
-  background-color: #ffffff !important;
-  color: #844200 !important;
+.menu.el-menu--horizontal > .el-menu-item.selectMenu::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: -10px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(90deg, #2f7bff, #22d3ee);
 }
 
-.selectMenu {
-  color: #844200 !important;
-  background: white !important;
+.menu.el-menu--horizontal > .el-menu-item.is-active:not(.selectMenu) {
+  background: transparent !important;
+  color: rgba(226, 232, 240, 0.78) !important;
 }
 
 .header_item {
   height: 60px;
-  background-color: #409eff !important;
+  background-color: transparent !important;
 }
 
 .el-message--success {
@@ -1090,8 +1164,8 @@ export default {
   position: fixed;
   width: 100%;
   z-index: 99;
-  background: white;
-  /* border-bottom: 2px solid #DDDDFF; */
+  background: linear-gradient(90deg, #1a2030 0%, #1e2433 45%, #22304d 100%);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
 }
 
 .header > .el-row {
@@ -1148,34 +1222,36 @@ export default {
   line-height: 1;
 }
 
-.perIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  position: relative;
-  top: 0;
-  transform: none;
-}
-
+.perIcon,
 .perIcon1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   position: relative;
   top: 0;
   transform: none;
+  border-radius: 10px;
+  color: rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.perIcon img,
-.perIcon1 img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.perIcon:hover,
+.perIcon1:hover {
+  color: #ffffff;
+  background: rgba(47, 123, 255, 0.35);
+}
+
+.perIcon-help {
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+  mask: url("../../assets/help.svg") no-repeat center / contain;
+  -webkit-mask: url("../../assets/help.svg") no-repeat center / contain;
 }
 
 .demo-form-inline .el-form-item__label {
@@ -1328,15 +1404,6 @@ export default {
 /* .sendmessage  .el-form-item__label{
   text-align: left !important;
 } */
-
-.helpitem {
-  text-decoration: none;
-  color: #606266;
-}
-
-.helpitem:hover {
-  color: #409eff;
-}
 
 .perSpan1 {
   margin-right: 0;

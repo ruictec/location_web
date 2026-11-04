@@ -4,11 +4,11 @@
       <el-container>
         <el-main>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 0; z-index: 1"
               max-height="670"
               border
               highlight-current-row
@@ -46,7 +46,7 @@
                     width="auto"
                     @confirm="delTer(scope)"
                   >
-                    <template #reference><el-button type="danger" class="dels"
+                    <template #reference><el-button type="danger" size="small" class="ns-del-btn"
                       ><img src="../../../../static/delete.png"
                     /></el-button></template>
                   </el-popconfirm>
@@ -56,8 +56,7 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -171,6 +170,15 @@ export default {
 };
 </script>
   <style scoped>
+.ns-del-btn {
+  padding: 0 10px !important;
+  border-radius: 6px !important;
+}
+.ns-del-btn img {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);

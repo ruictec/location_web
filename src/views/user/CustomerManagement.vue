@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrioNum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrioNum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><Usermanagement /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -58,7 +58,7 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -71,9 +71,9 @@
             </div>
             <!-- 展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -269,8 +269,7 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -286,18 +285,19 @@
           </div>
           <!-- 添加模态框  :headers="setHeader"  -->
           <el-dialog
+            class="device-dialog"
             :title="$t('companymanagement.addclientinfor')"
-            width="30%"
+            width="860px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
+              class="dialog-form-2col"
               :model="addData"
-              label-width="160px"
+              label-width="140px"
               :rules="addRules"
               ref="addData"
-              style="text-align: left"
             >
               <el-form-item
                 :label="$t('companymanagement.clientname')"
@@ -511,18 +511,17 @@
           <el-dialog
             :title="$t('companymanagement.edituser')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="860px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
               ref="editData"
               :rules="editRules"
-              class="demo-ruleForm"
-              label-width="160px"
-              style="text-align: left; margin-left: 10px"
+              class="demo-ruleForm dialog-form-2col"
+              label-width="140px"
             >
               <el-form-item :label="$t('companymanagement.clientname')">
                 <el-input
@@ -678,22 +677,15 @@
 
           <!-- 删除 -->
           <el-dialog
+            width="480px"
+            class="device-dialog"
             :title="$t('companymanagement.deleteclient')"
             v-model="deleTpl"
-            style="text-align: center"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  fontsize: 20px;
-                "
-              >
-                {{ $t("companymanagement.deleteclientrules") }}{{ deleUser }}?
-              </p>
-            </el-form>
+            <p class="dialog-confirm-text">
+              {{ $t("companymanagement.deleteclientrules") }}<b>{{ deleUser }}</b>?
+            </p>
             <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("companymanagement.cancel")
@@ -1487,6 +1479,10 @@ export default {
         this.$t("usermanagement.passwordrules"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

@@ -1,5 +1,5 @@
 <template>
-  <div  :class=" contrForPrionum != 5 ? 'home': ''" style="height:100%">
+  <div  :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height:100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>

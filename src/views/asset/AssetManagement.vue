@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu ref="menu" />
     </div>
@@ -9,7 +9,7 @@
 
         <el-main>
           <!-- 第一行 -->
-                    <div class="terminal-filter-flow" :class="filterLangClass">
+                    <div class="terminal-filter-flow page-panel" :class="[filterLangClass, { 'filter-grid': show }]">
 <el-form
             class="demo-form-inline terminal-filter-form"
             :model="searchList"
@@ -80,49 +80,6 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item
-              v-if="!show"
-             class="terminal-toolbar-item">
-              <span class="el-dropdown-link" @click="changeItem()">
-                {{ $t("asset.More")
-                }}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-button type="primary" class="query" @click="searchStaff()">{{
-                $t("asset.search")
-              }}</el-button>
-              <el-button type="primary" class="reset" @click="clearBtn()">{{
-                $t("asset.reset")
-              }}</el-button>
-              <el-dropdown trigger="click">
-                <el-button type="primary">
-                  {{ $t("terminal.importExport") }}
-                  <i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu class="asset-action-menu">
-                    <el-dropdown-item @click="importExcel()">{{
-                      $t("terminal.import")
-                    }}</el-dropdown-item>
-                    <el-dropdown-item @click="exportExcel()">{{
-                      $t("terminal.exportSelected")
-                    }}</el-dropdown-item>
-                    <el-dropdown-item @click="exportExcelAll()">{{
-                      $t("terminal.exportAll")
-                    }}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-              <el-button type="primary" class="add" @click="addStaff()">{{
-                $t("asset.Addassets")
-              }}</el-button><el-button type="danger" class="add" @click="removeStaffs()">{{
-                $t("asset.unbind")
-              }}</el-button>
-              <el-button
-                type="primary"
-                class="add add2"
-                @click="goSetAsset()"
-                >{{ $t("asset.AssetSettings") }}</el-button>
-            </el-form-item>
           </el-form>
           <!-- 第二行 -->
           <el-form
@@ -135,10 +92,15 @@
              class="terminal-filter-item">
               <el-input v-model="searchList.username"></el-input>
             </el-form-item>
-            <el-form-item class="terminal-toolbar-item">
-              <span class="el-dropdown-link" @click="changeItem()">
-                {{ $t("inspection.State")
-                }}<i class="el-icon-arrow-up el-icon--right"></i>
+          </el-form>
+          <div class="search-actions terminal-toolbar-item">
+            <div class="terminal-toolbar-row">
+              <span class="terminal-filter-more" @click="changeItem()">
+                {{ show ? $t("beacon.putAway") : $t("asset.More") }}
+                <i
+                  :class="show ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                  class="el-icon--right"
+                ></i>
               </span>
               <el-button type="primary" class="query" @click="searchStaff()">{{
                 $t("asset.search")
@@ -175,8 +137,8 @@
                 class="add add2"
                 @click="goSetAsset()"
                 >{{ $t("asset.AssetSettings") }}</el-button>
-            </el-form-item>
-          </el-form>
+            </div>
+          </div>
           </div>
           <!-- </div> -->
 
@@ -192,18 +154,19 @@
                 @change="importExcels"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 97%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -335,10 +298,11 @@
                 </template>
               </el-table-column>
             </el-table>
+            </div>
 
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -356,13 +320,15 @@
 
           <!-- 添加资产 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('asset.text1')"
-            width="30%"
+            width="560px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePath"
               list-type="picture-card"
               :file-list="fileListAdd"
@@ -501,19 +467,26 @@
             </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog v-model="dialogVisible" :append-to-body="true">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            v-model="dialogVisible"
+            :append-to-body="true"
+            align-center
+          >
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
           <!-- 编辑 -->
           <el-dialog
             :title="$t('asset.text3')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancel('editData')"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePathEdit"
               list-type="picture-card"
               :file-list="fileListEdit"
@@ -654,30 +627,31 @@
 
           <!-- 行为分析 / 轨迹 -->
           <el-dialog
+            :title="$t('staffmanagement.trajectory')"
             v-model="actions"
             width="60%"
-            style="text-align: center"
             :close-on-click-modal="false"
-            class="action"
+            class="action device-dialog"
             @close="closeAction"
+            top="6vh"
           >
             <el-dialog
+              :title="$t('staff.Viewtrack')"
               v-model="trajectory"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction"
             >
               <Trajectory ref="trajectory" @closePopup2d="closePopup" />
             </el-dialog>
             <el-dialog
+              :title="$t('staff.Viewtrack')"
               v-model="trajectory3d"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction3d"
             >
@@ -789,9 +763,9 @@
           <el-dialog
             :title="$t('staff.text4')"
             v-model="removeStaff"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -855,30 +829,18 @@
           <el-dialog
             :title="$t('asset.text5')"
             v-model="addAssets"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
             :close-on-press-escape="false"
             :append-to-body="true"
+            align-center
           >
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addAssetRow"
-                >{{ $t("staff.add") }}</el-button>
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('staff.import')"
-              >
+            <div class="setting-list-body">
+              <div class="setting-list-toolbar">
+                <el-button type="primary" class="add" @click="addAssetRow">{{
+                  $t("staff.add")
+                }}</el-button>
+                <span class="setting-list-label">{{ $t("staff.import") }}</span>
                 <el-select
                   v-model="currentProjectid.projectid"
                   clearable
@@ -893,40 +855,36 @@
                     :value="item.projectid"
                   ></el-option>
                 </el-select>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in assetList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="float: left; width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  style="float: left; margin-left: 20px"
-                  @click="
-                    deleAssetRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  class="del"
-                  >{{ $t("staff.delete") }}</el-button>
-              </el-form-item>
-            </el-form>
-            <template #footer><div class="dialog-footer" style="margin-top: -10px">
+              </div>
+              <div class="setting-list-rows">
+                <div
+                  class="setting-list-row"
+                  v-for="(item, index) in assetList"
+                  :key="item.id || 'asset-' + index"
+                >
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleAssetRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
+                    "
+                    >{{ $t("staff.delete") }}</el-button>
+                </div>
+              </div>
+            </div>
+            <template #footer><div class="dialog-footer">
               <el-button @click="addAssets = false">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -2202,6 +2160,10 @@ export default {
           this.$t("beacon.deletemsg31"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

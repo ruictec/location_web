@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -23,7 +23,7 @@
               }}</el-breadcrumb-item>
             </el-breadcrumb>
 
-            <div class="map-search-row terminal-filter-flow" :class="filterLangClass">
+            <div class="map-search-row terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline map-search-form terminal-filter-form"
               :model="searchList"
@@ -81,21 +81,19 @@
             </div>
           </div>
           <div
-            class="map_pinut"
-            style="display: flex"
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
             v-if="contrForPrionum == 5"
           >
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; margin-left: 2%"
             >
               <el-form-item
-                style="display: flex; margin-right: 0"
                 :label="$t('mapmanagements.Mapnumber')"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -116,9 +114,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item
-                style="display: flex; margin-left: 2%; margin-right: 2%"
-              >
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("mapmanagements.search")
                 }}</el-button>
@@ -147,25 +143,19 @@
             </el-form>
           </div>
           <div
-            class="map_pinut"
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
             v-if="contrForPrionum == 1 || contrForPrionum == 2"
           >
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap"
             >
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
                 :label="$t('mapmanagement.mapid')"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -186,7 +176,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 1%">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("terminal.search")
                 }}</el-button>
@@ -198,18 +188,18 @@
           </div>
 
           <!-- 展示 -->
-          <div class="content_map">
-            <el-table
+          <div class="content_map page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -455,7 +445,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -473,13 +463,15 @@
 
           <!-- 添加2D -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text5')"
-            width="30%"
+            width="560px"
             v-model="add2D"
-            style="text-align: center"
             @close="addCancel2D('addData')"
+            top="5vh"
           >
             <el-upload
+              class="dialog-upload-indent-120"
               :action="ImagePath"
               list-type="picture-card"
               v-model:file-list="fileListAdd"
@@ -657,11 +649,12 @@
 
           <!-- 添加3D：先加载地图取长宽，再调用添加接口 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text5')"
-            width="60%"
+            width="80%"
             v-model="add3D"
-            style="text-align: center"
             @close="addCancel3D('addData')"
+            top="5vh"
           >
             <div class="check_3d_box">
               <div class="check_3d_info">
@@ -809,17 +802,6 @@
                     ></el-input>
                   </el-form-item>
                 </el-form>
-                <div class="edit-3d-actions">
-                  <el-button
-                    @click="addCancel3D('addData')"
-                    :disabled="add3DSubmitting"
-                    >{{ $t("warning.Cancel") }}</el-button>
-                  <el-button
-                    type="primary"
-                    @click="addTrue3D('addData')"
-                    :loading="add3DSubmitting"
-                    >{{ $t("warning.Sure") }}</el-button>
-                </div>
               </div>
               <div class="check_3d_map">
                 <div
@@ -831,16 +813,29 @@
                 ></div>
               </div>
             </div>
+            <template #footer><div class="dialog-footer">
+              <el-button
+                @click="addCancel3D('addData')"
+                :disabled="add3DSubmitting"
+                >{{ $t("warning.Cancel") }}</el-button>
+              <el-button
+                type="primary"
+                @click="addTrue3D('addData')"
+                :loading="add3DSubmitting"
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 地图预览 -->
           <el-dialog
-            width="60%"
-            class="mapview"
+            width="70%"
+            class="mapview device-dialog"
+            :title="$t('mapmanagements.mapselection')"
             v-model="dialogVisible"
             :append-to-body="true"
             :destroy-on-close="true"
             @close="removeMap()"
+            top="5vh"
           >
             <div class="mapContent" ref="mapContent">
               <div class="map-image-stage">
@@ -880,12 +875,13 @@
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text13')"
-            width="30%"
+            width="560px"
             v-model="del"
-            style="text-align: center"
+            top="6vh"
           >
-            <div class="imageSize">
+            <div class="imageSize dialog-upload-indent-120">
               <el-image
                 style="width: 100px; height: 100px"
                 :src="imgUrl"
@@ -895,7 +891,7 @@
             </div>
             <el-form
               :model="delData"
-              label-width="100px"
+              label-width="120px"
               ref="delData"
               style="text-align: left; margin-top: 4%"
             >
@@ -937,11 +933,13 @@
 
           <!-- 编辑2D 不可更该地图的编辑页面-->
           <el-dialog
-            width="30%"
+            class="device-dialog"
+            :title="$t('mapmanagements.text14')"
+            width="560px"
             v-model="edit2D"
-            style="text-align: center"
+            top="6vh"
           >
-            <div class="imageSize">
+            <div class="imageSize dialog-upload-indent-120">
               <el-image
                 style="width: 100px; height: 100px"
                 :src="imgUrl"
@@ -1119,17 +1117,19 @@
 
           <!-- 企业级编辑2D，可以修改地图 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text14')"
-            width="30%"
+            width="560px"
             v-model="editCompany2D"
-            style="text-align: center"
             @close="closeMap()"
+            top="5vh"
           >
             <div
               class="map-edit-upload"
               :class="{ 'is-full': hideEditMapUpload }"
             >
               <el-upload
+                class="dialog-upload-indent-120"
                 :disabled="changeImg"
                 :action="ImagePathEdit"
                 list-type="picture-card"
@@ -1324,12 +1324,13 @@
 
           <!-- 编辑3D地图 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text14')"
-            width="60%"
+            width="80%"
             v-model="edit3D"
-            style="text-align: center"
             @opened="onmap()"
             @close="closeCheck('editData')"
+            top="5vh"
           >
             <div class="check_3d_box">
               <div class="check_3d_info">
@@ -1473,17 +1474,6 @@
                     ></el-input>
                   </el-form-item>
                 </el-form>
-                <div class="edit-3d-actions">
-                  <el-button
-                    @click="closeCheck('editData')"
-                    :disabled="edit3DSubmitting"
-                    >{{ $t("warning.Cancel") }}</el-button>
-                  <el-button
-                    type="primary"
-                    @click="editTrue3D('editData')"
-                    :loading="edit3DSubmitting"
-                    >{{ $t("warning.Sure") }}</el-button>
-                </div>
               </div>
               <div class="check_3d_map">
                 <div
@@ -1495,6 +1485,17 @@
                 ></div>
               </div>
             </div>
+            <template #footer><div class="dialog-footer">
+              <el-button
+                @click="closeCheck('editData')"
+                :disabled="edit3DSubmitting"
+                >{{ $t("warning.Cancel") }}</el-button>
+              <el-button
+                type="primary"
+                @click="editTrue3D('editData')"
+                :loading="edit3DSubmitting"
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
 
@@ -3488,17 +3489,17 @@ export default {
 }
 
 .map-search-bar :deep(.el-breadcrumb) {
-  margin: 0 0 8px 2% !important;
+  margin: 0 0 10px 2px !important;
   align-self: flex-start;
 }
 
 .map-search-row {
   box-sizing: border-box;
-  width: 98% !important;
-  max-width: 98% !important;
-  margin: 0 0 16px 2% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 12px 0 !important;
   display: flex !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
 }
 
 .map-search-row .map-search-form,
@@ -3506,7 +3507,7 @@ export default {
   width: auto !important;
   max-width: 100% !important;
   margin: 0 !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
 }
 
 .imageSize :deep(.el-image-viewer__img) {
@@ -3557,7 +3558,8 @@ export default {
   top: 0 !important;
   left: auto !important;
   width: 59% !important;
-  height: 520px !important;
+  height: 100% !important;
+  border-radius: 10px;
   margin: 0 !important;
   z-index: 1;
   overflow: hidden;
@@ -3604,6 +3606,9 @@ export default {
   min-height: 420px;
   width: 100%;
   overflow: hidden;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
 .mapContent #map {
@@ -3627,24 +3632,38 @@ export default {
   background: transparent !important;
 }
 .map_tips {
+  margin: 12px 0 0 !important;
   text-align: center;
-  /* white-space: nowrap; */
+  font-size: 13px;
+  color: #475569;
 }
 .mapview_dialog_footer {
   text-align: right;
 }
 .actualrange {
-  width: 60px;
+  width: 72px;
+  height: 26px;
+  margin: 0 6px;
+  padding: 0 8px;
   border: 1px solid #dcdfe6;
+  border-radius: 6px;
   background-color: #f5f7fa;
   border-color: #e4e7ed;
+  box-sizing: border-box;
+  outline: none;
   /* cursor: not-allowed; */
 }
 .actualrange_dis {
-  width: 60px;
+  width: 72px;
+  height: 26px;
+  margin: 0 6px;
+  padding: 0 8px;
   border: 1px solid #dcdfe6;
+  border-radius: 6px;
   background-color: #f5f7fa;
   border-color: #e4e7ed;
+  box-sizing: border-box;
+  outline: none;
   cursor: not-allowed;
 }
 .actualrange:focus {
@@ -3903,12 +3922,14 @@ export default {
   display: flex !important;
   position: relative !important;
   width: 100% !important;
-  height: 520px !important;
-  min-height: 520px !important;
+  height: 66vh !important;
+  min-height: 420px !important;
   margin: 0 !important;
 }
 .check_3d_info {
   width: 40% !important;
+  height: 100% !important;
+  overflow: auto !important;
   margin: 0 !important;
   position: relative !important;
   z-index: 2 !important;
@@ -3919,7 +3940,8 @@ export default {
   top: 0 !important;
   left: auto !important;
   width: 59% !important;
-  height: 520px !important;
+  height: 100% !important;
+  border-radius: 10px;
   margin: 0 !important;
   z-index: 1 !important;
   overflow: hidden !important;

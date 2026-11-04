@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -20,7 +20,7 @@
                 $t("Breadcrumb.Floormanagement")
               }}</el-breadcrumb-item>
             </el-breadcrumb>
-            <div class="floor-search-row terminal-filter-flow" :class="filterLangClass">
+            <div class="floor-search-row terminal-filter-flow page-panel" :class="filterLangClass">
               <el-form :model="searchList" class="demo-form-inline floor-search-form terminal-filter-form">
                 <el-form-item :label="$t('floormanagement.Building')" class="terminal-filter-item">
                   <el-select
@@ -81,18 +81,17 @@
             </div>
           </div>
           <div
-            class="project_input"
-            style="display: flex; justify-content: space-between"
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
             v-else
           >
             <el-form
               :model="searchList"
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 2%"
+              class="demo-form-inline terminal-filter-form"
             >
               <el-form-item
                 :label="$t('floormanagement.Building')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.buildid"
@@ -111,7 +110,7 @@
               </el-form-item>
               <el-form-item
                 :label="$t('floormanagement.floor1')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.ground"
@@ -130,35 +129,26 @@
               </el-form-item>
               <el-form-item
                 :label="$t('floormanagement.Floornumber')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-input v-model="searchList.groundid"></el-input>
               </el-form-item>
-              <el-form-item style="display: flex">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("floormanagement.search")
                 }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("floormanagement.reset")
                 }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button>
+                <el-button type="primary" class="reset" @click="importExcel()">{{
+                  $t("terminal.import")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="exportExcel()">{{
+                  $t("terminal.export")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="exportExcelAll()">{{
+                  $t("terminal.exportAll")
+                }}</el-button>
                 <el-button type="primary" class="add" @click="addBuildings()">{{
                   $t("floormanagement.Add")
                 }}</el-button>
@@ -202,17 +192,18 @@
                 @change="importExcels"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
               @selection-change="handleSelectionChange"
             >
@@ -604,10 +595,7 @@
               </el-table-column>
             </el-table>
             <!--分页效果-->
-            <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
-            >
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -619,14 +607,16 @@
               >
               </el-pagination>
             </div>
+            </div>
           </div>
           <!-- 添加建筑信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('floormanagement.text7')"
-            width="30%"
+            width="520px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            align-center
           >
             <el-form
               :model="addData"
@@ -740,9 +730,9 @@
           <el-dialog
             :title="$t('floormanagement.text11')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="editData"
@@ -809,9 +799,9 @@
           <el-dialog
             :title="$t('floormanagement.text12')"
             v-model="deletes"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="deleteData"
@@ -2167,6 +2157,10 @@ export default {
           : this.$t("otherDev.cancelAlarmtrue"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -2434,16 +2428,16 @@ export default {
   overflow: hidden;
 }
 .floor-search-bar :deep(.el-breadcrumb) {
-  margin: 0 0 12px 2% !important;
+  margin: 0 0 10px 2px !important;
   align-self: flex-start;
 }
 .floor-search-row {
   box-sizing: border-box;
-  width: 98% !important;
-  max-width: 98% !important;
-  margin: 0 0 16px 2% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 12px 0 !important;
   display: flex !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   overflow: hidden;
 }
 .floor-search-row .floor-search-form,
@@ -2451,7 +2445,7 @@ export default {
   width: auto !important;
   max-width: 100% !important;
   margin: 0 !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   flex-wrap: wrap !important;
   align-items: center;
   gap: 8px;

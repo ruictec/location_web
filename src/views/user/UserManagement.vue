@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrioNum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrioNum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><Usermanagement /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline user-search-form terminal-filter-form"
               :model="searchList"
@@ -158,12 +158,12 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <!-- 人员展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -325,8 +325,7 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -342,11 +341,12 @@
           </div>
           <!-- 添加子管理员模态框    -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.adduser')"
-            width="30%"
+            width="560px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -500,11 +500,12 @@
 
           <!-- 企业管理员添加用户    -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.adduser')"
-            width="30%"
+            width="560px"
             v-model="add_User"
-            style="text-align: center"
             @close="addUserCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -641,10 +642,10 @@
           <el-dialog
             :title="$t('usermanagement.edituser')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -804,24 +805,15 @@
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.deleteuser')"
             v-model="deleTpl"
-            style="text-align: center"
-            width="30%"
+            width="480px"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  fontsize: 20px;
-                "
-              >
-                {{ $t("usermanagement.deleterules") }}
-                {{ deleUser }} ?
-              </p>
-            </el-form>
+            <p class="dialog-confirm-text">
+              {{ $t("usermanagement.deleterules") }} <b>{{ deleUser }}</b> ?
+            </p>
             <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("terminal.cancel")
@@ -835,10 +827,10 @@
           <!-- 重置密码 -->
           <el-dialog
             :title="$t('usermanagement.repwd')"
-            width="30%"
-            style="text-align: center"
+            width="480px"
             v-model="passwordTpl"
-            class="passward"
+            class="passward device-dialog"
+            align-center
           >
             <el-form
               :model="passwordData"
@@ -846,7 +838,6 @@
               :rules="addRules"
               class="demo-ruleForm"
               label-width="150px"
-              style="text-align: left; margin-left: 10px"
             >
               <el-form-item :label="$t('usermanagement.adminpwd')">
                 <el-input
@@ -1723,6 +1714,10 @@ export default {
         that.$t("usermanagement.passwordrules"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -1785,6 +1780,10 @@ export default {
         that.$t("terminal.tips"),
 
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",

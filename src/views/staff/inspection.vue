@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header">
       <Menu v-if="contrForPrionum != 5" />
     </div>
@@ -10,7 +10,7 @@
           <el-tabs v-model="activeName" @tab-click="changeTab">
             <!-- 巡检任务 -->
             <el-tab-pane :label="$t('inspection.Inspectiontasks')" name="first">
-              <div class="checkwork_input terminal-filter-flow" :class="filterLangClass">
+              <div class="checkwork_input terminal-filter-flow page-panel" :class="filterLangClass">
                 <el-form
                   class="demo-form-inline terminal-filter-form"
                   :model="searchList"
@@ -88,18 +88,17 @@
               </div>
 
               <!-- 展示 -->
-              <div>
-                <el-table
+              <div class="page-panel table-panel"><el-table class="device-table"
                   ref="multipleTable"
                   :data="tableData"
                   @current-change="handleCurrentChangeIns"
                   style="
-                    width: 98%;
+                    width: 100%;
                     text-align: center;
-                    margin-left: 2%;
+                    
                     z-index: 1;
                   "
-                  border
+                  :border="contrForPrionum != 5"
                   max-height="650"
                   highlight-current-row
                 >
@@ -362,7 +361,7 @@
                 </el-table>
                 <!-- 分页 -->
                 <div
-                  class="block"
+                  class="block device-pagination"
                   style="text-align: center; width: 100%; margin-top: 1%"
                 >
                   <el-pagination
@@ -383,7 +382,7 @@
               :label="$t('inspection.Inspectionhistory')"
               name="second"
             >
-              <div class="taskHis terminal-filter-flow" :class="filterLangClass">
+              <div class="taskHis terminal-filter-flow page-panel" :class="filterLangClass">
                 <el-form
                   class="demo-form-inline terminal-filter-form"
                   :model="searchListHis"
@@ -480,20 +479,19 @@
               </div>
 
               <!-- 展示巡检历史 -->
-              <div class="checkHistory">
+              <div class="checkHistory page-panel table-panel">
                 <el-table
                   ref="multipleTableHis"
-                  class="inspection-history-table"
+                  class="inspection-history-table device-table"
                   :data="tableDataHis"
                   @selection-change="handleSelectionChangeHis"
                   @row-click="handleRowClick"
                   style="
-                    width: 97%;
+                    width: 100%;
                     text-align: center;
-                    margin-left: 2%;
                     z-index: 1;
                   "
-                  border
+                  :border="contrForPrionum != 5"
                   max-height="650"
                   highlight-current-row
                 >
@@ -627,7 +625,7 @@
                 </el-table>
                 <!-- 分页 -->
                 <div
-                  class="block"
+                  class="block device-pagination"
                   style="text-align: center; width: 100%; margin-top: 1%"
                 >
                   <el-pagination
@@ -646,7 +644,13 @@
           </el-tabs>
 
           <!-- 批量删除巡检历史 -->
-          <el-dialog :title="$t('inspection.text2')" v-model="delHis">
+          <el-dialog
+            width="960px"
+            class="device-dialog"
+            :title="$t('inspection.text2')"
+            v-model="delHis"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -1015,11 +1019,12 @@
 
           <!-- 显示巡检路线详情 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text3')"
             v-model="showInspection"
-            width="40%"
-            style="text-align: center"
+            width="720px"
             @close="closeInspection"
+            top="8vh"
           >
             <div style="padding-bottom: 3%">
               <el-table :data="showInspectionData" border max-height="660">
@@ -1090,12 +1095,13 @@
 
           <!-- 添加巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text4')"
-            width="40%"
+            width="560px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
             @opened="openDialog('addData')"
+            top="8vh"
           >
             <el-form
               :model="addData"
@@ -1189,11 +1195,12 @@
           </el-dialog>
           <!-- 编辑巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text5')"
-            width="40%"
+            width="560px"
             v-model="edit"
-            style="text-align: center"
             @close="editCancel('editData')"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -1289,10 +1296,11 @@
           </el-dialog>
           <!-- 分配巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text6')"
-            width="30%"
+            width="480px"
             v-model="update"
-            style="text-align: center"
+            align-center
           >
             <el-form
               label-width="100px"
@@ -1303,7 +1311,6 @@
               <el-form-item
                 :label="$t('inspection.taskname1')"
                 prop="name"
-                style="width: 70%; margin-left: 0"
               >
                 <el-input v-model="updateData.name" disabled></el-input>
               </el-form-item>
@@ -1338,13 +1345,14 @@
           </el-dialog>
           <!-- 显示巡检任务分配人员 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.Personneldetails')"
-            width="40%"
+            width="900px"
             v-model="showUser"
-            style="text-align: center"
             @close="closeAction"
+            align-center
           >
-            <div style="padding-bottom: 3%">
+            <div>
               <el-table :data="userDetails" border max-height="600">
                 <el-table-column
                   property="username"
@@ -2126,6 +2134,10 @@ export default {
     removeInspection(index) {
       var that = this;
       this.$confirm(this.$t("inspection.RemoveRouteText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -4142,6 +4154,10 @@ export default {
         this.$t("warning.permissiondelete1"),
         this.$t("change.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -4695,6 +4711,10 @@ export default {
           this.$t("beacon.Pinspectiontask"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

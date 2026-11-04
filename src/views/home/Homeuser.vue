@@ -221,75 +221,47 @@
                 @mouseup="stopDrag"
               ></div>
 
-              <div class="tips">
-                <div class="tips1">
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorpeople") }}
-                    <div class="color">
-                      {{ member_indoor_num }}
-                    </div>
+              <div class="tips" :class="{ 'is-en': $store.state.i18n !== 'zh' }">
+                <div class="tips1 map-stat-card">
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-member"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorpeople") }}</span>
+                    <b class="map-stat-num">{{ member_indoor_num }}</b>
                   </div>
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorassets") }}
-                    <div class="color">
-                      {{ asset_indoor_num }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-asset"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorassets") }}</span>
+                    <b class="map-stat-num">{{ asset_indoor_num }}</b>
                   </div>
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorvehicle") }}
-                    <div class="color">
-                      {{ tbox_indoor_num }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-tbox"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorvehicle") }}</span>
+                    <b class="map-stat-num">{{ tbox_indoor_num }}</b>
                   </div>
                 </div>
                 <el-tooltip
-                  class="item"
                   effect="dark"
                   :content="$t('homepage.ClickToOutdoor')"
                   placement="left"
                 >
-                  <div class="tips2">
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorpeople") }}
-                      <div class="color">
-                        {{ member_outdoor_num }}
-                      </div>
+                  <div
+                    class="tips2 map-stat-card is-link"
+                    @click="$router.push({ path: '/location/outdoor/locationoutdoor' })"
+                  >
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-member"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorpeople") }}</span>
+                      <b class="map-stat-num">{{ member_outdoor_num }}</b>
                     </div>
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorassets") }}
-                      <div class="color">
-                        {{ asset_outdoor_num }}
-                      </div>
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-asset"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorassets") }}</span>
+                      <b class="map-stat-num">{{ asset_outdoor_num }}</b>
                     </div>
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorvehicle") }}
-                      <div class="color">
-                        {{ tbox_outdoor_num }}
-                      </div>
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-tbox"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorvehicle") }}</span>
+                      <b class="map-stat-num">{{ tbox_outdoor_num }}</b>
                     </div>
                   </div>
                 </el-tooltip>
@@ -643,7 +615,12 @@
     </el-dialog>
 
     <!-- 排行 -->
-    <el-dialog v-model="rankings" width="30%" class="dialog_box">
+    <el-dialog
+      v-model="rankings"
+      width="560px"
+      class="dialog_box device-dialog"
+      align-center
+    >
       <template #header><div :class="showTitleTips == true ? 'dialog-title' : ''">
         <p class="title-text">{{ rankingName }}</p>
         <el-tooltip
@@ -660,10 +637,10 @@
           <i class="el-icon-question" />
         </el-tooltip>
       </div></template>
-      <el-table :data="rankingData" border>
-        <el-table-column :label="$t('homepage.No')" width="60" align="center">
+      <el-table :data="rankingData" class="device-table ranking-table" max-height="480">
+        <el-table-column :label="$t('homepage.No')" width="80" align="center">
           <template #default="scope">
-            <img :src="scope.row.picurl" alt="" srcset="" />
+            <img class="ranking-medal" :src="scope.row.picurl" alt="" />
           </template>
         </el-table-column>
         <el-table-column
@@ -3608,44 +3585,32 @@ a {
 }
 .maps .tips {
   position: absolute;
-  right: 20px;
+  right: 10px;
   top: 10px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0;
 }
-.maps .tips1 {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px 10px 4px 10px;
-  border-radius: 4px;
+/* 地图右上角统计卡片：整体固定宽度，文字完整显示，与数值间距固定，数值列按 3 位数预留 */
+.maps .tips .map-stat-card {
+  width: 132px;
+  grid-template-columns: 8px max-content 28px;
+  column-gap: 8px;
+  box-sizing: border-box;
+}
+.maps .tips.is-en .map-stat-card {
+  width: 180px;
+}
+.maps .tips .map-stat-label {
   white-space: nowrap;
 }
-.maps .tips2 {
-  width: 100%;
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px 10px 4px 10px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-.maps .tips1 .item,
-.maps .tips2 .item {
-  display: flex;
-  align-items: center;
-  font-size: 10px;
-  color: #fff;
-  margin-left: 0;
-}
-.maps .tips2 .item {
-  cursor: pointer;
-}
-.maps .tips1 .item .color,
-.maps .tips2 .item .color {
-  margin-left: 6px;
+.maps .tips .map-stat-num {
+  width: 28px;
+  padding-left: 0;
+  box-sizing: border-box;
 }
 .userEcharts {
   width: 33%;
@@ -4728,23 +4693,30 @@ h4.mb-0 {
 .sostable :deep(.el-table__row td) {
   padding: 2px !important;
 }
-.dialog_box :deep(.el-dialog__header) {
-  display: flex;
-  justify-content: center;
-}
 .dialog-title {
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 .title-text {
-  font-size: 18px;
-  line-height: 24px;
-  margin-right: 0;
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: #0f172a;
 }
 .title-tips {
-  font-size: 130%;
-  line-height: 24px;
-  margin-left: 5px;
+  margin: 0 0 0 6px !important;
+  font-size: 15px;
+  color: #94a3b8;
+  cursor: help;
+}
+.ranking-table .ranking-medal {
+  display: block;
+  width: 26px;
+  height: 26px;
+  margin: 0 auto;
+  object-fit: contain;
 }
 
 // ===================== 首页卡片统一视觉 =====================

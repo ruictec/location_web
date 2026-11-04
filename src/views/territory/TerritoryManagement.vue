@@ -1,12 +1,12 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
     <div class="content">
       <el-container class="asi">
         <el-main>
-                    <div class="terminal-filter-flow" :class="filterLangClass">
+                    <div class="terminal-filter-flow page-panel" :class="filterLangClass">
 <el-form
             :inline="true"
             :model="searchList"
@@ -38,12 +38,12 @@
             </el-form-item>
           </el-form>
           </div>
-          <div class="content_country">
+          <div class="content_country page-panel table-panel">
             <!-- 展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -94,7 +94,7 @@
                     <el-button
                       type="primary"
                       @click="teeritoryEdit(scope.row)"
-                      class="edits"
+                      class="icon_button"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
                   </el-tooltip>
@@ -103,8 +103,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -123,16 +122,15 @@
           <el-dialog
             :title="$t('territorymanagement.editinfor2')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="editData"
               ref="editData"
               class="demo-ruleForm"
               label-width="130px"
-              style="text-align: left; margin-left: 10px"
             >
               <el-form-item :label="$t('territorymanagement.country')">
                 <el-input

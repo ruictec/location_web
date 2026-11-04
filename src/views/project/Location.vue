@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -22,7 +22,7 @@
               }}</el-breadcrumb-item>
             </el-breadcrumb>
             <div
-              class="location-search-row terminal-filter-flow"
+              class="location-search-row terminal-filter-flow page-panel"
               :class="filterLangClass"
             >
               <el-form
@@ -82,12 +82,12 @@
           </div>
 
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
               border
               highlight-current-row
               max-height="660"
@@ -178,7 +178,7 @@
                   >
                     <el-button
                       type="danger"
-                      class="edits"
+                      class="icon_button"
                       @click="DelDevCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -187,8 +187,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -204,11 +203,17 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('LocationIndoorHis.text2')" v-model="del">
+          <el-dialog
+            width="960px"
+            class="device-dialog"
+            :title="$t('LocationIndoorHis.text2')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
               <el-table-column
@@ -476,6 +481,10 @@ export default {
           this.$t("project.tet16"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -692,7 +701,7 @@ export default {
   width: 100%;
 }
 .location-breadcrumb {
-  margin: 0 0 12px 2% !important;
+  margin: 0 0 10px 2px !important;
   align-self: flex-start;
 }
 .location-search-row.terminal-filter-flow {
@@ -700,11 +709,11 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px 16px;
-  margin-left: 2%;
-  margin-right: 1%;
-  margin-bottom: 16px;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 12px;
 }
 .location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
   display: contents !important;
@@ -812,15 +821,15 @@ export default {
   display: flex !important;
   flex-wrap: wrap !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   gap: 8px 16px !important;
-  margin-bottom: 16px !important;
+  margin-bottom: 12px !important;
 }
 .location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
   display: contents !important;
 }
 .location-breadcrumb {
-  margin: 0 0 12px 2% !important;
+  margin: 0 0 10px 2px !important;
 }
 /* unified-filter-toolbar-btn-size */
 .terminal-toolbar-row .el-button,

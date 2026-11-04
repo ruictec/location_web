@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <!-- <el-aside><Project /></el-aside> -->
         <el-main>
-          <div class="project_input terminal-filter-flow" :class="filterLangClass">
+          <div class="project_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -101,7 +101,7 @@
           </div>
 
           <!-- 项目展示 -->
-          <div class="content_project">
+          <div class="content_project page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -121,9 +121,9 @@
               />
             </div>
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 96%; text-align: center; margin-left: 2%"
               max-height="300"
               border
               highlight-current-row
@@ -391,8 +391,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -431,11 +430,12 @@
 
           <!-- 显示mqtt相关信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.tet4')"
-            width="55%"
+            width="860px"
             v-model="showForward"
-            style="text-align: center"
             @close="closeForward()"
+            top="8vh"
           >
             <el-form
               :model="forwardDatas"
@@ -519,11 +519,12 @@
 
           <!-- 显示网络服务器相关信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.text6')"
-            width="55%"
+            width="860px"
             v-model="showNet"
-            style="text-align: center"
             @close="closeNet()"
+            top="8vh"
           >
             <el-form
               :model="netDatas"
@@ -618,11 +619,12 @@
 
           <!-- 添加项目 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.tet7')"
-            width="30%"
+            width="600px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -1003,10 +1005,10 @@
           <el-dialog
             :title="$t('project.tet11')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="600px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -1338,13 +1340,14 @@
 
           <!-- 显示FBX模型 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.text18')"
-            width="55%"
+            width="80%"
             v-model="showFBXDialog"
-            style="text-align: center"
             @close="closeFBX()"
             :destroy-on-close="true"
             @opened="onFbxDialogOpened"
+            top="5vh"
           >
             <div id="userMap" ref="userMap" class="fbx-viewer"></div>
           </el-dialog>
@@ -3104,6 +3107,10 @@ export default {
           this.$t("project.confirmdel3"),
         this.$t("project.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

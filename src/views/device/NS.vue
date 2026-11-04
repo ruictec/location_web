@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -9,7 +9,7 @@
         <el-aside><Devicemanagement /></el-aside>
         <el-main>
                     <div
-            class="device_input terminal-filter-flow"
+            class="device_input terminal-filter-flow page-panel"
             :class="filterLangClass"
           >
             <el-form class="demo-form-inline terminal-filter-form">
@@ -49,11 +49,11 @@
           </div>
 
           <!-- NS 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -192,8 +192,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -210,17 +209,18 @@
 
           <!-- 添加NS -->
           <el-dialog
+            class="device-dialog"
             :title="$t('ns.addns1')"
-            width="30%"
+            width="800px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            align-center
           >
             <el-form
+              class="dialog-form-2col"
               :model="addData"
               label-width="130px"
               ref="addData"
-              style="text-align: left"
               :rules="addRules"
             >
               <el-form-item :label="$t('ns.Name')" prop="name">
@@ -306,17 +306,16 @@
           <el-dialog
             :title="$t('ns.editns')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="800px"
             @close="editCancel('editData')"
+            align-center
           >
             <el-form
               :model="editData"
               ref="editData"
-              class="demo-ruleForm"
+              class="demo-ruleForm dialog-form-2col"
               label-width="130px"
-              style="text-align: left; margin-left: 10px"
               :rules="addRules"
             >
               <el-form-item :label="$t('ns.Name')" prop="name">
@@ -769,6 +768,10 @@ export default {
     nsDele(row) {
       var that = this;
       this.$confirm(this.$t("ns.deletemsg"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",

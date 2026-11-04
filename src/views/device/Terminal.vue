@@ -1,5 +1,8 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div
+    :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'"
+    style="height: 100%"
+  >
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -9,8 +12,8 @@
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
           <div
-            class="ter_input terminal-filter-flow"
-            :class="filterLangClass"
+            class="ter_input terminal-filter-flow page-panel"
+            :class="[filterLangClass, { 'filter-grid': show }]"
           >
             <!-- 第一行 -->
             <el-form
@@ -515,7 +518,7 @@
 
           </div>
           <!-- 设备展示 -->
-          <div class="terminal_div">
+          <div class="terminal_div page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -532,15 +535,15 @@
               :data="tableData"
               highlight-current-row
               @selection-change="handleSelectionChange"
+              class="terminal-table"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
                 background-color: #ffffff;
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
             >
               <el-table-column type="selection" width="55" align="center">
               </el-table-column>
@@ -1534,10 +1537,7 @@
             </el-table>
 
             <!-- 分页 -->
-            <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
-            >
+            <div class="block terminal-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -1553,11 +1553,12 @@
 
           <!-- 系统管理员添加设备 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('terminal.addmsg')"
-            width="30%"
+            width="560px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -1905,11 +1906,12 @@
 
           <!-- 企业管理员添加设备 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('terminal.addmsg')"
-            width="30%"
+            width="560px"
             v-model="cusadd"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -2197,10 +2199,10 @@
           <el-dialog
             :title="$t('terminal.editmsg')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -2395,10 +2397,10 @@
           <el-dialog
             :title="$t('terminal.editmsgs')"
             v-model="edits"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancels('editDatas')"
+            top="5vh"
           >
             <el-form
               :model="editDatas"
@@ -2547,10 +2549,11 @@
 
           <!-- 配置设备 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('terminal.Configureinformation')"
             v-model="config"
             width="70%"
-            style="text-align: center"
+            top="5vh"
           >
             <el-form
               :model="configData"
@@ -3321,10 +3324,11 @@
 
           <!-- 批量配置设备 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('terminal.Configureinformation')"
             v-model="configs"
             width="70%"
-            style="text-align: center"
+            top="5vh"
           >
             <el-form
               :model="configDatas"
@@ -4050,7 +4054,8 @@
             :title="$t('terminal.Configureinformation')"
             v-model="configWifi"
             width="520px"
-            class="config-wifi-dialog"
+            class="config-wifi-dialog device-dialog"
+            align-center
           >
             <el-form
               :model="configData"
@@ -4201,7 +4206,8 @@
             :title="$t('terminal.Configureinformation')"
             v-model="configsWifi"
             width="520px"
-            class="config-wifi-dialog"
+            class="config-wifi-dialog device-dialog"
+            align-center
           >
             <el-form
               :model="configDatas"
@@ -4351,7 +4357,13 @@
           </el-dialog>
 
           <!-- 批量删除设备 -->
-          <el-dialog :title="$t('terminal.deletemsgs')" v-model="deletes">
+          <el-dialog
+            class="device-dialog"
+            :title="$t('terminal.deletemsgs')"
+            v-model="deletes"
+            width="720px"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -4700,9 +4712,9 @@
           <el-dialog
             :title="$t('terminal.dispensingdevice')"
             v-model="assign"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
           >
             <el-form
               :model="assignData"
@@ -4746,9 +4758,9 @@
           <el-dialog
             :title="$t('terminal.Batchdistributioneq')"
             v-model="assigns"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
           >
             <el-form
               :model="assignDatas"
@@ -4792,9 +4804,9 @@
           <el-dialog
             :title="$t('beacon.deletemsgs1')"
             v-model="removeTer"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -4830,9 +4842,9 @@
           <el-dialog
             :title="$t('terminal.tit1')"
             v-model="selectCom"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
           >
             <el-form
               class="exportForm"
@@ -4868,9 +4880,9 @@
           <el-dialog
             :title="$t('terminal.tit2')"
             v-model="exportBtn"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
+            align-center
           >
             <el-form
               :model="exportData"
@@ -5027,9 +5039,12 @@
 
           <!-- 扩展 -->
           <el-dialog
+            class="device-dialog"
+            :title="$t('terminal.Extend')"
             v-model="extendTer"
-            width="40%"
+            width="760px"
             @close="extendCancel('beaconFilterData')"
+            top="8vh"
           >
             <div>
               <el-tabs tab-position="left">
@@ -5545,9 +5560,12 @@
 
           <!-- 批量扩展 -->
           <el-dialog
+            class="device-dialog"
+            :title="$t('terminal.Extend')"
             v-model="extendTers"
-            widtsh="40%"
+            width="760px"
             @close="extendCancels('beaconFilterDatas')"
+            top="8vh"
           >
             <div>
               <el-tabs tab-position="left">
@@ -9204,6 +9222,10 @@ export default {
           this.$t("terminal.deletetermsg2"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -9342,6 +9364,10 @@ export default {
       }
 
       this.$confirm(this.$t("terminal.tet10"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -11402,6 +11428,10 @@ export default {
           this.$t("terminal.tet36"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -11637,6 +11667,10 @@ export default {
         this.$t("terminal.tet40") + tips + this.$t("terminal.tet41"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -11726,6 +11760,10 @@ export default {
         this.$t("terminal.tet40") + tips + this.$t("terminal.tet41"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

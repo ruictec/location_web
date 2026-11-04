@@ -2,9 +2,9 @@
   <div class="task-detail-page">
     <div class="task-detail-header">
       <div class="header-left">
-        <button type="button" class="back-btn" @click="goBack">
-          {{ $t("locateTask.back") }}
-        </button>
+        <el-button type="primary" class="query back-btn" @click="goBack">
+          <span class="back-arrow">‹</span>{{ $t("locateTask.back") }}
+        </el-button>
       </div>
       <div class="header-center">
         <div class="task-name" :title="task.name">{{ task.name || "-" }}</div>
@@ -69,7 +69,6 @@
               :data="filteredMembers"
               height="100%"
               size="small"
-              border
               :row-key="getMemberRowKey"
               @selection-change="onSelectionChange"
               :row-class-name="memberRowClassName"
@@ -631,7 +630,7 @@ export default {
     },
     getColourText(colour) {
       const key = Number(colour);
-      return COLOUR_TEXT_MAP[key] || "#e2e8f0";
+      return COLOUR_TEXT_MAP[key] || "#1f2937";
     },
     memberRowClassName({ row }) {
       return row && row.colour ? "has-colour" : "";
@@ -1407,8 +1406,8 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #f5f7fb;
+  color: #0f172a;
   overflow: hidden;
   z-index: 1000;
 }
@@ -1419,8 +1418,9 @@ export default {
   box-sizing: border-box;
   display: block;
   padding: 0;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  background: #fff;
+  border-bottom: 1px solid #eef2f7;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
   z-index: 2;
 }
 .header-left {
@@ -1457,25 +1457,26 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 4px 12px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
 }
 .back-btn {
-  border: none;
-  background: transparent;
-  color: #94a3b8;
-  padding: 0;
-  margin: 0;
-  font-size: 14px;
-  cursor: pointer;
-  line-height: 1;
+  height: 30px;
+  margin: 0 !important;
+  padding: 0 14px 0 10px;
 }
-.back-btn:hover {
-  color: #e2e8f0;
+.back-arrow {
+  margin: 0 4px 0 0 !important;
+  font-size: 16px;
+  line-height: 1;
 }
 .task-name {
   margin: 0;
   font-size: 20px;
-  font-weight: 600;
-  color: #f8fafc;
+  font-weight: 700;
+  color: #0f172a;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1484,17 +1485,17 @@ export default {
 }
 .attend-label {
   font-size: 13px;
-  color: #94a3b8;
+  color: #64748b;
 }
 .attend-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #2f7bff;
   font-variant-numeric: tabular-nums;
 }
 .attend-sep {
   margin: 0 2px;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 500;
 }
 .task-detail-body {
@@ -1568,11 +1569,10 @@ export default {
   padding: 12px;
   box-sizing: border-box;
   overflow: hidden;
-  background: rgba(15, 23, 42, 0.42);
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  background: #fff;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
 }
 .collapse-btn {
   position: absolute;
@@ -1582,11 +1582,12 @@ export default {
   transform: translateY(-50%);
   width: 18px;
   height: 56px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  border: 1px solid #eef2f7;
   border-left: none;
   border-radius: 0 8px 8px 0;
-  background: rgba(15, 23, 42, 0.5);
-  color: #e2e8f0;
+  background: #fff;
+  box-shadow: 4px 0 12px rgba(15, 23, 42, 0.08);
+  color: #64748b;
   cursor: pointer;
   z-index: 8;
   padding: 0;
@@ -1596,25 +1597,27 @@ export default {
 }
 .countdown-card {
   flex: 0 0 auto;
-  padding: 12px;
-  border-radius: 8px;
-  background: rgba(30, 41, 59, 0.38);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  margin: 0 !important;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.08), rgba(34, 211, 238, 0.08));
+  border: 1px solid rgba(47, 123, 255, 0.18);
+  text-align: left;
 }
 .countdown-label {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
   margin-bottom: 6px;
 }
 .countdown-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #2f7bff;
   margin-bottom: 6px;
 }
 .countdown-range {
   font-size: 12px;
-  color: #cbd5e1;
+  color: #475569;
   line-height: 1.4;
 }
 .member-panel {
@@ -1629,18 +1632,31 @@ export default {
 }
 .member-search {
   flex: 0 0 auto;
+  margin: 0 !important;
+}
+.countdown-card > div {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 .member-panel :deep(.el-table) {
   flex: 1;
   width: 100% !important;
-  background: transparent;
-  --el-table-bg-color: transparent;
-  --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: rgba(30, 41, 59, 0.45);
-  --el-table-row-hover-bg-color: rgba(51, 65, 85, 0.45);
-  --el-table-text-color: #e2e8f0;
-  --el-table-header-text-color: #cbd5e1;
-  --el-table-border-color: rgba(71, 85, 105, 0.6);
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  overflow: hidden;
+  --el-table-border-color: #f1f5f9;
+  --el-table-header-bg-color: #f8fafc;
+  --el-table-row-hover-bg-color: rgba(47, 123, 255, 0.06);
+  --el-table-text-color: #1f2937;
+  --el-table-header-text-color: #64748b;
+}
+.member-panel :deep(.el-table th.el-table__cell) {
+  font-weight: 600;
+  background: #f8fafc !important;
+}
+.member-panel :deep(.el-table::before),
+.member-panel :deep(.el-table__inner-wrapper::before) {
+  display: none;
 }
 .member-panel :deep(.el-table__inner-wrapper),
 .member-panel :deep(.el-table__header-wrapper),
@@ -1665,5 +1681,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
+  /* 轨迹配色里有浅黄绿/浅绿，白底上需压暗才可读 */
+  filter: brightness(0.75) saturate(1.2);
 }
 </style>

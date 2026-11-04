@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Asset /> </el-aside>
         <el-main>
-          <div class="checkwork_input terminal-filter-flow" :class="filterLangClass">
+          <div class="checkwork_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -77,19 +77,19 @@
           </div>
 
           <!-- 展示 -->
-          <div>
-            <el-table
+          <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-rowh
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -148,7 +148,7 @@
             </el-table>
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -165,7 +165,13 @@
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('checkwork.title3')" v-model="del">
+          <el-dialog
+            width="900px"
+            class="device-dialog"
+            :title="$t('checkwork.title3')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"

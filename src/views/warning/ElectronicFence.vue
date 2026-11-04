@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
       {{ $t("list.Alarmconfiguration") }}
@@ -8,7 +8,7 @@
       <el-container>
         <el-main>
           <div
-            class="warning_input terminal-filter-flow"
+            class="warning_input terminal-filter-flow page-panel"
             :class="filterLangClass"
           >
             <el-form class="demo-form-inline terminal-filter-form">
@@ -69,17 +69,17 @@
             </div>
           </div>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
+              class="device-table"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
                 z-index: 1;
               "
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -192,7 +192,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -209,38 +209,69 @@
 
             <!-- 地图弹框 -->
             <el-dialog
-              :title="add ? $t('warning.add') : edit ? $t('warning.edit') : ''"
+              :title="add ? $t('warning.add') : edit ? $t('warning.edit') : $t('warning.Preview')"
               v-model="showMap"
-              width="70%"
-              style="text-align: center"
+              width="80%"
               @opened="initMap"
               @close="closeMap"
-              class="fence"
+              class="fence device-dialog"
+              :class="{ 'is-preview': !add && !edit }"
+              top="4vh"
             >
               <el-form
                 :model="mapData"
                 :rules="mapRules"
                 class="fence-map-form"
-                label-width="auto"
+                :class="{ 'is-en': $store.state.i18n != 'zh' }"
                 ref="mapData"
+                @submit.prevent
               >
-                <el-form-item
-                  :label="$t('ns.Name')"
-                  v-if="add || edit"
-                  class="fence-name-color-item"
-                >
-                  <div class="fence-name-color">
+                <template v-if="add || edit">
+                  <el-form-item :label="$t('warning.FenceName')" class="fence-field">
                     <el-input
                       v-model="mapData.name"
-                      class="fence-name-input"
+                      :placeholder="$t('warning.EnterFenceName')"
                     ></el-input>
-                    <input
-                      type="color"
-                      v-model="fillColor"
-                      class="fence-color-input"
-                      :title="$t('warning.FenceColor')"
-                    />
-                    <div class="fence-opacity-field">
+                  </el-form-item>
+                  <template v-if="$store.state.i18n == 'zh'">
+                    <el-form-item
+                      :label="$t('warning.fencePrincipal')"
+                      class="fence-field"
+                    >
+                      <el-input
+                        v-model="mapData.principal"
+                        :placeholder="$t('warning.enterFencePrincipal')"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item
+                      :label="$t('warning.fenceTel')"
+                      prop="tel"
+                      class="fence-field"
+                    >
+                      <el-input
+                        v-model="mapData.tel"
+                        :placeholder="$t('warning.enterFenceTel')"
+                        maxlength="11"
+                      ></el-input>
+                    </el-form-item>
+                  </template>
+                  <el-form-item
+                    :label="$t('warning.FenceColor')"
+                    class="fence-field fence-style-field"
+                  >
+                    <div class="fence-style">
+                      <label
+                        class="fence-color-swatch"
+                        :title="$t('warning.FenceColor')"
+                      >
+                        <span
+                          class="fence-color-fill"
+                          :style="{ background: fillColor, opacity: fillOpacity }"
+                        ></span>
+                        <input type="color" v-model="fillColor" />
+                      </label>
+                      <span class="fence-color-hex">{{ fillColor }}</span>
+                      <span class="fence-style-divider"></span>
                       <span class="fence-opacity-label">{{
                         $t("warning.FenceOpacity")
                       }}</span>
@@ -254,46 +285,29 @@
                         controls-position="right"
                       />
                       <span class="fence-opacity-tip">{{
-                        $t("warning.FenceOpacityTip")
+                        add
+                          ? $t("warning.FenceOpacityTip")
+                          : $t("warning.FenceOpacityRange")
                       }}</span>
                     </div>
-                    <el-button
-                      v-if="add"
-                      @click="clearFence"
-                      type="primary"
-                    >
-                      {{ $t("warning.Redraw") }}
-                    </el-button>
-                    <template v-if="$store.state.i18n == 'zh'">
-                      <span class="fence-inline-label">{{
-                        $t("warning.fencePrincipal")
-                      }}</span>
-                      <el-input
-                        v-model="mapData.principal"
-                        class="fence-principal-input"
-                        :placeholder="$t('warning.enterFencePrincipal')"
-                      ></el-input>
-                      <span class="fence-inline-label">{{
-                        $t("warning.fenceTel")
-                      }}</span>
-                      <el-form-item prop="tel" class="fence-inline-tel-item">
-                        <el-input
-                          v-model="mapData.tel"
-                          class="fence-tel-input"
-                          :placeholder="$t('warning.enterFenceTel')"
-                          maxlength="11"
-                        ></el-input>
-                      </el-form-item>
-                    </template>
-                  </div>
-                </el-form-item>
+                  </el-form-item>
+                  <el-button
+                    v-if="add"
+                    class="fence-redraw-btn"
+                    type="primary"
+                    plain
+                    @click="clearFence"
+                  >
+                    {{ $t("warning.Redraw") }}
+                  </el-button>
+                </template>
               </el-form>
-              <div class="mapConent" style="position: relative">
+              <div class="mapConent fence-map-wrap" style="position: relative">
                 <MapLayerSwitcher :map="map" />
                 <div id="map" ref="map"></div>
               </div>
-              <template #footer>
-                <div class="dialog-footer" v-if="add || edit">
+              <template v-if="add || edit" #footer>
+                <div class="dialog-footer">
                   <el-button @click="mapCancel(mapData)">
                     {{ $t("warning.Cancel") }}
                   </el-button>
@@ -319,10 +333,11 @@
 
             <!-- 楼栋楼层选择对话框 -->
             <el-dialog
+              class="device-dialog"
               :title="$t('warning.selectBuildingFloor')"
               v-model="showBuildingFloorDialog"
-              width="30%"
-              style="text-align: center"
+              width="480px"
+              align-center
             >
               <el-form :model="buildingFloorForm" label-width="100px">
                 <el-form-item :label="$t('floormanagement.building')">
@@ -372,12 +387,14 @@
 
             <!-- 室内地图弹框 -->
             <el-dialog
+              :title="$t('warning.indoorFence')"
               v-model="showIndoorMapDialog"
               width="90%"
               :close-on-click-modal="false"
               @close="handleCancelIndoorMap"
               @opened="onIndoorMapDialogOpened"
-              class="indoorMapDialog"
+              class="indoorMapDialog device-dialog"
+              top="2vh"
             >
               <div style="width: 100%; height: 100%">
                 <!-- 按钮栏 -->
@@ -417,7 +434,7 @@
                       >{{ $t("warning.EndEdit") }}</el-button>
                   </el-form>
                 </div>
-                <div style="width: 100%; margin-top: 2%">
+                <div style="width: 100%; margin-top: 12px">
                   <div class="indoor-map-container">
                     <!-- 2D地图容器 -->
                     <div
@@ -430,7 +447,7 @@
                     <div
                       v-if="currentGroundInfo && currentGroundInfo.maptype == 2"
                       class="mapContent mapContent3D"
-                      style="width: 100%; height: calc(100vh - 120px); position: relative"
+                      style="width: 100%; height: 100%; position: relative"
                     >
                       <div style="width: 100%; height: 100%">
                         <div id="fengMap" ref="fengMap"></div>
@@ -450,10 +467,12 @@
             
             <!-- 创建/编辑电子围栏对话框 -->
             <el-dialog
+              class="device-dialog"
               :title="isEditingFence3d ? $t('warning.EditFenceInfo') : $t('warning.SetFenceInfo')"
               v-model="showFenceDialog"
               width="500px"
               :close-on-click-modal="false"
+              align-center
             >
               <el-form
                 :model="fenceForm"
@@ -499,7 +518,9 @@
                       controls-position="right"
                     />
                     <span class="fence-opacity-tip">{{
-                      $t("warning.FenceOpacityTip")
+                      isEditingFence3d
+                        ? $t("warning.FenceOpacityRange")
+                        : $t("warning.FenceOpacityTip")
                     }}</span>
                   </div>
                 </el-form-item>
@@ -2451,6 +2472,10 @@ export default {
           : `Confirm to delete electronic fence "${fenceName}"?`,
         that.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3435,6 +3460,10 @@ export default {
         that.$t("floormanagement.Aredelete") || "确定要删除吗？",
         that.$t("Building.tips") || "提示",
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("login.confirm") || "确认",
           cancelButtonText: that.$t("login.cancel") || "取消",
           type: "warning",
@@ -3721,6 +3750,10 @@ export default {
     DelFenceCommand(index) {
       var that = this;
       this.$confirm("确认删除吗？", this.$t("beacon.prompt"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -3971,6 +4004,17 @@ export default {
   width: 100%;
   height: 700px;
 }
+.fence-map-wrap.mapConent {
+  height: calc(88vh - 260px);
+  min-height: 360px;
+}
+.fence-map-wrap {
+  margin-top: 0 !important;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
 #map {
   height: 100%;
   /* height: 700px; */
@@ -4049,115 +4093,139 @@ export default {
 }
 .searchArrange {
   width: 100%;
-  height: 50px;
   background-color: #fff;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  margin: 0 !important;
+}
+.searchArrange .el-form {
+  margin: 0 !important;
 }
 .indoor-map-container {
   width: 100%;
-  height: calc(100vh - 120px);
+  height: 74vh !important;
+  min-height: 50vh !important;
   position: relative;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
 
-/* 室外围栏弹框：名称/颜色/透明度/负责人等同排，统一间距 */
+/* 室外围栏弹框：顶部信息面板 */
 .fence-map-form {
-  display: flex;
-  flex-wrap: nowrap;
+  --fence-label-w: 96px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  white-space: nowrap;
-  margin-bottom: 8px;
+  gap: 12px 24px;
+  margin: 0 0 12px !important;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
 }
-.fence-map-form > .el-form-item {
-  width: auto !important;
-  margin: 0 !important;
-  flex: 0 0 auto;
+.fence-map-form.is-en {
+  --fence-label-w: 112px;
 }
-.fence-map-form :deep(.el-form-item__label) {
-  width: auto !important;
-  min-width: auto !important;
-  padding: 0 8px 0 0 !important;
-  margin: 0 !important;
-  justify-content: flex-start !important;
-  text-align: left !important;
-  line-height: 32px;
+.fence-map-form:empty {
+  display: none;
 }
-.fence-map-form :deep(.el-form-item__content) {
-  margin-left: 0 !important;
-}
-.fence-name-color-item {
-  flex: 0 0 auto !important;
-}
-.fence-name-color-item :deep(.el-form-item__content) {
+.fence-map-form > .fence-field {
   display: flex !important;
-  flex-wrap: nowrap !important;
   align-items: center;
   width: auto !important;
-  flex: 0 0 auto !important;
-  gap: 0 !important;
-}
-.fence-name-color {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 12px;
-  width: auto;
   min-width: 0;
-}
-.fence-name-color .fence-name-input,
-.fence-name-color .fence-principal-input,
-.fence-name-color .fence-tel-input {
-  flex: 0 0 160px;
-  width: 160px !important;
-  min-width: 160px;
-  max-width: 160px;
-  display: inline-flex !important;
   margin: 0 !important;
 }
-.fence-name-color :deep(.el-input__wrapper) {
-  width: 100%;
-}
-.fence-name-color :deep(.el-button) {
+.fence-map-form > .fence-field :deep(.el-form-item__label) {
+  flex: 0 0 var(--fence-label-w);
+  width: var(--fence-label-w) !important;
+  min-width: 0 !important;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 10px 0 0 !important;
   margin: 0 !important;
-  flex: 0 0 auto;
-}
-.fence-inline-label {
-  flex-shrink: 0;
-  font-size: 14px;
-  color: #606266;
+  font-size: 13px;
+  color: #4b5563;
+  justify-content: flex-end !important;
   white-space: nowrap;
+}
+.fence-map-form > .fence-field :deep(.el-form-item__content) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+  margin: 0 !important;
   line-height: 32px;
 }
-.fence-inline-tel-item {
-  margin: 0 !important;
-  display: inline-flex !important;
-  align-items: center;
-  width: auto !important;
-  flex: 0 0 auto !important;
+.fence-map-form > .fence-field :deep(.el-input) {
+  width: 100% !important;
 }
-.fence-inline-tel-item :deep(.el-form-item__content) {
-  margin-left: 0 !important;
-  line-height: normal;
+.fence-map-form > .fence-style-field {
+  grid-column: span 2;
 }
-.fence-inline-tel-item :deep(.el-form-item__error) {
+.fence-map-form > .fence-field :deep(.el-form-item__error) {
   position: absolute;
   top: 100%;
   left: 0;
   padding-top: 2px;
   white-space: nowrap;
 }
-.fence-color-input {
-  flex: 0 0 40px;
-  width: 40px;
-  height: 30px;
-  margin: 0;
-  padding: 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.fence-style {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+}
+.fence-color-swatch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  padding: 3px;
+  margin: 0 !important;
+  box-sizing: border-box;
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  background: #fff;
   cursor: pointer;
-  background: transparent;
+  transition: border-color 0.2s;
+}
+.fence-color-swatch:hover {
+  border-color: #409eff;
+}
+.fence-color-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+.fence-color-swatch input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+.fence-color-hex {
+  min-width: 58px;
+  font-size: 12px;
+  color: #6b7280;
+  font-family: Menlo, Consolas, monospace;
+  text-transform: uppercase;
+}
+.fence-style-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px !important;
+  background: #e5e7eb;
+}
+.fence-redraw-btn {
+  grid-column: -2 / -1;
+  justify-self: end;
+  margin: 0 !important;
 }
 .fence-opacity-input {
   width: 120px !important;
@@ -4173,6 +4241,10 @@ export default {
 .fence-opacity-field.is-dialog {
   width: 100%;
 }
+.fence-opacity-field.is-dialog > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 .fence-opacity-label {
   flex-shrink: 0;
   font-size: 14px;
@@ -4186,6 +4258,13 @@ export default {
 }
 </style>
 <style>
+/* 围栏预览：无表单和底部按钮，地图贴近弹框边缘并加高 */
+.el-dialog.device-dialog.fence.is-preview > .el-dialog__body {
+  padding: 0 !important;
+}
+.el-dialog.device-dialog.fence.is-preview .fence-map-wrap.mapConent {
+  height: calc(92vh - 110px);
+}
 /* 右键菜单按钮样式（参考Arrange3dMap） */
 .BUTTON {
   background: #f1f5f7 !important;

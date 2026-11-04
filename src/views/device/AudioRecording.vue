@@ -1,10 +1,10 @@
 <template>
-  <div style="height: 100%">
+  <div class="device-page" style="height: 100%">
     <div class="content">
       <el-container class="user">
         <el-main>
           <div
-            class="ter_input terminal-filter-flow"
+            class="ter_input terminal-filter-flow page-panel"
             :class="filterLangClass"
           >
             <el-form
@@ -36,11 +36,12 @@
             </div>
           </div>
 
+          <div class="page-panel table-panel">
           <el-table
             :data="tableData"
-            border
+            class="device-table"
             v-loading="loading"
-            style="width: 98%; text-align: center; margin-left: 2%"
+            style="width: 100%; text-align: center"
           >
             <el-table-column
               property="id"
@@ -120,14 +121,17 @@
               :total="total"
             />
           </div>
+          </div>
         </el-main>
       </el-container>
     </div>
 
     <el-dialog
+      class="device-dialog"
       :title="$t('audioRecording.playTitle')"
       v-model="playVisible"
       width="480px"
+      align-center
       @close="stopAudio"
     >
       <div class="audio-player-wrap" v-if="currentAudioUrl">
@@ -332,6 +336,10 @@ export default {
         }),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("audioRecording.confirm"),
           cancelButtonText: this.$t("audioRecording.cancel"),
           type: "warning",

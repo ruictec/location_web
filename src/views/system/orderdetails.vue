@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -7,97 +7,111 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><System /></el-aside>
         <el-main>
-          <div>
-            <el-breadcrumb separator="/">
-              <el-breadcrumb-item
-                :to="{ path: '/user/myorder' }"
-                v-if="myorder"
-                >{{ $t("Breadcrumb.Myworkorder") }}</el-breadcrumb-item>
-              <el-breadcrumb-item
-                :to="{ path: '/userorder' }"
-                v-if="userorder"
-                >{{ $t("list.Userworkorder") }}</el-breadcrumb-item>
-              <el-breadcrumb-item
-                :to="{ path: '/companyorder' }"
-                v-if="companyorder"
-                >{{ $t("list.Enterpriseworkorder") }}</el-breadcrumb-item>
-              <el-breadcrumb-item
-                ><a>{{
-                  $t("Breadcrumb.Workorderdetails")
-                }}</a></el-breadcrumb-item>
-            </el-breadcrumb>
-            <!-- <h2>工单详情</h2> -->
-            <el-divider class="divider"></el-divider>
-            <div class="order_detail1">
-              <div class="order_detail1_1">
-                <p>
-                  <span>{{ $t("myorderde.workordernumber") }}</span>
-                  <span>{{ orderId }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.title") }}</span>
-                  <span>{{ orderTitle }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.questioncategory") }}</span>
-                  <span>{{ i8n == "zh" ? orderTypestr : enOrderTypestr }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.priority") }}</span>
-                  <span>{{
-                    i8n == "zh" ? orderPrioritystr : enOrderPrioritystr
-                  }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.workorderstatus") }}</span>
-                  <span>{{
-                    i8n == "zh" ? orderStatustr : enOrderStatustr
-                  }}</span>
-                </p>
-              </div>
-              <div class="order_detail1_2">
-                <p>
-                  <span>{{ $t("myorderde.company") }}</span>
-                  <span>{{ orderCustomername }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.Questioncontent") }}</span>
-                  <span>{{ orderDetails }}</span>
-                </p>
-                <p>
-                  <span>{{ $t("myorderde.Appendix") }}</span>
+          <el-breadcrumb
+            separator="/"
+            class="od-breadcrumb"
+            v-if="contrForPrionum != 5"
+          >
+            <el-breadcrumb-item
+              :to="{ path: '/user/myorder' }"
+              v-if="myorder"
+              >{{ $t("Breadcrumb.Myworkorder") }}</el-breadcrumb-item>
+            <el-breadcrumb-item
+              :to="{ path: '/userorder' }"
+              v-if="userorder"
+              >{{ $t("list.Userworkorder") }}</el-breadcrumb-item>
+            <el-breadcrumb-item
+              :to="{ path: '/companyorder' }"
+              v-if="companyorder"
+              >{{ $t("list.Enterpriseworkorder") }}</el-breadcrumb-item>
+            <el-breadcrumb-item>{{
+              $t("Breadcrumb.Workorderdetails")
+            }}</el-breadcrumb-item>
+          </el-breadcrumb>
 
-                  <el-upload
-                    class="upload-demo"
-                    ref="uploads"
-                    :action="editfilePath"
-                    :data="editdataForFile"
-                    :on-preview="edithandlePreview"
-                    :on-remove="edithandleRemove"
-                    :file-list="editfileList"
-                    :on-change="edithandleChange"
-                    :auto-upload="true"
-                    :limit="5"
-                    :before-upload="editFileUpload"
-                    :on-success="editFileSuccess"
-                    :disabled="orderStatus == 5"
-                  >
-                    <template #trigger><a>{{ $t("myorder.Addattachments") }}</a></template>
-                    <template #tip><div class="el-upload__tip">
-                      {{ $t("myorder.text1") }}
-                    </div></template>
-                  </el-upload>
-                </p>
-                <p class="uploadTime">
-                  <span> {{ $t("myorder.submissiontime") }}</span>
-                  <span>{{ orderTime }}</span>
-                </p>
+          <div class="page-panel od-card">
+            <div class="od-card-head">
+              <span class="od-card-title">{{
+                $t("Breadcrumb.Workorderdetails")
+              }}</span>
+              <el-button
+                v-if="contrForPrionum == 5"
+                class="od-back"
+                @click="$router.push('/user/myorder')"
+                >{{ $t("login.return") }}</el-button>
+            </div>
+            <div class="od-info">
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.workordernumber") }}</span>
+                <span class="od-value">{{ orderId || "-" }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.title") }}</span>
+                <span class="od-value">{{ orderTitle || "-" }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.company") }}</span>
+                <span class="od-value">{{ orderCustomername || "-" }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.questioncategory") }}</span>
+                <span class="od-value">{{
+                  (i8n == "zh" ? orderTypestr : enOrderTypestr) || "-"
+                }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.priority") }}</span>
+                <span class="od-value">{{
+                  (i8n == "zh" ? orderPrioritystr : enOrderPrioritystr) || "-"
+                }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorderde.workorderstatus") }}</span>
+                <span class="od-value">{{
+                  (i8n == "zh" ? orderStatustr : enOrderStatustr) || "-"
+                }}</span>
+              </div>
+              <div class="od-field">
+                <span class="od-label">{{ $t("myorder.submissiontime") }}</span>
+                <span class="od-value">{{ orderTime || "-" }}</span>
+              </div>
+              <div class="od-field od-field-full">
+                <span class="od-label">{{ $t("myorderde.Questioncontent") }}</span>
+                <span class="od-value od-content">{{ orderDetails || "-" }}</span>
+              </div>
+              <div class="od-field od-field-full">
+                <span class="od-label">{{ $t("myorderde.Appendix") }}</span>
+                <el-upload
+                  class="upload-demo"
+                  ref="uploads"
+                  :action="editfilePath"
+                  :data="editdataForFile"
+                  :on-preview="edithandlePreview"
+                  :on-remove="edithandleRemove"
+                  :file-list="editfileList"
+                  :on-change="edithandleChange"
+                  :auto-upload="true"
+                  :limit="5"
+                  :before-upload="editFileUpload"
+                  :on-success="editFileSuccess"
+                  :disabled="orderStatus == 5"
+                >
+                  <template #trigger><el-button class="od-upload-btn">{{
+                    $t("myorder.Addattachments")
+                  }}</el-button></template>
+                  <template #tip><div class="el-upload__tip">
+                    {{ $t("myorder.text1") }}
+                  </div></template>
+                </el-upload>
               </div>
             </div>
           </div>
-          <div style="margin-top: 3%">
-            <h2>{{ $t("myorderde.UserComments") }}</h2>
-            <el-divider class="divider"></el-divider>
+
+          <div class="page-panel od-card">
+            <div class="od-card-head">
+              <span class="od-card-title">{{ $t("myorderde.UserComments") }}</span>
+              <span class="od-count">{{ MsgBoardList.length }}</span>
+            </div>
             <div class="order_detail2">
               <el-scrollbar
                 wrap-class="scrolllist"
@@ -105,66 +119,48 @@
                 view-class="view-box"
                 :native="false"
               >
-                <p
-                  v-if="MsgBoardList.length == 0"
-                  style="text-align: left; color: #6f6f6f; font-size: 14px"
-                >
+                <p v-if="MsgBoardList.length == 0" class="od-empty">
                   {{ $t("myorderde.Nomessage") }}
                 </p>
-                <ul v-for="item in MsgBoardList" :key="item.id" class="item">
-                  <li>
-                    <p>
-                      <span
-                        style="
-                          font-size: 16px;
-                          font-weight: 600;
-                          margin-right: 1.5%;
-                        "
-                        >{{ item.username }}</span>
-                      <span style="color: #6f6f6f">{{ item.time }}</span>
-                    </p>
-                    <p>
-                      <span style="font-size: 16px">{{ item.details }}</span>
-                    </p>
-                  </li>
-                </ul>
+                <div v-for="item in MsgBoardList" :key="item.id" class="od-msg">
+                  <div class="od-msg-head">
+                    <span class="od-msg-user">{{ item.username }}</span>
+                    <span class="od-msg-time">{{ item.time }}</span>
+                  </div>
+                  <p class="od-msg-body">{{ item.details }}</p>
+                </div>
               </el-scrollbar>
-              <el-input
-                type="textarea"
-                maxlength="255"
-                show-word-limit
-                v-model="sendData.details"
-                :placeholder="$t('myorderde.text')"
-                v-if="orderStatus != 1 && orderStatus != 5"
-              ></el-input>
-              <div
-                style="display: flex"
-                v-if="orderStatus != 1 && orderStatus != 5"
-              >
-                <el-button type="primary" class="sendMsg" @click="sendMsg()">{{
-                  $t("myorderde.Submitmessage")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  class="sendMsg"
-                  @click="upgradeOrder()"
-                  v-if="
-                    (contrForPrionum == 3 || contrForPrionum == 4) &&
-                    upgradeUserOrder &&
-                    userOrders
-                  "
-                  >{{ $t("myorderde.Liftingworkorder") }}</el-button>
-                <el-button
-                  type="primary"
-                  class="sendMsg"
-                  @click="upgradeOrderBack()"
-                  v-if="
-                    (contrForPrionum == 3 || contrForPrionum == 4) &&
-                    !upgradeUserOrder &&
-                    userOrders
-                  "
-                  >{{ $t("myorderde.Withdrawpromotion") }}</el-button>
-              </div>
+              <template v-if="orderStatus != 1 && orderStatus != 5">
+                <el-input
+                  class="od-reply"
+                  type="textarea"
+                  maxlength="255"
+                  show-word-limit
+                  v-model="sendData.details"
+                  :placeholder="$t('myorderde.text')"
+                ></el-input>
+                <div class="od-actions">
+                  <el-button
+                    @click="upgradeOrder()"
+                    v-if="
+                      (contrForPrionum == 3 || contrForPrionum == 4) &&
+                      upgradeUserOrder &&
+                      userOrders
+                    "
+                    >{{ $t("myorderde.Liftingworkorder") }}</el-button>
+                  <el-button
+                    @click="upgradeOrderBack()"
+                    v-if="
+                      (contrForPrionum == 3 || contrForPrionum == 4) &&
+                      !upgradeUserOrder &&
+                      userOrders
+                    "
+                    >{{ $t("myorderde.Withdrawpromotion") }}</el-button>
+                  <el-button type="primary" class="query" @click="sendMsg()">{{
+                    $t("myorderde.Submitmessage")
+                  }}</el-button>
+                </div>
+              </template>
             </div>
           </div>
         </el-main>
@@ -497,6 +493,10 @@ export default {
     upgradeOrder() {
       var that = this;
       this.$confirm(this.$t("companyorder.tet5"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -532,6 +532,10 @@ export default {
     upgradeOrderBack() {
       var that = this;
       this.$confirm(this.$t("companyorder.tet7"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -642,117 +646,175 @@ export default {
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
-h2 {
-  text-align: left;
-  font-size: 18px;
+.od-breadcrumb {
+  margin: 0 0 10px 2px !important;
 }
-.order_detail1 {
+.od-card {
+  margin: 0 0 12px !important;
+  padding: 16px 20px 18px;
+}
+.od-card-head {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px !important;
 }
-.order_detail1_1 {
-  width: 50%;
-  margin-left: 0;
-  margin-right: 0;
+.od-card-title {
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
 }
-.order_detail1_2 {
-  width: 50%;
-  margin-left: 0;
+.od-back {
+  height: 28px;
+  margin: 0 0 0 auto !important;
+  padding: 0 14px;
 }
-.order_detail1 p {
+.od-count {
+  margin: 0 !important;
+  min-width: 22px;
+  padding: 0 8px;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  color: #2563eb;
+  background: #eff6ff;
+  border-radius: 10px;
+}
+.od-info {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 0 !important;
+  text-align: left;
+}
+.od-field {
   display: flex;
-  margin-top: 20px;
+  align-items: flex-start;
+  min-width: 0;
+  margin: 0 !important;
+  font-size: 14px;
+  line-height: 22px;
 }
-.order_detail1 p span {
-  margin-left: 0;
-  text-align: left;
-  color: #3a3a3a;
+.od-field-full {
+  grid-column: 1 / -1;
 }
-.order_detail1 p span:nth-of-type(1) {
-  width: 10%;
-  margin-right: 0;
-  color: #999;
+.od-label {
+  flex: 0 0 88px;
+  margin: 0 !important;
+  color: #94a3b8;
 }
-/* .order_detail1 p span:nth-of-type(2) {
-  width: 90%;
-} */
-
-.order_detail2 ul {
-  text-align: left;
+.od-value {
+  flex: 1;
+  min-width: 0;
+  margin: 0 !important;
+  color: #0f172a;
+  word-break: break-all;
 }
-.order_detail2 ul li {
-  display: flex;
-  margin-top: 12px;
-  text-align: left;
-  flex-direction: column;
-}
-.order_detail2 ul li p {
-  margin-left: 0;
-  text-align: left;
-}
-.order_detail2 ul li p span {
-  margin-left: 0;
-  text-align: left;
-  margin-top: 5px;
-  /* display: flex; */
-}
-.order_detail2 ul li p:nth-of-type(1) {
-  margin-right: 2%;
-  white-space: nowrap;
-}
-.order_detail2 ul li p:nth-of-type(2) {
-  display: flex;
-  flex-direction: column;
-  margin-top: 5px;
-}
-.order_detail2 :deep(.el-textarea__inner) {
-  margin-top: 20px;
-  min-height: 150px !important;
+.od-content {
+  white-space: pre-wrap;
 }
 
 .upload-demo {
-  margin-left: 0 !important;
+  flex: 1;
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0 !important;
 }
-.upload-demo :deep(.el-upload--text) {
-  margin-left: 0 !important;
-  white-space: nowrap;
+.upload-demo :deep(.el-upload) {
+  margin: 0 !important;
+}
+.od-upload-btn {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 .upload-demo :deep(.el-upload__tip) {
-  margin-top: 2px !important;
+  margin: 0 !important;
+  color: #94a3b8;
   white-space: nowrap;
-  margin-left: 2%;
 }
 .upload-demo :deep(.el-upload-list) {
+  flex-basis: 100%;
   display: flex !important;
   flex-wrap: wrap;
-  margin-left: 2%;
+  gap: 6px;
+  margin: 0 !important;
 }
 .upload-demo :deep(.el-upload-list__item) {
-  margin-top: 0 !important;
-  text-align: left;
   width: auto;
-  margin-left: 0;
+  margin: 0 !important;
+  padding-right: 24px;
+  text-align: left;
 }
 .upload-demo :deep(.el-icon-close-tip) {
   display: none !important;
 }
 
-.sendMsg {
-  display: block;
-  margin-top: 10px;
+.order_detail2 {
+  margin: 0 !important;
 }
-.uploadTime {
-  margin-top: 30px !important;
+.od-empty {
+  margin: 0 !important;
+  padding: 18px 0;
+  font-size: 14px;
+  color: #94a3b8;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+.od-msg {
+  margin: 0 0 10px !important;
+  padding: 10px 14px;
+  text-align: left;
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+}
+.od-msg-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 4px !important;
+}
+.od-msg-user {
+  margin: 0 !important;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.od-msg-time {
+  margin: 0 !important;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.od-msg-body {
+  margin: 0 !important;
+  font-size: 14px;
+  line-height: 22px;
+  color: #334155;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.od-reply {
+  margin: 12px 0 0 !important;
+}
+.od-reply :deep(.el-textarea__inner) {
+  min-height: 110px !important;
+}
+.od-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 12px 0 0 !important;
+}
+.od-actions .el-button {
+  margin: 0 !important;
 }
 
->>> .scrolllist {
+:deep(.scrolllist) {
   max-height: 360px;
-}
-/* >>>.el-scrollbar__thumb {
-  height: 60px;
-} */
-.item {
-  padding-bottom: 14px;
-  border-bottom: 1px dashed #ccc;
 }
 </style>

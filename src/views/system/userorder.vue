@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><System /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
           <el-form
             class="demo-form-inline terminal-filter-form"
             :model="searchList"
@@ -93,13 +93,13 @@
             </el-form-item>
           </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <!-- 展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="orderData"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -236,8 +236,7 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -254,10 +253,11 @@
 
           <!-- 处理工单 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('companyorder.Processworkorder')"
-            width="30%"
+            width="600px"
             v-model="edit"
-            style="text-align: center"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -751,6 +751,10 @@ export default {
         this.$t("myorderde.deletethejob"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

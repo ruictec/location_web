@@ -177,6 +177,113 @@ body .el-table th,
   z-index: 10050 !important;
 }
 
+/* 室内定位右下角「选择楼栋」就近弹出的楼栋列表 */
+.el-popper.el-popover.indoor-building-picker-popper {
+  z-index: 10050 !important;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+.indoor-building-picker-popper .building-picker-head > *,
+.indoor-building-picker-popper .building-picker-list li > * {
+  margin: 0;
+}
+.indoor-building-picker-popper .building-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  padding: 2px 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.indoor-building-picker-popper .building-picker-head em {
+  min-width: 22px;
+  padding: 0 7px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+  color: #64748b;
+}
+.indoor-building-picker-popper .building-picker-search {
+  margin: 0 0 8px;
+}
+.indoor-building-picker-popper .building-picker-list {
+  max-height: 300px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.indoor-building-picker-popper .building-picker-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0 10px;
+  height: 40px;
+  border-radius: 8px;
+  color: #334155;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.indoor-building-picker-popper .building-picker-list li + li {
+  margin-top: 2px;
+}
+.indoor-building-picker-popper .building-picker-list li:hover {
+  background: #f1f5f9;
+}
+.indoor-building-picker-popper .building-picker-list li.is-active {
+  background: rgba(47, 123, 255, 0.1);
+  color: #2f7bff;
+  font-weight: 600;
+}
+.indoor-building-picker-popper .building-picker-list li.is-empty {
+  justify-content: center;
+  height: 56px;
+  color: #94a3b8;
+  cursor: default;
+}
+.indoor-building-picker-popper .building-picker-list li.is-empty:hover {
+  background: transparent;
+}
+.indoor-building-picker-popper .building-picker-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #94a3b8;
+}
+.indoor-building-picker-popper li.is-active .building-picker-icon {
+  color: #2f7bff;
+}
+.indoor-building-picker-popper .building-picker-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.indoor-building-picker-popper .building-picker-tag {
+  flex-shrink: 0;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #64748b;
+}
+.indoor-building-picker-popper li.is-active .building-picker-tag {
+  background: rgba(47, 123, 255, 0.14);
+  color: #2f7bff;
+}
+
 /* 室内定位 2D：楼层切换控件置于地图控件之上，且可点击 */
 .mapConent .selectGround {
   position: relative;
@@ -196,9 +303,8 @@ body .el-table th,
   justify-content: flex-start !important;
   text-align: left !important;
   width: fit-content !important;
-  max-width: calc(100% - 48px) !important;
+  max-width: calc(100% - 24px) !important;
   left: auto !important;
-  right: 0 !important;
 }
 
 /* 室内定位 3D：抵消 * { margin:0 auto }，避免地图只占右半屏；勿强改 canvas 定位以免 WebGL 黑屏 */
@@ -298,8 +404,8 @@ body .el-table th,
 .mapConentD .statistics.statistics3d .el-table,
 .mapConent .statistics .el-table__footer-wrapper,
 .mapConentD .statistics.statistics3d .el-table__footer-wrapper {
-  width: 320px !important;
-  max-width: 320px !important;
+  width: 100% !important;
+  max-width: none !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
@@ -809,7 +915,7 @@ body .el-table th,
   background-color: #f1f5f7 !important;
 }
 
-.el-dialog.arrangeDialog .el-dialog__header {
+.el-dialog.arrangeDialog > .el-dialog__header {
   display: none !important;
   height: 0 !important;
   min-height: 0 !important;
@@ -819,7 +925,7 @@ body .el-table th,
   overflow: hidden !important;
 }
 
-.el-dialog.arrangeDialog .el-dialog__body {
+.el-dialog.arrangeDialog > .el-dialog__body {
   flex: 1 1 0 !important;
   min-height: 0 !important;
   width: 100% !important;
@@ -1175,7 +1281,7 @@ body .el-table th,
   background-color: #f1f5f7 !important;
 }
 
-.el-dialog.arrangeDialog3D .el-dialog__header {
+.el-dialog.arrangeDialog3D > .el-dialog__header {
   display: none !important;
   height: 0 !important;
   min-height: 0 !important;
@@ -1185,7 +1291,7 @@ body .el-table th,
   overflow: hidden !important;
 }
 
-.el-dialog.arrangeDialog3D .el-dialog__body {
+.el-dialog.arrangeDialog3D > .el-dialog__body {
   flex: 1 1 0 !important;
   min-height: 0 !important;
   width: 100% !important;
@@ -1814,9 +1920,37 @@ body .el-table th,
   margin-left: 0 !important;
 }
 
-/* 设备健康记录查询弹框：时间范围收窄；抵消 App.vue * { margin:0 auto } 把子项左右拉开 */
+/* 设备健康记录查询弹框：靠上展示，限制高度，避免垂直居中后整框偏下 */
+.el-dialog.health-dialog {
+  margin-top: 6vh !important;
+  max-height: 88vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* 弹框为 flex column 时，App.vue 的 * { margin: 0 auto } 会让 header/body 收缩并水平居中 */
+.el-dialog.health-dialog > .el-dialog__header,
+.el-dialog.health-dialog > .el-dialog__body,
+.el-dialog.health-dialog > .el-dialog__footer {
+  align-self: stretch !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.el-dialog.health-dialog .el-dialog__header {
+  flex-shrink: 0;
+}
+
 .el-dialog.health-dialog .el-dialog__body {
   text-align: left !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  max-height: none !important;
 }
 
 .el-dialog.health-dialog .health-query-bar {
@@ -1825,14 +1959,20 @@ body .el-table th,
   justify-content: flex-start !important;
   flex-wrap: wrap !important;
   gap: 10px !important;
+  /* 抵消 App.vue * { margin: 0 auto }，避免 width:auto 时整条查询区居中 */
   margin: 0 0 12px 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   text-align: left !important;
-  width: auto !important;
+  width: 100% !important;
   max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .el-dialog.health-dialog .health-query-bar > * {
   margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .el-dialog.health-dialog .health-query-label {
@@ -1868,6 +2008,74 @@ body .el-table th,
   padding: 0 16px !important;
   margin: 0 !important;
   flex: none !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff) !important;
+}
+
+.el-dialog.health-dialog .health-chart-card {
+  width: 100%;
+  margin: 0 0 12px !important;
+  padding: 12px 14px 6px;
+  box-sizing: border-box;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.el-dialog.health-dialog .health-chart-card:last-child {
+  margin-bottom: 4px !important;
+}
+
+.el-dialog.health-dialog .health-chart-title {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 !important;
+  padding-left: 10px;
+  border-left: 3px solid #2f7bff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: #0f172a;
+}
+
+.el-dialog.health-dialog .health-chart-title.is-heart {
+  border-left-color: #f43f5e;
+}
+
+.el-dialog.health-dialog .health-chart-title span {
+  margin: 0 !important;
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.el-dialog.health-dialog .health-chart {
+  width: 100%;
+  height: 240px;
+  margin: 0 !important;
+}
+
+.el-dialog.health-dialog .health-chart-card.is-single .health-chart {
+  height: 320px;
+}
+
+.el-dialog.health-dialog .health-range-text {
+  margin: 0 0 10px !important;
+  font-size: 13px;
+  color: #64748b;
+  text-align: left;
+}
+
+.el-dialog.health-dialog .health-empty {
+  margin: 0 !important;
+  padding: 48px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
 }
 
 /* 员工/资产「查看轨迹」弹窗：append-to-body 后 scoped 选不中，需全局撑开宽高 */

@@ -9,16 +9,17 @@
         :collapse-transition="false"
         mode="vertical"
         :router="true"
-        style="text-align: left; --el-menu-bg-color: #252b3b; --el-menu-text-color: #8c97aa; --el-menu-active-color: #458bff;"
+        class="sidebar-menu"
+        style="text-align: left; --el-menu-bg-color: #1e2433; --el-menu-text-color: #94a3b8; --el-menu-active-color: #2f7bff; --el-menu-hover-bg-color: rgba(47,123,255,0.14);"
       >
         <el-menu-item index="/dashboard">
           <i class="icon home"></i>
-          <span style="font-weight: 600">{{ $t("list.homepage") }}</span>
+          <span class="menu-label">{{ $t("list.homepage") }}</span>
         </el-menu-item>
         <el-sub-menu ref="subMenu" index="/device">
           <template #title>
             <i class="icon terminal"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.devicemanagement")
             }}</span>
           </template>
@@ -45,7 +46,7 @@
         <el-sub-menu ref="subMenu" index="/warning">
           <template #title>
             <i class="icon sos"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.alarmmanagement")
             }}</span>
           </template>
@@ -82,7 +83,7 @@
         <el-sub-menu ref="subMenu" index="/staff">
           <template #title>
             <i class="icon staff"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.Personnelmanagement")
             }}</span>
           </template>
@@ -111,7 +112,7 @@
         <el-sub-menu ref="subMenu" index="/location">
           <template #title>
             <i class="icon location"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.Locationmanagement")
             }}</span>
           </template>
@@ -157,7 +158,7 @@
         <el-sub-menu ref="subMenu" index="/user">
           <template #title>
             <i class="icon user"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.systemmanagement")
             }}</span>
           </template>
@@ -265,18 +266,37 @@ export default {
 @import "../../style/variables.scss";
 @import "../../style/sidebar.scss";
 
+.menu-label {
+  margin: 0 !important;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 @media screen and (max-width: 1400px) {
   :deep(.el-sub-menu .el-sub-menu__title) {
-    padding-left: 20px !important ;
+    padding-left: 20px !important;
   }
 }
 
+.sidebar-menu :deep(.el-menu-item),
+.sidebar-menu :deep(.el-sub-menu__title) {
+  height: 46px;
+  line-height: 46px;
+  margin: 4px 10px !important;
+  border-radius: 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 .el-menu-item {
-  padding-left: 20px !important;
-  padding-right: 20px !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
 }
 .el-sub-menu .el-menu-item {
-  padding-left: 46px !important;
+  padding-left: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 2px 10px !important;
+  border-radius: 8px;
 }
 .el-submenu2 :deep(.el-sub-menu__title) {
   padding-left: 46px !important;
@@ -287,9 +307,6 @@ export default {
 .el-submenu2 .el-menu-item {
   padding-left: 60px !important;
 }
-// .el-sub-menu :deep(.el-menu--popup-right-start) {
-//   margin-left: 0 !important;
-// }
 .el-menu--popup-right-start .el-submenu2 .el-menu-item {
   padding-left: 20px !important;
 }
@@ -297,35 +314,45 @@ export default {
   .el-menu--popup-right-start
   .el-submenu2
   .el-menu-item.is-active {
-  padding-left: 20px !important ;
-}
-.el-menu-item.is-active {
-  border-left: 4px #458bff solid;
-  padding-left: 16px !important;
-  background-color: $menuHover !important;
-  transition: all 0.2s;
+  padding-left: 20px !important;
 }
 
+.el-menu-item.is-active {
+  position: relative;
+  color: #fff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
+}
 .el-sub-menu .el-menu-item.is-active {
-  border-left: 4px #458bff solid;
-  padding-left: 42px !important;
-  background-color: $menuHover !important;
-  transition: all 0.2s;
+  padding-left: 40px !important;
+  color: #fff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
 }
 .el-submenu2 .el-menu-item.is-active {
-  border-left: 4px #458bff solid;
   padding-left: 56px !important;
-  background-color: $menuHover !important;
-  transition: all 0.2s;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
 }
-.el-menu-item {
-  &:hover {
-    // you can use $subMenuHover
-    background-color: $menuHover !important;
-  }
+.el-menu-item:hover {
+  background-color: $menuHover !important;
+  color: #e2e8f0 !important;
 }
 :deep(.el-sub-menu .el-sub-menu__title:hover) {
   background-color: $menuHover !important;
+  color: #e2e8f0 !important;
 }
 :deep(.is-active > .el-sub-menu__title) {
   color: $subMenuActiveText !important;
@@ -334,11 +361,19 @@ export default {
   background-color: $subMenuActiveText;
 }
 #app .sidebar-container .el-sub-menu .el-menu-item.is-active {
-  background-color: $menuHover !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
 }
 :deep(.el-menu-item),
 .el-sub-menu {
   text-align: left !important;
+}
+:deep(.el-sub-menu__icon-arrow) {
+  color: #64748b;
+  right: 14px;
 }
 :deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
@@ -350,10 +385,10 @@ export default {
   width: 18px;
   height: 18px;
   display: inline-block;
-  margin: 0 8px 0 0 !important;
+  margin: 0 10px 0 0 !important;
   flex-shrink: 0;
-  background-color: #9c9c9c;
-  transition: all 0.2s;
+  background-color: #7c8ba1;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .icon.home {
   mask: url("../../../../assets/home.svg");
@@ -380,8 +415,10 @@ export default {
   mask: url("../../../../assets/location.svg");
   mask-size: contain;
 }
-.is-active > .icon {
-  background-color: #458bff;
+.is-active > .icon,
+.el-menu-item:hover > .icon,
+:deep(.el-sub-menu__title:hover .icon) {
+  background-color: #2f7bff;
 }
 .el-badge.warningbox {
   margin-left: auto !important;
@@ -398,6 +435,8 @@ export default {
   border: 0;
   top: auto !important;
   vertical-align: middle;
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
 }
 .el-scrollbar {
   padding-bottom: 30px !important;

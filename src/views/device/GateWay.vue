@@ -1,5 +1,8 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div
+    :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'"
+    style="height: 100%"
+  >
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -9,7 +12,7 @@
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
           <div
-            class="gateway_input terminal-filter-flow"
+            class="gateway_input terminal-filter-flow page-panel"
             :class="filterLangClass"
           >
             <el-form
@@ -158,15 +161,16 @@
           </div>
 
           <!-- gateway展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
               @current-change="selectGateway"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
+              class="device-table"
+              style="width: 100%; text-align: center"
               :max-height="300"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -347,7 +351,7 @@
               </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <div class="block" style="text-align: center; width: 100%; margin-top: 1%">
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -362,7 +366,7 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent">
+          <div class="mapConent page-panel">
             <div class="gateway-map-wrap">
               <MapLayerSwitcher
                 :map="map"
@@ -403,11 +407,12 @@
           </div>
           <!-- 添加gateway -->
           <el-dialog
+            class="device-dialog"
             :title="$t('gateway.addgateway')"
-            width="30%"
+            width="640px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -611,10 +616,10 @@
           <el-dialog
             :title="$t('gateway.editgateway')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -763,7 +768,13 @@
           </el-dialog>
 
           <!-- 显示4G信息 -->
-          <el-dialog width="30%" v-model="show4Gdialog" style="text-align: center">
+          <el-dialog
+            class="device-dialog"
+            :title="$t('gateway.Networkmode')"
+            width="520px"
+            v-model="show4Gdialog"
+            align-center
+          >
             <el-form :model="show4GData" label-width="110px" style="text-align: left">
               <el-form-item :label="$t('gateway.Cardnumber')" prop="name" style="margin-right: 2%">
                 <el-input v-model="show4GData.cardid"></el-input>
@@ -1060,6 +1071,10 @@ export default {
       }
 
       this.$confirm(this.$t('terminal.tet10'), this.$t('Building.tips'), {
+        customClass: 'device-message-box',
+        confirmButtonClass: 'device-message-confirm',
+        cancelButtonClass: 'device-message-cancel',
+        roundButton: false,
         confirmButtonText: this.$t('terminal.confirm'),
         cancelButtonText: this.$t('terminal.cancel'),
         type: 'warning',
@@ -1766,6 +1781,10 @@ export default {
         this.$t('Building.tips'),
 
         {
+          customClass: 'device-message-box',
+          confirmButtonClass: 'device-message-confirm',
+          cancelButtonClass: 'device-message-cancel',
+          roundButton: false,
           confirmButtonText: this.$t('terminal.confirm'),
           cancelButtonText: this.$t('terminal.cancel'),
           type: 'warning',
@@ -1801,6 +1820,10 @@ export default {
         this.$t('beacon.tet13') + row.deveui + this.$t('gateway.deletemsg1'),
         this.$t('Building.tips'),
         {
+          customClass: 'device-message-box',
+          confirmButtonClass: 'device-message-confirm',
+          cancelButtonClass: 'device-message-cancel',
+          roundButton: false,
           confirmButtonText: this.$t('terminal.confirm'),
           cancelButtonText: this.$t('terminal.cancel'),
           type: 'warning',
@@ -2166,7 +2189,11 @@ export default {
 }
 
 .tips {
-  float: left;
+  display: block;
+  margin: 0 !important;
+  padding: 10px 14px 8px;
+  font-size: 12px;
+  color: #64748b;
   text-align: left;
 }
 #gatewayMap {

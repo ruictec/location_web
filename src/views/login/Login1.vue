@@ -1,66 +1,66 @@
 <template>
   <div class="cotn_principal">
     <!-- 登录框 -->
-    <div class="Login_Fream" style="transform: scale(0.8)">
-      <h1 class="welcome_text">{{ $t("login.vindo") }}</h1>
-      <div>
-        <div class="ipt_userBox ipt_frame">
+    <div class="Login_Fream" :class="{ 'is-en': $store.state.i18n != 'zh' }">
+      <div class="auth-head">
+        <h1 class="welcome_text">{{ $t("login.vindo") }}</h1>
+        <p class="auth-sub">{{ $t("login.introduce") }}</p>
+      </div>
+      <div class="auth-field">
+        <div class="ipt_frame" :class="{ 'is-error': loginFormusername }">
           <div class="imgBox imgBox_user"></div>
           <input
             type="text"
             v-model="loginForm.username"
             @input="user"
-            name=""
-            id=""
+            @keyup.enter="handleLogin"
+            autocomplete="username"
             class="box_input"
             :placeholder="$t('login.enterUser')"
           />
         </div>
-        <div class="usernone">
-          <p class="usernone_p" v-if="loginFormusername">
-            {{ $t("login.enterUsers") }}
-          </p>
-        </div>
+        <p class="auth-error">
+          <template v-if="loginFormusername">{{ $t("login.enterUsers") }}</template>
+        </p>
       </div>
-      <div>
-        <div class="ipt_pswBox ipt_frame">
+      <div class="auth-field">
+        <div class="ipt_frame" :class="{ 'is-error': loginFormpassword }">
           <div class="imgBox imgBox_psw"></div>
           <input
             :type="password"
             v-model="loginForm.password"
-            name=""
             @input="pswd"
-            id=""
+            @keyup.enter="handleLogin"
+            autocomplete="current-password"
             class="box_input"
             :placeholder="$t('login.enterPassword')"
           />
-          <div class="eye1" @click="eye" v-if="open"></div>
-          <div class="eye2" @click="eye" v-else></div>
+          <div class="eye eye1" @click="eye" v-if="open"></div>
+          <div class="eye eye2" @click="eye" v-else></div>
         </div>
-        <div class="pswdnone">
-          <p class="pswdnone_p" v-if="loginFormpassword">
-            {{ $t("login.enterPasswords") }}
-          </p>
+        <p class="auth-error">
+          <template v-if="loginFormpassword">{{ $t("login.enterPasswords") }}</template>
+        </p>
+      </div>
+      <div class="optionBox">
+        <el-checkbox v-model="checked" class="remember-check"
+          ><span class="rememberPassword">{{
+            $t("login.rememberAccount")
+          }}</span></el-checkbox>
+        <div class="auth-links">
+          <span class="register" @click="NewRegister">{{ $t("login.register") }}</span>
+          <i class="auth-links-divider"></i>
+          <span class="reset" @click="reset">{{ $t("login.forgetPassword") }}</span>
         </div>
       </div>
       <div class="onlogin" @click="handleLogin">{{ $t("login.login") }}</div>
-      <div class="optionBox">
-        <div class="opbtm">
-          <el-checkbox v-model="checked"
-            ><span class="rememberPassword">{{
-              $t("login.rememberPassword")
-            }}</span></el-checkbox>
-        </div>
-        <div class="register" @click="NewRegister">
-          {{ $t("login.register") }}
-        </div>
-        <div @click="reset" class="reset">{{ $t("login.forgetPassword") }}</div>
+    </div>
+    <div class="auth-footer">
+      <div class="copyright" @click="copyright">
+        {{ $t("login.tet") }} {{ $t("login.tet1") }}
       </div>
+      <div class="recommendation">{{ $t("login.recommendation") }}</div>
     </div>
-    <div class="copyright" @click="copyright">
-      {{ $t("login.tet") }} {{ $t("login.tet1") }}
-    </div>
-    <div class="recommendation">{{ $t("login.recommendation") }}</div>
   </div>
 </template>
 <script>
@@ -73,6 +73,8 @@ import {
 } from "../../axios/api";
 import { persistTabSession, notifyAuthEvent } from "../../utils/authSession";
 import { injectRoutesByRole } from "../../router/permission";
+
+const REMEMBER_USERNAME_KEY = "login_remember_username";
 // 路由注入由permission.js处理，不再需要导入
 export default {
   components: {
@@ -280,7 +282,6 @@ export default {
       loginFormpassword: false,
       //
       twopsw: false,
-      checked: true,
       open: false,
       password: "password",
       vedioCanPlay: false,
@@ -524,37 +525,14 @@ export default {
       }
       if (!this.loginForm.password) {
         this.loginFormpassword = true;
-      } else if (
-        !this.loginForm.password &&
-        this.loginForm.username != "leyi0802"
-      ) {
-        that.$message({
-          message: this.$t("login.enterPasswords"),
-        });
-      } else {
-        if (that.loginForm.username == "leyi0802") {
-          that.loginForm.password = "asdf1234 ";
-        }
+      }
+      if (this.loginForm.username && this.loginForm.password) {
         $(".cont_forms").attr("class", "cont_forms cont_forms_active_login");
         $(".cont_form_login").css({ display: "block", opacity: "0" });
 
         setTimeout(function () {
           $(".cont_form_login").css({ opacity: "1" });
         }, 400);
-
-        //记住密码
-        if (that.checked == true) {
-          //传入账号名，密码，和保存天数3个参数
-          that.setCookie(
-            that.loginForm.username,
-            that.loginForm.password,
-            that.checked,
-            7
-          );
-        } else {
-          //清空Cookie
-          that.clearCookie();
-        }
 
         this.$axios({
           method: "POST",
@@ -574,6 +552,7 @@ export default {
                 });
                 return;
               }
+              that.saveRememberedUsername();
               that.tenantid_A = data.data.data.tenantid;
               that.userInfo = data.data.data;
               that.$store.commit("setuserInfo", that.userInfo);
@@ -606,44 +585,35 @@ export default {
       }
     },
 
-    //设置cookie
-    setCookie(c_name, c_pwd, c_rem, exdays) {
-      var exdate = new Date(); //获取时间
-      exdate.setTime(exdate.getTime() + 24 * 60 * 60 * 1000 * exdays); //保存的天数
-      //字符串拼接cookie
-      window.document.cookie =
-        "username" + "=" + c_name + ";path=/;expires=" + exdate.toGMTString();
-      window.document.cookie =
-        "password" + "=" + c_pwd + ";path=/;expires=" + exdate.toGMTString();
-      window.document.cookie =
-        "checked" + "=" + c_rem + ";path=/;expires=" + exdate.toGMTString();
-    },
-
-    //读取cookie
-    getCookie() {
-      if (document.cookie.length > 0) {
-        var arr = document.cookie.split("; "); //这里显示的格式需要切割一下自己可输出看下
-        for (var i = 0; i < arr.length; i++) {
-          var arr2 = arr[i].split("="); //再次切割
-          //判断查找相对应的值
-          if (arr2[0] == "username") {
-            this.loginForm.username = arr2[1]; //保存到保存数据的地方
-          } else if (arr2[0] == "password") {
-            this.loginForm.password = arr2[1];
-          } else if (arr2[0] == "checked") {
-            this.checked = JSON.parse(arr2[1]);
-          }
+    // 记住账号：只保存用户名，密码交给浏览器密码管理器
+    saveRememberedUsername() {
+      try {
+        if (this.checked) {
+          localStorage.setItem(REMEMBER_USERNAME_KEY, this.loginForm.username);
+        } else {
+          localStorage.removeItem(REMEMBER_USERNAME_KEY);
         }
-      }
+      } catch (e) {}
+    },
+    loadRememberedUsername() {
+      try {
+        const username = localStorage.getItem(REMEMBER_USERNAME_KEY);
+        if (username) {
+          this.loginForm.username = username;
+          this.checked = true;
+        }
+      } catch (e) {}
+    },
+    // 旧版“记住密码”把明文密码存在 Cookie 中，这里统一清掉
+    clearLegacyCookies() {
+      ["username", "password", "checked"].forEach((name) => {
+        document.cookie = name + "=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      });
     },
     // 忘记密码
     reset() {
       this.twopsw = false;
       this.$router.push("/register?setresetnoon=false");
-    },
-    //清除cookie
-    clearCookie: function () {
-      this.setCookie("", "", "", -1); //修改2值都为空，天数为负1天就好了
     },
     user() {
       if (this.loginForm.username == "") {
@@ -824,7 +794,8 @@ export default {
 
   mounted() {
     var that = this;
-    this.getCookie();
+    this.clearLegacyCookies();
+    this.loadRememberedUsername();
     this.cambiar_login();
 
     if (this._isMobile()) {
@@ -1470,182 +1441,271 @@ a {
 
 /* 登录框 */
 .Login_Fream {
-  width: 688px;
-  height: 713px;
-  background: #ffffff;
-  border-radius: 28px;
   position: fixed;
-  right: 120px;
-  top: calc(50% - 356px);
+  right: 11%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 520px;
+  padding: 52px 48px 44px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(31, 78, 160, 0.18);
+  overflow: hidden;
+}
+
+.Login_Fream::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2f7bff, #22d3ee);
+}
+
+.auth-head {
+  margin: 0 0 36px;
+  text-align: center;
 }
 
 .welcome_text {
-  font-size: 40px;
-  margin: 66px auto 0 auto;
-  border-radius: 10px;
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1f2d3d;
+  letter-spacing: 2px;
+}
+
+.auth-sub {
+  margin: 10px 0 0;
+  font-size: 16px;
+  color: #8a94a6;
+}
+
+.auth-field {
+  margin: 0;
+  width: 100%;
 }
 
 .ipt_frame {
-  margin: 0 auto;
-  width: 550px;
-  height: 90px;
-  border-radius: 10px;
-  border: 2px solid #bbbbbb;
+  margin: 0;
+  width: 100%;
+  height: 56px;
+  box-sizing: border-box;
   display: flex;
-  align-content: center;
+  align-items: center;
+  padding: 0 16px;
+  background: #f6f8fb;
+  border: 1px solid #dfe4ec;
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.ipt_frame:hover {
+  border-color: #b9c6db;
+}
+
+.ipt_frame:focus-within {
+  background: #ffffff;
+  border-color: #2f7bff;
+  box-shadow: 0 0 0 3px rgba(47, 123, 255, 0.14);
+}
+
+.ipt_frame.is-error {
+  border-color: #f56c6c;
+  background: #fff;
 }
 
 .box_input {
   flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0 0 0 12px;
   border: none;
+  outline: none;
   background: transparent;
-  font-size: 24px;
-  color: #9a9a9a;
-  margin-right: 20px;
+  font-size: 17px;
+  color: #1f2d3d;
 }
 
-.imgBox_user {
-  background: url(../../../static/newUser.png) 0px 0px;
-  background-size: 100% 100%;
-}
-
-.imgBox_psw {
-  background: url(../../../static/newPsw.png) 0px 0px;
-  background-size: 100% 100%;
-}
-
-.ipt_userBox {
-  display: flex;
-  align-items: center;
-}
-
-.ipt_pswBox {
-  display: flex;
-  align-items: center;
+.box_input::placeholder {
+  color: #a8b0bd;
 }
 
 .imgBox {
-  width: 33px;
-  height: 33px;
-  margin: 20px 20px 20px 63px;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  opacity: 0.7;
 }
 
-.onlogin {
-  width: 425px;
-  height: 66px;
-  line-height: 66px;
-  border-radius: 20px;
-  margin: 0 auto;
-  color: #ffffff;
-  font-size: 36px;
-  background: linear-gradient(180deg, #75cfff 0%, #0086d9 100%);
+.imgBox_user {
+  background: url(../../../static/newUser.png) center / 100% 100% no-repeat;
+}
+
+.imgBox_psw {
+  background: url(../../../static/newPsw.png) center / 100% 100% no-repeat;
+}
+
+.eye {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 10px;
   cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
-.optionBox {
-  width: 70%;
-  margin: 0px auto 30px auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.opbtm {
-  transform: scale(1.3);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.eye:hover {
+  opacity: 1;
 }
 
 .eye1 {
-  width: 33px;
-  height: 33px;
-  margin-right: 20px;
-  cursor: pointer;
-  background: url(../../../static/openeye.png) 0px 0px;
-  background-size: 100% 100%;
+  background: url(../../../static/openeye.png) center / 100% 100% no-repeat;
 }
 
 .eye2 {
-  width: 33px;
-  height: 33px;
-  margin-right: 20px;
-  cursor: pointer;
-  background: url(../../../static/closeeye.png) 0px 0px;
-  background-size: 100% 100%;
+  background: url(../../../static/closeeye.png) center / 100% 100% no-repeat;
+}
+
+.auth-error {
+  margin: 0;
+  padding: 0 4px;
+  height: 26px;
+  line-height: 26px;
+  font-size: 13px;
+  color: #f56c6c;
+  text-align: left;
+}
+
+.optionBox {
+  width: 100%;
+  margin: 2px 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.remember-check {
+  margin: 0;
+  height: auto;
+}
+
+.remember-check :deep(.el-checkbox__inner) {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.remember-check :deep(.el-checkbox__inner::after) {
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+}
+
+.remember-check :deep(.el-checkbox__label) {
+  padding-left: 8px;
 }
 
 .rememberPassword {
-  font-size: 16px !important;
+  font-size: 15px;
+  color: #5c6b80;
 }
 
-.register {
-  transform: scale(1.3);
-  font-size: 16px !important;
-  cursor: pointer;
+.remember-check.is-checked .rememberPassword {
+  color: #2f7bff;
 }
 
+.auth-links {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.auth-links-divider {
+  width: 1px;
+  height: 14px;
+  background: #dfe4ec;
+}
+
+.register,
 .reset {
-  transform: scale(1.3);
-  font-size: 16px !important;
-  text-align: center;
+  font-size: 15px;
+  color: #2f7bff;
   cursor: pointer;
+  transition: color 0.2s;
 }
 
+.register:hover,
 .reset:hover {
-  color: rgb(168, 172, 179);
+  color: #22a5e6;
+  text-decoration: underline;
 }
 
-.register:hover {
-  color: rgb(168, 172, 179);
-}
-
-.usernone {
+.onlogin {
   width: 100%;
-  height: 30px;
-  margin: 20px auto 0px 30px;
-  text-align: left;
-}
-
-.pswdnone {
-  width: 100%;
-  height: 30px;
-  margin: 20px auto 0px 30px;
-  text-align: left;
-}
-
-.usernone_p {
-  width: 100%;
-  height: 100%;
-  color: red;
-  font-size: 20px;
-}
-
-.pswdnone_p {
-  width: 100%;
-  height: 100%;
-  color: red;
-  font-size: 20px;
-}
-.copyright {
-  width: 600px;
+  height: 54px;
+  line-height: 54px;
+  margin: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 6px;
   text-align: center;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+  box-shadow: 0 10px 22px rgba(47, 123, 255, 0.3);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+}
+
+.is-en .welcome_text,
+.is-en .onlogin {
+  letter-spacing: 0.5px;
+}
+
+.onlogin:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 12px 26px rgba(47, 123, 255, 0.38);
+}
+
+.onlogin:active {
+  transform: translateY(1px);
+}
+
+.auth-footer {
   position: fixed;
-  left: calc(50% - 300px);
-  bottom: 60px;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #4f6a8f;
+}
+
+.copyright {
+  margin: 0;
   cursor: pointer;
 }
+
 .copyright:hover {
-  color: #6d6d6d;
+  color: #2f7bff;
 }
+
 .recommendation {
-  width: 600px;
-  text-align: center;
-  position: fixed;
-  left: calc(50% - 300px);
-  bottom: 30px;
+  margin: 0;
+  color: #7a8ea8;
 }
 </style>

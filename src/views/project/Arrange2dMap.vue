@@ -174,63 +174,43 @@
                   </div>
 
                   <!-- 右键显示内容的 -->
-                  <div id="polygonMenu" ref="polygonMenu" class="contextmenu">
-                    <ul id="popup-content">
+                  <div id="polygonMenu" ref="polygonMenu" class="contextmenu map-ctx-menu">
+                    <div class="map-ctx-head">
+                      <span class="map-ctx-title">{{ $t("floormanagement.Near") }}</span>
+                      <a href="#" id="polygonMenu-closer" class="ol-popup-closer map-ctx-close">×</a>
+                    </div>
+                    <ul class="map-ctx-list" @click="closeCtxMenus">
                       <li>
-                        <a
-                          href="#"
-                          id="polygonMenu-closer"
-                          class="ol-popup-closer"
-                        >
-                          <img
-                            src="../../../static/close.jpg"
-                            width="11"
-                            height="11"
-                            alt=""
-                        /></a>
-                      </li>
-                      <li>
-                        <el-button id="editNear" size="small" class="dels">{{
+                        <button type="button" id="editNear" class="map-ctx-item is-danger">{{
                           $t("floormanagement.Deleteadjacency")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li>
-                        <el-button id="delPolygon" size="small" class="dels">{{
+                        <button type="button" id="delPolygon" class="map-ctx-item is-danger">{{
                           $t("floormanagement.delete")
-                        }}</el-button>
+                        }}</button>
                       </li>
                     </ul>
                   </div>
                   <div
                     id="contextmenu_container"
                     ref="contextmenu_container"
-                    class="contextmenu"
+                    class="contextmenu map-ctx-menu"
                   >
-                    <ul id="popup-content">
+                    <div class="map-ctx-head">
+                      <span class="map-ctx-title" :title="menuTitle">{{ menuTitle }}</span>
+                      <a href="#" id="popup-closer" class="ol-popup-closer map-ctx-close">×</a>
+                    </div>
+                    <ul class="map-ctx-list" @click="closeCtxMenus">
                       <li>
-                        <a href="#" id="popup-closer" class="ol-popup-closer">
-                          <img
-                            src="../../../static/close.jpg"
-                            width="11"
-                            height="11"
-                            alt=""
-                        /></a>
-                      </li>
-
-                      <li>
-                        <el-button id="del" size="small" class="reset">{{
-                          $t("floormanagement.delete")
-                        }}</el-button>
-                      </li>
-                      <li>
-                        <el-button id="edit" size="small" class="reset">{{
+                        <button type="button" id="edit" class="map-ctx-item">{{
                           $t("floormanagement.edit")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="!showOther">
-                        <el-button id="setArea" class="reset" size="small">{{
+                        <button type="button" id="setArea" class="map-ctx-item">{{
                           $t("floormanagement.Scanningarea")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li
                         v-show="
@@ -239,19 +219,19 @@
                           contrForPrionum == 5
                         "
                       >
-                        <el-button id="setTranche" class="reset" size="small">{{
+                        <button type="button" id="setTranche" class="map-ctx-item">{{
                           $t("floormanagement.Setarea")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="clock && !showOther">
-                        <el-button id="setClock" size="small" class="reset">{{
+                        <button type="button" id="setClock" class="map-ctx-item">{{
                           $t("floormanagement.Setascheckin")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="caecelClock && !showOther">
-                        <el-button id="cancelClock" size="small" class="reset">{{
+                        <button type="button" id="cancelClock" class="map-ctx-item">{{
                           $t("floormanagement.Cancelclockout")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li
                         v-show="
@@ -263,32 +243,25 @@
                           !showOther
                         "
                       >
-                        <el-button
-                          id="setAdjoinBeacon"
-                          size="small"
-                          class="reset"
-                          >{{
-                            $t("floormanagement.Setadjacentbeacon")
-                          }}</el-button>
+                        <button type="button" id="setAdjoinBeacon" class="map-ctx-item">{{
+                          $t("floormanagement.Setadjacentbeacon")
+                        }}</button>
                       </li>
-                      <li v-show="clearBeaconList && !showOther">
-                        <el-button
-                          id="cancelNearList"
-                          size="small"
-                          class="reset dels"
-                          >{{
-                            $t("floormanagement.Deleteadjacency")
-                          }}</el-button>
-                      </li>
-
                       <li>
-                        <el-button
-                          id="calculatingDistance"
-                          size="small"
-                          class="reset"
-                          >{{
-                            $t("floormanagement.CalculateDistance")
-                          }}</el-button>
+                        <button type="button" id="calculatingDistance" class="map-ctx-item">{{
+                          $t("floormanagement.CalculateDistance")
+                        }}</button>
+                      </li>
+                      <li class="map-ctx-divider"></li>
+                      <li v-show="clearBeaconList && !showOther">
+                        <button type="button" id="cancelNearList" class="map-ctx-item is-danger">{{
+                          $t("floormanagement.Deleteadjacency")
+                        }}</button>
+                      </li>
+                      <li>
+                        <button type="button" id="del" class="map-ctx-item is-danger">{{
+                          $t("floormanagement.delete")
+                        }}</button>
                       </li>
                     </ul>
                   </div>
@@ -481,12 +454,11 @@
 
             <!-- 编辑设备信息 -->
             <el-dialog
-              width="30%"
+              width="480px"
               :title="$t('floormanagement.Editdeviceinformation')"
-              class="showHeadr"
+              class="showHeadr device-dialog"
               v-model="editFeatures"
               :modal="false"
-              style="text-align: center"
               @close="closeEdit"
             >
               <el-form
@@ -517,14 +489,13 @@
 
             <!-- 设置信标扫描区域 -->
             <el-dialog
-              width="40%"
+              width="760px"
               v-model="setAreas"
               :modal="false"
-              class="showHeadr setAreas"
-              style="text-align: center"
+              class="showHeadr setAreas device-dialog"
               @close="setAreaCancel"
             >
-              <template #header><span
+              <template #header><span class="el-dialog__title"
                 >{{ $t("floormanagement.Setscanarea") }}
                 <el-tooltip class="item" effect="light" placement="right-start">
                   <template #content><div>
@@ -629,9 +600,8 @@
             <el-dialog
               :title="$t('floormanagement.Setarea')"
               v-model="trancheShow"
-              class="edit showHeadr"
-              width="30%"
-              style="text-align: center"
+              class="edit showHeadr device-dialog"
+              width="520px"
               :modal="false"
               @close="closeTranche"
             >
@@ -683,9 +653,8 @@
                 $t('tet.setup') + adjoinBeaconAlias + $t('tet.Adjacentbeacon')
               "
               v-model="adjoinBeaconShow"
-              class="edit showHeadr setAdjoinBeacon"
-              width="30%"
-              style="text-align: center; margin-right: 2%"
+              class="edit showHeadr setAdjoinBeacon device-dialog"
+              width="560px"
               :modal="false"
               @close="closeAdjoinBeacon"
               @open="openAdjoinBeacon"
@@ -746,7 +715,14 @@
               </div></template>
             </el-dialog>
           </el-dialog>
-          <el-dialog v-model="vedio" @close="closeVedio('video')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio"
+            @close="closeVedio('video')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video">
               <source
                 v-if="i8n == 'zh'"
@@ -760,7 +736,14 @@
               />
             </video>
           </el-dialog>
-          <el-dialog v-model="vedio2" @close="closeVedio('video2')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio2"
+            @close="closeVedio('video2')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video2">
               <source src="../../../static/3D~1.mp4" type="video/mp4" />
             </video>
@@ -769,16 +752,15 @@
           <!-- 设置定位区域 -->
           <el-dialog
             v-model="addTranchePosition"
-            class="edit"
-            width="40%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
             :append-to-body="true"
             @close="addTrancheRowCancelPosition"
           >
             <template #header><div class="dialog-title">
-              <span class="title-text"
+              <span class="title-text el-dialog__title"
                 >{{ $t("floormanagement.Positioningarea") }}
                 <el-tooltip
                   class="item"
@@ -880,11 +862,10 @@
 
           <!-- 显示距离 -->
           <el-dialog
-            width="30%"
-            class="showHeadr"
+            width="420px"
+            class="showHeadr device-dialog"
             v-model="showDistance"
             :modal="false"
-            style="text-align: center"
           >
             <p>{{ $t("floormanagement.Xaxis") }}{{ distanceData.x }}cm</p>
             <p>{{ $t("floormanagement.Yaxis") }}{{ distanceData.y }}cm</p>
@@ -977,6 +958,7 @@ export default {
   name: "BuildingManagement",
   data() {
     return {
+      menuTitle: "",
       aoagw: this.$store.state.functionParts.aoagw,
       smoke: this.$store.state.functionParts.smoke,
       alertor: this.$store.state.functionParts.alertor,
@@ -1298,6 +1280,10 @@ export default {
     removeGroundDevs() {
       var that = this;
       this.$confirm(this.$t("floormanagement.RemoveGroundDevText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -3675,14 +3661,19 @@ export default {
       var that = this;
       var menu_overlay = new Overlay({
         element: this.$refs.contextmenu_container,
-        positioning: "center-center",
+        positioning: "top-left",
+        offset: [8, 8],
+        autoPan: { margin: 16, animation: { duration: 200 } },
       });
       var menu_overlay1 = new Overlay({
         element: this.$refs.polygonMenu,
-        positioning: "center-center",
+        positioning: "top-left",
+        offset: [8, 8],
+        autoPan: { margin: 16, animation: { duration: 200 } },
       });
       map.addOverlay(menu_overlay);
       map.addOverlay(menu_overlay1);
+      this.ctxMenuOverlays = [menu_overlay, menu_overlay1];
       $(map.getViewport()).on("contextmenu", function (event) {
         event.preventDefault();
         that.removeClick();
@@ -3713,6 +3704,7 @@ export default {
             }); //点击删除
           }
           if (feature.values_.x && feature.values_.alias) {
+            that.menuTitle = feature.values_.alias || feature.values_.deveui || "";
             if (
               feature.values_.type == 1 && feature.values_.clockin == 2
             ) {
@@ -3791,6 +3783,12 @@ export default {
           }
         }
       });
+    },
+    closeCtxMenus(event) {
+      if (!event.target.closest(".map-ctx-item")) return;
+      (this.ctxMenuOverlays || []).forEach((overlay) =>
+        overlay.setPosition(undefined)
+      );
     },
     removeClick() {
       $(
@@ -4067,6 +4065,10 @@ export default {
         that.$t("floormanagement.releasezone"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4311,6 +4313,10 @@ export default {
         that.$t("floormanagement.tippp"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4451,6 +4457,10 @@ export default {
           that.$t("floormanagement.adjacencyrelationship"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -4502,6 +4512,10 @@ export default {
       var that = this;
       that
         .$confirm(that.$t("floormanagement.tippp2"), that.$t("Building.tips"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4864,6 +4878,10 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -4960,6 +4978,10 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -6012,6 +6034,10 @@ export default {
                 that.$t("floormanagement.tippp6"),
                 that.$t("Building.tips"),
                 {
+                  customClass: "device-message-box",
+                  confirmButtonClass: "device-message-confirm",
+                  cancelButtonClass: "device-message-cancel",
+                  roundButton: false,
                   confirmButtonText: that.$t("terminal.confirm"),
                   cancelButtonText: that.$t("terminal.cancel"),
                   type: "warning",
@@ -6420,48 +6446,6 @@ export default {
 }
 #leftmenu_container1 {
   display: none;
-}
-#contextmenu_container {
-  display: flex;
-  flex-direction: column;
-}
-#contextmenu_container li {
-  display: flex;
-}
-
-#polygonMenu {
-  display: flex;
-  flex-direction: column;
-}
-#polygonMenu li {
-  display: flex;
-}
-#popup-content {
-  background: #f1f5f7 !important;
-}
-#popup-content button {
-  background: #f1f5f7 !important;
-  width: 100%;
-  text-align: left;
-  border: none;
-  color: black;
-}
-#popup-content button:hover {
-  background: skyblue !important;
-  color: white;
-}
-
-#popup-content #delPolygon:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-#popup-content #del:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-#popup-content .dels:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-.ol-popup-closer {
-  margin-right: 2px;
 }
 
 li {

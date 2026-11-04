@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -8,7 +8,7 @@
       <el-container class="asi">
         <el-aside><Data /></el-aside>
         <el-main>
-          <div class="ter_input terminal-filter-flow" :class="filterLangClass">
+          <div class="ter_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
             >
@@ -95,11 +95,11 @@
           </div>
 
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 97%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               @selection-change="handleSelectionChange"
@@ -132,8 +132,8 @@
                 align="center"
               >
               <template #default="scope">
-                <p v-if="scope.row.flag" style="border:2px solid green;background:green;color:white">{{ $t("downlink.Passed") }}</p>
-                <p v-else style="border:2px solid red;background:red;color:white">{{ $t("downlink.Failure") }}</p>
+                <el-tag v-if="scope.row.flag" type="success" effect="light">{{ $t("downlink.Passed") }}</el-tag>
+                <el-tag v-else type="danger" effect="light">{{ $t("downlink.Failure") }}</el-tag>
               </template>
               </el-table-column>
 
@@ -194,8 +194,7 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -210,11 +209,17 @@
             </div>
           </div>
           <!-- 批量删除 -->
-          <el-dialog :title="$t('test.tet5')" v-model="del">
+          <el-dialog
+            width="960px"
+            class="device-dialog"
+            :title="$t('test.tet5')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
             <el-table-column
@@ -241,8 +246,8 @@
                 align="center"
               >
               <template #default="scope">
-                <p v-if="scope.row.flag" style="border:2px solid green;background:green;color:white">{{ $t("downlink.Passed") }}</p>
-                <p v-else style="border:2px solid red;background:red;color:white">{{ $t("downlink.Failure") }}</p>
+                <el-tag v-if="scope.row.flag" type="success" effect="light">{{ $t("downlink.Passed") }}</el-tag>
+                <el-tag v-else type="danger" effect="light">{{ $t("downlink.Failure") }}</el-tag>
               </template>
               </el-table-column>
 
@@ -561,6 +566,10 @@ export default {
           this.$t("test.confirmdel4"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

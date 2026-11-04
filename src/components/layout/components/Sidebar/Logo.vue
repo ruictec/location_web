@@ -69,10 +69,10 @@ export default {
   width: 100%;
   height: 50px;
   line-height: 50px;
-  background: #252b3b;
+  background: #1e2433;
   text-align: center;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgb(0 21 41 / 4%);
+  box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.12);
   z-index: 1000;
 
   & .sidebar-logo-link {

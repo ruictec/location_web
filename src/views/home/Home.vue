@@ -56,36 +56,22 @@
                   @change="onMapStyleChange"
                 />
                 <div id="gatewayMap" ref="map"></div>
-                <div class="tips">
-                  <span style="color: #fff; font-size: 18px">
-                    - {{ $t("home.BaseStation") }} -</span>
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.Online") }}
-                    <div
-                      class="color"
-                      style="background-color: #1c9ef7; font-size: 14px"
-                    >
-                      {{ gatewayLength.on }}
-                    </div>
+                <div class="tips map-stat-card">
+                  <div class="map-stat-title">{{ $t("home.BaseStation") }}</div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-online"></i>
+                    <span class="map-stat-label">{{ $t("home.Online") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.on }}</b>
                   </div>
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.Offline") }}
-                    <div
-                      class="color"
-                      style="background-color: #d63333; font-size: 14px"
-                    >
-                      {{ gatewayLength.off }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-offline"></i>
+                    <span class="map-stat-label">{{ $t("home.Offline") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.off }}</b>
                   </div>
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.NeverOnline") }}
-
-                    <div
-                      class="color"
-                      style="background-color: #898989; font-size: 14px"
-                    >
-                      {{ gatewayLength.unknown }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-never"></i>
+                    <span class="map-stat-label">{{ $t("home.NeverOnline") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.unknown }}</b>
                   </div>
                 </div>
                 <!-- 左键显示内容的 -->
@@ -1209,38 +1195,7 @@ export default {
   position: absolute;
   right: 10px;
   top: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px;
-  border-radius: 4px;
-  text-align: left;
-}
-
-.mapConent .tips > span {
-  display: block;
-  width: 100%;
-  text-align: left;
-}
-
-.mapConent .tips .item {
-  display: flex;
-  margin-right: 0;
-  align-items: center;
-  justify-content: flex-start;
-  font-size: 10px;
-  color: #fff;
-  padding: 1px 0 1px 0;
-  width: 100%;
-  text-align: left;
-}
-
-.mapConent .tips .item .color {
-  padding: 2px 6px 2px 6px;
-  border-radius: 2px;
-  margin-left: 6px;
-  font-size: 8px;
+  z-index: 2;
 }
 
 /* .tips .textwrapper {

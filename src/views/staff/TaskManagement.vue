@@ -1,6 +1,6 @@
 <template>
-  <div class="task-management-page">
-    <div class="terminal-filter-flow" :class="filterLangClass">
+  <div class="task-management-page device-page">
+    <div class="terminal-filter-flow page-panel" :class="filterLangClass">
       <el-form
         class="demo-form-inline terminal-filter-form"
         :model="searchList"
@@ -28,11 +28,12 @@
       </el-form>
     </div>
 
+    <div class="page-panel table-panel">
     <el-table
       :data="tableData"
-      border
+      class="device-table"
       v-loading="loading"
-      style="width: 98%; margin-left: 1%"
+      style="width: 100%"
     >
       <el-table-column
         property="name"
@@ -243,8 +244,10 @@
         </template>
       </el-table-column>
     </el-table>
+    </div>
 
-    <div class="task-pagination">
+
+    <div class="task-pagination device-pagination">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -257,6 +260,7 @@
     </div>
 
     <el-dialog
+      class="device-dialog"
       :title="
         dialogMode === 'edit'
           ? $t('locateTask.editTitle')
@@ -366,6 +370,7 @@
     </el-dialog>
 
     <el-dialog
+      class="device-dialog"
       v-model="locationMapVisible"
       :title="$t('locateTask.pickLocationTitle')"
       width="820px"
@@ -373,6 +378,7 @@
       destroy-on-close
       @opened="onLocationMapOpened"
       @closed="onLocationMapClosed"
+      top="6vh"
     >
       <div class="location-map-tip">{{ $t("locateTask.pickLocationTip") }}</div>
       <div class="location-map-wrap">
@@ -400,11 +406,13 @@
     </el-dialog>
 
     <el-dialog
+      class="device-dialog"
       :title="$t('locateTask.extendTitle')"
-      width="420px"
+      width="560px"
       v-model="extendDialogVisible"
       @opened="bindExtendTimeCompactInput"
       @close="closeExtendDialog"
+      align-center
     >
       <el-form label-width="100px">
         <el-form-item :label="$t('locateTask.name')">
@@ -414,7 +422,11 @@
           <span>{{ formatSecondTime(extendOriginEndSec) }}</span>
         </el-form-item>
         <el-form-item :label="$t('locateTask.extendEndtime')">
-          <div ref="extendTimePickerWrap" class="extend-time-picker-wrap">
+          <div
+            ref="extendTimePickerWrap"
+            class="extend-time-picker-wrap"
+            style="width: 100%"
+          >
             <el-date-picker
               v-model="extendEndTime"
               type="datetime"
@@ -428,8 +440,8 @@
             />
           </div>
           <div class="task-time-tip">{{ $t("locateTask.timeCompactTip") }}</div>
+          <div class="task-time-tip">{{ $t("locateTask.extendTip") }}</div>
         </el-form-item>
-        <div class="task-time-tip">{{ $t("locateTask.extendTip") }}</div>
       </el-form>
       <template #footer>
         <el-button @click="closeExtendDialog">{{
@@ -1174,6 +1186,10 @@ export default {
         this.$t("locateTask.stopConfirm", { name: row.name || "" }),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("locateTask.confirm"),
           cancelButtonText: this.$t("locateTask.cancel"),
           type: "warning",
@@ -1357,6 +1373,10 @@ export default {
         this.$t("locateTask.deleteConfirm", { name: row.name || "" }),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("locateTask.confirm"),
           cancelButtonText: this.$t("locateTask.cancel"),
           type: "warning",

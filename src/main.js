@@ -6,6 +6,7 @@ import ElementPlus, { ElDialog, ElTimeline, ElTimelineItem, ElSlider, ElSwitch }
 import 'element-plus/dist/index.css'
 import './assets/element-icons/icon.css'
 import './assets/element-plus-compat.css'
+import './assets/user-page-panel.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import en from 'element-plus/es/locale/lang/en'
 import axios from 'axios'

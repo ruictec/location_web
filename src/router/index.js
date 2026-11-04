@@ -643,6 +643,13 @@ export const userRoutes = [
           name: 'myorder',
           meta: { title: 'router.myOrder', noCache: true }
         },
+        {
+          path: 'orderdetails',
+          component: OrderDetails,
+          name: 'userOrderDetails',
+          hidden: true,
+          meta: { title: 'router.orderDetails', noCache: true, activeMenu: '/user/myorder' }
+        },
       ]
     },
     {

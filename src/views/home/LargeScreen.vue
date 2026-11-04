@@ -7,7 +7,7 @@
       </div>
       <div class="return" @click="brk">返回</div>
     </div>
-    <div id="mapback"></div>
+    <div id="mapback" ref="mapback"></div>
     <!-- 地形底图转成与标准图一致的深蓝色调：先去色，再按亮度反向映射到深蓝色板（亮处变深） -->
     <svg class="map-tone-defs" aria-hidden="true">
       <filter id="lsMapToneTer" color-interpolation-filters="sRGB">
@@ -247,6 +247,7 @@ import {
   getFristPageUserMapUtil,
   getBuildingByProjectid,getFenceManageAndPointList
 } from "../../axios/api";
+import { markRaw } from "vue";
 //地图
 import "ol/ol.css";
 import { Map, View } from "ol";
@@ -366,8 +367,9 @@ export default {
   },
   mounted() {
     this.getTime();
-    this.outdoorBaseLayers = createOutdoorBaseLayers(
-      this.$store.state.i18n == "zh"
+    // OpenLayers 对象不能放进 Vue 响应式代理，否则图层渲染会异常
+    this.outdoorBaseLayers = markRaw(
+      createOutdoorBaseLayers(this.$store.state.i18n == "zh")
     );
 
     this.$nextTick(() => {
@@ -385,6 +387,7 @@ export default {
     this.escape();
     this._onResize = () => {
       this.screenWidth = document.body.clientWidth;
+      this.scheduleMapResize();
     };
     window.addEventListener("resize", this._onResize);
     let ulscrollsArray = Array.from(document.querySelectorAll(".ultitle"));
@@ -394,6 +397,11 @@ export default {
   },
   
   beforeUnmount() {
+    this._unmounted = true;
+    if (this.map) {
+      this.map.setTarget(null);
+      this.map = null;
+    }
     clearInterval(this.timers);
     this.timers = null;
     clearInterval(this.timerMap);
@@ -420,6 +428,7 @@ export default {
         this.tenantid_A,
         this.userName
       ).then((res) => {
+        if (that._unmounted) return;
         if (res.code == 1001) {
           that.mapInfos = res.data;
           if (that.map) {
@@ -493,8 +502,13 @@ export default {
     },
     updateMap(map, info) {
       var that = this;
-      let LayerArrays = map.getLayers().getArray();
-      for (let i = 1; i < LayerArrays.length; i++) {
+      // 底图（天地图为底图+注记两层）、围栏层没有楼栋要素，只处理楼栋标注层
+      let LayerArrays = map.getLayers().getArray().filter((layer) => {
+        const source = layer.getSource && layer.getSource();
+        const features = source && source.getFeatures && source.getFeatures();
+        return features && features[0] && features[0].values_.building != null;
+      });
+      for (let i = 0; i < LayerArrays.length; i++) {
         info.forEach((item) => {
           if (
             item.building ==
@@ -559,27 +573,32 @@ export default {
     initUserMap() {
       var that = this;
 
-      that.vectorSource = new VectorSource();
-      this.seeLayer = [
+      that.vectorSource = markRaw(new VectorSource());
+      this.seeLayer = markRaw([
         ...that.outdoorBaseLayers,
         new VectorLayer({
           source: that.vectorSource,
         }),
-      ];
+      ]);
       if (that.mapInfos.length > 0) {
-        that.view = new View({
-          center: fromLonLat([that.longi, that.lati]),
-          zoom: that.$store.state.mapZoom,
-        });
+        that.view = markRaw(
+          new View({
+            center: fromLonLat([that.longi, that.lati]),
+            zoom: that.$store.state.mapZoom,
+          })
+        );
       } else {
-        that.view = new View({
-          center: fromLonLat(that.mapCenter),
-          zoom: 14,
-        });
+        that.view = markRaw(
+          new View({
+            center: fromLonLat(that.mapCenter),
+            zoom: 14,
+          })
+        );
       }
       setTimeout(() => {
-        that.map = new Map({
-          target: "mapback",
+        if (that._unmounted || that.map || !that.$refs.mapback) return;
+        that.map = markRaw(new Map({
+          target: that.$refs.mapback,
           layers: that.seeLayer,
           view: that.view,
           controls: defaultControls({
@@ -587,7 +606,8 @@ export default {
             rotate: false,
             attribution: false,
           }).extend([]),
-        });
+        }));
+        that.scheduleMapResize();
         that.map.getInteractions().forEach(function (interaction) {
           if (interaction instanceof DragPan) {
             interaction.setActive(false); // 禁止鼠标拖动
@@ -2117,10 +2137,22 @@ export default {
         false
       );
     },
+    // OpenLayers 6 只在窗口 resize 时重算尺寸；进全屏（尤其 Mac 的全屏动画）期间容器尺寸会变化多次，补几次重算
+    scheduleMapResize() {
+      [0, 300, 800, 1500].forEach((ms) => {
+        setTimeout(() => {
+          if (!this._unmounted && this.map) {
+            this.map.updateSize();
+          }
+        }, ms);
+      });
+    },
     escape() {
       this._onFullscreenChange = () => {
         if (screenfull.isFullscreen == false) {
           this.brk();
+        } else {
+          this.scheduleMapResize();
         }
       };
       window.addEventListener("fullscreenchange", this._onFullscreenChange);
@@ -2439,6 +2471,7 @@ $border: 1px solid red;
                 line-height: 20px;
                 font-size: 10px;
                 margin: 0;
+                text-align: left;
               }
 
               .num {
@@ -2474,6 +2507,24 @@ $border: 1px solid red;
               .num_box img {
                 width: 20px;
                 height: 20px;
+              }
+
+              /* 统计行固定布局：图标靠左、文字左对齐且各行起始一致、数值右对齐 */
+              .num_box {
+                justify-content: flex-start;
+                padding: 0 6px;
+                gap: 8px;
+
+                p:not(.num) {
+                  flex: 1;
+                  min-width: 0;
+                }
+
+                .num {
+                  flex: 0 0 auto;
+                  min-width: 16px;
+                  text-align: right;
+                }
               }
             }
 

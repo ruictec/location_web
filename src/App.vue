@@ -51,7 +51,7 @@
               }}</el-dropdown-item>
             </el-dropdown-menu></template>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V2.2</span>
+          <span @click="showVer()" class="show_ver">{{ currentVersion }}</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
@@ -75,24 +75,45 @@
       </div>
     </div>
 
-    <el-dialog :title="$t('versions.title')" v-model="showVersion">
+    <el-dialog
+      :title="$t('versions.title')"
+      v-model="showVersion"
+      class="device-dialog version-dialog"
+      width="680px"
+    >
+      <div class="version-summary" v-if="versionList.length">
+        <div class="version-summary-main">
+          <span class="version-summary-label">{{ $t("versions.current") }}</span>
+          <span class="version-summary-num">{{ versionList[0].version }}</span>
+        </div>
+        <span class="version-summary-date"
+          >{{ $t("versions.releasedOn") }} {{ versionList[0].date }}</span
+        >
+      </div>
       <div class="version">
-        <el-timeline :reverse="false">
-          <el-timeline-item
-            v-for="(activity, index) in versionActivities"
-            :key="index"
-            :timestamp="activity.timestamp"
-          >
-            <div
-              class="version_text"
-              v-for="(item, index) in activity.content"
-              :key="index"
-            >
-              <h2 v-if="index == 0" style="font-size: 130%">{{ item }}</h2>
-              <span v-if="index != 0">{{ item }}</span>
+        <div
+          v-for="(ver, index) in versionList"
+          :key="ver.version"
+          class="version-item"
+          :class="{ 'is-latest': index === 0 }"
+        >
+          <div class="version-axis"><i class="version-dot"></i></div>
+          <div class="version-card">
+            <div class="version-card-head">
+              <span class="version-tag">{{ ver.version }}</span>
+              <span v-if="index === 0" class="version-latest">{{
+                $t("versions.latest")
+              }}</span>
+              <span class="version-date">{{ ver.date }}</span>
             </div>
-          </el-timeline-item>
-        </el-timeline>
+            <ul class="version-list">
+              <li v-for="(item, i) in ver.items" :key="i">
+                <span class="version-index">{{ i + 1 }}</span>
+                <span class="version-text">{{ item }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </el-dialog>
 
@@ -235,6 +256,14 @@ import {
   getWarningPopoutList,
 } from "./axios/api";
 import { jumpToWarningLocation } from "./utils/warningLocation";
+
+function stripVersionItem(raw) {
+  return String(raw)
+    .trim()
+    .replace(/^\d+\s*[.、]\s*/, "")
+    .replace(/[；;。.]+$/, "");
+}
+
 export default {
   name: "App",
 
@@ -493,6 +522,25 @@ export default {
           ],
           timestamp: this.$t("versions.timestamp19"),
         },
+        {
+          content: [
+            this.$t("versions.content134"),
+            this.$t("versions.content135"),
+            this.$t("versions.content136"),
+            this.$t("versions.content137"),
+            this.$t("versions.content138"),
+            this.$t("versions.content139"),
+            this.$t("versions.content140"),
+            this.$t("versions.content141"),
+            this.$t("versions.content142"),
+            this.$t("versions.content143"),
+            this.$t("versions.content144"),
+            this.$t("versions.content145"),
+            this.$t("versions.content146"),
+            this.$t("versions.content147"),
+          ],
+          timestamp: this.$t("versions.timestamp20"),
+        },
       ],
       showVersion: false,
       showlargr: true,
@@ -576,6 +624,19 @@ export default {
       return Array.isArray(this.activities)
         ? this.activities.slice().reverse()
         : [];
+    },
+    currentVersion() {
+      return this.versionList.length ? this.versionList[0].version : "";
+    },
+    versionList() {
+      return this.versionActivities.map((activity) => {
+        const [version, ...items] = activity.content || [];
+        return {
+          version,
+          date: activity.timestamp,
+          items: items.filter(Boolean).map(stripVersionItem),
+        };
+      });
     },
   },
   watch: {
@@ -1807,13 +1868,201 @@ export default {
   pointer-events: none !important;
 }
 
-.version_text {
-  text-align: left;
-  word-wrap: break-word;
+.el-dialog.device-dialog.version-dialog > .el-dialog__body {
+  padding: 0 !important;
 }
 
-.el-timeline-item__timestamp {
-  text-align: left !important;
+.version-dialog .version-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.08), rgba(34, 211, 238, 0.06));
+  border: 1px solid rgba(47, 123, 255, 0.12);
+  border-radius: 10px;
+}
+
+.version-dialog .version-summary-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+}
+
+.version-dialog .version-summary-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.version-dialog .version-summary-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #2f7bff, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.version-dialog .version-summary-date {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.version-dialog .version {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 16px 6px 4px 4px;
+  text-align: left;
+}
+
+.version-dialog .version-item {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.version-dialog .version-axis {
+  position: relative;
+  flex: 0 0 18px;
+  margin: 0;
+}
+
+.version-dialog .version-axis::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: #e2e8f0;
+}
+
+.version-dialog .version-item:first-child .version-axis::before {
+  top: 14px;
+}
+
+.version-dialog .version-item:last-child .version-axis::before {
+  bottom: auto;
+  height: 14px;
+}
+
+.version-dialog .version-dot {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #cbd5e1;
+  box-sizing: border-box;
+}
+
+.version-dialog .version-item.is-latest .version-dot {
+  width: 14px;
+  height: 14px;
+  top: 7px;
+  border: none;
+  background: linear-gradient(135deg, #2f7bff, #22d3ee);
+  box-shadow: 0 0 0 4px rgba(47, 123, 255, 0.16);
+}
+
+.version-dialog .version-card {
+  flex: 1;
+  min-width: 0;
+  margin: 0 0 14px;
+  padding: 12px 16px 12px;
+  background: #f8fafc;
+  border: 1px solid #edf1f7;
+  border-radius: 10px;
+}
+
+.version-dialog .version-item.is-latest .version-card {
+  background: #fff;
+  border-color: rgba(47, 123, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(47, 123, 255, 0.1);
+}
+
+.version-dialog .version-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.version-dialog .version-tag {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.version-dialog .version-latest {
+  margin: 0;
+  padding: 1px 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #fff;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+}
+
+.version-dialog .version-date {
+  margin: 0 0 0 auto;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.version-dialog .version-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.version-dialog .version-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 0;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.version-dialog .version-list li + li {
+  border-top: 1px dashed #e8edf4;
+}
+
+.version-dialog .version-index {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: #64748b;
+  background: #e9eef5;
+  border-radius: 50%;
+}
+
+.version-dialog .version-item.is-latest .version-index {
+  color: #2f7bff;
+  background: #e6efff;
+}
+
+.version-dialog .version-text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  word-break: break-word;
 }
 
 * {
@@ -2049,12 +2298,5 @@ body {
 body .el-table th,
 body .el-table th.el-table__cell {
   display: table-cell !important;
-}
-</style>
-<style scoped>
-.version {
-  text-align: left;
-  height: 500px;
-  overflow: auto;
 }
 </style>

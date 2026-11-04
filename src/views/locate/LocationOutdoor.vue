@@ -1,6 +1,6 @@
 <template>
-  <div class="content">
-    <div class="inputContent outdoor-filter-flow terminal-filter-flow" :class="filterLangClass">
+  <div class="content locate-flow-page">
+    <div class="inputContent outdoor-filter-flow terminal-filter-flow page-panel" :class="filterLangClass">
       <el-form
         class="demo-form-inline terminal-filter-form"
         :model="searchList"
@@ -71,7 +71,7 @@
     </div>
 
     <!-- 地图 -->
-    <div class="mapConent" style="position: relative">
+    <div class="mapConent page-panel" style="position: relative">
       <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="map"></div>
       <!-- 围栏人数已直接在地图上显示，白名单弹窗已废弃
@@ -247,9 +247,9 @@
     <el-dialog
       :title="$t('locationoutdoor.text')"
       v-model="edit"
-      class="edit"
-      width="50%"
-      style="text-align: center"
+      class="edit device-dialog"
+      width="480px"
+      align-center
     >
       <el-form
         :model="editData"
@@ -530,7 +530,7 @@ export default {
       }
       return 0;
     },
-    // 跳转定位管理-历史轨迹页（带上已选人员/车辆）
+    // 跳转定位管理-历史轨迹页：只带已选人员/车辆的名称，查不到名称时才带设备号
     goHis() {
       const query = {};
       if (this.perDeveui) {
@@ -539,9 +539,10 @@ export default {
             (i) => i.maplabel === this.perDeveui
           ) ||
           (this.userList || []).find((i) => i.maplabel === this.perDeveui);
-        query.perDeveui = this.perDeveui;
         if (item && item.username) {
           query.username = item.username;
+        } else {
+          query.perDeveui = this.perDeveui;
         }
       } else if (this.tboxDeveui) {
         const item =
@@ -549,9 +550,10 @@ export default {
             (i) => i.maplabel === this.tboxDeveui
           ) ||
           (this.tboxList || []).find((i) => i.maplabel === this.tboxDeveui);
-        query.tboxDeveui = this.tboxDeveui;
         if (item && item.sn) {
           query.sn = item.sn;
+        } else {
+          query.tboxDeveui = this.tboxDeveui;
         }
       }
       this.$router.push({
@@ -749,6 +751,10 @@ export default {
                   this.$t("locationoutdoor.text5"),
                   this.$t("Building.tips"),
                   {
+                    customClass: "device-message-box",
+                    confirmButtonClass: "device-message-confirm",
+                    cancelButtonClass: "device-message-cancel",
+                    roundButton: false,
                     confirmButtonText: this.$t("terminal.confirm"),
                     cancelButtonText: this.$t("terminal.cancel"),
                     type: "warning",
@@ -1446,6 +1452,10 @@ export default {
             that.$t("locationoutdoor.text6"),
             that.$t("Building.tips"),
             {
+              customClass: "device-message-box",
+              confirmButtonClass: "device-message-confirm",
+              cancelButtonClass: "device-message-cancel",
+              roundButton: false,
               confirmButtonText: that.$t("terminal.confirm"),
               cancelButtonText: that.$t("terminal.cancel"),
               type: "warning",
@@ -2447,8 +2457,9 @@ export default {
   align-items: center;
   justify-content: flex-start;
   gap: 8px 16px;
-  margin: 0 0 12px;
-  padding: 0;
+  margin: 0 0 12px !important;
+  box-sizing: border-box;
+  /* 保留 page-panel 内边距，不要写成 padding: 0 */
 }
 .outdoor-filter-flow.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
   display: contents !important;
@@ -2513,11 +2524,7 @@ export default {
 }
 .outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item :deep(.el-button) {
   margin: 0 !important;
-  height: 28px !important;
-  padding: 7px 15px !important;
-  font-size: 12px !important;
   box-sizing: border-box !important;
-  line-height: 1 !important;
 }
 .mapConent {
   display: flex;

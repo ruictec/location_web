@@ -1,7 +1,7 @@
 <template>
-  <div class="content">
+  <div class="content device-page locate-flow-page">
     <div
-      class="inputContent outdoor-filter-flow terminal-filter-flow"
+      class="inputContent outdoor-filter-flow terminal-filter-flow page-panel"
       :class="filterLangClass"
     >
       <el-form
@@ -123,7 +123,7 @@
         </template>
       </div>
 
-      <div class="mapConent" style="position: relative">
+      <div class="mapConent page-panel" style="position: relative">
         <Trajectory
           v-if="showTrajectory2d"
           ref="trajectory"
@@ -765,9 +765,10 @@ div.content {
   align-items: center;
   justify-content: flex-start;
   gap: 8px 16px;
-  margin: 0 0 12px;
-  padding: 0;
+  margin: 0 0 12px !important;
+  box-sizing: border-box;
   flex-shrink: 0;
+  /* 保留 page-panel 内边距，不要写成 padding: 0 */
 }
 .outdoor-filter-flow.terminal-filter-flow
   > .terminal-filter-form.demo-form-inline {
@@ -858,11 +859,7 @@ div.content {
   .terminal-toolbar-item
   :deep(.el-button) {
   margin: 0 !important;
-  height: 28px !important;
-  padding: 7px 15px !important;
-  font-size: 12px !important;
   box-sizing: border-box !important;
-  line-height: 1 !important;
 }
 .outdoor-filter-flow.terminal-filter-flow .el-form-item .el-button {
   margin-left: 0 !important;

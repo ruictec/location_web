@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,7 +7,7 @@
       <el-container class="asi">
         <el-aside><Usermanagement /></el-aside>
         <el-main>
-          <div class="user_input terminal-filter-flow" :class="filterLangClass">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -59,7 +59,7 @@
               </el-form-item>
             </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -72,9 +72,9 @@
             </div>
             <!-- 公司展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -84,6 +84,7 @@
               </el-table-column>
               <el-table-column
                 fixed
+                show-overflow-tooltip
                 property="username"
                 :label="$t('companymanagement.username')"
                 min-width="150"
@@ -91,6 +92,7 @@
               ></el-table-column>
 
               <el-table-column
+                show-overflow-tooltip
                 property="tenantid"
                 :label="$t('companymanagement.tenantid')"
                 min-width="88"
@@ -106,54 +108,63 @@
               ></el-table-column>
 
               <el-table-column
+                show-overflow-tooltip
                 property="tel"
                 :label="$t('companymanagement.tel')"
                 min-width="120"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="email"
                 :label="$t('companymanagement.email')"
                 min-width="150"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="country"
                 :label="$t('companymanagement.country')"
                 min-width="88"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="address"
                 :label="$t('companymanagement.address')"
                 min-width="150"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="schemes"
                 :label="$t('companymanagement.schemes')"
                 min-width="150"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="nsname"
                 :label="$t('project.Networkserver1')"
                 min-width="150"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="logopriostr"
                 :label="$t('companymanagement.Setlogo')"
                 min-width="120"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="accpriostr"
                 :label="$t('usermanagement.Accessrights')"
                 min-width="120"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="functype"
                 :label="$t('companymanagement.functype')"
                 min-width="100"
@@ -162,30 +173,35 @@
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="projectnum"
                 :label="$t('companymanagement.item')"
                 min-width="140"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="mapnum"
                 :label="$t('companymanagement.item1')"
                 min-width="130"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="devnum"
                 :label="$t('companymanagement.item2')"
                 min-width="140"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="validtime"
                 :label="$t('companymanagement.item3')"
                 min-width="180"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="createtime"
                 :label="$t('companymanagement.createtime')"
                 :formatter="formatDate"
@@ -193,12 +209,14 @@
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="record"
                 :label="$t('companymanagement.record')"
                 min-width="300"
                 align="center"
               ></el-table-column>
               <el-table-column
+                show-overflow-tooltip
                 property="memo"
                 :label="$t('companymanagement.memo')"
                 min-width="150"
@@ -300,8 +318,7 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
@@ -317,18 +334,19 @@
           </div>
           <!-- 添加模态框  :headers="setHeader"  -->
           <el-dialog
+            class="device-dialog"
             :title="$t('companymanagement.addclientinfor')"
-            width="30%"
+            width="860px"
             v-model="add"
-            style="text-align: center"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
+              class="dialog-form-2col"
               :model="addData"
-              label-width="180px"
+              label-width="140px"
               :rules="addRules"
               ref="addData"
-              style="text-align: left"
             >
               <el-form-item
                 :label="$t('companymanagement.clientname')"
@@ -545,18 +563,17 @@
           <el-dialog
             :title="$t('companymanagement.edituser')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="860px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
               ref="editData"
               :rules="editRules"
-              class="demo-ruleForm"
-              label-width="180px"
-              style="text-align: left; margin-left: 10px"
+              class="demo-ruleForm dialog-form-2col"
+              label-width="140px"
             >
               <el-form-item :label="$t('companymanagement.clientname')">
                 <el-input
@@ -743,23 +760,15 @@
 
           <!-- 删除 -->
           <el-dialog
+            width="480px"
+            class="device-dialog"
             :title="$t('companymanagement.deleteclient')"
             v-model="deleTpl"
-            style="text-align: center"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  fontsize: 20px;
-                "
-              >
-                {{ $t("companymanagement.deleteclientrules") }}{{ deleUser
-                }}{{ $t("companymanagement.deleteclientrules1") }}
-              </p>
-            </el-form>
+            <p class="dialog-confirm-text">
+              {{ $t("companymanagement.deleteclientrules") }}<b>{{ deleUser }}</b>{{ $t("companymanagement.deleteclientrules1") }}
+            </p>
             <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">
                 {{ $t("terminal.cancel") }}</el-button>
@@ -1999,6 +2008,10 @@ export default {
         that.$t("usermanagement.passwordrules"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",

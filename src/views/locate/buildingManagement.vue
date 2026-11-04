@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -36,10 +36,13 @@
               @change="importExcels"
             />
           </div>
-          <div class="mapConent">
-            <div style="width: 100%; position: relative; z-index: 1">
+          <div
+            class="mapConent page-panel"
+            :class="{ 'is-admin': contrForPrionum != 5 }"
+          >
+            <div class="mapMain">
               <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
-              <div id="map" style="width: 100%"></div>
+              <div id="map"></div>
               <p class="buildingGuide">
                 {{ $t("Building.title") }}
                 <a href="javascript:;" @click="showVideo()">{{
@@ -171,11 +174,12 @@
           </div>
           <!-- 按坐标布置 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('Building.coordArrange')"
             v-model="coordArrangeVisible"
-            width="420px"
-            style="text-align: center"
+            width="440px"
             @close="coordArrangeCancel"
+            align-center
           >
             <el-form
               :model="coordArrangeForm"
@@ -210,9 +214,9 @@
           <el-dialog
             :title="$t('Building.Editinformation')"
             v-model="edit"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="600px"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -267,8 +271,21 @@
               }}</el-button>
             </div></template>
           </el-dialog>
-          <el-dialog v-model="vedio" @close="closeVedio">
-            <video width="100%" controls autoplay id="video">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('Building.title1')"
+            v-model="vedio"
+            @close="closeVedio"
+            align-center
+          >
+            <video
+              width="100%"
+              controls
+              autoplay
+              id="video"
+              style="display: block; border-radius: 10px"
+            >
               <!-- <source src="../../../static/楼层管理——布置~1.mp4" type="video/mp4"/> -->
               <source
                 v-if="i8n != 'zh'"
@@ -899,6 +916,10 @@ export default {
         const longi = Number(this.coordArrangeForm.longi);
         const lati = Number(this.coordArrangeForm.lati);
         this.$confirm(this.$t("Building.layout"), this.$t("Building.tips"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1380,6 +1401,10 @@ export default {
             return;
           }
           this.$confirm(this.$t("Building.layout"), this.$t("Building.tips"), {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: this.$t("terminal.confirm"),
             cancelButtonText: this.$t("terminal.cancel"),
             type: "warning",
@@ -1473,6 +1498,10 @@ export default {
           : this.$t("otherDev.cancelAlarmtrue"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1509,6 +1538,10 @@ export default {
     setMaptype3D(feature, menu_overlay) {
       var that = this;
       this.$confirm(this.$t("build.Set3Dtet"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1564,6 +1597,10 @@ export default {
     setMaptype2D(feature, menu_overlay) {
       var that = this;
       this.$confirm(this.$t("build.Set2Dtet"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -2280,14 +2317,30 @@ export default {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
-.mapConent {
+.inputContent:not(:empty) {
+  margin: 0 0 12px;
+}
+/* 卡片铺到页脚上方；min-height 不低于右侧图标列的内容高度 */
+.device-page .mapConent.page-panel {
   display: flex;
-  margin-top: 2%;
   z-index: 1;
-  padding-bottom: 48px;
+  height: calc(100vh - 106px);
+  min-height: 820px;
+}
+.device-page .mapConent.page-panel.is-admin {
+  height: calc(100vh - 164px);
+}
+.mapMain {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 #map {
-  height: 750px;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   z-index: 1;
 }
@@ -2298,7 +2351,7 @@ export default {
   display: flex;
 }
 .buildingGuide {
-  margin: 20px 0 0;
+  margin: 12px 0;
   line-height: 1.6;
   position: relative;
   z-index: 2;
@@ -2308,7 +2361,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-left: 8px;
-  padding-bottom: 40px;
+  padding-bottom: 12px;
 }
 .coordArrangeRow {
   display: flex;

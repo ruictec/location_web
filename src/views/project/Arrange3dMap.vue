@@ -3,7 +3,14 @@
     <div class="content">
       <el-container>
         <el-main>
-          <el-dialog v-model="vedio" @close="closeVedio('video')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio"
+            @close="closeVedio('video')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video">
               <source
                 v-if="i8n == 'zh'"
@@ -17,7 +24,14 @@
               />
             </video>
           </el-dialog>
-          <el-dialog v-model="vedio2" @close="closeVedio('video2')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio2"
+            @close="closeVedio('video2')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video2">
               <source src="../../../static/3D~1.mp4" type="video/mp4" />
             </video>
@@ -367,18 +381,16 @@
             </div>
             <!-- 编辑3D地图上的设备信息 -->
             <el-dialog
-              width="30%"
+              width="480px"
               :title="$t('floormanagement.Editdeviceinformation')"
               v-model="editFeatures3D"
               :modal="false"
-              class="showHeadr"
-              style="text-align: center"
+              class="showHeadr device-dialog"
             >
               <el-form
                 :model="editFeatureData"
                 label-width="100px"
                 ref="editFeatureData"
-                style="text-align: center"
               >
                 <el-form-item :label="$t('floormanagement.device')">
                   <el-input
@@ -402,14 +414,13 @@
 
             <!-- 设置3D地图上的扫描区域 -->
             <el-dialog
-              width="30%"
+              width="760px"
               v-model="setAnglimit3D"
               :modal="false"
-              class="showHeadr setAreas"
-              style="text-align: center"
+              class="showHeadr setAreas device-dialog"
               @close="setAreas3DCancel"
             >
-              <template #header><span
+              <template #header><span class="el-dialog__title"
                 >{{ $t("floormanagement.Setscanarea") }}
                 <el-tooltip class="item" effect="light" placement="right-start">
                   <template #content><div>
@@ -514,9 +525,8 @@
             <el-dialog
               :title="$t('floormanagement.Setarea')"
               v-model="trancheShow3D"
-              class="edit showHeadr"
-              width="30%"
-              style="text-align: center"
+              class="edit showHeadr device-dialog"
+              width="520px"
               :modal="false"
             >
               <el-form
@@ -567,9 +577,8 @@
                 $t('tet.setup') + adjoinBeaconAlias + $t('tet.Adjacentbeacon')
               "
               v-model="adjoinBeaconShow3D"
-              class="edit showHeadr setAdjoinBeacon"
-              width="30%"
-              style="text-align: center; margin-right: 2%"
+              class="edit showHeadr setAdjoinBeacon device-dialog"
+              width="560px"
               :modal="false"
               @close="closeAdjoinBeacon3D"
               @open="openAdjoinBeacon3D"
@@ -630,11 +639,10 @@
             </el-dialog>
             <!-- 显示距离：必须放在 3D 全屏层内，否则会被挡住 -->
             <el-dialog
-              width="30%"
-              class="showHeadr"
+              width="420px"
+              class="showHeadr device-dialog"
               v-model="showDistance"
               :modal="false"
-              style="text-align: center"
             >
               <p>{{ $t("floormanagement.Xaxis") }}{{ distanceData.x }}cm</p>
               <p>{{ $t("floormanagement.Yaxis") }}{{ distanceData.y }}cm</p>
@@ -642,15 +650,14 @@
             <!-- 设置定位区域：必须放在 3D 全屏层内，否则会被挡住 -->
             <el-dialog
               v-model="addTranchePosition"
-              class="edit"
-              width="40%"
-              style="text-align: center"
+              class="edit device-dialog"
+              width="640px"
               :close-on-click-modal="false"
               :close-on-press-escape="false"
               @close="addTrancheRowCancelPosition"
             >
               <template #header><div class="dialog-title">
-                <span class="title-text"
+                <span class="title-text el-dialog__title"
                   >{{ $t("floormanagement.Regionalmanagement") }}
                   <el-tooltip
                     class="item"
@@ -1144,6 +1151,10 @@ export default {
     removeGroundDevs() {
       var that = this;
       this.$confirm(this.$t("floormanagement.RemoveGroundDevText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -2554,6 +2565,10 @@ export default {
           that.$t("floormanagement.adjacencyrelationship"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -2608,6 +2623,10 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -2643,6 +2662,41 @@ export default {
           });
         });
     },
+    // 生成 3D 右键菜单 DOM 字符串及 DomMarker 所需宽高（样式见 user-page-panel.css .map-ctx-*）
+    buildCtxMenu3D(title, items) {
+      const esc = (v) =>
+        String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]);
+      const visible = items.filter((item) => item.show !== false);
+      const normal = visible.filter((item) => !item.danger);
+      const danger = visible.filter((item) => item.danger);
+      const hasDivider = normal.length > 0 && danger.length > 0;
+      const row = (item) =>
+        `<li><button type="button" class="map-ctx-item${
+          item.danger ? " is-danger" : ""
+        }" onclick="${item.fn}">${esc(item.label)}</button></li>`;
+      const html = `<div style="height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start">
+        <div class="map-ctx-menu">
+          <div class="map-ctx-head">
+            <span class="map-ctx-title" title="${esc(title)}">${esc(title)}</span>
+            <a href="javascript:;" id="polygonMenu-closer" class="ol-popup-closer map-ctx-close" onclick="closeWindow3D();return false;">×</a>
+          </div>
+          <ul class="map-ctx-list">${normal.map(row).join("")}${
+        hasDivider ? '<li class="map-ctx-divider"></li>' : ""
+      }${danger.map(row).join("")}</ul>
+        </div>
+        </div>`;
+      return {
+        html,
+        width: 176,
+        height: 56 + visible.length * 32 + (hasDivider ? 9 : 0),
+      };
+    },
     // 3D 地图鼠标右键
     addPopInfoWindowRight(marker, ground) {
       var that = this;
@@ -2662,106 +2716,45 @@ export default {
             }
           });
         }
+        const attr = marker.selfAttr;
+        const beaconMenu = that.buildCtxMenu3D(attr.alias || attr.deveui, [
+          { fn: "edit3D()", label: that.$t("tet.edit") },
+          { fn: "setAreas3D()", label: that.$t("floormanagement.Scanningarea"), show: !attr.devtype },
+          { fn: "setArea3D()", label: that.$t("floormanagement.Setarea") },
+          {
+            fn: "setAdjoinBeacon3D()",
+            label: that.$t("tet.Adjacentbeacon"),
+            show: attr.tranche != "" && projectType == 1 && !attr.devtype,
+          },
+          {
+            fn: "setClock3D()",
+            label: that.$t("floormanagement.Setascheckin"),
+            show: attr.clockin == 2 && attr.type == 1 && !attr.devtype,
+          },
+          {
+            fn: "removeClock3D()",
+            label: that.$t("floormanagement.Cancelclockout"),
+            show: attr.clockin == 1 && attr.type == 1 && !attr.devtype,
+          },
+          { fn: "reset3D()", label: that.$t("tet.Rearrange") },
+          { fn: "calculatingDistance()", label: that.$t("floormanagement.CalculateDistance") },
+          {
+            fn: "cancelNearList3D()",
+            label: that.$t("floormanagement.Deleteadjacency"),
+            show: that.clearBeaconList == true && !attr.devtype,
+            danger: true,
+          },
+          { fn: "del3D()", label: that.$t("tet.delete"), danger: true },
+        ]);
         //添加绑定marker信息窗
         var ctlOpt = {
           x: marker.selfAttr.x,
           y: marker.selfAttr.y,
           anchor: fengmap.FMMarkerAnchor.LEFT_BOTTOM,
-          //设置弹框的宽度
-          domWidth: marker.selfAttr.devtype
-            ? 120
-            : that.clearBeaconList == true
-            ? 130
-            : 120,
-          //设置弹框的高度px
-          domHeight: marker.selfAttr.devtype
-            ? 160
-            : that.clearBeaconList == true
-            ? 280
-            : 240,
+          domWidth: beaconMenu.width,
+          domHeight: beaconMenu.height,
           collision: false,
-          //设置弹框的内容，文本或html页面元素
-          content: ` <div style='text-align:left;background: #f1f5f7' calss="threecontent" >
-          <ul id="popup-content">
-            <li style="margin-top:5px;text-align:right">
-              <a style="margin-right:5px" href="javascript:;" id="polygonMenu-closer" class="ol-popup-closer" onclick="closeWindow3D();return false;">
-                 <img src="../../../static/close.jpg"  width="11" height="11"/>
-              </a>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="del3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "tet.delete"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="edit3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.edit"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.devtype ? 'class="hiddenclock"' : ""
-            }>
-              <button onclick="setAreas3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Scanningarea"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="setArea3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Setarea"
-              )}</button>
-            </li>
-              <li style="margin-top:3px;padding-bottom:3px" ${
-                marker.selfAttr.tranche != "" &&
-                projectType == 1 &&
-                !marker.selfAttr.devtype
-                  ? ""
-                  : 'class="hiddenclock"'
-              }>
-              <button onclick="setAdjoinBeacon3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.Adjacentbeacon"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.clockin == 2 && marker.selfAttr.type == 1 &&
-              !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="setClock3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Setascheckin"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.clockin == 1 && marker.selfAttr.type == 1 &&
-              !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="removeClock3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Cancelclockout"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              that.clearBeaconList == true && !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="cancelNearList3D()" class="el-button  el-button--mini BUTTON DELETE " >${that.$t(
-                "floormanagement.Deleteadjacency"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="reset3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.Rearrange"
-              )}</button>
-            </li>
-              <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="calculatingDistance()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.CalculateDistance"
-              )}</button>
-            </li>
-          </ul>
-          </div>`,
+          content: beaconMenu.html,
         };
         that.popMarker = keepFengmapRaw(new fengmap.FMDomMarker(ctlOpt));
         that.popMarker.selfAttr = marker.selfAttr;
@@ -2781,39 +2774,24 @@ export default {
             }
           }
         });
+        const polygonMenu = that.buildCtxMenu3D(that.$t("floormanagement.Near"), [
+          {
+            fn: "cancelNearList3D()",
+            label: that.$t("floormanagement.Deleteadjacency"),
+            show: that.clearBeaconList == true,
+            danger: true,
+          },
+          { fn: "delPolygon3D()", label: that.$t("tet.delete"), danger: true },
+        ]);
         //添加绑定marker信息窗
         var ctlOpt = {
           x: marker.selfAttr.x,
           y: marker.selfAttr.y,
           anchor: fengmap.FMMarkerAnchor.LEFT_BOTTOM,
-          //设置弹框的宽度
-          domWidth: that.clearBeaconList == true ? 120 : 80,
-          //设置弹框的高度px
-          domHeight: that.clearBeaconList == true ? 100 : 60,
+          domWidth: polygonMenu.width,
+          domHeight: polygonMenu.height,
           collision: false,
-          //设置弹框的内容，文本或html页面元素
-          content: ` <div style='text-align:left;background: #f1f5f7' calss="threecontent" >
-          <ul id="popup-content">
-            <li style="margin-top:5px;text-align:right">
-              <a style="margin-right:5px" href="javascript:;" id="polygonMenu-closer" class="ol-popup-closer" onclick="closeWindow3D();return false;">
-                 <img src="../../../static/close.jpg"  width="11" height="11"/>
-              </a>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="delPolygon3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "tet.delete"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              that.clearBeaconList == true ? "" : 'class="hiddenclock"'
-            }>
-              <button onclick="cancelNearList3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "floormanagement.Deleteadjacency"
-              )}</button>
-            </li>
-           
-          </ul>
-          </div>`,
+          content: polygonMenu.html,
         };
         that.popMarker = keepFengmapRaw(new fengmap.FMDomMarker(ctlOpt));
         that.popMarker.selfAttr = marker.selfAttr;
@@ -2892,6 +2870,10 @@ export default {
       }
       that
         .$confirm(that.$t("floormanagement.Aredelete"), that.$t("change.tip"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3416,6 +3398,10 @@ export default {
         that.$t("floormanagement.releasezone"),
         that.$t("change.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3729,6 +3715,10 @@ export default {
       var that = this;
       that
         .$confirm(that.$t("floormanagement.tippp"), that.$t("change.tip"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3796,6 +3786,10 @@ export default {
     removeClock3D(marker, popMarker) {
       var that = this;
       this.$confirm(that.$t("floormanagement.tippp2"), that.$t("change.tip"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: that.$t("terminal.confirm"),
         cancelButtonText: that.$t("terminal.cancel"),
         type: "warning",
@@ -4098,6 +4092,10 @@ export default {
                 that.$t("floormanagement.tippp6"),
                 that.$t("Building.tips"),
                 {
+                  customClass: "device-message-box",
+                  confirmButtonClass: "device-message-confirm",
+                  cancelButtonClass: "device-message-cancel",
+                  roundButton: false,
                   confirmButtonText: that.$t("terminal.confirm"),
                   cancelButtonText: that.$t("terminal.cancel"),
                   type: "warning",
@@ -5338,20 +5336,5 @@ a {
   background: #f1f5f7;
   display: flex;
   flex-direction: column;
-}
-.BUTTON {
-  background: #f1f5f7 !important;
-  width: 100%;
-  text-align: left;
-  border: none;
-  color: black;
-}
-.BUTTON:hover {
-  background: skyblue !important;
-  color: white;
-}
-.DELETE:hover {
-  background-color: rgb(196, 27, 27) !important;
-  color: white;
 }
 </style>

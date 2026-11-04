@@ -1,5 +1,8 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div
+    :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'"
+    style="height: 100%"
+  >
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -9,8 +12,8 @@
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
           <div
-            class="beacon_input terminal-filter-flow"
-            :class="filterLangClass"
+            class="beacon_input terminal-filter-flow page-panel"
+            :class="[filterLangClass, { 'filter-grid': show }]"
           >
             <!-- 第一行 -->
             <el-form
@@ -431,7 +434,7 @@
           </div>
 
           <!-- beacon展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -446,14 +449,14 @@
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
+              class="device-table"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
               @header-click="changeBase"
             >
@@ -814,10 +817,7 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
-            >
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -833,11 +833,12 @@
 
           <!-- 添加beacon -->
           <el-dialog
+            class="device-dialog"
             :title="$t('beacon.addmsg')"
-            width="30%"
+            width="560px"
             v-model="add"
-            style="text-aling: center"
             @close="addCancel('addData')"
+            top="6vh"
           >
             <el-form
               :model="addData"
@@ -1109,10 +1110,10 @@
           <el-dialog
             :title="$t('beacon.editmsg')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancle('editData')"
+            top="6vh"
           >
             <el-form
               :model="editData"
@@ -1247,10 +1248,10 @@
           <el-dialog
             :title="$t('beacon.editmsgs')"
             v-model="edits"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
             @close="editscancel('editDatas')"
+            top="6vh"
           >
             <el-form
               :model="editDatas"
@@ -1343,7 +1344,13 @@
           </el-dialog>
 
           <!-- 批量删除beacon信息 -->
-          <el-dialog :title="$t('beacon.deletemsgs')" v-model="del">
+          <el-dialog
+            class="device-dialog"
+            :title="$t('beacon.deletemsgs')"
+            v-model="del"
+            width="720px"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -1517,9 +1524,9 @@
           <el-dialog
             :title="$t('beacon.assignbeacon')"
             v-model="assign"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
           >
             <el-form
               :model="assignData"
@@ -1563,9 +1570,9 @@
           <el-dialog
             :title="$t('beacon.assignbeacons')"
             v-model="assigns"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
           >
             <el-form
               :model="assignDatas"
@@ -1609,9 +1616,9 @@
           <el-dialog
             :title="$t('beacon.deletemsgs1')"
             v-model="removeBeacon"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -1645,9 +1652,9 @@
           <el-dialog
             :title="$t('terminal.tit2')"
             v-model="exportBtn"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="560px"
+            align-center
           >
             <el-form
               :model="exportData"
@@ -3392,6 +3399,10 @@ export default {
           this.$t("beacon.deletemsg2"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -3737,6 +3748,10 @@ export default {
           this.$t("beacon.deletemsg2"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",

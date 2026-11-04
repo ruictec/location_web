@@ -1,99 +1,91 @@
 <template>
-  <div :class="contrForPrioNum != 5 ? 'home' : ''" style="height: 100%">
+  <div
+    :class="contrForPrioNum != 5 ? 'home device-page admin-page message-page' : 'device-page message-page'"
+  >
     <div class="menu_header" v-if="$store.state.userInfo.prionum != 5">
       <Menu />
     </div>
     <div class="msgcontent" :class="contrForPrioNum != 5 ? 'admin' : ''">
-      <div class="anniu">
-        <h1 style="font-size: 20px; padding: 10px">
-          {{ $t("tet.NotificationCenter") }}
-        </h1>
-        <el-button
-          type="primary"
-          class="anniu1"
-          size="small"
-          @click="deleteMsg()"
-          >{{ $t("tet.Batchdelete") }}</el-button>
-      </div>
+      <div class="page-panel table-panel">
+        <div class="message-head">
+          <div class="message-title">
+            {{ $t("tet.NotificationCenter") }}
+            <span class="message-count">{{ total }}</span>
+          </div>
+          <el-button
+            type="danger"
+            plain
+            class="message-batch-del"
+            :disabled="!multipleSelection.length"
+            @click="deleteMsg()"
+            >{{ $t("tet.Batchdelete") }}</el-button>
+        </div>
 
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        style="width: 100%"
-        class="xc"
-        :cell-style="{ background: 'rgb(243, 241, 241)' }"
-        :empty-text="$t('tet.Nomessage')"
-        @selection-change="handleSelectionChange"
-      >
-        <!-- 多选框 @cell-click="handelClickCell" -->
-        <el-table-column type="selection" width="55"> </el-table-column>
-        <!-- 消息对象 -->
-        <el-table-column
-          :prop="i8n == 'zh' ? 'notice' : 'ennotice'"
-          min-width="90"
-          show-overflow-tooltip
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          class="device-table message-table"
+          :row-class-name="messageRowClass"
+          :empty-text="$t('tet.Nomessage')"
+          @selection-change="handleSelectionChange"
         >
-        </el-table-column>
-        <!-- 消息内容 -->
-        <el-table-column
-          :prop="i8n == 'zh' ? 'msg' : 'enmsg'"
-          min-width="700"
-        >
-        </el-table-column>
-        <!-- 时间statusstr-->
-        <el-table-column
-          prop="time"
-          min-width="140"
-          :formatter="formatDateRegtime"
-          show-overflow-tooltip
-        >
-        </el-table-column>
-        <!-- false相当于没有写 -->
-        <!-- <el-table-column
-        v-if="false"
-          prop="statusstr"
-          min-width="90"
-          type="text"
-        >
-        </el-table-column> -->
-        <el-table-column min-width="100">
-          <template #default="status1">
-            <span
-              v-if="status1.row.status == 1"
-              style="color: red; cursor: pointer"
-              @click="handelClickCell(status1.row)"
-              >{{ $t("tet.Markasread") }}</span>
-            <span v-else style="color: green; cursor: pointer">{{
-              $t("tet.Read")
-            }}</span>
-          </template>
-        </el-table-column>
-        <!-- 删除 -->
-        <el-table-column min-width="60">
-          <template #default="scope">
-            <el-button text
-              size="small"
-              @click="deleteRow(scope.$index)"
-              >{{ $t("tet.delete") }}</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column type="selection" width="48" align="center" />
+          <el-table-column :label="$t('downlink.msg')" min-width="520">
+            <template #default="{ row }">
+              <div class="message-cell">
+                <span class="message-dot" v-if="row.status == 1"></span>
+                <span class="message-obj" v-if="row[i8n == 'zh' ? 'notice' : 'ennotice']">{{
+                  row[i8n == "zh" ? "notice" : "ennotice"]
+                }}</span>
+                <span class="message-text">{{ row[i8n == "zh" ? "msg" : "enmsg"] }}</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="$t('gateway.time')"
+            prop="time"
+            width="180"
+            align="center"
+            :formatter="formatDateRegtime"
+          />
+          <el-table-column :label="$t('terminal.state')" width="140" align="center">
+            <template #default="{ row }">
+              <el-tag
+                v-if="row.status == 1"
+                type="warning"
+                effect="light"
+                class="message-tag is-unread"
+                @click="handelClickCell(row)"
+                >{{ $t("tet.Markasread") }}</el-tag>
+              <el-tag v-else type="success" effect="light" class="message-tag">{{
+                $t("tet.Read")
+              }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('downlink.operate')" width="100" align="center">
+            <template #default="scope">
+              <el-button
+                link
+                type="danger"
+                size="small"
+                @click="deleteRow(scope.$index)"
+                >{{ $t("tet.delete") }}</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
 
-      <!-- 分页 -->
-      <div
-        class="block"
-        style="text-align: center; width: 100%; margin-top: 1%;"
-      >
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          v-model:current-page="currentPage1"
-          :page-sizes="[10, 20, 30, 40, 50]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          :page-size="pageCount"
-        >
-        </el-pagination>
+        <div class="block device-pagination">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            v-model:current-page="currentPage1"
+            :page-sizes="[10, 20, 30, 40, 50]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            :page-size="pageCount"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -176,6 +168,9 @@ export default {
       this.getMsg();
     },
     getDevLists() {},
+    messageRowClass({ row }) {
+      return row.status == 1 ? "is-unread" : "";
+    },
     //批量删除条数
     handleSelectionChange(val) {
       this.multipleSelection = val;
@@ -194,6 +189,10 @@ export default {
         this.$t("warning.permissiondelete1"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -224,6 +223,10 @@ export default {
         this.$t("warning.permissiondelete1"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -297,44 +300,99 @@ export default {
 </script>
 
 <style scoped>
-.block{
-  padding-bottom: 40px;
-}
-.anniu {
+.message-page .msgcontent {
   position: relative;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.message-page .msgcontent.admin {
+  padding-top: 82px;
+  min-height: 100vh;
+}
+
+.message-head {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-.anniu1 {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  justify-content: space-between;
+  margin: 2px 4px 12px;
 }
 
-.home {
-  height: 100%;
-  /* margin-right: calc(102% - 100vw); */
+.message-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.menu_header {
-  position: relative;
-}
-.msgcontent {
-  width: 100%;
-  height: 60%;
-  position: absolute;
-  padding: 0 20px;
-  box-sizing: border-box;
-  /* top: 70px; */
-}
-.admin {
-  top: 70px;
-}
-.xc {
-  border: 1px solid rgb(243, 241, 241);
-  text-align: center;
+.message-count {
+  min-width: 22px;
+  padding: 0 8px;
+  line-height: 20px;
   border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--tone-c1);
+  background: rgba(var(--tone-rgb), 0.1);
+}
+
+.message-batch-del {
+  margin: 0 !important;
+  border-radius: 8px;
+}
+
+.message-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-align: left;
+}
+
+.message-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  margin: 0 !important;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.message-obj {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  padding: 1px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.message-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #64748b;
+}
+
+.message-table :deep(.is-unread .message-text) {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.message-tag {
+  border-radius: 6px;
+}
+
+.message-tag.is-unread {
+  cursor: pointer;
 }
 </style>

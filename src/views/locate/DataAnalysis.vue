@@ -422,7 +422,7 @@ export default {
         { notMerge: true }
       );
     },
-    renderBar(chart, names, values, tone, seriesName) {
+    renderBar(chart, names, values, tone, seriesName, sort) {
       if (!chart) return;
       this.setStats(chart, values);
       // 人多时默认只展示前若干名，其余靠 dataZoom 横向拖动，避免 X 轴姓名挤成一团
@@ -430,30 +430,19 @@ export default {
       const endPct = crowded
         ? Math.min(100, Math.max(12, (15 / names.length) * 100))
         : 100;
-      // 按数值取前三名，用金/银/铜色突出（与升降序无关）
-      const medalOf = {};
-      values
-        .map((v, i) => ({ v, i }))
-        .filter((d) => d.v > 0)
-        .sort((a, b) => b.v - a.v)
-        .slice(0, 3)
-        .forEach((d, k) => {
-          medalOf[d.i] = k;
-        });
-      const rankOf = {};
-      values
-        .map((v, i) => ({ v, i }))
-        .sort((a, b) => b.v - a.v)
-        .forEach((d, k) => {
-          rankOf[d.i] = k + 1;
-        });
+      // 名次沿用接口按 sort 返回的顺序（升序时最少的为第 1 名），数值相同并列
+      const ranks = [];
+      values.forEach((v, i) => {
+        ranks[i] = i > 0 && v === values[i - 1] ? ranks[i - 1] : i + 1;
+      });
       const data = values.map((v, i) => {
-        const medal = medalOf[i];
+        // 金/银/铜只在降序时标前三名，升序时不标
+        const medal = sort === 2 && v > 0 && ranks[i] <= 3 ? ranks[i] - 1 : null;
         const t = medal == null ? tone : MEDAL_TONES[medal];
         return {
           value: v,
           tone: t,
-          rank: rankOf[i],
+          rank: ranks[i],
           itemStyle: {
             borderRadius: [8, 8, 2, 2],
             color: chartGradient(t, 0, 0, 0, 1),
@@ -724,7 +713,8 @@ export default {
         names,
         values,
         CHART_TONES.blue,
-        this.$t("LocationIndoorHis.stepRank")
+        this.$t("LocationIndoorHis.stepRank"),
+        this.stepSort
       );
       return false;
     },
@@ -753,7 +743,8 @@ export default {
         names,
         values,
         CHART_TONES.green,
-        this.$t("LocationIndoorHis.activityRank")
+        this.$t("LocationIndoorHis.activityRank"),
+        this.vibSort
       );
       return false;
     },

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu ref="menu" />
     </div>
@@ -7,7 +7,7 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Asset /></el-aside>
         <el-main>
-          <div class="terminal-filter-flow staff-filter-flow" :class="filterLangClass">
+          <div class="terminal-filter-flow staff-filter-flow page-panel" :class="filterLangClass">
             <el-form
               class="demo-form-inline terminal-filter-form"
               :model="searchList"
@@ -149,18 +149,19 @@
                 @change="importExcelWorktypes"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -342,10 +343,11 @@
                 </template>
               </el-table-column>
             </el-table>
+            </div>
 
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
@@ -363,41 +365,46 @@
 
           <!-- 添加员工 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('staff.text1')"
-            width="30%"
+            width="480px"
             v-model="add"
-            style="text-align: center"
+            align-center
             @close="addCancel('addData')"
           >
-            <el-upload
-              :action="ImagePath"
-              list-type="picture-card"
-              :file-list="fileListAdd"
-              :on-preview="handlePictureCardPreview"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPic"
-              :on-success="picSuccess"
-              :on-error="picError"
-              :headers="myHeader"
-              :auto-upload="false"
-              :on-exceed="handleExceed"
-              :before-upload="beforeAvatarUpload"
-              :on-change="handleChange"
-              :on-remove="handleRemove"
-            >
-              <template #tip><div class="el-upload__tip">
-                {{ $t("staff.text2") }}
-              </div></template>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+            <div class="staff-avatar-upload">
+              <el-upload
+                :action="ImagePath"
+                list-type="picture-card"
+                :file-list="fileListAdd"
+                :on-preview="handlePictureCardPreview"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPic"
+                :on-success="picSuccess"
+                :on-error="picError"
+                :headers="myHeader"
+                :auto-upload="false"
+                :on-exceed="handleExceed"
+                :before-upload="beforeAvatarUpload"
+                :on-change="handleChange"
+                :on-remove="handleRemove"
+              >
+                <template #tip
+                  ><div class="el-upload__tip">
+                    {{ $t("staff.text2") }}
+                  </div></template
+                >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
+              class="staff-member-form"
               :model="addData"
               label-width="120px"
               ref="addData"
               :rules="editRules"
-              style="text-align: left; margin-top: 2%"
             >
               <el-form-item :label="$t('staff.name1')" prop="username">
                 <el-input v-model="addData.username" maxlength="32"></el-input>
@@ -528,7 +535,7 @@
             </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog v-model="dialogVisible" :append-to-body="true">
+          <el-dialog class="device-dialog" v-model="dialogVisible" :append-to-body="true" align-center width="480px">
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
 
@@ -536,40 +543,44 @@
           <el-dialog
             :title="$t('staff.text3')"
             v-model="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="480px"
+            align-center
             @close="editCancel('editData')"
           >
-            <el-upload
-              :action="ImagePathEdit"
-              list-type="picture-card"
-              :file-list="fileListEdit"
-              :on-preview="handlePictureCardPreviewEdit"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPicEdit"
-              :on-success="picSuccessEdit"
-              :on-error="picErrorEdit"
-              :headers="myHeaderEdit"
-              :auto-upload="false"
-              :on-change="handleChange"
-              :on-remove="handleRemove"
-              :on-exceed="handleExceedEdit"
-              :before-upload="beforeAvatarUploadEdit"
-            >
-              <template #tip><div class="el-upload__tip">
-                {{ $t("staff.text2") }}
-              </div></template>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+            <div class="staff-avatar-upload">
+              <el-upload
+                :action="ImagePathEdit"
+                list-type="picture-card"
+                :file-list="fileListEdit"
+                :on-preview="handlePictureCardPreviewEdit"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPicEdit"
+                :on-success="picSuccessEdit"
+                :on-error="picErrorEdit"
+                :headers="myHeaderEdit"
+                :auto-upload="false"
+                :on-change="handleChange"
+                :on-remove="handleRemove"
+                :on-exceed="handleExceedEdit"
+                :before-upload="beforeAvatarUploadEdit"
+              >
+                <template #tip
+                  ><div class="el-upload__tip">
+                    {{ $t("staff.text2") }}
+                  </div></template
+                >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
+              class="staff-member-form"
               :model="editData"
               ref="editData"
               label-width="120px"
               :rules="editRules"
-              style="text-align: left; margin-top: 2%"
             >
               <el-form-item :label="$t('staff.name1')" prop="username">
                 <el-input v-model="editData.username" disabled></el-input>
@@ -700,19 +711,20 @@
 
           <!-- 行为分析 -->
           <el-dialog
+            :title="$t('staffmanagement.trajectory')"
             v-model="actions"
             width="60%"
-            style="text-align: center"
             :close-on-click-modal="false"
-            class="action"
+            class="action device-dialog"
             @close="closeAction"
+            top="6vh"
           >
             <el-dialog
+              :title="$t('staff.Viewtrack')"
               v-model="trajectory"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction"
             >
@@ -720,11 +732,11 @@
               <Trajectory ref="trajectory" @closePopup2d="closePopup" />
             </el-dialog>
             <el-dialog
+              :title="$t('staff.Viewtrack')"
               v-model="trajectory3d"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction3d"
             >
@@ -773,50 +785,45 @@
               </el-form-item>
             </el-form>
             <div class="actionDetails">
-              <Timeline v-for="item in actionTableData" :key="item.id">
-                <!-- 室内 -->
-                <TimelineItem v-if="item.postype == 1">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+              <div v-if="actionTableData.length" class="action-record-grid">
+                <div
+                  v-for="item in actionTableData"
+                  :key="item.id"
+                  class="action-record"
+                  :class="item.postype == 1 ? 'is-indoor' : 'is-outdoor'"
+                >
+                  <div class="action-record-head">
+                    <span class="action-record-time">{{ item.gpstime }}</span>
+                    <span class="action-record-tag">{{
+                      item.postype == 1
+                        ? [item.building, item.groundname]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : $t("warning.outdoor")
+                    }}</span>
+                  </div>
+                  <p class="action-record-line">
+                    <span>{{ $t("warning.area1") }}</span>{{ item.tranche }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.Building") }}{{ item.building }}
+                  <p class="action-record-line">
+                    <span>{{ $t("tet.Residencetime") }}</span
+                    >{{ formatSeconds(item.remaintime) }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.floor") }}{{ item.groundname }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
-
-                <!-- 室外 -->
-                <TimelineItem v-if="item.postype == 2">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
-              </Timeline>
+                </div>
+              </div>
+              <div v-else class="action-record-empty">
+                {{ $t("homepage.noData") }}
+              </div>
             </div>
           </el-dialog>
 
-          <!-- 设备健康记录查询 -->
+          <!-- 设备健康记录查询：内容较高，不用 align-center，避免整框被垂直居中显得偏下 -->
           <el-dialog
             :title="$t('staff.healthTitle')"
             v-model="healthDialog"
             width="70%"
-            class="health-dialog"
+            top="6vh"
+            class="health-dialog device-dialog"
             @opened="onHealthDialogOpened"
             @closed="disposeHealthCharts"
           >
@@ -851,46 +858,35 @@
                 {{ $t("staff.healthEmpty") }}
               </div>
               <template v-else>
-                <div style="font-weight: bold; margin: 10px 0 4px">
-                  {{ $t("staff.healthHeartrate") }}（{{
-                    $t("staff.healthUnitBpm")
-                  }}）
+                <div class="health-chart-card">
+                  <div class="health-chart-title is-heart">
+                    {{ $t("staff.healthHeartrate") }}
+                    <span>{{ $t("staff.healthUnitBpm") }}</span>
+                  </div>
+                  <div ref="heartChart" class="health-chart"></div>
                 </div>
-                <div
-                  ref="heartChart"
-                  style="width: 100%; height: 260px"
-                ></div>
-                <div style="font-weight: bold; margin: 16px 0 4px">
-                  {{ $t("staff.healthTemperature") }}（{{
-                    $t("staff.healthUnitCelsius")
-                  }}）
+                <div class="health-chart-card">
+                  <div class="health-chart-title is-tem">
+                    {{ $t("staff.healthTemperature") }}
+                    <span>{{ $t("staff.healthUnitCelsius") }}</span>
+                  </div>
+                  <div ref="temChart" class="health-chart"></div>
                 </div>
-                <div
-                  ref="temChart"
-                  style="width: 100%; height: 260px"
-                ></div>
               </template>
             </div>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog device-confirm-dialog"
             :title="$t('staff.text4')"
             v-model="deleTpl"
-            style="text-align: center"
+            width="420px"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  font-size: 20px;
-                "
-              >
-                {{ $t("staff.text5") }}{{ deleStaff }}{{ $t("staff.text6") }}
-              </p>
-            </el-form>
+            <p class="staff-delete-tip">
+              {{ $t("staff.text5") }}{{ deleStaff }}{{ $t("staff.text6") }}
+            </p>
             <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("warning.Cancel")
@@ -906,9 +902,9 @@
           <el-dialog
             :title="$t('staff.text7')"
             v-model="removeStaff"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -947,125 +943,103 @@
           <el-dialog
             :title="$t('staff.text8')"
             v-model="addWorktype"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog staff-setting-dialog"
+            width="520px"
+            align-center
             :close-on-press-escape="false"
             :append-to-body="true"
           >
-            <div class="import_type">
-              <el-radio-group size="small">
+            <div class="staff-setting-body">
+              <div class="staff-setting-import">
                 <el-button
                   type="primary"
                   class="add"
-                  style="float: left"
                   @click="addWorktypeRow"
                   >{{ $t("staff.add") }}</el-button>
-              </el-radio-group>
-              <el-form style="text-align: center">
-                <el-form-item
-                  style="
-                    width: 60%;
-                    margin-left: 16%;
-                    text-align: left;
-                    margin-top: 14px;
-                  "
-                  :label="$t('staff.import')"
+                <span class="staff-setting-label">{{
+                  $t("staff.import")
+                }}</span>
+                <el-select
+                  v-model="currentProjectid.projectid"
+                  clearable
+                  filterable
+                  @change="importWorktype"
+                  :placeholder="$t('staff.text9')"
                 >
-                  <el-select
-                    v-model="currentProjectid.projectid"
-                    clearable
-                    filterable
-                    @change="importWorktype"
-                    :placeholder="$t('staff.text9')"
+                  <el-option
+                    v-for="item in projectList()"
+                    :key="item.projectid"
+                    :label="item.name"
+                    :value="item.projectid"
+                  ></el-option>
+                </el-select>
+                <el-tooltip effect="light" placement="right-start">
+                  <template #content
+                    ><div>
+                      <p>{{ $t("staff.text9") }}</p>
+                    </div></template
                   >
-                    <el-option
-                      v-for="item in projectList()"
-                      :key="item.projectid"
-                      :label="item.name"
-                      :value="item.projectid"
-                    ></el-option>
-                  </el-select>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="
-                      position: absolute;
-                      font-size: 130%;
-                      top: 50%;
-                      transform: translateY(-50%);
-                      margin-left: 5px;
+                  <i class="el-icon-question staff-setting-help" />
+                </el-tooltip>
+              </div>
+              <div class="staff-setting-rows">
+                <div
+                  class="staff-setting-row"
+                  v-for="(item, index) in worktypeList"
+                  :key="item.id || 'new-' + index"
+                >
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleWorktypeRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
                     "
-                  >
-                    <template #content><div>
-                      <p>
-                        {{ $t("staff.text9") }}
-                      </p>
-                    </div></template>
-                    <i class="el-icon-question" />
-                  </el-tooltip>
-                </el-form-item>
-              </el-form>
+                    >{{ $t("staff.delete") }}</el-button>
+                  <el-image
+                    class="staff-setting-icon"
+                    :src="assetBase + '/image/' + item.colour + '.png'"
+                    fit="fill"
+                    @click="changeIcon(item)"
+                  ></el-image>
+                </div>
+              </div>
             </div>
-
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in worktypeList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline"
+            <template #footer
+              ><div class="dialog-footer">
+                <el-button @click="addWorktype = false">{{
+                  $t("warning.Cancel")
+                }}</el-button>
+                <el-button type="primary" @click="addWorktypeRowTrue()">{{
+                  $t("warning.Sure")
+                }}</el-button>
+              </div></template
             >
-              <el-form-item class="work_type_list">
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  class="del"
-                  @click="
-                    deleWorktypeRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  >{{ $t("staff.delete") }}</el-button>
-                <el-image
-                  style="width: 32px; height: 32px; cursor: pointer"
-                  :src="
-                    assetBase + '/image/' +
-                    item.colour +
-                    '.png'
-                  "
-                  fit="fill"
-                  @click="changeIcon(item)"
-                ></el-image>
-              </el-form-item>
-            </el-form>
-            <template #footer><div class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addWorktype = false">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="addWorktypeRowTrue()">{{
-                $t("warning.Sure")
-              }}</el-button>
-            </div></template>
           </el-dialog>
 
           <!-- 选择角色图标 -->
-          <el-dialog v-model="showIcon" width="25%">
+          <el-dialog
+            class="device-dialog staff-icon-dialog"
+            v-model="showIcon"
+            width="420px"
+            align-center
+          >
             <template #title><span> 选择图标 </span></template>
             <el-radio-group
+              class="staff-icon-group"
               v-model="radio"
               @change="chooseIcon()"
-              style="text-align: left"
             >
               <el-radio :label="1">
                 <el-image
@@ -1144,30 +1118,20 @@
           <el-dialog
             :title="$t('staff.text10')"
             v-model="addDepartktype"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            class="edit device-dialog staff-setting-dialog"
+            width="520px"
+            align-center
             :close-on-press-escape="false"
             :append-to-body="true"
           >
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addDepartRow"
-                >{{ $t("staff.add") }}</el-button>
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('staff.import')"
-              >
+            <div class="staff-setting-body">
+              <div class="staff-setting-import">
+                <el-button type="primary" class="add" @click="addDepartRow">{{
+                  $t("staff.add")
+                }}</el-button>
+                <span class="staff-setting-label">{{
+                  $t("staff.import")
+                }}</span>
                 <el-select
                   v-model="currentProjectid.projectid"
                   clearable
@@ -1182,66 +1146,53 @@
                     :value="item.projectid"
                   ></el-option>
                 </el-select>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <template #content><div>
-                    <p>
-                      {{ $t("staff.text11") }}
-                    </p>
-                  </div></template>
-                  <i class="el-icon-question" />
+                <el-tooltip effect="light" placement="right-start">
+                  <template #content
+                    ><div>
+                      <p>{{ $t("staff.text11") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question staff-setting-help" />
                 </el-tooltip>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in departList"
-              :key="index"
-              style="margin-top: 20px"
-              class="demo-form-inline"
+              </div>
+              <div class="staff-setting-rows">
+                <div
+                  class="staff-setting-row"
+                  v-for="(item, index) in departList"
+                  :key="item.id || 'depart-' + index"
+                >
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleDepartRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
+                    "
+                    >{{ $t("staff.delete") }}</el-button>
+                </div>
+              </div>
+            </div>
+            <template #footer
+              ><div class="dialog-footer">
+                <el-button @click="addDepartktype = false">{{
+                  $t("warning.Cancel")
+                }}</el-button>
+                <el-button type="primary" @click="addDepartRowTrue()">{{
+                  $t("warning.Sure")
+                }}</el-button>
+              </div></template
             >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="float: left; width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  style="float: left; margin-left: 20px"
-                  @click="
-                    deleDepartRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  class="del"
-                  >{{ $t("staff.delete") }}</el-button>
-              </el-form-item>
-            </el-form>
-            <template #footer><div class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addDepartktype = false">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="addDepartRowTrue()">{{
-                $t("warning.Sure")
-              }}</el-button>
-            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -3103,8 +3054,9 @@ export default {
           );
         }
         // 每个图单独构建 option，避免共享引用被 echarts 修改
-        var buildOption = function (seriesName, data, unit) {
+        var buildOption = function (seriesName, data, unit, color, rgb, scale) {
           return {
+            color: [color],
             tooltip: {
               trigger: "axis",
               formatter: function (params) {
@@ -3148,9 +3100,19 @@ export default {
             },
             yAxis: {
               type: "value",
-              scale: false,
-              axisLabel: { fontSize: 11, margin: 10 },
-              splitLine: { lineStyle: { type: "dashed" } },
+              scale: !!scale,
+              min: scale
+                ? function (v) {
+                    return Math.floor(v.min - 1);
+                  }
+                : null,
+              max: scale
+                ? function (v) {
+                    return Math.ceil(v.max + 1);
+                  }
+                : null,
+              axisLabel: { fontSize: 11, margin: 10, color: "#64748b" },
+              splitLine: { lineStyle: { type: "dashed", color: "#e2e8f0" } },
             },
             series: [
               {
@@ -3159,6 +3121,21 @@ export default {
                 smooth: false,
                 connectNulls: false,
                 symbolSize: 6,
+                lineStyle: { width: 2, color: color },
+                itemStyle: { color: color, borderColor: "#fff", borderWidth: 1 },
+                areaStyle: {
+                  color: {
+                    type: "linear",
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [
+                      { offset: 0, color: "rgba(" + rgb + ", 0.22)" },
+                      { offset: 1, color: "rgba(" + rgb + ", 0.02)" },
+                    ],
+                  },
+                },
                 data: data,
               },
             ],
@@ -3177,7 +3154,10 @@ export default {
           buildOption(
             that.$t("staff.healthHeartrate"),
             hearts,
-            that.$t("staff.healthUnitBpm")
+            that.$t("staff.healthUnitBpm"),
+            "#f43f5e",
+            "244, 63, 94",
+            false
           ),
           "heartChartInst"
         );
@@ -3186,7 +3166,10 @@ export default {
           buildOption(
             that.$t("staff.healthTemperature"),
             tems,
-            that.$t("staff.healthUnitCelsius")
+            that.$t("staff.healthUnitCelsius"),
+            "#2f7bff",
+            "47, 123, 255",
+            true
           ),
           "temChartInst"
         );
@@ -3946,28 +3929,84 @@ export default {
   margin-left: 4px !important;
 }
 .actionDetails {
-  /* height: 50px; */
-  max-height: 500px;
+  max-height: 56vh;
   overflow: auto;
+  margin-top: 4px;
+  padding: 0 8px 4px;
+  box-sizing: border-box;
+  text-align: left;
+}
+.action-record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.action-record {
+  position: relative;
+  margin: 0 !important;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  background: #fbfcfe;
+  box-sizing: border-box;
+}
+.action-record::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #2f7bff;
+}
+.action-record.is-outdoor::before {
+  background: #10b981;
+}
+.action-record-head {
   display: flex;
-  flex-wrap: wrap;
-  text-align: left;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px !important;
 }
-.actionDetails :deep(.el-timeline) {
-  width: 23%;
-  margin-left: 2%;
-  margin-right: 0;
-  text-align: left;
+.action-record-time {
+  margin: 0 !important;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
 }
-.actionDetails :deep(.el-timeline-item__wrapper),
-.actionDetails :deep(.el-timeline-item__content) {
-  text-align: left;
+.action-record-tag {
+  margin: 0 !important;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #2f7bff;
+  background: #eef4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.actionDetails :deep(.el-timeline-item__content) p {
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
-  text-align: left;
+.action-record.is-outdoor .action-record-tag {
+  color: #059669;
+  background: #ecfdf5;
+}
+.action-record-line {
+  margin: 4px 0 0 !important;
+  font-size: 13px;
+  color: #334155;
+}
+.action-record-line span {
+  color: #94a3b8;
+}
+.action-record-empty {
+  margin: 0 !important;
+  padding: 40px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
 }
 
 .action .el-dialog__body .el-form .el-form-item {
@@ -4206,6 +4245,201 @@ export default {
   line-height: 1 !important;
 }
 
+.staff-delete-tip {
+  margin: 8px 0 4px;
+  padding: 0;
+  text-align: center;
+  color: #ef4444;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* 添加/编辑：头像上传居中，表单保持左对齐 */
+.staff-avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.staff-avatar-upload :deep(.el-upload) {
+  margin: 0 auto;
+}
+
+.staff-avatar-upload :deep(.el-upload-list) {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.staff-avatar-upload :deep(.el-upload__tip) {
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.staff-member-form {
+  text-align: left;
+  margin-top: 4px;
+}
+
+.staff-member-form :deep(.el-select),
+.staff-member-form :deep(.el-date-editor) {
+  width: 100%;
+}
+
+/* 角色 / 部门设置：内容居中排布 */
+.staff-setting-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 14px;
+}
+
+.staff-setting-import {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.staff-setting-import .el-button {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  float: none !important;
+}
+
+.staff-setting-label {
+  flex: 0 0 auto;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.staff-setting-import :deep(.el-select) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.staff-setting-help {
+  flex: 0 0 auto;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: help;
+}
+
+.staff-setting-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px 6px 2px 0;
+  box-sizing: border-box;
+}
+
+.staff-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.staff-setting-row :deep(.el-input) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.staff-setting-row .el-button {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  float: none !important;
+}
+
+.staff-setting-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.staff-icon-group {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  gap: 14px 18px;
+}
+
+.staff-icon-group :deep(.el-radio) {
+  margin: 0 !important;
+  height: auto;
+}
+
+</style>
+
+<style>
+/* teleported dialog 布局兜底（弹层挂到 body，需非 scoped） */
+.el-dialog.device-dialog .staff-avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.el-dialog.device-dialog .staff-avatar-upload .el-upload-list {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.el-dialog.device-dialog .staff-avatar-upload .el-upload__tip {
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+  color: #94a3b8;
+}
+
+.el-dialog.device-dialog.staff-setting-dialog .el-dialog__body {
+  display: flex;
+  justify-content: center;
+}
+
+.el-dialog.device-dialog.staff-setting-dialog .staff-setting-body {
+  width: 100%;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .el-dialog__body {
+  display: flex;
+  justify-content: center;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .staff-icon-group {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  gap: 14px 18px;
+  padding: 8px 0 12px;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .staff-icon-group .el-radio {
+  margin: 0 !important;
+}
 </style>
 
 <style>
