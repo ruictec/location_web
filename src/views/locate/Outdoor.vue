@@ -1,5 +1,5 @@
 <template>
-  <div  :class=" contrForPrionum != 5 ? 'home': ''" style="height:100%">
+  <div  :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height:100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { resolveElTab } from '../../utils/elementTab'
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 
@@ -57,14 +58,16 @@ export default {
   },
   methods: {
     handleClick(tab, event) {
-      switch (tab.name) {
+      const name = resolveElTab(tab).name
+      switch (name) {
         case "location":
           this.$router.push("/outdoor/locationoutdoor");
-          this.$store.commit("changeActiveName", tab.name);
+          this.$store.commit("changeActiveName", name);
           break;
         case "historical":
-          this.$router.push("/outdoor/historical");
-          this.$store.commit("changeActiveName", tab.name);
+          // 原室外历史轨迹已下线，统一跳定位管理-历史轨迹
+          this.$router.push("/location/historytrajectory");
+          this.$store.commit("changeActiveName", name);
           break;
         default:
           break;
@@ -124,19 +127,19 @@ li {
   display: -webkit-box !important;
 }
 
-.demo-form-inline >>> .el-form-item  .el-form-item__label {
+.demo-form-inline :deep(.el-form-item  .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item   .el-form-item__content {
+.demo-form-inline :deep(.el-form-item   .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item   .el-input__inner {
+.demo-form-inline :deep(.el-form-item   .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item   .el-input__icon {
+.demo-form-inline :deep(.el-form-item   .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -171,14 +174,14 @@ li {
   color: red;
 }
 
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
-.navigation >>> .el-tabs__item {
+.navigation :deep(.el-tabs__item) {
   height: 24px;
   line-height: 24px;
 }

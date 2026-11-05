@@ -1,14 +1,13 @@
 <template>
-  <div class="content">
-    <div class="inputContent">
+  <div class="content locate-flow-page">
+    <div class="inputContent outdoor-filter-flow terminal-filter-flow page-panel" :class="filterLangClass">
       <el-form
-        class="demo-form-inline"
-        style="display: flex; white-space: nowrap; margin-left: 0%"
+        class="demo-form-inline terminal-filter-form"
         :model="searchList"
       >
         <el-form-item
           :label="$t('staffmanagement.username1')"
-          style="display: flex; margin-left: 0%; margin-right: 2%"
+          class="terminal-filter-item"
         >
           <el-select
             clearable
@@ -17,7 +16,6 @@
             :remote-method="remoteUserMethod"
             v-model="perDeveui"
             :placeholder="$t('staffmanagement.text')"
-            style="width: 120%"
           >
             <el-option
               v-for="item in userOptions"
@@ -34,7 +32,7 @@
         </el-form-item>
         <el-form-item
           :label="$t('car.Numberplate')"
-          style="display: flex; margin-left: 1%; margin-right: 2%"
+          class="terminal-filter-item"
           v-if="intoProjectType == 1"
         >
           <el-select
@@ -44,7 +42,6 @@
             :remote-method="remoteTBoxMethod"
             v-model="tboxDeveui"
             :placeholder="$t('staffmanagement.text')"
-            style="width: 120%"
           >
             <el-option
               v-for="item in tboxOptions"
@@ -59,7 +56,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item style="display: flex; margin-left: 2%">
+        <el-form-item class="terminal-toolbar-item">
           <el-button type="primary" class="query" @click="searchInfo()">{{
             $t("floormanagement.search")
           }}</el-button>
@@ -74,7 +71,7 @@
     </div>
 
     <!-- 地图 -->
-    <div class="mapConent" style="position: relative">
+    <div class="mapConent page-panel" style="position: relative">
       <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
       <div id="map"></div>
       <!-- 围栏人数已直接在地图上显示，白名单弹窗已废弃
@@ -92,11 +89,12 @@
 
     <!-- 鼠标左键显示内容 -->
     <el-dialog
-      :visible.sync="visible"
+      v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
       @close="clearInfo()"
-      class="Info_dialog"
+      class="Info_dialog outdoor-info-dialog"
       :modal="false"
+      append-to-body
     >
       <!-- 左键显示内容的 -->
       <div id="popup" class="ol-popup">
@@ -136,11 +134,9 @@
               <li class="goDev bracelet_dev">
                 <span
                   >{{ $t("terminal.deveui") }}
-                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span
-                >
+                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span>
                 <span v-if="battery"
-                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span
-                >
+                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("terminal.Locationupdatetime1") }}{{ gpstime }}</li>
@@ -154,21 +150,17 @@
                 <span>{{ $t("terminal.deveui") }} {{ bracelet_eui }}</span>
                 <span
                   >{{ $t("locationoutdoor.electricity")
-                  }}{{ bracelet_soc }}%</span
-                >
+                  }}{{ bracelet_soc }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li class="bracelet_dev">
                 <span
-                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span
-                >
+                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span>
                 <span
                   >{{ $t("LocationIndoor.temperature")
-                  }}{{ bracelet_tem }} °C</span
-                >
+                  }}{{ bracelet_tem }} °C</span>
                 <span
-                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span
-                >
+                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("home.Dataupdatetime") }}{{ bracelet_time }}</li>
@@ -227,11 +219,14 @@
             </div>
           </ul>
 
-          <ul v-show="devTBox">
-            <el-image
-              style="width: 150px; height: 150px"
-              :src="imageTBox"
-            ></el-image>
+          <ul v-show="devTBox" class="tbox-info">
+            <div class="tbox-image-wrap">
+              <el-image
+                class="tbox-image"
+                fit="contain"
+                :src="imageTBox"
+              ></el-image>
+            </div>
             <li>{{ $t("locationoutdoor.carnumber") }}{{ tboxName }}</li>
             <el-divider class="divider"></el-divider>
             <li>{{ $t("locationoutdoor.Vehicletype") }}{{ tboxType }}</li>
@@ -251,10 +246,10 @@
     <!-- 修改 -->
     <el-dialog
       :title="$t('locationoutdoor.text')"
-      :visible.sync="edit"
-      class="edit"
-      width="50%"
-      style="text-align: center"
+      v-model="edit"
+      class="edit device-dialog"
+      width="480px"
+      align-center
     >
       <el-form
         :model="editData"
@@ -269,17 +264,17 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="editCancel()">{{ $t("warning.Cancel") }}</el-button>
         <el-button type="primary" @click="editTrue()">{{
           $t("warning.Sure")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <!-- 围栏白名单人员列表弹窗已废弃，后端已删除相关接口
     <el-dialog
       :title="nameNum"
-      :visible.sync="showNameNum"
+      v-model="showNameNum"
       class="edit"
       width="50%"
       style="text-align: center"
@@ -326,6 +321,9 @@ import {
   getAssetOne,
   getDevGpsList,
   getFenceManageAndPointList,
+  getBuildingList,
+  getGroundList,
+  getGround,
   // getFenceManageWhiteList,
   // getFenceManageWhiteNum,
 } from "../../axios/api";
@@ -465,6 +463,10 @@ export default {
       tboxType: "",
       tboxMaplabel: "",
       tboxTime: "",
+      // 车辆开门告警闪烁：deveui -> 是否开门闪烁；timer/layer 仅运行时使用
+      vehicleDoorOpen: {},
+      vehicleFlashTimers: {},
+      vehicleFlashLayers: {},
       mapCenter: [],
       xinaoList: [],
       AllFences: [],
@@ -528,10 +530,35 @@ export default {
       }
       return 0;
     },
-    // 跳转历史轨迹
+    // 跳转定位管理-历史轨迹页：只带已选人员/车辆的名称，查不到名称时才带设备号
     goHis() {
+      const query = {};
+      if (this.perDeveui) {
+        const item =
+          (this.userOptions || []).find(
+            (i) => i.maplabel === this.perDeveui
+          ) ||
+          (this.userList || []).find((i) => i.maplabel === this.perDeveui);
+        if (item && item.username) {
+          query.username = item.username;
+        } else {
+          query.perDeveui = this.perDeveui;
+        }
+      } else if (this.tboxDeveui) {
+        const item =
+          (this.tboxOptions || []).find(
+            (i) => i.maplabel === this.tboxDeveui
+          ) ||
+          (this.tboxList || []).find((i) => i.maplabel === this.tboxDeveui);
+        if (item && item.sn) {
+          query.sn = item.sn;
+        } else {
+          query.tboxDeveui = this.tboxDeveui;
+        }
+      }
       this.$router.push({
-        path: "/location/outdoor/historical",
+        path: "/location/historytrajectory",
+        query,
       });
     },
     // 清空个人信息和车辆信息
@@ -601,6 +628,88 @@ export default {
         this.searchList.deveui = tbox;
         this.searchList.devtype = 4;
       }
+
+      // 告警跳转：用 getWarningPointByWarningid 写入的 sosData.points 打点
+      if (that.$route.query.warning == "true") {
+        let sosData = that.$store.state.sosData || {};
+        const points = Array.isArray(sosData.points) ? sosData.points : [];
+        const isMulti = Number(sosData.type) === 2 || points.length > 1;
+
+        if (!points.length) {
+          that.$message({
+            message: that.$t("tet.tet8"),
+            type: "warning",
+          });
+          return;
+        }
+
+        const plotPoint = (p) => {
+          const info = {
+            ...sosData,
+            ...p,
+            projectid: sosData.projectid || p.projectid,
+            deveui: p.deveui,
+            username: p.username,
+            x: p.x,
+            y: p.y,
+            gpstime: p.gpstime,
+            devtype: p.devtype != null ? p.devtype : sosData.devtype || 1,
+          };
+          that.delFeature(info);
+          if (Number(info.devtype) === 4) {
+            that.applyVehicleAlarm(info.deveui, info.alarm, true);
+            that.addTBoxIconMarker(that.map, info, true);
+          } else {
+            that.addIconMarker(that.map, info, true);
+          }
+        };
+
+        if (isMulti) {
+          that.perDeveui = "";
+          that.tboxDeveui = "";
+          const keepSos = that.sostype;
+          setTimeout(() => {
+            points.forEach((p) => {
+              that.sostype = keepSos;
+              plotPoint(p);
+            });
+            that.sostype = false;
+            if (points[0]) {
+              const center = fromLonLat([points[0].x, points[0].y]);
+              that.map.getView().setCenter(center);
+            }
+          }, 100);
+          return;
+        }
+
+        const first = points[0];
+        const eui = first.deveui || sosData.deveui;
+        if (tbox || that.tboxDeveui || sosData.devtype == 4) {
+          that.remoteTBoxMethod(eui);
+          setTimeout(() => {
+            that.perDeveui = "";
+            that.tboxDeveui = eui;
+          }, 201);
+          setTimeout(() => {
+            plotPoint({ ...first, devtype: 4 });
+            const center = fromLonLat([first.x, first.y]);
+            that.map.getView().setCenter(center);
+          }, 100);
+        } else {
+          that.remoteUserMethod(eui);
+          setTimeout(() => {
+            that.tboxDeveui = "";
+            that.perDeveui = eui;
+          }, 201);
+          setTimeout(() => {
+            plotPoint(first);
+            const center = fromLonLat([first.x, first.y]);
+            that.map.getView().setCenter(center);
+          }, 100);
+        }
+        return;
+      }
+
       if (!this.searchList.deveui) {
         this.$message({
           message: this.$t("locationoutdoor.text3"),
@@ -608,38 +717,7 @@ export default {
         });
         return;
       }
-      //判断是否从告警管理页面跳转过来的，如果是，就使用触发告警时的信息
-      if (that.$route.query.warning == "true") {
-        console.log('warning == "true"');
-        let sosData = that.$store.state.sosData;
-        if (per) {
-          that.remoteUserMethod(sosData.deveui);
-          setTimeout(() => {
-            that.tboxDeveui = "";
-            that.perDeveui = sosData.deveui;
-          }, 201);
-          that.delFeature(sosData);
-          setTimeout(() => {
-            that.addIconMarker(that.map, sosData, true);
-            const center = fromLonLat([sosData.x, sosData.y]);
-            that.map.getView().setCenter(center);
-          }, 100);
-        }
-        if (tbox) {
-          that.remoteTBoxMethod(sosData.deveui);
-          setTimeout(() => {
-            that.perDeveui = "";
-            that.tboxDeveui = sosData.deveui;
-          }, 201);
-          that.delFeature(sosData);
-          setTimeout(() => {
-            that.addTBoxIconMarker(that.map, sosData, true);
-            const center = fromLonLat([sosData.x, sosData.y]);
-            that.map.getView().setCenter(center);
-          }, 100);
-        }
-      } else {
-        getDevGpsOne(
+      getDevGpsOne(
           this.searchList,
           this.tenantkey_A,
           this.tenantid_A,
@@ -673,6 +751,10 @@ export default {
                   this.$t("locationoutdoor.text5"),
                   this.$t("Building.tips"),
                   {
+                    customClass: "device-message-box",
+                    confirmButtonClass: "device-message-confirm",
+                    cancelButtonClass: "device-message-cancel",
+                    roundButton: false,
                     confirmButtonText: this.$t("terminal.confirm"),
                     cancelButtonText: this.$t("terminal.cancel"),
                     type: "warning",
@@ -701,6 +783,7 @@ export default {
                 if (that.perDeveui || per) {
                   that.addIconMarker(that.map, res.data, true);
                 } else if (that.tboxDeveui || tbox) {
+                  that.applyVehicleAlarm(res.data.deveui, res.data.alarm, true);
                   that.addTBoxIconMarker(that.map, res.data, true);
                 }
                 const center = fromLonLat([res.data.x, res.data.y]);
@@ -716,7 +799,6 @@ export default {
             });
           }
         });
-      }
     },
     //刷新
     clearBtn() {
@@ -736,6 +818,7 @@ export default {
       this.getTboxSnIds();
       console.log(this.sostype);
       this.sostype = false;
+      this.clearAllVehicleFlash();
       var that = this;
       //删除所有图标   //重新获取
       let LayerArrays;
@@ -805,6 +888,7 @@ export default {
               editFencess.push({
                 coordinates: editFences,
                 color: item.colour,
+                opacity: item.opacity,
                 id: item.id,
                 num: item.num,
               });
@@ -823,6 +907,11 @@ export default {
       const b = (rgb >> 0) & 0xff;
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     },
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
     formatFenceNumberText(num) {
       const count = Number(num) || 0;
       if (count <= 0) {
@@ -836,6 +925,7 @@ export default {
       this.AllFences.forEach((fenceData) => {
         const gpsCoords = fenceData.coordinates;
         const color = fenceData.color;
+        const opacity = this.normalizeFenceOpacity(fenceData.opacity);
         const mercatorCoords = gpsCoords.map((coord) => fromLonLat(coord));
         const polygon = new Polygon([mercatorCoords]);
         const fenceNum =
@@ -859,7 +949,7 @@ export default {
         fenceFeature.setStyle(
           new Style({
             fill: new Fill({
-              color: this.hexToRgba(color, 0.5),
+              color: this.hexToRgba(color, opacity),
             }),
             stroke: new Stroke({
               color: color,
@@ -939,6 +1029,7 @@ export default {
             that.addIconMarkers(that.map, that.mapInfo[i]);
           }
         }
+        that.loadBuildings();
         that.mapClick();
         that.addLine(that.map);
         // that.initializePopup(that.map);
@@ -946,6 +1037,73 @@ export default {
           that.recreateFences();
         });
       }, 0);
+    },
+
+    // 加载项目下全部楼栋到地图
+    loadBuildings() {
+      var that = this;
+      if (!this.map) {
+        return;
+      }
+      getBuildingList(
+        { projectid: this.$store.state.projectid },
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001 && res.data && res.data.length > 0) {
+          for (let i = 0; i < res.data.length; i++) {
+            that.addBuildingMarker(that.map, res.data[i]);
+          }
+        }
+      });
+    },
+
+    addBuildingMarker(map, info) {
+      if (!map || !info) {
+        return;
+      }
+      const longi = Number(info.longi);
+      const lati = Number(info.lati);
+      if (
+        Number.isNaN(longi) ||
+        Number.isNaN(lati) ||
+        (longi === 0 && lati === 0)
+      ) {
+        return;
+      }
+      const mercatorCoord = fromLonLat([longi, lati]);
+      const buildingName =
+        info.buildtype == 1 || info.buildtype == null
+          ? info.building
+          : info.building + "(3D)";
+      const features = new OlFeature({
+        longi: longi,
+        lati: lati,
+        src: info.src,
+        projectid: info.projectid,
+        building: info.building,
+        id: info.id,
+        buildtype: info.buildtype,
+        isBuilding: true,
+        geometry: new OlGeomPoint(mercatorCoord),
+      });
+      const style = new OlStyleStyle({
+        image: new OlStyleIcon({
+          anchor: [0.5, 1],
+          src: info.src || "../../../static/坐标.png",
+          scale: 1,
+        }),
+        text: this.createMarkerText(buildingName || ""),
+      });
+      const vectorLayer = new OlLayerVector({
+        source: new OlSourceVector({
+          features: [features],
+        }),
+        style: style,
+        zIndex: 2,
+      });
+      map.addLayer(vectorLayer);
     },
 
     // 测试获取新奥数据
@@ -1000,22 +1158,25 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
 
         this.vectorLayer = new OlLayerVector({
           source: this.source,
           style: style,
+          zIndex: 10,
         });
         map.addLayer(this.vectorLayer);
+        // 查询加载：车辆 alarm 无值默认关门；alarm=2 开门闪烁
+        if (mapInfo.devtype == 4 && mapInfo.deveui) {
+          this.applyVehicleAlarm(mapInfo.deveui, mapInfo.alarm, true);
+          this.bindVehicleFlashLayer(
+            mapInfo.deveui,
+            this.vectorLayer,
+            src,
+            mapInfo.username
+          );
+        }
       }
     },
 
@@ -1049,15 +1210,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       } else {
         style = new OlStyleStyle({
@@ -1067,21 +1220,14 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: this.createMarkerText(mapInfo.username),
         });
       }
 
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
@@ -1116,20 +1262,13 @@ export default {
           scale: 1,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text: mapInfo.username, // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(mapInfo.username),
       });
 
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
@@ -1149,6 +1288,7 @@ export default {
         gpstime: mapInfo.gpstime,
         devtype: mapInfo.devtype,
         battery: mapInfo.battery ? mapInfo.battery : "",
+        alarm: mapInfo.alarm,
         geometry: new OlGeomPoint(mercatorCoord),
       });
 
@@ -1156,57 +1296,113 @@ export default {
         features: [features],
       });
 
-      let style;
-      console.log(this.sostype);
+      let src = "../../../static/tbox.png";
       if (this.sostype) {
-        style = new OlStyleStyle({
-          image: new OlStyleIcon({
-            anchor: [0.5, 1],
-            src: "../../../static/tboxsos.png",
-            scale: 1,
-          }),
-          // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
-        });
-      } else {
-        style = new OlStyleStyle({
-          image: new OlStyleIcon({
-            anchor: [0.5, 1],
-            src: "../../../static/tbox.png",
-            scale: 1,
-          }),
-          // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: mapInfo.username, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
-        });
+        src = "../../../static/tboxsos.png";
       }
+      let style = this.buildVehicleStyle(mapInfo.username, src, 1);
 
       this.vectorLayer = new OlLayerVector({
         source: this.source,
         style: style,
+        zIndex: 10,
       });
       map.addLayer(this.vectorLayer);
       console.log(this.sostype);
       this.sostype = false;
+      // 按已缓存的开门状态绑定闪烁（alarm 由查询/WebSocket 入口事先 apply）
+      if (mapInfo.deveui) {
+        this.bindVehicleFlashLayer(
+          mapInfo.deveui,
+          this.vectorLayer,
+          src,
+          mapInfo.username
+        );
+      }
       if (newCenter) {
         const center = fromLonLat([mapInfo.x, mapInfo.y]);
         that.map.getView().setCenter(center);
       }
+    },
+    // alarm: 2 开门闪烁，3 关门停止；查询无值默认关门
+    applyVehicleAlarm(deveui, alarm, fromQuery) {
+      if (!deveui) {
+        return;
+      }
+      if (alarm === undefined || alarm === null || alarm === "") {
+        if (fromQuery) {
+          this.vehicleDoorOpen[deveui] = false;
+        }
+        return;
+      }
+      const n = Number(alarm);
+      if (n === 2) {
+        this.vehicleDoorOpen[deveui] = true;
+      } else if (n === 3 || fromQuery) {
+        this.vehicleDoorOpen[deveui] = false;
+      }
+    },
+    buildVehicleStyle(username, src, opacity) {
+      return new OlStyleStyle({
+        image: new OlStyleIcon({
+          anchor: [0.5, 1],
+          src: src,
+          scale: 1,
+          opacity: opacity,
+        }),
+        text: this.createMarkerText(username),
+      });
+    },
+    pauseVehicleFlash(deveui) {
+      if (!deveui) {
+        return;
+      }
+      if (this.vehicleFlashTimers[deveui]) {
+        clearInterval(this.vehicleFlashTimers[deveui]);
+        delete this.vehicleFlashTimers[deveui];
+      }
+      delete this.vehicleFlashLayers[deveui];
+    },
+    bindVehicleFlashLayer(deveui, layer, src, username) {
+      if (!deveui || !layer) {
+        return;
+      }
+      this.pauseVehicleFlash(deveui);
+      this.vehicleFlashLayers[deveui] = {
+        layer: layer,
+        src: src,
+        username: username || "",
+        visible: true,
+      };
+      const shouldFlash = !!this.vehicleDoorOpen[deveui];
+      layer.setStyle(this.buildVehicleStyle(username, src, 1));
+      if (!shouldFlash) {
+        return;
+      }
+      const tick = () => {
+        const meta = this.vehicleFlashLayers[deveui];
+        if (!meta || !meta.layer) {
+          this.pauseVehicleFlash(deveui);
+          return;
+        }
+        meta.visible = !meta.visible;
+        meta.layer.setStyle(
+          this.buildVehicleStyle(
+            meta.username,
+            meta.src,
+            meta.visible ? 1 : 0.2
+          )
+        );
+      };
+      this.vehicleFlashTimers[deveui] = setInterval(tick, 500);
+    },
+    clearAllVehicleFlash() {
+      Object.keys(this.vehicleFlashTimers || {}).forEach((deveui) => {
+        clearInterval(this.vehicleFlashTimers[deveui]);
+      });
+      this.vehicleFlashTimers = {};
+      this.vehicleFlashLayers = {};
+      this.vehicleDoorOpen = {};
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -1239,6 +1435,44 @@ export default {
       return this.datetimecut(date2);
     },
 
+    // 点击楼栋：有楼层则确认后跳转室内定位查询
+    handleBuildingClick(buildingFeature) {
+      var that = this;
+      const buildid = buildingFeature.values_.id;
+      const buildtype = buildingFeature.values_.buildtype;
+      const is3D = buildtype != 1 && buildtype != null;
+      const data = { buildid: buildid };
+      const fetchFloors = is3D
+        ? getGround(data, that.tenantkey_A, that.tenantid_A, that.userName)
+        : getGroundList(data, that.tenantkey_A, that.tenantid_A, that.userName);
+
+      fetchFloors.then((res) => {
+        if (res.code == 1001 && res.data && res.data.length > 0) {
+          that.$confirm(
+            that.$t("locationoutdoor.text6"),
+            that.$t("Building.tips"),
+            {
+              customClass: "device-message-box",
+              confirmButtonClass: "device-message-confirm",
+              cancelButtonClass: "device-message-cancel",
+              roundButton: false,
+              confirmButtonText: that.$t("terminal.confirm"),
+              cancelButtonText: that.$t("terminal.cancel"),
+              type: "warning",
+              callback: (action) => {
+                if (action === "confirm") {
+                  that.$router.push({
+                    path: "/location/indoor/locationindoor",
+                    query: { id: buildid },
+                  });
+                }
+              },
+            }
+          );
+        }
+      });
+    },
+
     //单击事件
     mapClick() {
       var that = this;
@@ -1254,6 +1488,10 @@ export default {
 
         that.battery = "";
         if (feature) {
+          if (feature.values_.isBuilding) {
+            that.handleBuildingClick(feature);
+            return;
+          }
           if (feature.values_.devtype == 1 || feature.values_.devtype == 2) {
             let data = {
               maplabel: feature.values_.deveui,
@@ -1666,15 +1904,7 @@ export default {
             scale: 1,
           }),
           // 设置图片下面显示字体的样式和内容
-          text: new Text({
-            text: that.editData.building, // 添加文字描述
-            font: "12px font-size", // 设置字体大小
-            fill: new Fill({
-              // 设置字体颜色
-              color: "white",
-            }),
-            offsetY: 10, // 设置文字偏移量
-          }),
+          text: that.createMarkerText(that.editData.building),
         })
       );
 
@@ -1693,7 +1923,15 @@ export default {
             return;
           }
           if (layer.getSource().getFeatures().length > 0) {
-            if (e.deveui == layer.getSource().getFeatures()[0].values_.deveui) {
+            const firstFeature = layer.getSource().getFeatures()[0];
+            if (firstFeature.values_ && firstFeature.values_.isBuilding) {
+              return;
+            }
+            if (e.deveui == firstFeature.values_.deveui) {
+              // 图层即将被删，暂停闪烁定时器，但保留开门状态供重新上图后继续闪
+              if (firstFeature.values_.devtype == 4) {
+                this.pauseVehicleFlash(e.deveui);
+              }
               layer
                 .getSource()
                 .getFeatures()
@@ -1898,11 +2136,14 @@ export default {
     websocketonmessage(res) {
       var that = this;
       if (res.data != "连接成功") {
-        var data = JSON.parse(res.data);
+        var payload = JSON.parse(res.data);
+        // 新格式：{ devGps, fenceList }；兼容旧格式（设备字段在根级、围栏为 fenceObj）
+        var data = payload.devGps || payload;
+        var fenceList = payload.fenceList || payload.fenceObj;
         if (data.deveui) {
           that.delFeature(data);
-          if (data.fenceObj && data.fenceObj.length > 0) {
-            data.fenceObj.forEach((item) => {
+          if (fenceList && fenceList.length > 0) {
+            fenceList.forEach((item) => {
               const index = that.AllFences.findIndex(
                 (items) => items.id === item.id
               );
@@ -1916,12 +2157,17 @@ export default {
           }
           if (data.status != 2) {
             if (data.devtype == 4) {
+              // alarm:2 开门闪烁，3 关门停止；无 alarm 字段则保留原开门状态
+              that.applyVehicleAlarm(data.deveui, data.alarm, false);
               that.addTBoxIconMarker(that.map, data);
             } else if (data.devtype == 3) {
               that.addAssetMarker(that.map, data);
             } else {
               that.addIconMarker(that.map, data);
             }
+          } else if (data.devtype == 4) {
+            that.pauseVehicleFlash(data.deveui);
+            delete that.vehicleDoorOpen[data.deveui];
           }
         }
       }
@@ -1981,6 +2227,13 @@ export default {
       setTimeout(() => {
         this.searchInfo("", this.$route.query.tboxDeveui);
       }, 0);
+    } else if (this.$route.query.warning == "true") {
+      // 聚集告警等：无单设备号，用 store 中多点位加载
+      this.sostype = this.$route.query.sostype == "true";
+      this.initMap();
+      setTimeout(() => {
+        this.searchInfo();
+      }, 0);
     } else {
       console.log(this.sostype);
       this.sostype = false;
@@ -1993,6 +2246,9 @@ export default {
   computed: {
     show1() {
       return this.$store.state.show;
+    },
+    filterLangClass() {
+      return this.$store.state.i18n === "en" ? "is-en" : "is-zh";
     },
   },
   watch: {
@@ -2034,20 +2290,23 @@ export default {
       },
     },
   },
-  destroyed() {
-    this.websock.close();
+  unmounted() {
+    this.clearAllVehicleFlash();
+    if (this.websock) {
+      this.websock.close();
+    }
   },
 };
 </script>
 
 <style scoped>
-.Info_dialog >>> .el-dialog {
+.Info_dialog :deep(.el-dialog) {
   border-radius: 20px !important;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
-.Info_dialog >>> .el-dialog__body {
+.Info_dialog :deep(.el-dialog__body) {
   color: #303133 !important;
   background: #fff;
   border-radius: 20px;
@@ -2060,6 +2319,32 @@ export default {
 
 .left-top {
   flex: 1 1 40%; /* 左上部分图片宽度为40% */
+}
+
+.tbox-info {
+  padding: 10px;
+  margin: 0;
+}
+
+.tbox-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 10px;
+}
+
+.tbox-image-wrap :deep(.tbox-image),
+.tbox-image-wrap :deep(.el-image) {
+  width: 150px;
+  height: 150px;
+  display: block;
+  margin: 0 auto;
+}
+
+.tbox-image-wrap :deep(.el-image__inner) {
+  object-fit: contain;
+  margin: 0 auto;
 }
 
 .right-top {
@@ -2082,8 +2367,13 @@ export default {
 }
 
 .goDev a {
-  text-decoration: null;
-  color: #409eff; /* 链接颜色 */
+  text-decoration: none;
+  color: #409eff;
+  cursor: pointer !important;
+}
+.goDev a:hover {
+  color: #66b1ff;
+  text-decoration: underline;
 }
 .bracelet_title {
   text-align: left;
@@ -2125,31 +2415,31 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
 .reset {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -2158,15 +2448,89 @@ export default {
   width: 98%;
   height: 90%;
 }
-.inputContent {
-  height: 7%;
+.inputContent.outdoor-filter-flow.terminal-filter-flow {
+  height: auto;
   width: 100%;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin: 0 0 12px !important;
+  box-sizing: border-box;
+  /* 保留 page-panel 内边距，不要写成 padding: 0 */
+}
+.outdoor-filter-flow.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.outdoor-filter-flow.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.outdoor-filter-flow.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.outdoor-filter-flow.terminal-filter-flow .terminal-toolbar-item :deep(.el-button) {
+  margin: 0 !important;
+  box-sizing: border-box !important;
 }
 .mapConent {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 93%;
+  height: calc(100% - 56px);
   margin-bottom: 20px;
 }
 #map {
@@ -2199,6 +2563,10 @@ export default {
   text-align: left;
   cursor: default;
 }
+#popup-content li.goDev,
+#popup-content li.goDev a {
+  cursor: pointer !important;
+}
 #popup-contents .goDev {
   cursor: pointer;
 }
@@ -2222,15 +2590,15 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
-.el-form-item .el-button {
-  margin-left: 4px !important;
+.outdoor-filter-flow.terminal-filter-flow .el-form-item .el-button {
+  margin-left: 0 !important;
 }
 
 .ol-popup-num {

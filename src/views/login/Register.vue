@@ -1,223 +1,221 @@
 <template>
-  <div class="registerFrame">
-    <div class="frame_absolute" v-if="setresetnoon">
-      <div class="registerFrameBox">
-        <div class="fork" @click="fork">X</div>
+  <div class="registerFrame" :class="{ 'is-en': $store.state.i18n != 'zh' }">
+    <div class="auth-card" v-if="setresetnoon">
+      <span class="auth-close fork" @click="fork">×</span>
+      <div class="auth-head">
         <h1>{{ $t("register.register") }}</h1>
-        <!-- <div class="fiveipt"> -->
-        <div>
+        <p class="auth-sub">{{ $t("login.introduce") }}</p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': nouser }">
           <input
             @input="Zuser"
             v-model="registerForm.username"
             type="text"
-            name=""
+            autocomplete="username"
             class="iptbox"
             :placeholder="$t('register.enterUser')"
           />
-          <div class="noneBox">
-            <p v-if="nouser" class="noneBox_p">{{ $t("Change.nouser") }}</p>
-          </div>
         </div>
-        <div>
+        <p class="auth-error">
+          <template v-if="nouser">{{ $t("Change.nouser") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': nopswd }">
           <input
             @input="tpsw"
             v-model="registerForm.password"
-            type="text"
-            name=""
+            type="password"
+            autocomplete="new-password"
             class="iptbox"
             :placeholder="$t('register.enterPassword')"
           />
-          <div class="noneBox">
-            <p v-if="nopswd" class="noneBox_p">{{ $t("Change.nopswd") }}</p>
-          </div>
         </div>
-        <div>
+        <p class="auth-error">
+          <template v-if="nopswd">{{ $t("Change.nopswd") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': Tpsw }">
           <input
             @input="tpsw"
             v-model="registerForm.surepassword"
-            type="text"
-            name=""
+            type="password"
+            autocomplete="new-password"
             class="iptbox"
-            style="margin: 0px"
             :placeholder="$t('register.confirmPassword')"
           />
-          <div class="noneBox">
-            <p v-if="Tpsw" class="noneBox_p">
-              {{ $t("tips.secondPassword") }}
-            </p>
-          </div>
         </div>
-        <div class="illustrateBox" style="padding: 0px; margin-bottom: 0px">
-          <div>
-            <input
-              @input="enteremail"
-              v-model="registerForm.email"
-              type="text"
-              name=""
-              class="iptbox"
-              style="margin-bottom: 0px"
-              :placeholder="$t('register.enterEmail')"
-            />
-            <div class="noneBox">
-              <p v-if="email" class="noneBox_p">
-                {{ $t("tips.email") }}
-              </p>
-            </div>
-          </div>
-
-          <el-tooltip
-            class="item illustrate"
-            effect="light"
-            placement="right-start"
-          >
-            <div slot="content">
-              {{ $t("register.emailPrompt") }}
-            </div>
+        <p class="auth-error">
+          <template v-if="Tpsw">{{ $t("tips.secondPassword") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input has-help" :class="{ 'is-error': email }">
+          <input
+            @input="enteremail"
+            v-model="registerForm.email"
+            type="text"
+            autocomplete="email"
+            class="iptbox"
+            :placeholder="$t('register.enterEmail')"
+          />
+          <el-tooltip effect="light" placement="right-start">
+            <template #content
+              ><div class="auth-help-tip">
+                {{ $t("register.emailPrompt") }}
+              </div></template
+            >
             <i class="illustrate" />
           </el-tooltip>
         </div>
-        <div class="illustrateBox" style="padding: 0px">
-          <div>
-            <input
-              @input="enterTenantid"
-              v-model="registerForm.tenantid"
-              type="text"
-              name=""
-              class="iptbox"
-              style="margin-bottom: 0px"
-              :placeholder="$t('register.enterTenantid')"
-            />
-            <div class="noneBox">
-              <p v-if="noregistration" class="noneBox_p">
-                {{ $t("Change.nocode") }}
-              </p>
-            </div>
-          </div>
-          <el-tooltip
-            class="item illustrate"
-            effect="light"
-            placement="right-start"
-          >
-            <div slot="content">
-              {{ $t("register.tenantidPrompt") }}
-              <a
-                href="https://www.rctiot.com/html/product/index.html?number=0"
-                target="_blank"
-                v-if="$store.state.i18n == 'zh'"
-              >
-                {{ $t("register.tenantidPrompts") }}
-              </a>
-              <a
-                href="https://www.rctiot.com/rct/#/card"
-                target="_blank"
-                v-else
-              >
-                {{ $t("register.tenantidPrompts") }}
-              </a>
-            </div>
+        <p class="auth-error">
+          <template v-if="email">{{ $t("tips.email") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input has-help" :class="{ 'is-error': noregistration }">
+          <input
+            @input="enterTenantid"
+            v-model="registerForm.tenantid"
+            type="text"
+            class="iptbox"
+            :placeholder="$t('register.enterTenantid')"
+          />
+          <el-tooltip effect="light" placement="right-start">
+            <template #content
+              ><div class="auth-help-tip">
+                {{ $t("register.tenantidPrompt") }}
+                <a
+                  href="https://www.rctiot.com/html/product/index.html?number=0"
+                  target="_blank"
+                  v-if="$store.state.i18n == 'zh'"
+                >
+                  {{ $t("register.tenantidPrompts") }}
+                </a>
+                <a
+                  href="https://www.rctiot.com/rct/#/card"
+                  target="_blank"
+                  v-else
+                >
+                  {{ $t("register.tenantidPrompts") }}
+                </a>
+              </div></template
+            >
             <i class="illustrate" />
           </el-tooltip>
         </div>
-        <!-- </div> -->
-        <div class="account" @click="register">
-          {{ $t("register.register") }}
-        </div>
-        <div>
-          <el-checkbox v-model="checked">{{
-            $t("register.agree")
-          }}</el-checkbox>
-          <span class="agreement" @click="centerDialogVisible = true">{{
-            $t("register.statement")
-          }}</span>
-        </div>
-        <!-- 阅读协议 -->
-        <el-dialog :visible.sync="centerDialogVisible" width="30%" center>
-          <agreement></agreement>
-          <span slot="footer" class="dialog-footer">
+        <p class="auth-error">
+          <template v-if="noregistration">{{ $t("Change.nocode") }}</template>
+        </p>
+      </div>
+      <div class="auth-btn account" @click="register">
+        {{ $t("register.register") }}
+      </div>
+      <div class="auth-agree">
+        <el-checkbox v-model="checked" class="agree-check">{{
+          $t("register.agree")
+        }}</el-checkbox>
+        <span class="agreement" @click="centerDialogVisible = true">{{
+          $t("register.statement")
+        }}</span>
+      </div>
+      <div class="auth-switch">
+        <span @click="fork">{{ $t("login.existingAccount") }}</span>
+      </div>
+      <!-- 阅读协议 -->
+      <el-dialog v-model="centerDialogVisible" width="30%" center>
+        <agreement></agreement>
+        <template #footer
+          ><span class="dialog-footer">
             <el-button @click="centerDialogVisible = false">{{
               $t("retrieve.cancel")
             }}</el-button>
             <el-button type="primary" @click="centerDialogVisible = false">{{
               $t("retrieve.confirm")
             }}</el-button>
-          </span>
-        </el-dialog>
-      </div>
+          </span></template
+        >
+      </el-dialog>
     </div>
-    <div class="frame_absolute2" style="height: 500px" v-else>
-      <div class="registerFrameBox2">
-        <div class="fork" @click="fork">X</div>
-        <h1>{{ $t("usercenter.editpwd") }}</h1>
-        <div>
+    <div class="auth-card" v-else>
+      <span class="auth-close fork" @click="fork">×</span>
+      <div class="auth-head">
+        <h1>{{ $t("retrieve.resetPassword") }}</h1>
+        <p class="auth-sub">{{ $t("retrieve.resetTip") }}</p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': email2 }">
           <input
             @input="iptemail2"
             v-model="resetPassword.resetEmail"
             type="text"
-            name=""
+            autocomplete="email"
             class="iptbox"
             :placeholder="$t('retrieve.mailbox')"
           />
-          <div class="changeBox">
-            <p class="changeBox_p" v-if="email2">{{ $t("Change.email") }}</p>
-          </div>
         </div>
-        <div>
-          <div style="position: relative">
+        <p class="auth-error">
+          <template v-if="email2">{{ $t("Change.email") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-code">
+          <div class="auth-input" :class="{ 'is-error': code2 }">
             <input
               @input="iptcode2"
               v-model="resetPassword.Code"
               type="text"
-              name=""
               class="iptbox"
-              :placeholder="time"
+              :placeholder="$t('retrieve.verificationCode')"
             />
-            <div class="send" @click="sendCode" v-if="!disabled">
-              {{ $t("retrieve.sendOut") }}
-            </div>
-            <div class="send" style="background: red" v-else>
-              {{ $t("retrieve.sendOut") }}
-            </div>
           </div>
-          <div class="changeBox">
-            <p class="changeBox_p" v-if="code2">{{ $t("Change.Incorrect") }}</p>
+          <div class="send" @click="sendCode" v-if="!disabled">
+            {{ $t("retrieve.sendOut") }}
           </div>
+          <div class="send is-disabled" v-else>{{ time }}s</div>
         </div>
-        <div>
+        <p class="auth-error">
+          <template v-if="code2">{{ $t("Change.Incorrect") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': newpswd2 }">
           <input
             @input="esquecer"
             v-model="resetPassword.newpsw"
-            type="text"
-            name=""
+            type="password"
+            autocomplete="new-password"
             class="iptbox"
             :placeholder="$t('retrieve.newPassword')"
           />
-          <div class="changeBox">
-            <p class="changeBox_p" v-if="newpswd2">
-              {{ $t("Change.nonewpswd") }}
-            </p>
-          </div>
         </div>
-        <div>
+        <p class="auth-error">
+          <template v-if="newpswd2">{{ $t("Change.nonewpswd") }}</template>
+        </p>
+      </div>
+      <div class="auth-field">
+        <div class="auth-input" :class="{ 'is-error': confirmnewpswd2 }">
           <input
             @input="esquecer"
             v-model="resetPassword.confirmNewpsw"
-            type="text"
-            name=""
+            type="password"
+            autocomplete="new-password"
             class="iptbox"
             :placeholder="$t('retrieve.confirmPassword')"
-            style="margin: 0px"
           />
-          <div class="changeBox">
-            <p class="changeBox_p" v-if="confirmnewpswd2">
-              {{ $t("Change.passwords") }}!
-            </p>
-          </div>
         </div>
-        <div class="select">
-          <div class="confirm" @click="confirm">
-            {{ $t("retrieve.confirm") }}
-          </div>
-          <div class="cancel" @click="cancel">{{ $t("retrieve.cancel") }}</div>
+        <p class="auth-error">
+          <template v-if="confirmnewpswd2">{{ $t("Change.passwords") }}</template>
+        </p>
+      </div>
+      <div class="select">
+        <div class="auth-btn is-ghost cancel" @click="cancel">
+          {{ $t("retrieve.cancel") }}
+        </div>
+        <div class="auth-btn confirm" @click="confirm">
+          {{ $t("retrieve.confirm") }}
         </div>
       </div>
     </div>
@@ -273,9 +271,6 @@ export default {
       newpswd2: false,
       confirmnewpswd2: false,
     };
-  },
-  created() {
-    this.time = this.$t("retrieve.verificationCode");
   },
   mounted() {
     this.setresetnoon = this.$route.query.setresetnoon === "true";
@@ -496,7 +491,7 @@ export default {
         this.time--;
         setTimeout(this.timer, 1000);
       } else {
-        this.time = that.$t("tips.inputCode");
+        this.time = 60;
         this.disabled = false;
       }
     },
@@ -542,205 +537,323 @@ export default {
 </script>
 <style scoped>
 .registerFrame {
+  position: relative;
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
   background: url(../../assets/banner2.png) 0px 0px;
   background-size: 100% 100%;
+}
+
+.auth-card {
   position: relative;
-}
-
-.frame_absolute {
-  position: absolute;
-  left: calc(50% - 252px);
-  top: calc(50% - 371px);
-}
-
-.frame_absolute2 {
-  position: absolute;
-  left: calc(50% - 252px);
-  top: calc(50% - 300px);
-}
-
-.registerFrameBox {
-  padding: 20px 0;
-  width: 505px;
-  height: 742px;
-  border-radius: 28px;
+  width: 500px;
+  margin: 24px;
+  padding: 48px 48px 36px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(31, 78, 160, 0.18);
+  overflow: hidden;
 }
 
-.registerFrameBox2 {
-  padding: 20px 0;
-  width: 505px;
-  height: 600px;
-  border-radius: 28px;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
+.auth-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2f7bff, #22d3ee);
 }
 
-.fiveipt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.fork {
-  font-size: 20px;
+.auth-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 34px;
+  height: 34px;
+  line-height: 32px;
+  text-align: center;
+  font-size: 24px;
+  color: #8a94a6;
+  border-radius: 50%;
   cursor: pointer;
-  position: absolute;
-  right: 30px;
-  top: 20px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.auth-close:hover {
+  background: #f0f3f8;
+  color: #1f2d3d;
+}
+
+.auth-head {
+  margin: 0 0 30px;
+  text-align: center;
+}
+
+.auth-head h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1f2d3d;
+  letter-spacing: 2px;
+}
+
+.auth-sub {
+  margin: 10px auto 0;
+  max-width: 360px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #8a94a6;
+}
+
+.auth-field {
+  width: 100%;
+}
+
+.auth-input {
+  position: relative;
+  flex: 1;
+  height: 52px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  background: #f6f8fb;
+  border: 1px solid #dfe4ec;
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.auth-input:hover {
+  border-color: #b9c6db;
+}
+
+.auth-input:focus-within {
+  background: #ffffff;
+  border-color: #2f7bff;
+  box-shadow: 0 0 0 3px rgba(47, 123, 255, 0.14);
+}
+
+.auth-input.is-error {
+  border-color: #f56c6c;
+  background: #ffffff;
 }
 
 .iptbox {
-  width: 350px;
-  height: 60px;
-  border: 2px solid #bbbbbb;
-  border-radius: 10px;
-  text-indent: 30px;
-  font-size: 20px;
-}
-
-.noneBox {
-  width: 100%;
-  height: 36px;
-}
-
-.noneBox_p {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 100%;
-  text-align: left;
-  color: red;
-  font-size: 14px;
-  line-height: 36px;
-  margin-left: 10px;
+  padding: 0 16px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: #1f2d3d;
 }
 
-.account {
-  width: 350px;
-  height: 46px;
-  line-height: 46px;
-  font-size: 20px;
-  color: #ffffff;
-  background: linear-gradient(180deg, #75cfff 0%, #0086d9 100%);
-  border-radius: 20px;
-  cursor: pointer;
-  margin-bottom: 20px;
+.iptbox::placeholder {
+  color: #a8b0bd;
 }
 
-.agreement {
-  color: red;
-  cursor: pointer;
-}
-
-.reset {
-  /* width: 200px; */
-  font-size: 16px !important;
-  margin: 0 auto;
-  text-align: center;
-  cursor: pointer;
-}
-
-.register {
-  font-size: 16px !important;
-}
-
-.reset:hover {
-  color: rgb(168, 172, 179);
-}
-
-.register:hover {
-  color: rgb(168, 172, 179);
-}
-
-.rememberPassword {
-  font-size: 16px !important;
-}
-
-.illustrateBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  margin-bottom: 36px;
+.auth-input.has-help .iptbox {
+  padding-right: 8px;
 }
 
 .illustrate {
-  width: 40px;
-  height: 40px;
-  background: url(../../../static/illustrate.png) 0px 0px;
-  background-size: 100% 100%;
-  position: absolute;
-  right: -38px;
-  top: 7px;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0 14px 0 0;
+  background: url(../../../static/illustrate.png) center / 100% 100% no-repeat;
+  opacity: 0.55;
+  cursor: help;
+  transition: opacity 0.2s;
+}
+
+.illustrate:hover {
+  opacity: 1;
+}
+
+.auth-help-tip {
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.auth-help-tip a {
+  color: #2f7bff;
+}
+
+.auth-error {
+  margin: 0;
+  padding: 0 4px;
+  height: 24px;
+  line-height: 24px;
+  font-size: 13px;
+  color: #f56c6c;
+  text-align: left;
+}
+
+.auth-code {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .send {
-  width: 160px;
-  height: 60px;
+  flex: 0 0 auto;
+  min-width: 128px;
+  height: 52px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  line-height: 52px;
+  text-align: center;
+  font-size: 15px;
+  white-space: nowrap;
+  color: #2f7bff;
+  background: rgba(47, 123, 255, 0.08);
+  border: 1px solid rgba(47, 123, 255, 0.35);
   border-radius: 10px;
-  background: linear-gradient(180deg, #66c6fa 45%, #0e8fde 100%);
-  position: absolute;
-  right: 0px;
-  top: 0px;
-  font-size: 18px;
-  color: #ffffff;
-  line-height: 60px;
   cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.send:hover {
+  background: rgba(47, 123, 255, 0.14);
+}
+
+.send.is-disabled {
+  color: #a8b0bd;
+  background: #f2f4f7;
+  border-color: #dfe4ec;
+  cursor: not-allowed;
+}
+
+.auth-btn {
+  height: 52px;
+  line-height: 52px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+  box-shadow: 0 10px 22px rgba(47, 123, 255, 0.3);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+}
+
+.is-en .auth-head h1,
+.is-en .auth-btn {
+  letter-spacing: 0.5px;
+}
+
+.auth-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 12px 26px rgba(47, 123, 255, 0.38);
+}
+
+.auth-btn:active {
+  transform: translateY(1px);
+}
+
+.auth-btn.is-ghost {
+  color: #5c6b80;
+  background: #ffffff;
+  border: 1px solid #dfe4ec;
+  box-shadow: none;
+}
+
+.auth-btn.is-ghost:hover {
+  color: #2f7bff;
+  border-color: #2f7bff;
+  filter: none;
+}
+
+.account {
+  width: 100%;
+  margin: 6px 0 0;
+}
+
+.auth-agree {
+  margin: 18px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.agree-check {
+  margin: 0;
+  height: auto;
+}
+
+.agree-check :deep(.el-checkbox__inner) {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.agree-check :deep(.el-checkbox__inner::after) {
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+}
+
+.agree-check :deep(.el-checkbox__label) {
+  padding-left: 8px;
+  font-size: 14px;
+  color: #5c6b80 !important;
+}
+
+.agreement {
+  margin: 0 0 0 2px;
+  font-size: 14px;
+  color: #2f7bff;
+  cursor: pointer;
+}
+
+.is-en .agreement {
+  margin: 0 0 0 5px;
+}
+
+.agreement:hover {
+  text-decoration: underline;
+}
+
+.auth-switch {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-switch span {
+  color: #2f7bff;
+  cursor: pointer;
+}
+
+.auth-switch span:hover {
+  text-decoration: underline;
 }
 
 .select {
+  margin: 10px 0 0;
   display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 320px;
-  margin: 0 auto;
+  gap: 16px;
 }
 
-.confirm {
-  width: 120px;
-  height: 46px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #75cfff 0%, #0086d9 100%);
-  font-size: 24px;
-  color: #ffffff;
-  line-height: 46px;
-  cursor: pointer;
-}
-
-.cancel {
-  width: 120px;
-  height: 46px;
-  border-radius: 14px;
-  background: #ffffff;
-  box-sizing: border-box;
-  border: 1px solid #bbbbbb;
-  color: #bbbbbb;
-  font-size: 24px;
-  line-height: 46px;
-  cursor: pointer;
-}
-
-.changeBox {
-  width: 100%;
-  height: 36px;
-}
-
-.changeBox_p {
-  width: 100%;
-  height: 100%;
-  text-align: left;
-  line-height: 26px;
-  font-size: 16px;
-  color: red;
-  margin-left: 10px;
+.select .auth-btn {
+  flex: 1;
 }
 </style>

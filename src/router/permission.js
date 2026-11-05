@@ -2,7 +2,6 @@
 import router from './index.js'
 import { adminRoutes, userRoutes, resetRouter } from './index.js'
 import store from '../store'
-import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 
@@ -14,16 +13,28 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 // const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
 // 说明：根据 prionum 动态注入路由；仅注入一次，刷新时若未注入再补注入
-function injectRoutesByRole (prionum) {
+export function injectRoutesByRole (prionum) {
   try {
     resetRouter()
   } catch (e) {}
   if (Number(prionum) === 5) {
     store.commit('addRoutes', userRoutes)
-    router.addRoutes(userRoutes)
+    userRoutes.forEach((route) => {
+      try {
+        router.addRoute(route)
+      } catch (e) {
+        console.warn('addRoute failed:', route && route.path, e)
+      }
+    })
   } else {
     store.commit('addRoutes', adminRoutes)
-    router.addRoutes(adminRoutes)
+    adminRoutes.forEach((route) => {
+      try {
+        router.addRoute(route)
+      } catch (e) {
+        console.warn('addRoute failed:', route && route.path, e)
+      }
+    })
   }
 }
 
@@ -54,7 +65,7 @@ router.beforeEach((to, from, next) => {
     if (to.query && to.query.username && to.query.password) {
       service({
         method: 'post',
-        url: '/user/login',
+        url: '/service/login',
         data: { username: to.query.username.toString(), userkey: to.query.password.toString() },
         ContentType: 'application/json;charset=UTF-8'
       })

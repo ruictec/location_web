@@ -5,15 +5,18 @@
         <el-main>
           <!-- 布置 -->
           <el-dialog
-            :visible.sync="arrange"
+            v-model="arrange"
             class="arrangeDialog"
             :close-on-click-modal="false"
             :show-close="false"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            append-to-body
+            @opened="handleArrangeDialogOpened"
+            @close="unobserveMapResize"
           >
-            <div style="width: 100%; height: 100%">
+            <div class="arrange-dialog-inner">
               <div class="searchArrange">
                 <el-form
                   class="demo-form-inline"
@@ -23,13 +26,12 @@
                     type="primary"
                     @click="arrangcancel()"
                     style="width: 90px; height: 30px; text-align: left"
-                    size="mini"
-                    icon="el-icon-arrow-left"
-                    >{{ $t("login.return") }}</el-button
-                  >
+                    size="small"
+                   
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
                   <el-form-item
                     :label="$t('floormanagement.device')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchDeveui"
@@ -38,7 +40,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.Devicealias')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchAlias"
@@ -47,7 +49,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.status')"
-                    style="display: flex; margin-left: 2%; margin-right: 2%"
+                    style="display: flex"
                   >
                     <el-select
                       v-model="searchInuse"
@@ -67,21 +69,18 @@
                       type="primary"
                       @click="searchArranges()"
                       class="query"
-                      >{{ $t("floormanagement.search") }}</el-button
-                    >
+                      >{{ $t("floormanagement.search") }}</el-button>
                     <el-button
                       type="primary"
                       @click="clearArranges()"
                       class="reset"
-                      >{{ $t("floormanagement.reset") }}</el-button
-                    >
+                      >{{ $t("floormanagement.reset") }}</el-button>
 
                     <el-button
                       type="primary"
                       class="reset"
                       @click="editTranche('position')"
-                      >{{ $t("floormanagement.Positioningarea") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Positioningarea") }}</el-button>
 
                     <el-button
                       type="primary"
@@ -94,8 +93,7 @@
                         intoProjectType == 1
                       "
                       @click="setSub()"
-                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -107,28 +105,24 @@
                         intoProjectType == 1
                       "
                       @click="closeSub()"
-                      >{{ $t("floormanagement.Endsetting") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Endsetting") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines()"
                       class="query"
                       v-if="!isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.showConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.showConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines()"
                       class="query"
                       v-if="isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="removeGroundDevs()"
                       class="query"
-                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button
-                    >
+                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -139,8 +133,7 @@
                         intoProjectType == 1
                       "
                       @click="setAdj()"
-                      >{{ $t("floormanagement.Setadjacency") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Setadjacency") }}</el-button>
                     <el-tooltip
                       class="item"
                       effect="light"
@@ -153,7 +146,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("floormanagement.title") }}<br />
                           {{ $t("floormanagement.title1") }}<br />
@@ -161,20 +154,18 @@
                           {{ $t("floormanagement.title3") }}<br />
                           {{ $t("floormanagement.title4") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
                 </el-form>
               </div>
 
-              <div
-                style="width: 100%; height: 90%; display: flex; margin-top: 2%"
-              >
+              <div class="arrange-map-row">
                 <div class="mapContent" ref="mapContent">
-                  <div style="width: 100%; height: 100%">
-                    <div id="allmap" ref="map" class="allmap"></div>
-                    <p style="width: 100%">
+                  <div class="arrange-map-wrap">
+                    <div id="arrange2d-allmap" ref="map" class="allmap"></div>
+                    <p class="arrange-map-tip">
                       {{ $t("floormanagement.arrangement1") }}
                       <a href="javascript:;" @click="vedio = true">{{
                         $t("floormanagement.Watchdemo")
@@ -183,63 +174,43 @@
                   </div>
 
                   <!-- 右键显示内容的 -->
-                  <div id="polygonMenu" ref="polygonMenu" class="contextmenu">
-                    <ul id="popup-content">
+                  <div id="polygonMenu" ref="polygonMenu" class="contextmenu map-ctx-menu">
+                    <div class="map-ctx-head">
+                      <span class="map-ctx-title">{{ $t("floormanagement.Near") }}</span>
+                      <a href="#" id="polygonMenu-closer" class="ol-popup-closer map-ctx-close">×</a>
+                    </div>
+                    <ul class="map-ctx-list" @click="closeCtxMenus">
                       <li>
-                        <a
-                          href="#"
-                          id="polygonMenu-closer"
-                          class="ol-popup-closer"
-                        >
-                          <img
-                            src="../../../static/close.jpg"
-                            width="11"
-                            height="11"
-                            alt=""
-                        /></a>
-                      </li>
-                      <li>
-                        <el-button id="editNear" size="mini" class="dels">{{
+                        <button type="button" id="editNear" class="map-ctx-item is-danger">{{
                           $t("floormanagement.Deleteadjacency")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li>
-                        <el-button id="delPolygon" size="mini" class="dels">{{
+                        <button type="button" id="delPolygon" class="map-ctx-item is-danger">{{
                           $t("floormanagement.delete")
-                        }}</el-button>
+                        }}</button>
                       </li>
                     </ul>
                   </div>
                   <div
                     id="contextmenu_container"
                     ref="contextmenu_container"
-                    class="contextmenu"
+                    class="contextmenu map-ctx-menu"
                   >
-                    <ul id="popup-content">
+                    <div class="map-ctx-head">
+                      <span class="map-ctx-title" :title="menuTitle">{{ menuTitle }}</span>
+                      <a href="#" id="popup-closer" class="ol-popup-closer map-ctx-close">×</a>
+                    </div>
+                    <ul class="map-ctx-list" @click="closeCtxMenus">
                       <li>
-                        <a href="#" id="popup-closer" class="ol-popup-closer">
-                          <img
-                            src="../../../static/close.jpg"
-                            width="11"
-                            height="11"
-                            alt=""
-                        /></a>
-                      </li>
-
-                      <li>
-                        <el-button id="del" size="mini" class="reset">{{
-                          $t("floormanagement.delete")
-                        }}</el-button>
-                      </li>
-                      <li>
-                        <el-button id="edit" size="mini" class="reset">{{
+                        <button type="button" id="edit" class="map-ctx-item">{{
                           $t("floormanagement.edit")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="!showOther">
-                        <el-button id="setArea" class="reset" size="mini">{{
+                        <button type="button" id="setArea" class="map-ctx-item">{{
                           $t("floormanagement.Scanningarea")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li
                         v-show="
@@ -248,19 +219,19 @@
                           contrForPrionum == 5
                         "
                       >
-                        <el-button id="setTranche" class="reset" size="mini">{{
+                        <button type="button" id="setTranche" class="map-ctx-item">{{
                           $t("floormanagement.Setarea")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="clock && !showOther">
-                        <el-button id="setClock" size="mini" class="reset">{{
+                        <button type="button" id="setClock" class="map-ctx-item">{{
                           $t("floormanagement.Setascheckin")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li v-show="caecelClock && !showOther">
-                        <el-button id="cancelClock" size="mini" class="reset">{{
+                        <button type="button" id="cancelClock" class="map-ctx-item">{{
                           $t("floormanagement.Cancelclockout")
-                        }}</el-button>
+                        }}</button>
                       </li>
                       <li
                         v-show="
@@ -272,41 +243,35 @@
                           !showOther
                         "
                       >
-                        <el-button
-                          id="setAdjoinBeacon"
-                          size="mini"
-                          class="reset"
-                          >{{
-                            $t("floormanagement.Setadjacentbeacon")
-                          }}</el-button
-                        >
+                        <button type="button" id="setAdjoinBeacon" class="map-ctx-item">{{
+                          $t("floormanagement.Setadjacentbeacon")
+                        }}</button>
                       </li>
-                      <li v-show="clearBeaconList && !showOther">
-                        <el-button
-                          id="cancelNearList"
-                          size="mini"
-                          class="reset dels"
-                          >{{
-                            $t("floormanagement.Deleteadjacency")
-                          }}</el-button
-                        >
-                      </li>
-
                       <li>
-                        <el-button
-                          id="calculatingDistance"
-                          size="mini"
-                          class="reset"
-                          >{{
-                            $t("floormanagement.CalculateDistance")
-                          }}</el-button
-                        >
+                        <button type="button" id="calculatingDistance" class="map-ctx-item">{{
+                          $t("floormanagement.CalculateDistance")
+                        }}</button>
+                      </li>
+                      <li class="map-ctx-divider"></li>
+                      <li v-show="clearBeaconList && !showOther">
+                        <button type="button" id="cancelNearList" class="map-ctx-item is-danger">{{
+                          $t("floormanagement.Deleteadjacency")
+                        }}</button>
+                      </li>
+                      <li>
+                        <button type="button" id="del" class="map-ctx-item is-danger">{{
+                          $t("floormanagement.delete")
+                        }}</button>
                       </li>
                     </ul>
                   </div>
                 </div>
                 <!-- 表格 -->
-                <div class="tableContent" ref="tableContent">
+                <div
+                  class="tableContent"
+                  ref="tableContent"
+                  :class="{ 'is-expanded': showTable }"
+                >
                   <div class="show_table">
                     <svg
                       :class="{ 'is-active': !showTable }"
@@ -324,93 +289,54 @@
                     <el-menu
                       class="chose_table"
                       :default-active="activeMenu"
-                      :collapse="isCollapse"
+                      :collapse="false"
                     >
                       <el-menu-item index="0" @click="menuClick('0', 1)">
+                        <i class="icon beacon"></i>
                         <span>{{ $t("otherDev.beacon") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.beacon')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon beacon"></i>
-                        </el-tooltip>
+                      </el-menu-item>
+
+                      <el-menu-item
+                        index="1"
+                        v-if="aoagw"
+                        @click="menuClick('1', 1)"
+                      >
+                        <i class="icon aoagw"></i>
+                        <span>{{ $t("otherDev.aoaGateway") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="2"
-                        v-if="aoagw"
-                        @click="menuClick('1', 1)"
+                        v-if="smoke"
+                        @click="menuClick('2', 1)"
                       >
-                        <span>{{ $t("otherDev.aoaGateway") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.aoaGateway')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon aoagw"></i>
-                        </el-tooltip>
+                        <i class="icon smoke"></i>
+                        <span>{{ $t("otherDev.smokeSensor") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="3"
-                        v-if="smoke"
-                        @click="menuClick('2', 1)"
-                      >
-                        <span>{{ $t("otherDev.smokeSensor") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.smokeSensor')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon smoke"></i>
-                        </el-tooltip>
-                      </el-menu-item>
-
-                      <el-menu-item
-                        index="4"
                         v-if="alertor"
                         @click="menuClick('3', 1)"
                       >
+                        <i class="icon alarm"></i>
                         <span>{{ $t("otherDev.burglarAlarm") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.burglarAlarm')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon alarm"></i>
-                        </el-tooltip>
                       </el-menu-item>
 
                       <el-menu-item
-                        index="6"
+                        index="5"
                         v-if="camera"
                         @click="menuClick('5', 1)"
                       >
+                        <i class="icon camera"></i>
                         <span>{{ $t("otherDev.camera") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.camera')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon camera"></i>
-                        </el-tooltip>
                       </el-menu-item>
                     </el-menu>
                   </div>
                   <div class="table_data" v-if="showTable">
                     <el-table
                       ref="multipleTable"
+                      :key="'arrange2d-' + activeMenu + '-' + intoProjectType"
                       :data="arrangeData"
                       highlight-current-row
                       @current-change="selectArrange"
@@ -426,7 +352,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -436,7 +361,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="deveui"
@@ -444,7 +368,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 2"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="deveui"
@@ -452,14 +375,12 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu != '0'"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="alias"
                         :label="$t('floormanagement.Devicealias2')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="typestr"
@@ -467,7 +388,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="devtypestr"
@@ -475,14 +395,12 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu != '0'"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="inusestr"
                         :label="$t('floormanagement.status1')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -490,7 +408,6 @@
                         :label="$t('floormanagement.workingcondition')"
                         show-overflow-tooltip
                         align="center"
-                        :key="Math.random()"
                       ></el-table-column>
                     </el-table>
                     <div class="block" style="text-align: center; width: 100%">
@@ -507,30 +424,29 @@
                 <!-- 修改图标显示的文字 -->
                 <div class="changShowButton" v-if="showOptions">
                   <el-dropdown @command="showOptionsTrue">
+                    <span class="el-dropdown-link">
                     <el-button type="primary">
                       {{ showOptionName
                       }}<i class="el-icon-arrow-up el-icon--right"></i>
                     </el-button>
-                    <el-dropdown-menu slot="dropdown">
+                    </span>
+<template #dropdown><el-dropdown-menu>
                       <el-dropdown-item
                         command="1"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showAliases") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showAliases") }}</el-dropdown-item>
                       <el-dropdown-item
                         command="2"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showMajor16") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showMajor16") }}</el-dropdown-item>
                       <el-dropdown-item
                         command="3"
                         v-if="intoProjectType == 1"
-                        >{{ $t("change.showMajor10") }}</el-dropdown-item
-                      >
+                        >{{ $t("change.showMajor10") }}</el-dropdown-item>
                       <el-dropdown-item command="4">{{
                         $t("change.showPosition")
                       }}</el-dropdown-item>
-                    </el-dropdown-menu>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </div>
               </div>
@@ -538,12 +454,11 @@
 
             <!-- 编辑设备信息 -->
             <el-dialog
-              width="30%"
+              width="480px"
               :title="$t('floormanagement.Editdeviceinformation')"
-              class="showHeadr"
-              :visible.sync="editFeatures"
+              class="showHeadr device-dialog"
+              v-model="editFeatures"
               :modal="false"
-              style="text-align: center"
               @close="closeEdit"
             >
               <el-form
@@ -562,146 +477,131 @@
                   <el-input v-model="editFeatureData.alias"></el-input>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="editFeatureCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="editFeaturesTrue()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
 
             <!-- 设置信标扫描区域 -->
             <el-dialog
-              width="40%"
-              :visible.sync="setAreas"
+              width="760px"
+              v-model="setAreas"
               :modal="false"
-              class="showHeadr setAreas"
-              style="text-align: center"
+              class="showHeadr setAreas device-dialog"
               @close="setAreaCancel"
             >
-              <span slot="title"
+              <template #header><span class="el-dialog__title"
                 >{{ $t("floormanagement.Setscanarea") }}
                 <el-tooltip class="item" effect="light" placement="right-start">
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("floormanagement.scannedarea") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
-              </span>
+              </span></template>
               <el-radio-group v-model="radio">
                 <el-radio :label="2"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl1"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="1"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl2"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="8"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl4"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="4"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl8"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="6"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl9"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="3"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl3"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="9"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl6"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="12"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl12"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="14"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl13"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="13"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl14"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="7"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl11"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="11"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl7"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="15"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl15"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
               </el-radio-group>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="setAreaCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="setAreaTrue()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
             <!-- 编辑区域 -->
             <!-- 2D 地图鼠标右键设置区域 -->
             <el-dialog
               :title="$t('floormanagement.Setarea')"
-              :visible.sync="trancheShow"
-              class="edit showHeadr"
-              width="30%"
-              style="text-align: center"
+              v-model="trancheShow"
+              class="edit showHeadr device-dialog"
+              width="520px"
               :modal="false"
               @close="closeTranche"
             >
@@ -735,7 +635,7 @@
                   </el-select>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="updateTrancheCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -743,9 +643,8 @@
                   type="primary"
                   @click="updateTrancheTrue()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
 
             <!-- 2D 地图设置相邻信标 -->
@@ -753,10 +652,9 @@
               :title="
                 $t('tet.setup') + adjoinBeaconAlias + $t('tet.Adjacentbeacon')
               "
-              :visible.sync="adjoinBeaconShow"
-              class="edit showHeadr setAdjoinBeacon"
-              width="30%"
-              style="text-align: center; margin-right: 2%"
+              v-model="adjoinBeaconShow"
+              class="edit showHeadr setAdjoinBeacon device-dialog"
+              width="560px"
               :modal="false"
               @close="closeAdjoinBeacon"
               @open="openAdjoinBeacon"
@@ -798,14 +696,14 @@
                       margin-left: 5px;
                     "
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.title5") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="updateAdjoinBeaconCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -813,12 +711,18 @@
                   type="primary"
                   @click="setAdjoinBeaconTrue()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
           </el-dialog>
-          <el-dialog :visible.sync="vedio" @close="closeVedio('video')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio"
+            @close="closeVedio('video')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video">
               <source
                 v-if="i8n == 'zh'"
@@ -832,7 +736,14 @@
               />
             </video>
           </el-dialog>
-          <el-dialog :visible.sync="vedio2" @close="closeVedio('video2')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio2"
+            @close="closeVedio('video2')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video2">
               <source src="../../../static/3D~1.mp4" type="video/mp4" />
             </video>
@@ -840,19 +751,16 @@
 
           <!-- 设置定位区域 -->
           <el-dialog
-            :title="$t('floormanagement.Positioningarea')"
-            :visible.sync="addTranchePosition"
-            class="edit"
-            width="40%"
-            style="text-align: center"
+            v-model="addTranchePosition"
+            class="edit device-dialog"
+            width="640px"
             :close-on-click-modal="false"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
             @close="addTrancheRowCancelPosition"
           >
-            <div slot="title" class="dialog-title">
-              <span class="title-text"
+            <template #header><div class="dialog-title">
+              <span class="title-text el-dialog__title"
                 >{{ $t("floormanagement.Positioningarea") }}
                 <el-tooltip
                   class="item"
@@ -860,15 +768,15 @@
                   placement="right-start"
                   style=""
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("floormanagement.title6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </span>
-            </div>
+            </div></template>
 
             <el-radio-group size="small">
               <el-button
@@ -876,8 +784,7 @@
                 class="add"
                 style="float: left"
                 @click="addTrancheRowPosition"
-                >{{ $t("floormanagement.add") }}</el-button
-              >
+                >{{ $t("floormanagement.add") }}</el-button>
             </el-radio-group>
 
             <el-form
@@ -901,8 +808,7 @@
                     style="margin-left: 20px"
                     class="del"
                     @click="deleTrancheRowPosition(index, item.name, item.id)"
-                    >{{ $t("floormanagement.delete") }}</el-button
-                  >
+                    >{{ $t("floormanagement.delete") }}</el-button>
                 </p>
 
                 <p class="tranchSwitch">
@@ -912,8 +818,8 @@
                     :value="item.fremove"
                     v-model="item.fremove"
                   >
-                    <span slot="open">{{ $t("floormanagement.open") }}</span>
-                    <span slot="close">{{ $t("floormanagement.close") }}</span>
+                    <template #active>{{ $t("floormanagement.open") }}</template>
+                    <template #inactive>{{ $t("floormanagement.close") }}</template>
                   </i-switch>
                 </p>
               </el-form-item>
@@ -944,23 +850,22 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+            <template #footer><div class="dialog-footer" style="margin-top: -10px">
               <el-button @click="addTrancheRowCancelPosition()">{{
                 $t("change.cancle")
               }}</el-button>
               <el-button type="primary" @click="addTrancheRowTruePosition()">{{
                 $t("change.sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 显示距离 -->
           <el-dialog
-            width="30%"
-            class="showHeadr"
-            :visible.sync="showDistance"
+            width="420px"
+            class="showHeadr device-dialog"
+            v-model="showDistance"
             :modal="false"
-            style="text-align: center"
           >
             <p>{{ $t("floormanagement.Xaxis") }}{{ distanceData.x }}cm</p>
             <p>{{ $t("floormanagement.Yaxis") }}{{ distanceData.y }}cm</p>
@@ -1053,12 +958,12 @@ export default {
   name: "BuildingManagement",
   data() {
     return {
+      menuTitle: "",
       aoagw: this.$store.state.functionParts.aoagw,
       smoke: this.$store.state.functionParts.smoke,
       alertor: this.$store.state.functionParts.alertor,
       blesensor: this.$store.state.functionParts.blesensor,
       camera: this.$store.state.functionParts.camera,
-      isCollapse: false,
       activeMenu: "0",
       i8n: this.$store.state.i18n,
       currentPoint: [],
@@ -1105,6 +1010,7 @@ export default {
       totalArrange: 0,
       dobuleClick: false, //判断是否连续点击了布置按钮
       arrange: false,
+      pendingMapInit: null,
       // 布置相关
       caecelClock: false,
       clock: false,
@@ -1222,6 +1128,12 @@ export default {
       isShowLines: false, //是否显示连接线
 
       select: null, //选中的点
+      arrangeDragging: false, // 是否正在拖拽布置点（防止拖拽松手误触发 click 再布置）
+      suppressMapClickUntil: 0,
+      arrangeMoveToken: 0, // 拖拽保存请求序号，避免超时重载与慢请求叠加
+      _mapInitGeneration: 0,
+      _mapInitInFlight: false,
+      _arrangeLoadToken: 0,
       reallength: 0,
       length: 0,
       realwidth: 0,
@@ -1261,6 +1173,23 @@ export default {
         this.$data.showOptionName,
         this.$options.data.call(this).showOptionName
       );
+    },
+    arrange(val) {
+      if (!val) {
+        clearTimeout(this._arrangeOpenTimer);
+        this._mapInitGeneration = (this._mapInitGeneration || 0) + 1;
+        this.unobserveMapResize();
+        return;
+      }
+      if (!this.pendingMapInit) {
+        return;
+      }
+      // 仅作 @opened 未触发时的兜底；地图已在初始化或已创建则不再二次 init（云端慢时双开会导致设备加两遍）
+      this._arrangeOpenTimer = setTimeout(() => {
+        if (this.pendingMapInit && !this.map && !this._mapInitInFlight) {
+          this.handleArrangeDialogOpened();
+        }
+      }, 350);
     },
   },
   methods: {
@@ -1351,6 +1280,10 @@ export default {
     removeGroundDevs() {
       var that = this;
       this.$confirm(this.$t("floormanagement.RemoveGroundDevText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1383,22 +1316,11 @@ export default {
     },
     // 显示/隐藏图表
     setTable() {
-      var that = this;
-      that.showTable = !that.showTable;
-      if (that.showTable) {
-        that.$refs.mapContent.style.width = "70%";
-        that.$refs.tableContent.style.width = "30%";
-        that.isCollapse = false;
-      } else {
-        that.$refs.mapContent.style.width = "95%";
-        that.$refs.tableContent.style.width = "5%";
-        that.isCollapse = true;
-      }
-
-      if (that.arrange) {
-        setTimeout(() => {
-          that.map.updateSize();
-        }, 100);
+      this.showTable = !this.showTable;
+      if (this.arrange) {
+        this.$nextTick(() => {
+          this.scheduleMapResize();
+        });
       }
     },
     // 选择表格数据
@@ -1494,16 +1416,18 @@ export default {
     selectSingleClick() {
       let that = this;
       //只给相邻点添加点击事件
-      let arr = that.map.getLayers().getArray();
+      let arr = that.map.getLayers().getArray().slice();
       let list = [];
-      arr.forEach((item, index) => {
-        if (item.values_.wrapX == false) {
-          arr.splice(index, 1);
+      arr.forEach((item) => {
+        if (that.isFenceVectorLayer(item)) {
+          return;
         }
-      });
-      arr.map((item, index) => {
-        let source = item.getSource();
-        if (source.getFeatures && !source.getFeatures()[0].values_.name) {
+        // 跳过底图等非矢量图层
+        if (item && item.values_ && item.values_.wrapX == false) {
+          return;
+        }
+        const values = that.getLayerFirstFeatureValues(item);
+        if (values && !values.name) {
           list.push(item);
         }
       });
@@ -1530,16 +1454,10 @@ export default {
       that.map.addInteraction(select);
 
       select.on("select", (e) => {
-        const selectedFeatures =
-          (select.getFeatures() &&
-            (typeof select.getFeatures().getArray === "function"
-              ? select.getFeatures().getArray()
-              : select.getFeatures().array_)) ||
-          [];
-        if (window.event && window.event.ctrlKey) {
-          if (selectedFeatures.length == 0 || !selectedFeatures[0]) return;
-          if (!selectedFeatures[0].values_ || !selectedFeatures[0].values_.alias) {
-            selectedFeatures[0].setStyle(
+        if (window.event.ctrlKey) {
+          if (select.getFeatures().array_.length == 0) return;
+          if (!select.getFeatures().array_[0].values_.alias) {
+            select.getFeatures().array_[0].setStyle(
               new OlStyleStyle({
                 fill: new Fill({
                   color: "rgba(255, 255, 255, 0.3)",
@@ -1559,10 +1477,9 @@ export default {
           }
           return;
         }
-        that.currentFeature = selectedFeatures;
+        that.currentFeature = select.getFeatures().array_;
         if (e.selected.length == 0) return;
         that.currentFeature.forEach((item, index) => {
-          if (!item || !item.values_) return;
           if (e.selected[0] && e.selected[0].ol_uid === item.ol_uid) {
             let image;
             if (item.values_.alias) {
@@ -1978,35 +1895,131 @@ export default {
       this.positionTrancheList = [];
     },
 
+    fitMapViewToExtent(extent) {
+      if (!this.map) {
+        return;
+      }
+      const size = this.map.getSize();
+      if (!size || size[0] <= 0 || size[1] <= 0) {
+        return;
+      }
+      this.map.getView().fit(extent, {
+        size,
+        padding: [20, 20, 20, 20],
+        constrainResolution: false,
+        maxZoom: 6,
+      });
+    },
+
+    // 清除地图上已布置的设备图标层（保留底图、围栏、连接点/连线）
+    clearArrangeDeviceLayersOnly() {
+      if (!this.map) return;
+      const layers = this.map.getLayers().getArray().slice();
+      for (let i = layers.length - 1; i > 0; i--) {
+        const layer = layers[i];
+        if (this.isFenceVectorLayer && this.isFenceVectorLayer(layer)) continue;
+        const source = layer.getSource && layer.getSource();
+        if (!source || typeof source.getFeatures !== "function") continue;
+        if (source.image_) continue;
+        const feats = source.getFeatures();
+        if (!feats || !feats.length) continue;
+        const props =
+          (feats[0].values_ ||
+            (feats[0].getProperties && feats[0].getProperties())) ||
+          {};
+        // 只清设备图标；连接点(point)与相邻连线保留
+        if (props.point && !props.deveui) continue;
+        if (!(props.deveui || props.beaconid || props.alias)) continue;
+        this.map.removeLayer(layer);
+      }
+    },
+    // 同一设备号只保留一个图层，去掉拖拽/重载产生的重复图标
+    dedupeArrangeDeviceLayers() {
+      if (!this.map) return;
+      const seen = Object.create(null);
+      const layers = this.map.getLayers().getArray().slice();
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i];
+        if (this.isFenceVectorLayer && this.isFenceVectorLayer(layer)) continue;
+        const source = layer.getSource && layer.getSource();
+        if (!source || typeof source.getFeatures !== "function") continue;
+        const feats = source.getFeatures();
+        if (!feats || !feats.length) continue;
+        const props =
+          (feats[0].values_ ||
+            (feats[0].getProperties && feats[0].getProperties())) ||
+          {};
+        const key = props.deveui || props.beaconid || "";
+        if (!key) continue;
+        if (seen[key]) {
+          this.map.removeLayer(layer);
+        } else {
+          seen[key] = true;
+        }
+      }
+    },
+    // 可拖拽的布置要素：设备点 / 连接点；排除围栏、连线等
+    isMovableArrangeFeature(feature, layer) {
+      if (layer && typeof layer.get === "function") {
+        if (layer.get("isElectronicFenceLayer")) return false;
+      }
+      if (!feature || typeof feature.getGeometry !== "function") return false;
+      const geom = feature.getGeometry();
+      if (!geom) return false;
+      const gType = geom.getType();
+      if (
+        gType === "LineString" ||
+        gType === "MultiLineString" ||
+        gType === "Polygon" ||
+        gType === "MultiPolygon"
+      ) {
+        return false;
+      }
+      const props =
+        typeof feature.getProperties === "function"
+          ? feature.getProperties()
+          : feature.values_ || {};
+      return !!(
+        props.deveui ||
+        props.alias ||
+        props.point ||
+        (props.id && props.xy)
+      );
+    },
     //初始化地图
     mapInit(x, y, info) {
       this.imageWidth = x;
       this.imageHeight = y;
       var that = this;
       var extent = [0, 0, x, y];
+      const projectionCode = `arrange-image-${that.groundid || info.id}-${x}-${y}`;
       var projection = new Projection({
-        code: "xkcd-image",
+        code: projectionCode,
         units: "pixels",
         extent: extent,
       });
-      setTimeout(() => {
-        this.$refs.map.style.width = "100%";
-        this.$refs.map.style.height = "90%";
+      const runInit = () => {
+        const mapEl = that.$refs.map;
+        if (!mapEl) {
+          return;
+        }
+        if (that.map) {
+          that.map.setTarget(null);
+          that.map = null;
+        }
+        that.forceMapContainerSize();
 
-        that.select = new Select();
+        that.select = new Select({
+          hitTolerance: 16,
+          filter: that.isMovableArrangeFeature,
+        });
         // 单击选中
         that.select.on("select", (e) => {
           // if(that.select==null)return
-          const selectedFeatures =
-            (that.select.getFeatures() &&
-              (typeof that.select.getFeatures().getArray === "function"
-                ? that.select.getFeatures().getArray()
-                : that.select.getFeatures().array_)) ||
-            [];
           if (window.event && window.event.ctrlKey) {
-            if (selectedFeatures.length == 0 || !selectedFeatures[0]) return;
-            if (!selectedFeatures[0].values_ || !selectedFeatures[0].values_.alias) {
-              selectedFeatures[0].setStyle(
+            if (that.select.getFeatures().array_.length == 0) return;
+            if (!that.select.getFeatures().array_[0].values_.alias) {
+              that.select.getFeatures().array_[0].setStyle(
                 new OlStyleStyle({
                   fill: new Fill({
                     color: "rgba(255, 255, 255, 0.3)",
@@ -2026,10 +2039,9 @@ export default {
             }
             return;
           }
-          that.currentFeature = selectedFeatures;
+          that.currentFeature = that.select.getFeatures().array_;
           if (e.selected.length == 0) return;
           that.currentFeature.forEach((item, index) => {
-            if (!item || !item.values_) return;
             if (e.selected[0] && e.selected[0].ol_uid === item.ol_uid) {
               let image;
               if (item.values_.alias) {
@@ -2067,8 +2079,10 @@ export default {
           that.currentAdj = e.selected[0];
         });
 
+        // 不绑定 select 集合：否则命中到文字/连线时无法拖动，地图会被当成平移
         const translate = new Translate({
-          features: that.select.getFeatures(),
+          hitTolerance: 16,
+          filter: that.isMovableArrangeFeature,
         });
 
         let old = [];
@@ -2083,72 +2097,63 @@ export default {
 
         //开始移动
         translate.on("translatestart", (e) => {
-          let list = that.map.getLayers().getArray();
-          //获取选中的点信息 用于判断线的移动端点
-          const featureList =
-            (e.features &&
-              (typeof e.features.getArray === "function"
-                ? e.features.getArray()
-                : e.features.array_)) ||
-            [];
-          const targetFeature = featureList.find((f) => f && f.values_) || null;
-          if (!targetFeature) {
+          that.arrangeDragging = true;
+          const moved =
+            (e.features && e.features.getArray && e.features.getArray()[0]) ||
+            (e.features && e.features.array_ && e.features.array_[0]);
+          if (!moved) {
+            that.arrangeDragging = false;
             return;
           }
-          let feature = targetFeature.values_;
+          let list = that.map.getLayers().getArray();
+          //获取选中的点信息 用于判断线的移动端点
+          let feature = moved.values_ || moved.getProperties();
           if (feature.xy) {
             differX = e.coordinate[0] - feature.xy[0];
             differY = e.coordinate[1] - feature.xy[1];
           }
-          currentFeature = targetFeature;
+          currentFeature = moved;
           oldFeature = feature;
           let LayerArrays = [];
           //获选中点相关的线集合
           list.forEach((item) => {
-            if (
-              !item.getSource().image_ &&
-              item.getSource().getFeatures()[0] &&
-              item.getSource().getFeatures()[0].values_
-            ) {
-              if (feature.id) {
-                if (
-                  item.getSource().getFeatures()[0].values_.perid ===
-                    feature.id ||
-                  item.getSource().getFeatures()[0].values_.subid === feature.id
-                ) {
-                  LayerArrays.push(item);
-                }
+            const source = item && item.getSource && item.getSource();
+            if (!source || source.image_ || typeof source.getFeatures !== "function") {
+              return;
+            }
+            const firstFeat = source.getFeatures()[0];
+            if (!firstFeat) return;
+            const values = firstFeat.values_ || firstFeat.getProperties();
+            if (!values) return;
+            if (feature.id) {
+              if (values.perid === feature.id || values.subid === feature.id) {
+                LayerArrays.push(item);
               }
-              if (feature.deveui) {
-                if (
-                  item.getSource().getFeatures()[0].values_.perid ===
-                    feature.deveui ||
-                  item.getSource().getFeatures()[0].values_.subid ===
-                    feature.deveui
-                ) {
-                  LayerArrays.push(item);
-                }
+            }
+            if (feature.deveui) {
+              if (
+                values.perid === feature.deveui ||
+                values.subid === feature.deveui
+              ) {
+                LayerArrays.push(item);
               }
             }
           });
           old = e.mapBrowserEvent.coordinate;
           lines = LayerArrays;
           //获取线的坐标集合
-          lines.forEach((item, index) => {
-            const flatCoordinates = item
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry().flatCoordinates;
+          xy = [];
+          lines.forEach((item) => {
+            const firstFeat = item.getSource().getFeatures()[0];
+            if (!firstFeat || !oldFeature.xy) return;
+            const flatCoordinates = firstFeat.getGeometry().flatCoordinates;
             //为了判断端点移动 线需要移动的端点坐标设为0
             if (
-              oldFeature.xy &&
               flatCoordinates[0] === oldFeature.xy[0] &&
               flatCoordinates[1] === oldFeature.xy[1]
             ) {
               xy.push([0, 0, flatCoordinates[2], flatCoordinates[3]]);
-            }
-            if (
-              oldFeature.xy &&
+            } else if (
               flatCoordinates[2] === oldFeature.xy[0] &&
               flatCoordinates[3] === oldFeature.xy[1]
             ) {
@@ -2161,55 +2166,48 @@ export default {
         translate.on("translating", function (e) {
           //遍历该点的相关线
           lines.forEach((item, index) => {
-            if (!xy[index] || !item.getSource().getFeatures()[0]) return;
+            if (!xy[index]) return;
+            const firstFeat = item.getSource() && item.getSource().getFeatures()[0];
+            if (!firstFeat) return;
             //移动线，端点坐标为0的就设置为移动中的坐标
-            item
-              .getSource()
-              .getFeatures()[0]
-              .getGeometry()
-              .setCoordinates([
-                [
-                  xy[index][0] == 0
-                    ? e.mapBrowserEvent.coordinate[0] - differX
-                    : xy[index][0],
-                  xy[index][1] == 0
-                    ? e.mapBrowserEvent.coordinate[1] - differY
-                    : xy[index][1],
-                ],
-                [
-                  xy[index][2] == 0
-                    ? e.mapBrowserEvent.coordinate[0] - differX
-                    : xy[index][2],
-                  xy[index][3] == 0
-                    ? e.mapBrowserEvent.coordinate[1] - differY
-                    : xy[index][3],
-                ],
-              ]);
+            firstFeat.getGeometry().setCoordinates([
+              [
+                xy[index][0] == 0
+                  ? e.mapBrowserEvent.coordinate[0] - differX
+                  : xy[index][0],
+                xy[index][1] == 0
+                  ? e.mapBrowserEvent.coordinate[1] - differY
+                  : xy[index][1],
+              ],
+              [
+                xy[index][2] == 0
+                  ? e.mapBrowserEvent.coordinate[0] - differX
+                  : xy[index][2],
+                xy[index][3] == 0
+                  ? e.mapBrowserEvent.coordinate[1] - differY
+                  : xy[index][3],
+              ],
+            ]);
           });
         });
 
         //移动结束
         translate.on("translateend", function (e) {
-          // if (window.event.ctrlKey) return;
-          const endFeatures =
-            (e.features &&
-              (typeof e.features.getArray === "function"
-                ? e.features.getArray()
-                : e.features.array_)) ||
-            [];
-          const endFeature =
-            endFeatures.find((f) => f && f.values_) || null;
-          if (!endFeature) {
-            old = [];
-            lines = [];
-            oldFeature = "";
-            xy = [];
-            return;
-          }
+          that.arrangeDragging = false;
+          // 拖拽松手后忽略紧随其后的 click（云端更容易误触发再布置）
+          that.suppressMapClickUntil = Date.now() + 800;
+          const movedFeat =
+            currentFeature ||
+            (e.features && e.features.getArray && e.features.getArray()[0]) ||
+            (e.features && e.features.array_ && e.features.array_[0]);
+          const movedVals =
+            (movedFeat && (movedFeat.values_ || movedFeat.getProperties())) ||
+            {};
           //没有移动点就不执行
           if (
-            old[0] === e.mapBrowserEvent.coordinate[0] &&
-            old[1] === e.mapBrowserEvent.coordinate[1]
+            !movedFeat ||
+            (old[0] === e.mapBrowserEvent.coordinate[0] &&
+              old[1] === e.mapBrowserEvent.coordinate[1])
           ) {
             old = [];
             lines = [];
@@ -2217,265 +2215,200 @@ export default {
             xy = [];
             return;
           }
+
+          // 以拖拽后的几何坐标为准（比鼠标坐标减偏移更稳）
+          const geom = movedFeat.getGeometry && movedFeat.getGeometry();
+          const newCoord =
+            (geom && geom.getCoordinates && geom.getCoordinates()) ||
+            [
+              e.mapBrowserEvent.coordinate[0] - differX,
+              e.mapBrowserEvent.coordinate[1] - differY,
+            ];
+          const nodeX = Number(newCoord[0]);
+          const nodeY = Number(newCoord[1]);
+
+          if (
+            nodeX > that.imageWidth ||
+            nodeX < 0 ||
+            nodeY < 0 ||
+            nodeY > that.imageHeight
+          ) {
+            that.$message({
+              message: that.$t("floormanagement.Beyondthemap"),
+              type: "warning",
+            });
+            that.clearArranges();
+            old = [];
+            lines = [];
+            oldFeature = "";
+            xy = [];
+            return;
+          }
+
+          // 先写回本地 xy，避免后续逻辑读到旧坐标
+          if (movedFeat.set) {
+            movedFeat.set("xy", [nodeX, nodeY]);
+            movedFeat.set("x", nodeX);
+            movedFeat.set("y", nodeY);
+            if (movedVals.longi !== undefined || movedVals.alias) {
+              movedFeat.set("longi", nodeX);
+              movedFeat.set("lati", nodeY);
+            }
+          }
+
           const loading = that.$loading({
             lock: true,
             text: "loading",
             spinner: "el-icon-loading",
             background: "rgba(256, 256, 256, 0.7)",
           });
-          let moveTimes = 0;
-          const endValues = endFeature.values_ || {};
-          function updatePoints() {
-            moveTimes += 1;
-            let clearMarker = true;
-            let data = {
+
+          // 云端首次保存可能超过 5s；超时里 clearArranges 会与仍保留的旧图层叠加成重复图标
+          const moveToken = ++that.arrangeMoveToken;
+          let finished = false;
+          let tryCount = 0;
+          const maxTry = 3;
+          const timeoutMs = 20000;
+          let timer = setTimeout(() => {
+            if (finished || moveToken !== that.arrangeMoveToken) return;
+            // 仅提示，不重建图层（重建是重复图标的主因）
+            that.$message({
+              message: that.$t("floormanagement.Requesttimedout"),
+              type: "warning",
+            });
+            loading.close();
+          }, timeoutMs);
+
+          const doneOk = () => {
+            if (moveToken !== that.arrangeMoveToken) return;
+            finished = true;
+            clearTimeout(timer);
+            that.dedupeArrangeDeviceLayers();
+            that.$message({
+              message: that.$t("Building.Layoutsuccessful"),
+              type: "success",
+            });
+            setTimeout(() => loading.close(), 300);
+          };
+          const doneFail = (res) => {
+            if (moveToken !== that.arrangeMoveToken) return;
+            finished = true;
+            clearTimeout(timer);
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+            loading.close();
+            that.clearArranges();
+          };
+          const savePoint = () => {
+            tryCount += 1;
+            const data = {
               groundid: that.groundid,
               pointid:
-                endValues.id ||
-                (endValues.features &&
-                  endValues.features[0] &&
-                  endValues.features[0].values_ &&
-                  endValues.features[0].values_.id),
-              nodeX: e.mapBrowserEvent.coordinate[0] - differX,
-              nodeY: e.mapBrowserEvent.coordinate[1] - differY,
+                movedVals.id ||
+                (movedVals.features &&
+                  movedVals.features[0] &&
+                  movedVals.features[0].values_ &&
+                  movedVals.features[0].values_.id),
+              nodeX,
+              nodeY,
             };
-            // return;
-            setTimeout(() => {
-              if (clearMarker) {
-                that.$message({
-                  message: that.$t("floormanagement.Requesttimedout"),
-                  type: "warning",
-                });
-                that.clearArranges();
-                loading.close();
-              }
-            }, 5000);
             updatePoint(
               data,
               that.tenantkey_A,
               that.tenantid_A,
               that.userName
             ).then((res) => {
+              if (moveToken !== that.arrangeMoveToken) return;
               if (res.code == 1001) {
-                clearMarker = false;
-                moveTimes = 0;
-                that.$message({
-                  message: that.$t("Building.Layoutsuccessful"),
-                  type: "success",
-                });
-                //移动完成重新设置该点xy信息
-                currentFeature.set("xy", [
-                  e.mapBrowserEvent.coordinate[0] - differX,
-                  e.mapBrowserEvent.coordinate[1] - differY,
-                ]);
-                setTimeout(() => {
-                  loading.close();
-                }, 500);
+                doneOk();
+              } else if (tryCount < maxTry) {
+                savePoint();
               } else {
-                if (moveTimes <= 3) {
-                  updatePoints();
-                } else {
-                  that.$message({
-                    message:
-                      that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                    type: "error",
-                  });
-                  that.clearArranges();
-                  loading.close();
-                }
+                doneFail(res);
               }
             });
-          }
-          function updateBeaconPosOnes() {
-            let clearMarker = true;
-            moveTimes += 1;
-            let data = {
+          };
+          const saveDevice = () => {
+            tryCount += 1;
+            const data = {
               projectid: that.intoProjectid,
               groundid: that.groundid,
               deveui:
-                endValues.deveui ||
-                (endValues.features &&
-                  endValues.features[0] &&
-                  endValues.features[0].values_ &&
-                  endValues.features[0].values_.deveui),
-              longi: e.mapBrowserEvent.coordinate[0] - differX,
-              lati: e.mapBrowserEvent.coordinate[1] - differY,
+                movedVals.deveui ||
+                (movedVals.features &&
+                  movedVals.features[0] &&
+                  movedVals.features[0].values_ &&
+                  movedVals.features[0].values_.deveui),
+              longi: nodeX,
+              lati: nodeY,
               falg: true,
             };
-            setTimeout(() => {
-              if (clearMarker) {
-                that.$message({
-                  message: that.$t("floormanagement.Requesttimedout"),
-                  type: "warning",
-                });
-                that.clearArranges();
-
-                loading.close();
-              }
-            }, 5000);
-
-            if (endValues.devtype) {
-              data.devtype = endValues.devtype;
-              updateDevOtherPosOne(
+            let req;
+            if (movedVals.devtype) {
+              data.devtype = movedVals.devtype;
+              req = updateDevOtherPosOne(
                 data,
                 that.tenantkey_A,
                 that.tenantid_A,
                 that.userName
-              ).then((res) => {
-                if (res.code == 1001) {
-                  clearMarker = false;
-                  setTimeout(() => {
-                    loading.close();
-                  }, 500);
-                  moveTimes = 0;
-                  that.$message({
-                    message: that.$t("Building.Layoutsuccessful"),
-                    type: "success",
-                  });
-                  //移动完成重新设置该点xy信息
-                  currentFeature.set("xy", [
-                    e.mapBrowserEvent.coordinate[0] - differX,
-                    e.mapBrowserEvent.coordinate[1] - differY,
-                  ]);
-                } else {
-                  if (moveTimes <= 3) {
-                    updateBeaconPosOnes();
-                  } else {
-                    loading.close();
-                    that.$message({
-                      message:
-                        that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                      type: "error",
-                    });
-
-                    that.clearArranges();
-                  }
-                }
-              });
+              );
+            } else if (that.intoProjectType == 1) {
+              req = updateBeaconPosOne(
+                data,
+                that.tenantkey_A,
+                that.tenantid_A,
+                that.userName
+              );
             } else {
-              if (that.intoProjectType == 1) {
-                updateBeaconPosOne(
-                  data,
-                  that.tenantkey_A,
-                  that.tenantid_A,
-                  that.userName
-                ).then((res) => {
-                  if (res.code == 1001) {
-                    clearMarker = false;
-                    setTimeout(() => {
-                      loading.close();
-                    }, 500);
-                    moveTimes = 0;
-                    that.$message({
-                      message: that.$t("Building.Layoutsuccessful"),
-                      type: "success",
-                    });
-                    //移动完成重新设置该点xy信息
-                    currentFeature.set("xy", [
-                      e.mapBrowserEvent.coordinate[0] - differX,
-                      e.mapBrowserEvent.coordinate[1] - differY,
-                    ]);
-                  } else {
-                    if (moveTimes <= 3) {
-                      updateBeaconPosOnes();
-                    } else {
-                      loading.close();
-                      that.$message({
-                        message:
-                          that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                        type: "error",
-                      });
-
-                      that.clearArranges();
-                    }
-                  }
-                });
-              } else {
-                updateDevListPosOne(
-                  data,
-                  that.tenantkey_A,
-                  that.tenantid_A,
-                  that.userName
-                ).then((res) => {
-                  if (res.code == 1001) {
-                    clearMarker = false;
-                    setTimeout(() => {
-                      loading.close();
-                    }, 500);
-                    moveTimes = 0;
-                    that.$message({
-                      message: that.$t("Building.Layoutsuccessful"),
-                      type: "success",
-                    });
-                    //移动完成重新设置该点xy信息
-                    currentFeature.set("xy", [
-                      e.mapBrowserEvent.coordinate[0] - differX,
-                      e.mapBrowserEvent.coordinate[1] - differY,
-                    ]);
-                  } else {
-                    if (moveTimes <= 3) {
-                      updateBeaconPosOnes();
-                    } else {
-                      loading.close();
-                      that.$message({
-                        message:
-                          that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                        type: "error",
-                      });
-
-                      that.clearArranges();
-                    }
-                  }
-                });
-              }
+              req = updateDevListPosOne(
+                data,
+                that.tenantkey_A,
+                that.tenantid_A,
+                that.userName
+              );
             }
+            req.then((res) => {
+              if (moveToken !== that.arrangeMoveToken) return;
+              if (res.code == 1001) {
+                doneOk();
+              } else if (tryCount < maxTry) {
+                saveDevice();
+              } else {
+                doneFail(res);
+              }
+            });
+          };
+
+          const isPoint =
+            movedVals.point ||
+            (movedVals.features &&
+              movedVals.features[0] &&
+              movedVals.features[0].values_ &&
+              movedVals.features[0].values_.point);
+          const isDevice =
+            movedVals.alias ||
+            movedVals.deveui ||
+            (movedVals.features &&
+              movedVals.features[0] &&
+              movedVals.features[0].values_ &&
+              (movedVals.features[0].values_.alias ||
+                movedVals.features[0].values_.deveui));
+
+          if (isPoint) {
+            savePoint();
+          } else if (isDevice) {
+            saveDevice();
+          } else {
+            clearTimeout(timer);
+            loading.close();
           }
 
-          if (
-            e.mapBrowserEvent.coordinate[0] - differX > that.imageWidth ||
-            e.mapBrowserEvent.coordinate[0] - differX < 0 ||
-            e.mapBrowserEvent.coordinate[1] - differY < 0 ||
-            e.mapBrowserEvent.coordinate[1] - differY > that.imageHeight
-          ) {
-            // 超出地图，重新加载
-            that.$message({
-              message: that.$t("floormanagement.Beyondthemap"),
-              type: "warning",
-            });
-            that.clearArranges();
-            setTimeout(() => {
-              loading.close();
-            }, 500);
-            return;
-          }
-          if (
-            (endValues && endValues.point) ||
-            (endValues.features &&
-              endValues.features[0] &&
-              endValues.features[0].values_ &&
-              endValues.features[0].values_.point)
-          ) {
-            updatePoints();
-          }
-          if (
-            (endValues && endValues.alias) ||
-            (endValues.features &&
-              endValues.features[0] &&
-              endValues.features[0].values_ &&
-              endValues.features[0].values_.alias)
-          ) {
-            updateBeaconPosOnes();
-          }
           old = [];
           lines = [];
           oldFeature = "";
           xy = [];
-          if (currentFeature && currentFeature.set) {
-            currentFeature.set("xy", [
-              e.mapBrowserEvent.coordinate[0],
-              e.mapBrowserEvent.coordinate[1],
-            ]);
-          }
         });
         const overviewMapControl = new OverviewMap({
           layers: [
@@ -2484,6 +2417,7 @@ export default {
                 url: that.imgUrl,
                 projection: projection,
                 imageExtent: extent,
+                imageSize: [x, y],
               }),
             }),
           ],
@@ -2493,19 +2427,11 @@ export default {
             zoom: 1,
           }),
         });
-        let minZoom, zoom, control;
-        if (info.nums > 200) {
-          zoom = 5;
-          minZoom = 4;
-        } else {
-          zoom = 4;
-          minZoom = 3;
-        }
+        let control;
         if (info.reallength > 60 || info.realwidth > 60) {
           control = true;
         } else {
           control = false;
-          minZoom = 1;
         }
         this.map = new Map({
           controls: control
@@ -2518,18 +2444,25 @@ export default {
                 url: that.imgUrl,
                 projection: projection,
                 imageExtent: extent,
+                imageSize: [x, y],
               }),
             }),
           ],
-          target: this.mapName,
+          target: mapEl,
           view: new View({
             projection: projection,
             center: getCenter(extent),
-            zoom: zoom,
+            zoom: 2,
             maxZoom: 6,
-            minZoom: minZoom,
+            minZoom: 1,
           }),
         });
+        this.syncMapSize();
+        this.$nextTick(() => {
+          that.fitMapViewToExtent(extent);
+          that.syncMapSize();
+        });
+        this.observeMapResize();
         this.mapClick();
         this.mapRightClick(that.map);
         this.addSubPolygon();
@@ -2547,7 +2480,8 @@ export default {
           that.getArrangeBeaconPos(info.projectid);
         }
         that.loadIndoorFences();
-      }, 0);
+      };
+      runInit();
     },
 
     //单击布置
@@ -2555,13 +2489,24 @@ export default {
       var that = this;
       var x, y, coodinate;
       this.mapClickEvent = this.map.on("click", (evt) => {
+        // 拖拽移动已布置设备时，松手可能连带触发 click，云端更容易出现，需忽略
+        if (that.arrangeDragging || Date.now() < that.suppressMapClickUntil) {
+          return;
+        }
         var feature = this.map.forEachFeatureAtPixel(
           evt.pixel,
-          function (feature) {
-            coodinate = evt.coordinate;
-            return feature;
-          }
+          function (feature, layer) {
+            if (that.isMovableArrangeFeature(feature, layer)) {
+              coodinate = evt.coordinate;
+              return feature;
+            }
+          },
+          { hitTolerance: 8 }
         );
+        // 点在已有设备/连接点上：只做选中，不再二次布置
+        if (feature) {
+          return;
+        }
         if (that.selectArrangeData == null || that.selectArrangeData == "") {
           // that.$message({
           //   message: "请选择未使用的设备！",
@@ -3225,17 +3170,17 @@ export default {
     modifyFeature(map, source, layer) {
       var that = this;
       let layerList = [];
-      let arr = that.map.getLayers().getArray();
-      arr.forEach((item, index) => {
-        if (item.values_.wrapX == false) {
-          arr.splice(index, 1);
+      let arr = that.map.getLayers().getArray().slice();
+      arr.forEach((item) => {
+        if (that.isFenceVectorLayer(item)) {
+          return;
         }
-      });
-      arr.forEach((item, index) => {
-        if (
-          item.getSource().getFeatures &&
-          !item.getSource().getFeatures()[0].values_.name
-        ) {
+        // 跳过底图等非矢量图层
+        if (item && item.values_ && item.values_.wrapX == false) {
+          return;
+        }
+        const values = that.getLayerFirstFeatureValues(item);
+        if (values && !values.name) {
           layerList.push(item);
         }
       });
@@ -3264,29 +3209,18 @@ export default {
       translate1.on("translatestart", (e) => {
         let list = that.map.getLayers().getArray();
         //获取选中的点信息 用于判断线的移动端点
-        const featureList =
-          (e.features &&
-            (typeof e.features.getArray === "function"
-              ? e.features.getArray()
-              : e.features.array_)) ||
-          [];
-        const targetFeature = featureList.find((f) => f && f.values_) || null;
-        if (!targetFeature) {
-          return;
-        }
-        let feature = targetFeature.values_;
+        let feature = e.features.array_[0].values_;
         if (feature.xy) {
           differX = e.coordinate[0] - feature.xy[0];
           differY = e.coordinate[1] - feature.xy[1];
         }
-        currentFeature = targetFeature;
+        currentFeature = e.features.array_[0];
         oldFeature = feature;
         let LayerArrays = [];
         //获选中点相关的线集合
         list.forEach((item) => {
           if (
             !item.getSource().image_ &&
-            item.getSource().getFeatures()[0] &&
             item.getSource().getFeatures()[0].values_
           ) {
             if (feature.id) {
@@ -3310,7 +3244,7 @@ export default {
             }
           }
         });
-        old = e.mapBrowserEvent.coordinate;
+        old = e.mapBrowserEvent.coordinate[0];
         lines = LayerArrays;
         //获取线的坐标集合
         lines.forEach((item, index) => {
@@ -3320,14 +3254,12 @@ export default {
             .getGeometry().flatCoordinates;
           //为了判断端点移动 线需要移动的端点坐标设为0
           if (
-            oldFeature.xy &&
             flatCoordinates[0] === oldFeature.xy[0] &&
             flatCoordinates[1] === oldFeature.xy[1]
           ) {
             xy.push([0, 0, flatCoordinates[2], flatCoordinates[3]]);
           }
           if (
-            oldFeature.xy &&
             flatCoordinates[2] === oldFeature.xy[0] &&
             flatCoordinates[3] === oldFeature.xy[1]
           ) {
@@ -3339,7 +3271,6 @@ export default {
       translate1.on("translating", function (e) {
         //遍历该点的相关线
         lines.forEach((item, index) => {
-          if (!xy[index] || !item.getSource().getFeatures()[0]) return;
           //移动线，端点坐标为0的就设置为移动中的坐标
           item
             .getSource()
@@ -3369,30 +3300,8 @@ export default {
       //移动结束
       translate1.on("translateend", function (e) {
         // if (window.event.ctrlKey) return;
-        const endFeatures =
-          (e.features &&
-            (typeof e.features.getArray === "function"
-              ? e.features.getArray()
-              : e.features.array_)) ||
-          [];
-        const endFeature =
-          endFeatures.find((f) => f && f.values_) || null;
-        if (!endFeature) {
-          old = "";
-          lines = [];
-          oldFeature = "";
-          xy = [];
-          return;
-        }
-        const endValues = endFeature.values_ || {};
         //没有移动点就不执行
-        if (
-          !old ||
-          (Array.isArray(old)
-            ? old[0] === e.mapBrowserEvent.coordinate[0] &&
-              old[1] === e.mapBrowserEvent.coordinate[1]
-            : old === e.mapBrowserEvent.coordinate[0])
-        ) {
+        if (old === e.mapBrowserEvent.coordinate[0]) {
           old = "";
           lines = [];
           oldFeature = "";
@@ -3412,11 +3321,8 @@ export default {
           let data = {
             groundid: that.groundid,
             pointid:
-              endValues.id ||
-              (endValues.features &&
-                endValues.features[0] &&
-                endValues.features[0].values_ &&
-                endValues.features[0].values_.id),
+              e.features.array_[0].values_.id ||
+              e.features.array_[0].values_.features[0].values_.id,
             nodeX: e.mapBrowserEvent.coordinate[0] - differX,
             nodeY: e.mapBrowserEvent.coordinate[1] - differY,
           };
@@ -3445,12 +3351,10 @@ export default {
                 type: "success",
               });
               //移动完成重新设置该点xy信息
-              if (currentFeature && currentFeature.set) {
-                currentFeature.set("xy", [
-                  e.mapBrowserEvent.coordinate[0] - differX,
-                  e.mapBrowserEvent.coordinate[1] - differY,
-                ]);
-              }
+              currentFeature.set("xy", [
+                e.mapBrowserEvent.coordinate[0] - differX,
+                e.mapBrowserEvent.coordinate[1] - differY,
+              ]);
               setTimeout(() => {
                 loading.close();
               }, 500);
@@ -3475,11 +3379,8 @@ export default {
             projectid: that.intoProjectid,
             groundid: that.groundid,
             deveui:
-              endValues.deveui ||
-              (endValues.features &&
-                endValues.features[0] &&
-                endValues.features[0].values_ &&
-                endValues.features[0].values_.deveui),
+              e.features.array_[0].values_.deveui ||
+              e.features.array_[0].values_.features[0].values_.deveui,
             longi: e.mapBrowserEvent.coordinate[0] - differX,
             lati: e.mapBrowserEvent.coordinate[1] - differY,
             falg: true,
@@ -3496,8 +3397,8 @@ export default {
             }
           }, 5000);
 
-          if (endValues.devtype) {
-            data.devtype = endValues.devtype;
+          if (e.features.array_[0].values_.devtype) {
+            data.devtype = e.features.array_[0].values_.devtype;
             updateDevOtherPosOne(
               data,
               that.tenantkey_A,
@@ -3631,20 +3532,20 @@ export default {
           return;
         }
         if (
-          (endValues && endValues.point) ||
-          (endValues.features &&
-            endValues.features[0] &&
-            endValues.features[0].values_ &&
-            endValues.features[0].values_.point)
+          (e.features.array_[0].values_ &&
+            e.features.array_[0].values_.point) ||
+          (e.features.array_[0].values_.features &&
+            e.features.array_[0].values_.features[0].values_ &&
+            e.features.array_[0].values_.features[0].values_.point)
         ) {
           updatePoints();
         }
         if (
-          (endValues && endValues.alias) ||
-          (endValues.features &&
-            endValues.features[0] &&
-            endValues.features[0].values_ &&
-            endValues.features[0].values_.alias)
+          (e.features.array_[0].values_ &&
+            e.features.array_[0].values_.alias) ||
+          (e.features.array_[0].values_.features &&
+            e.features.array_[0].values_.features[0].values_ &&
+            e.features.array_[0].values_.features[0].values_.alias)
         ) {
           updateBeaconPosOnes();
         }
@@ -3652,12 +3553,10 @@ export default {
         lines = [];
         oldFeature = "";
         xy = [];
-        if (currentFeature && currentFeature.set) {
-          currentFeature.set("xy", [
-            e.mapBrowserEvent.coordinate[0],
-            e.mapBrowserEvent.coordinate[1],
-          ]);
-        }
+        currentFeature.set("xy", [
+          e.mapBrowserEvent.coordinate[0],
+          e.mapBrowserEvent.coordinate[1],
+        ]);
       });
     },
     delNear(feature, menu_overlay1) {
@@ -3707,35 +3606,50 @@ export default {
         menu_overlay1.setPosition(undefined);
       });
     },
+    getLayerFirstFeatureValues(layer) {
+      if (!layer || typeof layer.getSource !== "function") {
+        return null;
+      }
+      const source = layer.getSource();
+      if (!source || typeof source.getFeatures !== "function") {
+        return null;
+      }
+      const features = source.getFeatures();
+      if (!features || !features.length || !features[0]) {
+        return null;
+      }
+      const feature = features[0];
+      if (feature.values_) {
+        return feature.values_;
+      }
+      if (typeof feature.getProperties === "function") {
+        return feature.getProperties();
+      }
+      return null;
+    },
     showLines() {
       var that = this;
       if (this.isShowLines) {
         that.isShowLines = !that.isShowLines;
-        let arr = that.map.getLayers().getArray();
+        let arr = that.map.getLayers().getArray().slice();
         for (let i = 0; i < arr.length; i++) {
-          let source = arr[i].getSource();
-          // name删除线，id删除点
+          // name删除线，id删除点；空图层 / 底图 / 围栏层跳过
+          const values = that.getLayerFirstFeatureValues(arr[i]);
           if (
-            source.getFeatures &&
-            (source.getFeatures()[0].values_.name ||
-              source.getFeatures()[0].values_.id)
+            values &&
+            (values.name || values.id) &&
+            !that.isFenceVectorLayer(arr[i])
           ) {
-            if (!that.isFenceVectorLayer(arr[i])) {
-              that.map.removeLayer(arr[i]);
-              i--;
-            }
+            that.map.removeLayer(arr[i]);
           }
         }
       } else {
         that.isShowLines = !that.isShowLines;
-        let arr = that.map.getLayers().getArray();
+        let arr = that.map.getLayers().getArray().slice();
         for (let i = 0; i < arr.length; i++) {
-          let source = arr[i].getSource();
-          if (source.getFeatures && source.getFeatures()[0].values_.id) {
-            if (!that.isFenceVectorLayer(arr[i])) {
-              that.map.removeLayer(arr[i]);
-              i--;
-            }
+          const values = that.getLayerFirstFeatureValues(arr[i]);
+          if (values && values.id && !that.isFenceVectorLayer(arr[i])) {
+            that.map.removeLayer(arr[i]);
           }
         }
         that.addSubPolygon();
@@ -3747,14 +3661,19 @@ export default {
       var that = this;
       var menu_overlay = new Overlay({
         element: this.$refs.contextmenu_container,
-        positioning: "center-center",
+        positioning: "top-left",
+        offset: [8, 8],
+        autoPan: { margin: 16, animation: { duration: 200 } },
       });
       var menu_overlay1 = new Overlay({
         element: this.$refs.polygonMenu,
-        positioning: "center-center",
+        positioning: "top-left",
+        offset: [8, 8],
+        autoPan: { margin: 16, animation: { duration: 200 } },
       });
       map.addOverlay(menu_overlay);
       map.addOverlay(menu_overlay1);
+      this.ctxMenuOverlays = [menu_overlay, menu_overlay1];
       $(map.getViewport()).on("contextmenu", function (event) {
         event.preventDefault();
         that.removeClick();
@@ -3763,41 +3682,36 @@ export default {
         var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
           return feature;
         });
-        if (feature && feature.values_) {
+        if (feature) {
           var coordinate = map.getEventCoordinate(event.originalEvent);
           //右键非信标
           if (feature.values_.point) {
+            // if (that.currentAdj && that.currentAdj.values_.point) {
             menu_overlay1.setPosition(coordinate);
-            that.$nextTick(() => {
-              $("#polygonMenu-closer")
-                .off("click")
-                .on("click", function (event) {
-                  that.removeClick();
-                  event.preventDefault();
-                  menu_overlay1.setPosition(undefined);
-                });
-              $("#delPolygon")
-                .off("click")
-                .on("click", function () {
-                  that.delPolygon(feature, menu_overlay1);
-                });
-              $("#editNear")
-                .off("click")
-                .on("click", function () {
-                  that.delNear(feature, menu_overlay1);
-                });
-            });
+            $("#polygonMenu-closer").on("click", function (event) {
+              //移除之前添加的事件 防止多次添加
+              that.removeClick();
+              event.preventDefault();
+              menu_overlay1.setPosition(undefined);
+            }); // 点击关闭的按钮
+            $("#delPolygon").on("click", function () {
+              that.delPolygon(feature, menu_overlay1);
+              // menu_overlay1.setPosition(undefined);
+            }); //点击删除
+            $("#editNear").on("click", function () {
+              that.delNear(feature, menu_overlay1);
+              // menu_overlay1.setPosition(undefined);
+            }); //点击删除
           }
           if (feature.values_.x && feature.values_.alias) {
+            that.menuTitle = feature.values_.alias || feature.values_.deveui || "";
             if (
-              feature.values_.type == 1 &&
-              feature.values_.clockin == 2
+              feature.values_.type == 1 && feature.values_.clockin == 2
             ) {
               that.clock = true;
               that.caecelClock = false;
             } else if (
-              feature.values_.type == 1 &&
-              feature.values_.clockin == 1
+              feature.values_.type == 1 && feature.values_.clockin == 1
             ) {
               that.caecelClock = true;
               that.clock = false;
@@ -3822,10 +3736,9 @@ export default {
             } else {
               that.showOther = false;
             }
-            that.clearBeaconList = false;
             that.pointLists.forEach((item) => {
               if (item.pointid == feature.values_.deveui) {
-                if (item.list && item.list.length > 0) {
+                if (item.list.length > 0) {
                   that.clearBeaconList = true;
                 } else {
                   that.clearBeaconList = false;
@@ -3834,64 +3747,48 @@ export default {
             });
 
             menu_overlay.setPosition(coordinate);
-            // v-show 变更后需等 DOM 更新再绑定，否则 #del 等按钮点击无响应
-            that.$nextTick(() => {
-              $("#popup-closer")
-                .off("click")
-                .on("click", function (event) {
-                  that.removeClick();
-                  event.preventDefault();
-                  menu_overlay.setPosition(undefined);
-                });
-              $("#del")
-                .off("click")
-                .on("click", function () {
-                  that.delFeature(feature, menu_overlay);
-                });
-              $("#calculatingDistance")
-                .off("click")
-                .on("click", function () {
-                  that.calculatingDistance(feature, menu_overlay);
-                });
-              $("#edit")
-                .off("click")
-                .on("click", function () {
-                  that.editFeature(feature, menu_overlay);
-                });
-              $("#cancelNearList")
-                .off("click")
-                .on("click", function () {
-                  that.cancelNearList(feature, menu_overlay);
-                });
-              $("#setClock")
-                .off("click")
-                .on("click", function () {
-                  that.setClock(feature, menu_overlay);
-                });
-              $("#cancelClock")
-                .off("click")
-                .on("click", function () {
-                  that.cancelClock(feature, menu_overlay);
-                });
-              $("#setTranche")
-                .off("click")
-                .on("click", function () {
-                  that.updateTranche(feature, menu_overlay);
-                });
-              $("#setAdjoinBeacon")
-                .off("click")
-                .on("click", function () {
-                  that.setAdjoinBeacon(feature, menu_overlay);
-                });
-              $("#setArea")
-                .off("click")
-                .on("click", function () {
-                  that.setArea(feature, menu_overlay);
-                });
+            $("#popup-closer").on("click", function (event) {
+              that.removeClick();
+              event.preventDefault();
+              menu_overlay.setPosition(undefined);
+            }); // 点击关闭的按钮
+            $("#del").on("click", function () {
+              that.delFeature(feature, menu_overlay);
+            }); //点击删除
+
+            $("#calculatingDistance").on("click", function () {
+              that.calculatingDistance(feature, menu_overlay);
+            }); //点击计算距离
+            $("#edit").on("click", function () {
+              that.editFeature(feature, menu_overlay);
+            }); //点击编辑
+            $("#cancelNearList").on("click", function () {
+              that.cancelNearList(feature, menu_overlay);
+            }); //点击删除相邻信标
+            $("#setClock").on("click", function () {
+              that.setClock(feature, menu_overlay);
+            }); //点击设为打卡点
+            $("#cancelClock").on("click", function () {
+              that.cancelClock(feature, menu_overlay);
+            }); //取消打卡点
+            $("#setTranche").on("click", function () {
+              that.updateTranche(feature, menu_overlay);
+            }); //点击设置区域
+            $("#setAdjoinBeacon").on("click", function () {
+              that.setAdjoinBeacon(feature, menu_overlay);
+            });
+            $("#setArea").on("click", function () {
+              that.setArea(feature, menu_overlay);
             });
           }
         }
       });
+    },
+    closeCtxMenus(event) {
+      if (!event.target.closest(".map-ctx-item")) return;
+      (this.ctxMenuOverlays || []).forEach((overlay) =>
+        overlay.setPosition(undefined)
+      );
     },
     removeClick() {
       $(
@@ -4168,6 +4065,10 @@ export default {
         that.$t("floormanagement.releasezone"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4412,6 +4313,10 @@ export default {
         that.$t("floormanagement.tippp"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4552,6 +4457,10 @@ export default {
           that.$t("floormanagement.adjacencyrelationship"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -4603,6 +4512,10 @@ export default {
       var that = this;
       that
         .$confirm(that.$t("floormanagement.tippp2"), that.$t("Building.tips"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -4965,12 +4878,17 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
           }
         )
         .then(() => {
+          that.removeClick();
           let LayerArrays = that.map.getLayers().getArray();
           //删除相邻点需要先选中再可以删除
           if (e.values_.id) {
@@ -5060,6 +4978,10 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -5067,19 +4989,15 @@ export default {
         )
         .then(() => {
           that.removeClick();
-          let num = -1;
+          let num;
           let LayerArrays = that.map.getLayers().getArray();
           for (let i = 1; i < LayerArrays.length; i++) {
-            const source =
-              LayerArrays[i].getSource && LayerArrays[i].getSource();
-            const feat =
-              source && source.getFeatures && source.getFeatures()[0];
-            if (!feat || !feat.values_) continue;
-            const samePos =
-              e.values_.x == feat.values_.x && e.values_.y == feat.values_.y;
-            const sameDev =
-              e.values_.deveui && feat.values_.deveui === e.values_.deveui;
-            if (samePos || sameDev) {
+            if (
+              e.values_.x ==
+                LayerArrays[i].getSource().getFeatures()[0].values_.x &&
+              e.values_.y ==
+                LayerArrays[i].getSource().getFeatures()[0].values_.y
+            ) {
               num = i;
               break;
             }
@@ -5091,20 +5009,6 @@ export default {
             longi: e.values_.x,
             lati: e.values_.y,
             falg: false,
-          };
-          const removeLayerByNum = () => {
-            if (num < 0 || !LayerArrays[num]) {
-              that.clearArranges();
-              return;
-            }
-            LayerArrays[num]
-              .getSource()
-              .getFeatures()
-              .forEach(function (feature) {
-                LayerArrays[num].getSource().removeFeature(feature);
-              });
-            menu_overlay.setPosition(undefined);
-            that.map.removeLayer(LayerArrays[num]);
           };
           if (e.values_.devtype) {
             data.devtype = e.values_.devtype;
@@ -5119,10 +5023,20 @@ export default {
                   message: that.$t("buildingmanagement.deletesuccess"),
                   type: "success",
                 });
-                removeLayerByNum();
+                LayerArrays[num]
+                  .getSource()
+                  .getFeatures()
+                  .forEach(function (feature) {
+                    LayerArrays[num].getSource().removeFeature(feature);
+                  });
+
+                menu_overlay.setPosition(undefined);
+                that.map.removeLayer(LayerArrays[num]);
                 if (that.activeMenu) {
                   that.menuClick(that.activeMenu, that.currentPage2);
                 }
+                // that.getBeaconPos(that.intoProjectid, that.currentPage2);
+                // that.resetNear();
               } else {
                 that.$message({
                   message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -5143,7 +5057,15 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  removeLayerByNum();
+                  LayerArrays[num]
+                    .getSource()
+                    .getFeatures()
+                    .forEach(function (feature) {
+                      LayerArrays[num].getSource().removeFeature(feature);
+                    });
+
+                  menu_overlay.setPosition(undefined);
+                  that.map.removeLayer(LayerArrays[num]);
                   that.getBeaconPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
                 } else {
@@ -5166,7 +5088,16 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  removeLayerByNum();
+                  LayerArrays[num]
+                    .getSource()
+                    .getFeatures()
+                    .forEach(function (feature) {
+                      LayerArrays[num].getSource().removeFeature(feature);
+                    });
+
+                  menu_overlay.setPosition(undefined);
+                  that.map.removeLayer(LayerArrays[num]);
+
                   that.getGatewayPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
                 } else {
@@ -5181,9 +5112,7 @@ export default {
           }
         })
         .catch(() => {
-          if (menu_overlay) {
-            menu_overlay.setPosition(undefined);
-          }
+          that.menu_overlay.setPosition(undefined);
           that.removeClick();
         });
     },
@@ -5501,7 +5430,7 @@ export default {
           alias: that.searchAlias,
           inuse: that.searchInuse,
           devtype: that.activeMenu,
-          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantkey_A,
+          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantid_A,
           page: 1,
           count: 20,
           projectid: that.intoProjectid,
@@ -5622,19 +5551,21 @@ export default {
 
       this.currentPage2 = 1;
       this.searchArranges();
-      if (this.arrange) {
-        let LayerArrays = this.map.getLayers().getArray();
+      if (this.arrange && this.map) {
+        // slice 拷贝，避免 removeLayer 时改动到正在遍历的数组
+        const LayerArrays = this.map.getLayers().getArray().slice();
         for (let i = LayerArrays.length - 1; i > 0; i--) {
-          if (this.isFenceVectorLayer(LayerArrays[i])) {
+          const layer = LayerArrays[i];
+          if (this.isFenceVectorLayer(layer)) {
             continue;
           }
-          LayerArrays[i]
-            .getSource()
-            .getFeatures()
-            .forEach(function (feature) {
-              LayerArrays[i].getSource().removeFeature(feature);
+          const source = layer.getSource && layer.getSource();
+          if (source && typeof source.getFeatures === "function") {
+            source.getFeatures().slice().forEach(function (feature) {
+              source.removeFeature(feature);
             });
-          this.map.removeLayer(LayerArrays[i]);
+          }
+          this.map.removeLayer(layer);
         }
         this.addSubPolygon();
         if (that.$store.state.intoProjectType == 2) {
@@ -5916,7 +5847,6 @@ export default {
       if (info.maptype == 1) {
         const base = host.host && host.host.endsWith('/') ? host.host : (host.host + '/');
         this.imgUrl = base + "indoormap/" + info.filetype;
-        this.mapInit(info.length, info.width, info);
         this.reallength = info.reallength;
         this.length = info.length;
         this.realwidth = info.realwidth;
@@ -5926,10 +5856,148 @@ export default {
         } else {
           this.mapLength = null;
         }
+        this.pendingMapInit = {
+          x: info.length,
+          y: info.width,
+          info: info,
+        };
         this.arrange = true;
         // this.showTable = true;
       }
       this.searchInuse = 2;
+    },
+    handleArrangeDialogOpened() {
+      if (!this.pendingMapInit) {
+        return;
+      }
+      if (this._mapInitInFlight) {
+        return;
+      }
+      clearTimeout(this._arrangeOpenTimer);
+      this._mapInitInFlight = true;
+      this.initMapWhenReady(this.pendingMapInit);
+    },
+    initMapWhenReady(pending, retries = 0, lastWidth = 0, stableCount = 0) {
+      const generation = this._mapInitGeneration;
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          if (generation !== this._mapInitGeneration) {
+            this._mapInitInFlight = false;
+            return;
+          }
+          const mapEl = this.$refs.map;
+          const currentWidth = mapEl?.offsetWidth || 0;
+          if (
+            !mapEl ||
+            currentWidth === 0 ||
+            mapEl.offsetHeight === 0
+          ) {
+            if (retries < 25) {
+              setTimeout(
+                () => this.initMapWhenReady(pending, retries + 1),
+                50
+              );
+            } else {
+              this._mapInitInFlight = false;
+            }
+            return;
+          }
+          if (currentWidth === lastWidth) {
+            stableCount += 1;
+          } else {
+            stableCount = 0;
+          }
+          if (stableCount < 2) {
+            setTimeout(
+              () =>
+                this.initMapWhenReady(
+                  pending,
+                  retries + 1,
+                  currentWidth,
+                  stableCount
+                ),
+              50
+            );
+            return;
+          }
+          this.pendingMapInit = null;
+          this.forceMapContainerSize();
+          this.mapInit(pending.x, pending.y, pending.info);
+          this._mapInitInFlight = false;
+          this.scheduleMapResize();
+        });
+      });
+    },
+    getArrangeMapAreaHeight() {
+      const mapEl = this.$refs.map;
+      const dialogBody = mapEl?.closest(".el-dialog__body");
+      const searchBar = dialogBody?.querySelector(".searchArrange");
+      const searchHeight = searchBar?.offsetHeight || 0;
+      const bodyHeight = dialogBody?.clientHeight || window.innerHeight;
+      return Math.max(bodyHeight - searchHeight - 12, 300);
+    },
+    forceMapContainerSize() {
+      const mapEl = this.$refs.map;
+      const wrap = mapEl?.parentElement;
+      const mapContent = this.$refs.mapContent;
+      if (!mapEl || !wrap || !mapContent) {
+        return;
+      }
+      const rowHeight = this.getArrangeMapAreaHeight();
+      const row = mapContent.parentElement;
+      if (row) {
+        row.style.flex = "1 1 0";
+        row.style.minHeight = "0";
+        row.style.height = `${rowHeight}px`;
+      }
+      mapContent.style.height = `${rowHeight}px`;
+      wrap.style.height = `${rowHeight}px`;
+      const tipEl = wrap.querySelector(".arrange-map-tip");
+      const tipHeight = tipEl ? tipEl.offsetHeight : 28;
+      const mapHeight = Math.max(rowHeight - tipHeight, 200);
+      mapEl.style.width = "100%";
+      mapEl.style.height = `${mapHeight}px`;
+    },
+    syncMapSize() {
+      const mapEl = this.$refs.map;
+      if (!this.map || !mapEl) {
+        return;
+      }
+      this.forceMapContainerSize();
+      const width = mapEl.clientWidth;
+      const height = mapEl.clientHeight;
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+      this.map.setSize([width, height]);
+      mapEl.querySelectorAll("canvas").forEach((canvas) => {
+        canvas.style.margin = "0";
+        canvas.style.display = "block";
+      });
+    },
+    observeMapResize() {
+      this._mapResizeObserver?.disconnect();
+      const mapEl = this.$refs.map;
+      const dialogBody = mapEl?.closest(".el-dialog__body");
+      const target = dialogBody || mapEl;
+      if (!target || typeof ResizeObserver === "undefined") {
+        return;
+      }
+      this._mapResizeObserver = new ResizeObserver(() => {
+        this.syncMapSize();
+      });
+      this._mapResizeObserver.observe(target);
+    },
+    unobserveMapResize() {
+      this._mapResizeObserver?.disconnect();
+      this._mapResizeObserver = null;
+    },
+    scheduleMapResize() {
+      [0, 100, 350, 600, 800].forEach((delay) => {
+        setTimeout(() => {
+          this.syncMapSize();
+        }, delay);
+      });
     },
     //布置页面点击返回
     arrangcancel() {
@@ -5966,9 +6034,14 @@ export default {
                 that.$t("floormanagement.tippp6"),
                 that.$t("Building.tips"),
                 {
+                  customClass: "device-message-box",
+                  confirmButtonClass: "device-message-confirm",
+                  cancelButtonClass: "device-message-cancel",
+                  roundButton: false,
                   confirmButtonText: that.$t("terminal.confirm"),
                   cancelButtonText: that.$t("terminal.cancel"),
                   type: "warning",
+                  customClass: "msgbox-text-left",
                 }
               )
               .then(() => {
@@ -6020,6 +6093,7 @@ export default {
     //反向项目获取地图上已布置的设备
     getArrangeGatewayPos(projectid) {
       var that = this;
+      const loadToken = ++this._arrangeLoadToken;
       let data2 = {
         projectype: 2,
         groundid: this.groundid,
@@ -6034,7 +6108,9 @@ export default {
         that.tenantid_A,
         that.userName
       ).then((res) => {
+        if (loadToken !== that._arrangeLoadToken) return;
         if (res.code == 1001) {
+          that.clearArrangeDeviceLayersOnly();
           let devList = res.data.devList;
           let otherList = res.data.otherList;
           that.arrangeFeatures = devList.concat(otherList);
@@ -6043,6 +6119,7 @@ export default {
               that.addIconMarkers(that.map, that.arrangeFeatures[i]);
             }
           }
+          that.dedupeArrangeDeviceLayers();
         }
       });
     },
@@ -6075,6 +6152,7 @@ export default {
     //正向项目获取地图上已布置的设备
     getArrangeBeaconPos(projectid) {
       var that = this;
+      const loadToken = ++this._arrangeLoadToken;
       let data2 = {
         projectype: 1,
         groundid: that.groundid,
@@ -6088,7 +6166,10 @@ export default {
         that.tenantid_A,
         that.userName
       ).then((res) => {
+        if (loadToken !== that._arrangeLoadToken) return;
         if (res.code == 1001) {
+          // 先清再加，避免初始化被触发两次时叠两套图标
+          that.clearArrangeDeviceLayersOnly();
           let devList = res.data.devList;
           let otherList = res.data.otherList;
           that.arrangeFeatures = devList.concat(otherList);
@@ -6097,6 +6178,7 @@ export default {
               that.addIconMarkers(that.map, that.arrangeFeatures[i]);
             }
           }
+          that.dedupeArrangeDeviceLayers();
         }
       });
     },
@@ -6114,6 +6196,9 @@ export default {
         }
       }
     },
+  },
+  beforeUnmount() {
+    this.unobserveMapResize();
   },
   beforeMount() {
     // this.getBuildingLists();
@@ -6133,7 +6218,7 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
@@ -6141,87 +6226,219 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 .mapContent {
-  width: 95%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
   height: 100%;
-  margin-right: 0;
+  margin: 0 !important;
+}
+.searchArrange {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  width: 100%;
+}
+.arrange-map-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+}
+.arrange-map-tip {
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0 !important;
+}
+.arrange-map-row {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+  margin: 0 !important;
+  text-align: left;
 }
 .allmap {
   background-color: white;
-  margin: 0 auto;
+  margin: 0 !important;
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 .tableContent {
-  width: 5%;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  max-width: 148px;
   display: flex;
-  justify-content: flex-end;
-  margin-right: 0;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: flex-start;
+  margin: 0 !important;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+  background: rgba(241, 245, 247, 0.96);
+  box-sizing: border-box;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px;
+}
+.tableContent.is-expanded {
+  flex: 0 0 32%;
+  width: 32%;
+  min-width: 320px;
+  max-width: 38%;
+  align-self: stretch;
+  overflow: hidden;
+  background: #f1f5f7;
+  padding: 0;
 }
 .show_table {
-  margin-right: 1%;
-  z-index: 999;
-  text-align: right;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  margin-right: 0;
+  z-index: 1;
+  text-align: left;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.hamburger {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: block;
+  margin: 6px 0 8px 12px;
+  flex: 0 0 auto;
+}
+.table_data {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
 }
 
 .chose_table {
-  text-align: right;
-  background-color: #f1f5f7 !important;
+  text-align: left !important;
+  background-color: transparent !important;
   border: 0 !important;
-}
-.chose_table >>> .el-menu-item {
+  width: 100% !important;
+  min-height: 0 !important;
   padding: 0 !important;
+  --el-menu-base-level-padding: 12px;
+  --el-menu-level-padding: 0px;
+}
+.tableContent.is-expanded .chose_table {
+  background-color: #f1f5f7 !important;
+}
+.chose_table :deep(.el-menu-item) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  padding: 0 12px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
   margin: 0 !important;
-  height: 20px;
-  line-height: 20px;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item .icon) {
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 8px 0 0 !important;
+}
+.chose_table :deep(.el-menu-item > span),
+.chose_table :deep(.el-menu-item span) {
+  flex: 0 1 auto !important;
+  display: block !important;
+  width: auto !important;
+  max-width: calc(100% - 26px);
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 18px;
+  color: #606266;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item.is-active) {
+  background: transparent !important;
+}
+.chose_table :deep(.el-menu-item.is-active .icon) {
+  background-color: #458bff;
+}
+.chose_table :deep(.el-menu-item.is-active span) {
+  color: #458bff;
+  font-weight: 500;
 }
 .icon {
   width: 18px;
   height: 18px;
+  flex: 0 0 18px;
   display: inline-block;
   background-color: #9c9c9c;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 .icon.beacon {
-  mask: url("../../assets/beacon.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/beacon.svg");
+  -webkit-mask-image: url("../../assets/beacon.svg");
 }
 .icon.smoke {
-  mask: url("../../assets/smoke.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/smoke.svg");
+  -webkit-mask-image: url("../../assets/smoke.svg");
 }
 .icon.aoagw {
-  mask: url("../../assets/aoagw.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/aoagw.svg");
+  -webkit-mask-image: url("../../assets/aoagw.svg");
 }
 .icon.alarm {
-  mask: url("../../assets/alarm.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/alarm.svg");
+  -webkit-mask-image: url("../../assets/alarm.svg");
 }
 .icon.camera {
-  mask: url("../../assets/camera.svg");
-  mask-size: contain;
-}
-.is-active > .icon {
-  background-color: #458bff;
-}
-.table_data {
-  margin-left: 0;
+  mask-image: url("../../assets/camera.svg");
+  -webkit-mask-image: url("../../assets/camera.svg");
 }
 
 #leftmenu_container {
@@ -6230,57 +6447,15 @@ export default {
 #leftmenu_container1 {
   display: none;
 }
-#contextmenu_container {
-  display: flex;
-  flex-direction: column;
-}
-#contextmenu_container li {
-  display: flex;
-}
-
-#polygonMenu {
-  display: flex;
-  flex-direction: column;
-}
-#polygonMenu li {
-  display: flex;
-}
-#popup-content {
-  background: #f1f5f7 !important;
-}
-#popup-content button {
-  background: #f1f5f7 !important;
-  width: 100%;
-  text-align: left;
-  border: none;
-  color: black;
-}
-#popup-content button:hover {
-  background: skyblue !important;
-  color: white;
-}
-
-#popup-content #delPolygon:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-#popup-content #del:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-#popup-content .dels:hover {
-  background-color: rgb(196, 27, 27) !important;
-}
-.ol-popup-closer {
-  margin-right: 2px;
-}
 
 li {
   list-style: none;
   margin-top: 5px;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
@@ -6317,30 +6492,29 @@ a {
 }
 
 .arrangeDialog {
-  text-align: center;
+  text-align: left;
   background-color: #f1f5f7 !important;
 }
 
-.arrangeDialog >>> .el-dialog {
-  background-color: #f1f5f7 !important;
-}
-
-.arrangeDialog >>> .el-dialog__header {
-  display: none !important;
-}
-
-.arrangeDialog >>> .el-dialog__body {
+.arrange-dialog-inner {
   width: 100%;
   height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+  padding: 0 !important;
 }
-.showHeadr >>> .el-dialog__header {
+
+.showHeadr :deep(.el-dialog__header) {
   display: block !important;
 }
-.setAreas >>> .el-radio-group {
+.setAreas :deep(.el-radio-group) {
   display: flex !important;
   flex-wrap: wrap;
 }
-.setAreas >>> .el-radio {
+.setAreas :deep(.el-radio) {
   width: 20%;
   margin-left: 2%;
   margin-right: 0;
@@ -6354,13 +6528,26 @@ a {
   margin-right: 0;
 }
 
-#allmap >>> .ol-viewport {
-  overflow: unset !important;
+.allmap :deep(.ol-viewport),
+.allmap :deep(.ol-overlaycontainer),
+.allmap :deep(.ol-overlaycontainer-stopevent) {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
 }
-.setAdjoinBeacon >>> .el-dialog {
+
+.allmap :deep(.ol-viewport) {
+  overflow: hidden !important;
+}
+
+.allmap :deep(.ol-viewport canvas) {
+  margin: 0 !important;
+  display: block;
+}
+.setAdjoinBeacon :deep(.el-dialog) {
   margin-right: 2%;
 }
-.addTranche >>> .el-form-item__content {
+.addTranche :deep(.el-form-item__content) {
   display: flex;
 }
 .tranchSwitch {
@@ -6368,7 +6555,7 @@ a {
   line-height: 34px;
   height: 34px;
 }
-.tranchSwitch >>> .ivu-switch {
+.tranchSwitch :deep(.ivu-switch) {
   height: 22px;
   margin-top: 6px;
   margin-bottom: 6px;

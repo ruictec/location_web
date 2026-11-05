@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,8 +7,22 @@
       <el-container class="asi">
         <el-aside><Project /></el-aside>
         <el-main>
-          <el-collapse v-model="activeName" class="options">
-            <el-collapse-item :title="$t('list.homepage')" name="6">
+          <el-breadcrumb separator="/" class="config-breadcrumb">
+            <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
+              $t("index.projectmanagement")
+            }}</el-breadcrumb-item>
+            <el-breadcrumb-item>{{ intoProjectName }}</el-breadcrumb-item>
+            <el-breadcrumb-item>{{ $t("Breadcrumb.Config") }}</el-breadcrumb-item>
+          </el-breadcrumb>
+          <div class="page-panel config-panel">
+          <div class="config-head">
+            <span class="config-title">{{ $t("Breadcrumb.Config") }}</span>
+            <el-button type="primary" class="query" @click="confirmTrue()">{{
+              $t("index.Confirm")
+            }}</el-button>
+          </div>
+          <el-collapse v-model="activeName" class="options config-collapse">
+            <el-collapse-item :title="$t('list.homepage')" name="6" class="config-card-sm">
               <div class="list_options">
                 <p>{{ $t("list.beaconstatus") }}：</p>
                 <p>
@@ -32,7 +46,7 @@
                 </p>
               </div>
             </el-collapse-item>
-            <el-collapse-item :title="$t('list.alarmmanagement')" name="1">
+            <el-collapse-item :title="$t('list.alarmmanagement')" name="1" class="config-card-sm">
               <div class="list_options">
                 <p>{{ $t("list.Personwarning") }}：</p>
                 <p>
@@ -57,74 +71,7 @@
               </div>
             </el-collapse-item>
 
-            <el-collapse-item :title="$t('list.Personnelmanagement')" name="2">
-              <div class="list_options">
-                <p>{{ $t("list.Employeemanagement") }}：</p>
-                <p>
-                  <el-radio v-model="staffmanagement" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio
-                    v-model="staffmanagement"
-                    :label="false"
-                    :disabled="staffNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
-                </p>
-              </div>
-              <div class="list_options">
-                <p>{{ $t("list.assetmanagement") }}：</p>
-                <p>
-                  <el-radio v-model="assetManagement" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio
-                    v-model="assetManagement"
-                    :label="false"
-                    :disabled="assetNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
-                </p>
-              </div>
-              <div class="list_options">
-                <p>{{ $t("list.Vehiclemanagement") }}：</p>
-                <p>
-                  <el-radio v-model="tboxManagement" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio
-                    v-model="tboxManagement"
-                    :label="false"
-                    :disabled="tboxNum != 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
-                </p>
-              </div>
-              <div class="list_options">
-                <p>{{ $t("list.Attendancemanagement") }}：</p>
-                <p>
-                  <el-radio v-model="checkwork" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio v-model="checkwork" :label="false">{{
-                    $t("functionParts.unshow")
-                  }}</el-radio>
-                </p>
-              </div>
-              <div class="list_options">
-                <p>{{ $t("list.Patrolmanagement") }}：</p>
-                <p>
-                  <el-radio v-model="inspection" :label="true">{{
-                    $t("functionParts.show")
-                  }}</el-radio>
-                  <el-radio v-model="inspection" :label="false">{{
-                    $t("functionParts.unshow")
-                  }}</el-radio>
-                </p>
-              </div>
-            </el-collapse-item>
-
-            <el-collapse-item :title="$t('list.Locationmanagement')" name="3">
+            <el-collapse-item :title="$t('list.Locationmanagement')" name="3" class="config-card-sm">
               <div class="list_options">
                 <p>{{ $t("list.Indoorpositioning") }}：</p>
                 <p>
@@ -149,7 +96,7 @@
               </div>
             </el-collapse-item>
 
-            <el-collapse-item :title="$t('list.devicemanagement')" name="4">
+            <el-collapse-item :title="$t('list.devicemanagement')" name="4" class="config-card-sm">
               <div class="list_options">
                 <p>{{ $t("list.Terminalmanagement") }}：</p>
                 <p>
@@ -160,8 +107,7 @@
                     v-model="devgw"
                     :disabled="devgwNum != 0"
                     :label="false"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
               <div class="list_options">
@@ -174,28 +120,98 @@
                     v-model="scanbeacon"
                     :disabled="scanbeaconNum != 0"
                     :label="false"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.Audiorecording") }}：</p>
+                <p>
+                  <el-radio v-model="audio" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="audio" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
                 </p>
               </div>
             </el-collapse-item>
 
-            <el-collapse-item :title="$t('list.Securitymanagement')" name="5">
+            <el-collapse-item :title="$t('list.Personnelmanagement')" name="2" class="config-card-lg">
               <div class="list_options">
-                <p>{{ $t("otherDev.assetGateway") }}：</p>
+                <p>{{ $t("list.Employeemanagement") }}：</p>
                 <p>
-                  <el-radio v-model="assetgw" :label="true">{{
+                  <el-radio v-model="staffmanagement" :label="true">{{
                     $t("functionParts.show")
                   }}</el-radio>
                   <el-radio
-                    v-model="assetgw"
+                    v-model="staffmanagement"
                     :label="false"
-                    :disabled="assetgwNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    :disabled="staffNum != 0"
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
+              <div class="list_options">
+                <p>{{ $t("list.assetmanagement") }}：</p>
+                <p>
+                  <el-radio v-model="assetManagement" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio
+                    v-model="assetManagement"
+                    :label="false"
+                    :disabled="assetNum != 0"
+                    >{{ $t("functionParts.unshow") }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.Vehiclemanagement") }}：</p>
+                <p>
+                  <el-radio v-model="tboxManagement" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio
+                    v-model="tboxManagement"
+                    :label="false"
+                    :disabled="tboxNum != 0"
+                    >{{ $t("functionParts.unshow") }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.Attendancemanagement") }}：</p>
+                <p>
+                  <el-radio v-model="checkwork" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="checkwork" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.Patrolmanagement") }}：</p>
+                <p>
+                  <el-radio v-model="inspection" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="inspection" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.Taskmanagement") }}：</p>
+                <p>
+                  <el-radio v-model="locateManage" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="locateManage" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
+            </el-collapse-item>
 
+            <el-collapse-item :title="$t('list.Securitymanagement')" name="5" class="config-card-lg">
               <div class="list_options">
                 <p>{{ $t("otherDev.aoaGateway") }}：</p>
                 <p>
@@ -206,8 +222,7 @@
                     v-model="aoagw"
                     :label="false"
                     :disabled="aoagwNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -221,8 +236,7 @@
                     v-model="smoke"
                     :label="false"
                     :disabled="smokeNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -236,8 +250,7 @@
                     v-model="alertor"
                     :label="false"
                     :disabled="alertorNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -251,8 +264,7 @@
                     v-model="blesensor"
                     :label="false"
                     :disabled="blesensorNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
 
@@ -266,19 +278,12 @@
                     v-model="camera"
                     :label="false"
                     :disabled="cameraNum > 0"
-                    >{{ $t("functionParts.unshow") }}</el-radio
-                  >
+                    >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
-
-              <el-button
-                type="primary"
-                class="buttons"
-                @click="confirmTrue()"
-                >{{ $t("index.Confirm") }}</el-button
-              >
             </el-collapse-item>
           </el-collapse>
+          </div>
         </el-main>
       </el-container>
     </div>
@@ -297,6 +302,7 @@ export default {
   data() {
     return {
       contrForPrionum: this.$store.state.userInfo.prionum,
+      intoProjectName: this.$store.state.intoProjectName,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
       userName: this.$store.state.userInfo.username,
@@ -314,14 +320,14 @@ export default {
       tboxNum: 0, //车辆数量
       checkwork: "true", //考勤管理
       inspection: "true", //巡检管理
+      locateManage: false, //任务管理
       locationoutdoor: "true", //室外定位
       locationindoor: "true", //室内定位
       devgw: "true", //终端管理
       devgwNum: 0, //终端管理数量
       scanbeacon: "true", //信标管理
       scanbeaconNum: 0, //信标管理数量
-      assetgw: "true", //资产网关
-      assetgwNum: 0, //资产网关数量
+      audio: false, //录音管理
       aoagw: "true", //AOA网关
       aoagwNum: 0, //AOA网关数量
       smoke: "true", //烟感
@@ -357,10 +363,9 @@ export default {
           that.tboxNum = res.data.tboxNum;
           that.checkwork = res.data.attendance;
           that.inspection = res.data.task;
+          that.locateManage = !!res.data.locateManage;
           that.locationindoor = res.data.inDoor;
           that.locationoutdoor = res.data.outDoor;
-          that.assetgw = res.data.assetgw;
-          that.assetgwNum = res.data.assetgwNum || 0;
           that.aoagw = res.data.aoagw;
           that.aoagwNum = res.data.aoagwNum || 0;
           that.smoke = res.data.smoke;
@@ -375,6 +380,7 @@ export default {
           that.devgwNum = res.data.devgwNum;
           that.scanbeacon = res.data.scanbeacon;
           that.scanbeaconNum = res.data.scanbeaconNum;
+          that.audio = !!res.data.audio;
         }
       });
     },
@@ -420,7 +426,6 @@ export default {
         return;
       }
       if (
-        !this.assetgw &&
         !this.aoagw &&
         !this.smoke &&
         !this.alertor &&
@@ -444,9 +449,9 @@ export default {
         attendance: this.checkwork,
         tbox: this.tboxManagement,
         task: this.inspection,
+        locateManage: this.locateManage,
         outDoor: this.locationoutdoor,
         inDoor: this.locationindoor,
-        assetgw: this.assetgw,
         aoagw: this.aoagw,
         smoke: this.smoke,
         alertor: this.alertor,
@@ -454,6 +459,7 @@ export default {
         camera: this.camera,
         devgw: this.devgw,
         scanbeacon: this.scanbeacon,
+        audio: this.audio,
       };
       updateProjectConfig(
         data,
@@ -481,26 +487,98 @@ export default {
 };
 </script>
 <style  scoped>
-.options {
-  width: 40%;
-  margin: 2% auto;
+.config-breadcrumb {
+  margin: 0 0 10px 2px !important;
 }
-.buttons {
-  padding: 8px 12px !important;
-  float: right;
-  margin-right: 10%;
-  margin-bottom: 2%;
+.config-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 2px 12px !important;
+}
+.config-head .el-button {
+  margin: 0 !important;
+}
+.config-title {
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.config-collapse {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 12px;
+  margin: 0 !important;
+  border: none;
+}
+.config-collapse :deep(.el-collapse-item) {
+  grid-column: span 3;
+  margin: 0 !important;
+  overflow: hidden;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  background: #fff;
+}
+.config-collapse :deep(.el-collapse-item__header) {
+  height: 42px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef2f7;
+}
+.config-collapse :deep(.el-collapse-item__wrap) {
+  border-bottom: none;
+}
+.config-collapse :deep(.el-collapse-item__content) {
+  padding: 6px 14px 8px;
 }
 .list_options {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  margin: 0 !important;
+  border-bottom: 1px dashed #eef2f7;
+}
+.list_options:last-child {
+  border-bottom: none;
+}
+.config-collapse :deep(.config-card-lg) {
+  grid-column: span 6;
+}
+.config-collapse :deep(.el-collapse-item:not(.is-active)) {
+  align-self: start;
+}
+.config-card-lg :deep(.el-collapse-item__content) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+}
+.config-card-lg .list_options:nth-child(odd):nth-last-child(-n + 2),
+.config-card-lg .list_options:nth-child(odd):nth-last-child(-n + 2) ~ .list_options {
+  border-bottom: none;
+}
+@media (max-width: 1280px) {
+  .config-collapse :deep(.el-collapse-item) {
+    grid-column: span 6;
+  }
+  .config-collapse :deep(.config-card-lg) {
+    grid-column: span 12;
+  }
+}
+.list_options p {
+  margin: 0 !important;
 }
 .list_options p:nth-of-type(1) {
-  text-align: right;
-  width: 40%;
+  color: #475569;
 }
-.list_options p:nth-of-type(2) {
-  text-align: left;
-  width: 60%;
+.list_options p:nth-of-type(2) :deep(.el-radio) {
+  margin-right: 0;
+  margin-left: 16px;
 }
 .home {
   height: 100%;
@@ -522,10 +600,7 @@ export default {
   top: 70px;
   width: 99%;
 }
-.el-aside {
-  margin-top: 50px;
-  width: auto !important;
-}
+
 
 .el-message--success {
   display: -webkit-box !important;
@@ -539,25 +614,25 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }

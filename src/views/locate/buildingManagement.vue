@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -36,11 +36,14 @@
               @change="importExcels"
             />
           </div>
-          <div class="mapConent">
-            <div style="width: 100%; position: relative; z-index: 1">
+          <div
+            class="mapConent page-panel"
+            :class="{ 'is-admin': contrForPrionum != 5 }"
+          >
+            <div class="mapMain">
               <MapLayerSwitcher :map="map" @change="onMapStyleChange" />
-              <div id="map" style="width: 100%"></div>
-              <p style="position: absolute; bottom: -4%; left: 0">
+              <div id="map"></div>
+              <p class="buildingGuide">
                 {{ $t("Building.title") }}
                 <a href="javascript:;" @click="showVideo()">{{
                   $t("Building.title1")
@@ -66,22 +69,22 @@
                   </a>
                 </li>
                 <li>
-                  <el-button id="del" size="mini">{{
+                  <el-button id="del" size="small">{{
                     $t("beacon.delete")
                   }}</el-button>
                 </li>
                 <li>
-                  <el-button id="edit" size="mini">{{
+                  <el-button id="edit" size="small">{{
                     $t("beacon.edit")
                   }}</el-button>
                 </li>
                 <li v-show="mapType2">
-                  <el-button id="maptype2" size="mini">{{
+                  <el-button id="maptype2" size="small">{{
                     $t("build.Set2D")
                   }}</el-button>
                 </li>
                 <li v-show="mapType3">
-                  <el-button id="maptype3" size="mini">{{
+                  <el-button id="maptype3" size="small">{{
                     $t("build.Set3D")
                   }}</el-button>
                 </li>
@@ -96,37 +99,124 @@
               >
                 <img :src="item.src" /><span>{{ item.msg }}</span>
               </p>
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                :loading="locating"
-                @click="locateCurrentPosition"
-                >{{ $t("Building.locateMe") }}</el-button
-              >
+              <div class="coordArrangeRow">
+                <el-button
+                  type="primary"
+                  class="reset actionBtn"
+                  @click="importExcel()"
+                  >{{ $t("Building.importBuilding") }}</el-button
+                >
+                <el-tooltip class="item" effect="light" placement="left">
+                  <template #content><div class="coordArrangeTip">
+                    <p>{{ $t("Building.importTip1") }}</p>
+                    <p>{{ $t("Building.importTip2") }}</p>
+                    <p>{{ $t("Building.importTip3") }}</p>
+                    <p>{{ $t("Building.importTip4") }}</p>
+                  </div></template>
+                  <i class="el-icon-question coordArrangeHelp" />
+                </el-tooltip>
+              </div>
+              <div class="coordArrangeRow">
+                <el-button
+                  type="primary"
+                  class="reset actionBtn"
+                  @click="exportExcelAll()"
+                  >{{ $t("terminal.exportAll") }}</el-button
+                >
+                <el-tooltip class="item" effect="light" placement="left">
+                  <template #content><div class="coordArrangeTip">
+                    <p>{{ $t("Building.exportTip1") }}</p>
+                    <p>{{ $t("Building.exportTip2") }}</p>
+                    <p>{{ $t("Building.exportTip3") }}</p>
+                  </div></template>
+                  <i class="el-icon-question coordArrangeHelp" />
+                </el-tooltip>
+              </div>
+              <div class="coordArrangeRow">
+                <el-button
+                  type="primary"
+                  class="reset actionBtn"
+                  :loading="locating"
+                  @click="locateCurrentPosition"
+                  >{{ $t("Building.locateMe") }}</el-button
+                >
+                <el-tooltip class="item" effect="light" placement="left">
+                  <template #content><div class="coordArrangeTip">
+                    <p>{{ $t("Building.locateMeTip1") }}</p>
+                    <p>{{ $t("Building.locateMeTip2") }}</p>
+                    <p>{{ $t("Building.locateMeTip3") }}</p>
+                  </div></template>
+                  <i class="el-icon-question coordArrangeHelp" />
+                </el-tooltip>
+              </div>
+              <div class="coordArrangeRow">
+                <el-button
+                  type="primary"
+                  class="reset actionBtn"
+                  @click="openCoordArrange"
+                  >{{ $t("Building.coordArrange") }}</el-button
+                >
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="left"
+                >
+                  <template #content><div class="coordArrangeTip">
+                    <p>{{ $t("Building.coordArrangeTip1") }}</p>
+                    <p>{{ $t("Building.coordArrangeTip2") }}</p>
+                    <p>{{ $t("Building.coordArrangeTip3") }}</p>
+                    <p>{{ $t("Building.coordArrangeTip4") }}</p>
+                  </div></template>
+                  <i class="el-icon-question coordArrangeHelp" />
+                </el-tooltip>
+              </div>
             </div>
           </div>
+          <!-- 按坐标布置 -->
+          <el-dialog
+            class="device-dialog"
+            :title="$t('Building.coordArrange')"
+            v-model="coordArrangeVisible"
+            width="440px"
+            @close="coordArrangeCancel"
+            align-center
+          >
+            <el-form
+              :model="coordArrangeForm"
+              :rules="coordArrangeRules"
+              ref="coordArrangeForm"
+              label-width="90px"
+              style="text-align: left"
+            >
+              <el-form-item :label="$t('Building.longi')" prop="longi">
+                <el-input
+                  v-model="coordArrangeForm.longi"
+                  :placeholder="$t('Building.longiPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('Building.lati')" prop="lati">
+                <el-input
+                  v-model="coordArrangeForm.lati"
+                  :placeholder="$t('Building.latiPlaceholder')"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+            <template #footer><div class="dialog-footer">
+              <el-button @click="coordArrangeCancel">{{
+                $t("change.cancle")
+              }}</el-button>
+              <el-button type="primary" @click="coordArrangeConfirm">{{
+                $t("change.sure")
+              }}</el-button>
+            </div></template>
+          </el-dialog>
           <!-- 修改 -->
           <el-dialog
             :title="$t('Building.Editinformation')"
-            :visible.sync="edit"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="600px"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -138,6 +228,18 @@
                 <el-input
                   v-model="editData.building"
                   :placeholder="$t('Building.text')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('Building.longi')" prop="longi">
+                <el-input
+                  v-model="editData.longi"
+                  :placeholder="$t('Building.longiPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('Building.lati')" prop="lati">
+                <el-input
+                  v-model="editData.lati"
+                  :placeholder="$t('Building.latiPlaceholder')"
                 ></el-input>
               </el-form-item>
               <el-form-item label="楼层显示：" v-if="showAllGroundEdit">
@@ -160,17 +262,30 @@
                 /></el-radio>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel()">{{
                 $t("change.cancle")
               }}</el-button>
               <el-button type="primary" @click="editTrue()">{{
                 $t("change.sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
-          <el-dialog :visible.sync="vedio" @close="closeVedio">
-            <video width="100%" controls autoplay id="video">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('Building.title1')"
+            v-model="vedio"
+            @close="closeVedio"
+            align-center
+          >
+            <video
+              width="100%"
+              controls
+              autoplay
+              id="video"
+              style="display: block; border-radius: 10px"
+            >
               <!-- <source src="../../../static/楼层管理——布置~1.mp4" type="video/mp4"/> -->
               <source
                 v-if="i8n != 'zh'"
@@ -191,6 +306,7 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 
@@ -482,6 +598,57 @@ export default {
       mapCenter: [],
       locating: false,
       selfLocationLayer: null,
+      coordArrangeVisible: false,
+      coordArrangeForm: {
+        longi: "",
+        lati: "",
+      },
+      coordArrangeRules: {
+        longi: [
+          {
+            required: true,
+            message: this.$t("Building.longiRequired"),
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              const num = Number(value);
+              if (value === "" || value === null || value === undefined) {
+                callback();
+                return;
+              }
+              if (Number.isNaN(num) || num < -180 || num > 180) {
+                callback(new Error(this.$t("Building.longiInvalid")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ],
+        lati: [
+          {
+            required: true,
+            message: this.$t("Building.latiRequired"),
+            trigger: "blur",
+          },
+          {
+            validator: (rule, value, callback) => {
+              const num = Number(value);
+              if (value === "" || value === null || value === undefined) {
+                callback();
+                return;
+              }
+              if (Number.isNaN(num) || num < -90 || num > 90) {
+                callback(new Error(this.$t("Building.latiInvalid")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ],
+      },
       headlistdata: "",
       showAllGround: "", //是否展示所有楼层
       showAllGroundEdit: false, //是否编辑展示所有楼层选项
@@ -525,7 +692,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -630,8 +796,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -706,6 +871,79 @@ export default {
     //返回项目管理
     goProject() {
       this.$router.push("/projectmanagement");
+    },
+    openCoordArrange() {
+      if (this.imgSrc == "") {
+        this.$message({
+          message: this.$t("Building.Pleaseicon"),
+          type: "warning",
+        });
+        return;
+      }
+      this.coordArrangeForm = {
+        longi: "",
+        lati: "",
+      };
+      this.coordArrangeVisible = true;
+      this.$nextTick(() => {
+        if (this.$refs.coordArrangeForm) {
+          this.$refs.coordArrangeForm.clearValidate();
+        }
+      });
+    },
+    coordArrangeCancel() {
+      this.coordArrangeVisible = false;
+      this.coordArrangeForm = {
+        longi: "",
+        lati: "",
+      };
+      if (this.$refs.coordArrangeForm) {
+        this.$refs.coordArrangeForm.clearValidate();
+      }
+    },
+    coordArrangeConfirm() {
+      this.$refs.coordArrangeForm.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        if (this.imgSrc == "") {
+          this.$message({
+            message: this.$t("Building.Pleaseicon"),
+            type: "warning",
+          });
+          return;
+        }
+        const longi = Number(this.coordArrangeForm.longi);
+        const lati = Number(this.coordArrangeForm.lati);
+        this.$confirm(this.$t("Building.layout"), this.$t("Building.tips"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
+          confirmButtonText: this.$t("terminal.confirm"),
+          cancelButtonText: this.$t("terminal.cancel"),
+          type: "warning",
+          callback: (action) => {
+            if (action === "confirm") {
+              if (this.map) {
+                const view = this.map.getView();
+                const targetZoom = Math.max(view.getZoom() || 5, 15);
+                view.animate({
+                  center: [longi, lati],
+                  zoom: targetZoom,
+                  duration: 600,
+                });
+              }
+              this.addIconMarker(this.map, {
+                x: longi,
+                y: lati,
+                src: this.imgSrc,
+              });
+              this.coordArrangeCancel();
+            }
+          },
+        });
+      });
     },
     // 浏览器定位到当前位置
     locateCurrentPosition() {
@@ -791,19 +1029,32 @@ export default {
       }
       this.selfLocationLayer = null;
       this.seeLayer = this.outdoorBaseLayers;
-      if (this.mapInfo.length > 0) {
-        this.view = new View({
-          projection: "EPSG:4326",
-          center: [that.longi, that.lati],
-          zoom: that.zoom,
-        });
-      } else {
-        this.view = new View({
-          projection: "EPSG:4326",
-          center: that.mapCenter,
-          zoom: 5,
-        });
-      }
+
+      // 有无楼栋都优先使用项目已保存的中心点与缩放（来自 store / updateProjectPosition）
+      const hasSavedCenter =
+        that.longi !== "" &&
+        that.longi !== null &&
+        that.longi !== undefined &&
+        that.lati !== "" &&
+        that.lati !== null &&
+        that.lati !== undefined;
+      const center = hasSavedCenter
+        ? [Number(that.longi), Number(that.lati)]
+        : Array.isArray(that.mapCenter) && that.mapCenter.length === 2
+        ? [Number(that.mapCenter[0]), Number(that.mapCenter[1])]
+        : that.$store.state.i18n == "zh"
+        ? [118, 32]
+        : [0.1, 51.3];
+      const zoom =
+        that.zoom !== "" && that.zoom !== null && that.zoom !== undefined
+          ? Number(that.zoom)
+          : 5;
+
+      this.view = new View({
+        projection: "EPSG:4326",
+        center,
+        zoom,
+      });
       setTimeout(() => {
         this.map = new Map({
           target: "map",
@@ -855,18 +1106,11 @@ export default {
           rotation: 0,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text:
-            mapInfo.buildtype == 1
-              ? mapInfo.building
-              : mapInfo.building + "(3D)", // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(
+          mapInfo.buildtype == 1
+            ? mapInfo.building
+            : mapInfo.building + "(3D)"
+        ),
       });
 
       this.vectorLayer = new OlLayerVector({
@@ -1003,15 +1247,7 @@ export default {
           scale: 1,
         }),
         // 设置图片下面显示字体的样式和内容
-        text: new Text({
-          text: buildingName, // 添加文字描述
-          font: "12px font-size", // 设置字体大小
-          fill: new Fill({
-            // 设置字体颜色
-            color: "white",
-          }),
-          offsetY: 10, // 设置文字偏移量
-        }),
+        text: this.createMarkerText(buildingName),
       });
 
       this.vectorLayer = new OlLayerVector({
@@ -1165,6 +1401,10 @@ export default {
             return;
           }
           this.$confirm(this.$t("Building.layout"), this.$t("Building.tips"), {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: this.$t("terminal.confirm"),
             cancelButtonText: this.$t("terminal.cancel"),
             type: "warning",
@@ -1258,6 +1498,10 @@ export default {
           : this.$t("otherDev.cancelAlarmtrue"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1294,6 +1538,10 @@ export default {
     setMaptype3D(feature, menu_overlay) {
       var that = this;
       this.$confirm(this.$t("build.Set3Dtet"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1328,15 +1576,7 @@ export default {
                     scale: 1,
                   }),
                   // 设置图片下面显示字体的样式和内容
-                  text: new Text({
-                    text: feature.values_.building + "(3D)", // 添加文字描述
-                    font: "12px font-size", // 设置字体大小
-                    fill: new Fill({
-                      // 设置字体颜色
-                      color: "white",
-                    }),
-                    offsetY: 10, // 设置文字偏移量
-                  }),
+                  text: that.createMarkerText(feature.values_.building + "(3D)"),
                 })
               );
             } else {
@@ -1357,6 +1597,10 @@ export default {
     setMaptype2D(feature, menu_overlay) {
       var that = this;
       this.$confirm(this.$t("build.Set2Dtet"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1391,15 +1635,7 @@ export default {
                     scale: 1,
                   }),
                   // 设置图片下面显示字体的样式和内容
-                  text: new Text({
-                    text: feature.values_.building, // 添加文字描述
-                    font: "12px font-size", // 设置字体大小
-                    fill: new Fill({
-                      // 设置字体颜色
-                      color: "white",
-                    }),
-                    offsetY: 10, // 设置文字偏移量
-                  }),
+                  text: that.createMarkerText(feature.values_.building),
                 })
               );
             } else {
@@ -1611,13 +1847,43 @@ export default {
           });
           return;
         }
+      const longi = Number(that.editData.longi);
+      const lati = Number(that.editData.lati);
+      if (
+        that.editData.longi === "" ||
+        that.editData.longi === null ||
+        that.editData.longi === undefined ||
+        Number.isNaN(longi) ||
+        longi < -180 ||
+        longi > 180
+      ) {
+        that.$message({
+          message: that.$t("Building.longiInvalid"),
+          type: "warning",
+        });
+        return;
+      }
+      if (
+        that.editData.lati === "" ||
+        that.editData.lati === null ||
+        that.editData.lati === undefined ||
+        Number.isNaN(lati) ||
+        lati < -90 ||
+        lati > 90
+      ) {
+        that.$message({
+          message: that.$t("Building.latiInvalid"),
+          type: "warning",
+        });
+        return;
+      }
       let data = {
         id: that.editData.id,
         building: that.editData.building,
         projectid: that.editData.projectid,
         buildtype: that.editData.buildtype,
-        longi: that.editData.longi,
-        lati: that.editData.lati,
+        longi: longi,
+        lati: lati,
         src: that.editData.src,
         flag: that.showAllGround,
       };
@@ -1631,10 +1897,20 @@ export default {
           that.editFeatureInfo.values_.building = that.editData.building;
           that.editFeatureInfo.values_.src = that.editData.src;
           that.editFeatureInfo.values_.id = that.editData.id;
-          that.editFeatureInfo.values_.lati = that.editData.lati;
-          that.editFeatureInfo.values_.longi = that.editData.longi;
+          that.editFeatureInfo.values_.lati = lati;
+          that.editFeatureInfo.values_.longi = longi;
           that.editFeatureInfo.values_.projectid = that.editData.projectid;
           that.editFeatureInfo.values_.allGround = that.showAllGround;
+          that.editFeatureInfo.setGeometry(new OlGeomPoint([longi, lati]));
+          if (that.map) {
+            const view = that.map.getView();
+            const targetZoom = Math.max(view.getZoom() || 5, 15);
+            view.animate({
+              center: [longi, lati],
+              zoom: targetZoom,
+              duration: 600,
+            });
+          }
           that.$message({
             message: that.$t("mapmanagement.editsuccess"),
             type: "success",
@@ -1652,18 +1928,11 @@ export default {
                 scale: 1,
               }),
               // 设置图片下面显示字体的样式和内容
-              text: new Text({
-                text:
-                  that.editFeatureInfo.values_.buildtype == 1
-                    ? that.editData.building
-                    : that.editData.building + "(3D)", // 添加文字描述
-                font: "12px font-size", // 设置字体大小
-                fill: new Fill({
-                  // 设置字体颜色
-                  color: "white",
-                }),
-                offsetY: 10, // 设置文字偏移量
-              }),
+              text: that.createMarkerText(
+                that.editFeatureInfo.values_.buildtype == 1
+                  ? that.editData.building
+                  : that.editData.building + "(3D)"
+              ),
             })
           );
 
@@ -1856,7 +2125,17 @@ export default {
   },
   beforeMount() {
     let that = this;
-    if (this.$store.state.longis && this.$store.state.latis) {
+    // 与 store 同步，避免无楼栋分支只用默认 zoom:5 / 旧 mapCenter
+    if (
+      this.$store.state.longis !== "" &&
+      this.$store.state.longis !== null &&
+      this.$store.state.longis !== undefined &&
+      this.$store.state.latis !== "" &&
+      this.$store.state.latis !== null &&
+      this.$store.state.latis !== undefined
+    ) {
+      this.longi = this.$store.state.longis;
+      this.lati = this.$store.state.latis;
       this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
     } else {
       if (that.$store.state.i18n == "zh") {
@@ -1864,6 +2143,13 @@ export default {
       } else {
         that.mapCenter = [0.1, 51.3];
       }
+    }
+    if (
+      this.$store.state.mapZoom !== "" &&
+      this.$store.state.mapZoom !== null &&
+      this.$store.state.mapZoom !== undefined
+    ) {
+      this.zoom = this.$store.state.mapZoom;
     }
     this.outdoorBaseLayers = createOutdoorBaseLayers(
       this.$store.state.i18n == "zh"
@@ -1910,8 +2196,11 @@ export default {
     }
     this.getBuildingByProjectids();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     var that = this;
+    if (!this.map || !this.map.getView) {
+      return;
+    }
     let data = {
       projectid: this.intoProjectid,
       longi: this.map.getView().getCenter()[0],
@@ -1922,6 +2211,10 @@ export default {
       lati: this.map.getView().getCenter()[1],
       zoom: this.map.getView().getZoom(),
     };
+    // 先写 store，保证立刻返回本页时中心/缩放已是最新
+    this.$store.commit("changeMapZoom", data.zoom);
+    this.$store.commit("changeMapLongi", data.longi);
+    this.$store.commit("changeMapLati", data.lati);
     updateProjectPosition(
       data,
       this.tenantkey_A,
@@ -2015,30 +2308,39 @@ export default {
 .reset {
   padding: 8px 12px !important;
   margin-top: 5px;
+  margin-left: 0 !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
-  padding: 0;
-  line-height: 34px;
+.actionBtn {
+  width: 100px;
+  box-sizing: border-box;
+  text-align: center;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
-
-.demo-form-inline >>> .el-form-item .el-form-item__content {
-  line-height: 34px;
+.inputContent:not(:empty) {
+  margin: 0 0 12px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
-  height: 34px;
-  line-height: 34px;
-}
-.demo-form-inline >>> .el-form-item .el-input__icon {
-  height: 34px;
-  line-height: 34px;
-}
-.mapConent {
+/* 卡片铺到页脚上方；min-height 不低于右侧图标列的内容高度 */
+.device-page .mapConent.page-panel {
   display: flex;
-  margin-top: 2%;
   z-index: 1;
+  height: calc(100vh - 106px);
+  min-height: 820px;
+}
+.device-page .mapConent.page-panel.is-admin {
+  height: calc(100vh - 164px);
+}
+.mapMain {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 #map {
-  height: 700px;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   z-index: 1;
 }
@@ -2048,11 +2350,35 @@ export default {
 .assignMapContent {
   display: flex;
 }
+.buildingGuide {
+  margin: 12px 0;
+  line-height: 1.6;
+  position: relative;
+  z-index: 2;
+}
 .imgBtn {
   z-index: 1;
   display: flex;
   flex-direction: column;
   margin-left: 8px;
+  padding-bottom: 12px;
+}
+.coordArrangeRow {
+  display: flex;
+  align-items: center;
+}
+.coordArrangeHelp {
+  margin-left: 6px;
+  margin-top: 5px;
+  font-size: 16px;
+  width: 16px;
+  flex-shrink: 0;
+  color: #909399;
+  cursor: pointer;
+}
+.coordArrangeTip p {
+  margin: 0 0 4px;
+  line-height: 1.5;
 }
 
 .imgBtn p {

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -10,10 +10,10 @@
         </el-aside>
         <el-main>
           <div
-            class="map_pinut"
+            class="map_pinut map-search-bar"
             v-if="contrForPrionum == 3 || contrForPrionum == 4"
           >
-            <el-breadcrumb separator="/" style="margin-left: 0">
+            <el-breadcrumb separator="/">
               <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
                 $t("index.projectmanagement")
               }}</el-breadcrumb-item>
@@ -23,17 +23,15 @@
               }}</el-breadcrumb-item>
             </el-breadcrumb>
 
+            <div class="map-search-row terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline map-search-form terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; justify-content: end"
             >
               <el-form-item
-                style="display: flex; margin-right: 0"
                 :label="$t('mapmanagements.Mapnumber')"
-              >
+               class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -50,50 +48,52 @@
                     <span style="float: left">{{ item.mapname }}</span>
                     <span
                       style="float: right; color: #8492a6; font-size: 13px"
-                      >{{ item.maplabel }}</span
-                    ></el-option
-                  >
+                      >{{ item.maplabel }}</span></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="display: flex; margin-left: 2%">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("mapmanagements.search")
                 }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("mapmanagements.reset")
                 }}</el-button>
-                <el-popover v-model="choseMap">
-                  <div style="display: flex">
-                    <el-button size="mini" type="primary" @click="addMap2D()">{{
+                <el-popover
+                  v-model:visible="choseMap"
+                  placement="top-end"
+                  :width="'auto'"
+                  popper-class="map-add-popover"
+                >
+                  <div class="map-add-popover__actions">
+                    <el-button size="small" type="primary" @click="addMap2D()">{{
                       $t("mapmanagements.sDmap")
                     }}</el-button>
-                    <el-button type="primary" size="mini" @click="addMap3D()">{{
+                    <el-button type="primary" size="small" @click="addMap3D()">{{
                       $t("mapmanagements.tDmap")
                     }}</el-button>
                   </div>
-                  <el-button type="primary" class="del move" slot="reference">{{
+                  <template #reference><el-button type="primary" class="del move">{{
                     $t("mapmanagements.Addmap")
-                  }}</el-button>
+                  }}</el-button></template>
                 </el-popover>
               </el-form-item>
             </el-form>
+            </div>
           </div>
           <div
-            class="map_pinut"
-            style="display: flex"
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
             v-if="contrForPrionum == 5"
           >
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; margin-left: 2%"
             >
               <el-form-item
-                style="display: flex; margin-right: 0"
                 :label="$t('mapmanagements.Mapnumber')"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -110,56 +110,52 @@
                     <span style="float: left">{{ item.mapname }}</span>
                     <span
                       style="float: right; color: #8492a6; font-size: 13px"
-                      >{{ item.maplabel }}</span
-                    >
+                      >{{ item.maplabel }}</span>
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item
-                style="display: flex; margin-left: 2%; margin-right: 2%"
-              >
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("mapmanagements.search")
                 }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("mapmanagements.reset")
                 }}</el-button>
-                <el-popover placement="top" v-model="choseMap">
-                  <div style="display: flex">
-                    <el-button size="mini" type="primary" @click="addMap2D()">{{
+                <el-popover
+                  placement="top-end"
+                  :width="'auto'"
+                  popper-class="map-add-popover"
+                  v-model:visible="choseMap"
+                >
+                  <div class="map-add-popover__actions">
+                    <el-button size="small" type="primary" @click="addMap2D()">{{
                       $t("mapmanagements.sDmap")
                     }}</el-button>
-                    <el-button type="primary" size="mini" @click="addMap3D()">{{
+                    <el-button type="primary" size="small" @click="addMap3D()">{{
                       $t("mapmanagements.tDmap")
                     }}</el-button>
                   </div>
-                  <el-button type="primary" class="del move" slot="reference">{{
+                  <template #reference><el-button type="primary" class="del move">{{
                     $t("mapmanagements.Addmap")
-                  }}</el-button>
+                  }}</el-button></template>
                 </el-popover>
               </el-form-item>
             </el-form>
           </div>
           <div
-            class="map_pinut"
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
             v-if="contrForPrionum == 1 || contrForPrionum == 2"
           >
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap"
             >
               <el-form-item
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
                 :label="$t('mapmanagement.mapid')"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.mapid"
                   clearable
                   filterable
@@ -176,12 +172,11 @@
                     <span style="float: left">{{ item.mapname }}</span>
                     <span
                       style="float: right; color: #8492a6; font-size: 13px"
-                      >{{ item.maplabel }}</span
-                    >
+                      >{{ item.maplabel }}</span>
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 1%">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("terminal.search")
                 }}</el-button>
@@ -193,18 +188,18 @@
           </div>
 
           <!-- 展示 -->
-          <div class="content_map">
-            <el-table
+          <div class="content_map page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -229,7 +224,7 @@
                 min-width="100"
                 align="center"
               ></el-table-column>
-              <el-table-column
+<el-table-column
                 property="maptypestr"
                 :label="$t('mapmanagements.mapdimension')"
                 show-overflow-tooltip
@@ -243,7 +238,7 @@
                 min-width="110"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("mapmanagements.mapwidth")
                   }}</span>
@@ -253,12 +248,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("mapmanagements.text1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="length"
                 :label="$t('mapmanagements.maplength')"
@@ -266,7 +260,7 @@
                 min-width="110"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("mapmanagements.maplength")
                   }}</span>
@@ -276,12 +270,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("mapmanagements.text2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="realwidth"
                 :label="$t('mapmanagements.actualwidthofthemap')"
@@ -289,7 +282,7 @@
                 min-width="140"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("mapmanagements.actualwidthofthemap")
                   }}</span>
@@ -299,12 +292,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("mapmanagements.text3") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="reallength"
                 :label="$t('mapmanagements.actuallengthofthemap')"
@@ -312,7 +304,7 @@
                 min-width="140"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("mapmanagements.actuallengthofthemap")
                   }}</span>
@@ -322,12 +314,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("mapmanagements.text4") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="distance"
                 :label="$t('mapmanagements.Sensitivity')"
@@ -348,7 +339,7 @@
                 min-width="88"
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{
                     scope.row.inuseNum > 0
                       ? $t("mapmanagements.inuseYes")
@@ -364,11 +355,20 @@
                 min-width="115"
                 align="center"
               ></el-table-column>
+<el-table-column
+                property="sysmemo"
+                :label="$t('mapmanagement.sysmemo')"
+                show-overflow-tooltip
+                align="center"
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+                min-width="120"
+              ></el-table-column>
               <el-table-column
                 property="memo"
                 :label="$t('mapmanagements.Remark')"
                 align="center"
                 show-overflow-tooltip
+                v-if="contrForPrionum != 1 && contrForPrionum != 2"
                 min-width="120"
               ></el-table-column>
 
@@ -385,8 +385,9 @@
                   contrForPrionum == 5
                 "
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -397,8 +398,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -408,7 +410,7 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="editMap(scope.$index)"
                           v-if="
@@ -418,16 +420,14 @@
                             contrForPrionum == 4 ||
                             contrForPrionum == 5
                           "
-                          >{{ $t("mapmanagements.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("mapmanagements.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="delMap(scope.$index)"
                           v-if="
@@ -437,27 +437,25 @@
                             contrForPrionum == 4 ||
                             contrForPrionum == 5
                           "
-                          >{{ $t("mapmanagements.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("mapmanagements.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
+                v-model:page-size="pageCount"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
               >
               </el-pagination>
             </div>
@@ -465,16 +463,18 @@
 
           <!-- 添加2D -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text5')"
-            width="30%"
-            :visible.sync="add2D"
-            style="text-align: center"
+            width="560px"
+            v-model="add2D"
             @close="addCancel2D('addData')"
+            top="5vh"
           >
             <el-upload
+              class="dialog-upload-indent-120"
               :action="ImagePath"
               list-type="picture-card"
-              :file-list="fileListAdd"
+              v-model:file-list="fileListAdd"
               :on-preview="handlePictureCardPreview"
               accept=".png, .jpg, .jpeg"
               :limit="1"
@@ -488,9 +488,9 @@
               :before-upload="beforeAvatarUpload"
               :on-change="handleChange"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("mapmanagements.text6") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -516,19 +516,18 @@
                   type="primary"
                   class="reset"
                   @click="chooseMapPoint()"
-                  >{{ $t("mapmanagements.mapselection") }}</el-button
-                >
+                  >{{ $t("mapmanagements.mapselection") }}</el-button>
                 <el-tooltip
                   class="item"
                   effect="light"
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text7") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -549,11 +548,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -574,11 +573,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text9") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -599,11 +598,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text10") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -638,178 +637,210 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel2D('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addTrue2D('addData')">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
-          <!-- 添加3D -->
+          <!-- 添加3D：先加载地图取长宽，再调用添加接口 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text5')"
-            width="30%"
-            :visible.sync="add3D"
-            style="text-align: center"
+            width="80%"
+            v-model="add3D"
             @close="addCancel3D('addData')"
+            top="5vh"
           >
-            <el-form
-              :model="addData"
-              label-width="120px"
-              ref="addData"
-              style="text-align: left; margin-top: 4%"
-              :rules="addRules"
-            >
-              <el-form-item
-                :label="$t('mapmanagements.Mapname')"
-                prop="mapname"
-              >
-                <el-input v-model="addData.mapname"></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.mapNumber')"
-                prop="filename"
-              >
-                <el-input v-model="addData.filename"></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.appName')"
-                prop="appname"
-              >
-                <el-input v-model="addData.appname"></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.appKey')" prop="mapkey">
-                <el-input v-model="addData.mapkey"></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.themeId')" prop="">
-                <el-input v-model="themeId"></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.sensitivity')"
-                prop="distance"
-              >
-                <el-input v-model="addData.distance"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
+            <div class="check_3d_box">
+              <div class="check_3d_info">
+                <el-form
+                  :model="addData"
+                  label-width="120px"
+                  ref="addData"
+                  style="text-align: left; margin-top: 4%"
+                  :rules="addRules"
                 >
-                  <div slot="content">
-                    <p>
-                      {{ $t("mapmanagements.text9") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.activity')"
-                prop="active"
-              >
-                <el-input v-model="addData.active"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("mapmanagements.text10") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.scale')" prop="scale">
-                <el-input v-model="addData.scale"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("mapmanagements.scaleTip") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
-              <el-form-item
-                :label="$t('mapmanagements.Project')"
-                prop=""
-                v-if="contrForPrionum == 3 || contrForPrionum == 4"
-              >
-                <el-select
-                  v-model="addData.projectid"
-                  clearable
-                  filterable
-                  disabled
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in projectList"
-                    :key="item.projectid"
-                    :label="item.name"
-                    :value="item.projectid"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item :label="$t('mapmanagements.remark')">
-                <el-input
-                  type="textarea"
-                  show-word-limit
-                  maxlength="64"
-                  v-model="addData.memo"
-                ></el-input>
-              </el-form-item>
-            </el-form>
-
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="addCancel3D('addData')">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="addTrue3D('addData')">{{
-                $t("warning.Sure")
-              }}</el-button>
+                  <el-form-item
+                    :label="$t('mapmanagements.Mapname')"
+                    prop="mapname"
+                  >
+                    <el-input v-model="addData.mapname"></el-input>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.mapNumber')"
+                    prop="filename"
+                  >
+                    <el-input v-model="addData.filename"></el-input>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.appName')"
+                    prop="appname"
+                  >
+                    <el-input v-model="addData.appname"></el-input>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.appKey')"
+                    prop="mapkey"
+                  >
+                    <el-input v-model="addData.mapkey"></el-input>
+                  </el-form-item>
+                  <el-form-item :label="$t('mapmanagements.themeId')" prop="">
+                    <el-input v-model="themeId"></el-input>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.sensitivity')"
+                    prop="distance"
+                  >
+                    <el-input v-model="addData.distance"></el-input>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <template #content
+                        ><div>
+                          <p>
+                            {{ $t("mapmanagements.text9") }}
+                          </p>
+                        </div></template
+                      >
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.activity')"
+                    prop="active"
+                  >
+                    <el-input v-model="addData.active"></el-input>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <template #content
+                        ><div>
+                          <p>
+                            {{ $t("mapmanagements.text10") }}
+                          </p>
+                        </div></template
+                      >
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.scale')"
+                    prop="scale"
+                  >
+                    <el-input v-model="addData.scale"></el-input>
+                    <el-tooltip
+                      class="item"
+                      effect="light"
+                      placement="right-start"
+                      style="
+                        position: absolute;
+                        font-size: 130%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        margin-left: 5px;
+                      "
+                    >
+                      <template #content
+                        ><div>
+                          <p>
+                            {{ $t("mapmanagements.scaleTip") }}
+                          </p>
+                        </div></template
+                      >
+                      <i class="el-icon-question" />
+                    </el-tooltip>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.Project')"
+                    prop=""
+                    v-if="contrForPrionum == 3 || contrForPrionum == 4"
+                  >
+                    <el-select
+                      v-model="addData.projectid"
+                      clearable
+                      filterable
+                      disabled
+                      :placeholder="$t('terminal.choose')"
+                    >
+                      <el-option
+                        v-for="item in projectList"
+                        :key="item.projectid"
+                        :label="item.name"
+                        :value="item.projectid"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item :label="$t('mapmanagements.remark')">
+                    <el-input
+                      type="textarea"
+                      show-word-limit
+                      maxlength="64"
+                      v-model="addData.memo"
+                    ></el-input>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="check_3d_map">
+                <div
+                  id="fengMapAdd"
+                  ref="fengMapAdd"
+                  v-loading="loading && add3D"
+                  v-if="add3D"
+                  :element-loading-text="$t('mapmanagements.text19')"
+                ></div>
+              </div>
             </div>
+            <template #footer><div class="dialog-footer">
+              <el-button
+                @click="addCancel3D('addData')"
+                :disabled="add3DSubmitting"
+                >{{ $t("warning.Cancel") }}</el-button>
+              <el-button
+                type="primary"
+                @click="addTrue3D('addData')"
+                :loading="add3DSubmitting"
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 地图预览 -->
           <el-dialog
-            width="60%"
-            class="mapview"
-            :visible.sync="dialogVisible"
+            width="70%"
+            class="mapview device-dialog"
+            :title="$t('mapmanagements.mapselection')"
+            v-model="dialogVisible"
             :append-to-body="true"
+            :destroy-on-close="true"
             @close="removeMap()"
+            top="5vh"
           >
-            <!-- <img width="100%" :src="dialogImageUrl" alt /> -->
             <div class="mapContent" ref="mapContent">
-              <div id="map" ref="map"></div>
+              <div class="map-image-stage">
+                <div id="map" ref="map"></div>
+              </div>
               <p class="map_tips">
                 {{ $t("mapmanagements.text11")
                 }}<input
@@ -844,12 +875,13 @@
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text13')"
-            width="30%"
-            :visible.sync="del"
-            style="text-align: center"
+            width="560px"
+            v-model="del"
+            top="6vh"
           >
-            <div class="imageSize">
+            <div class="imageSize dialog-upload-indent-120">
               <el-image
                 style="width: 100px; height: 100px"
                 :src="imgUrl"
@@ -859,7 +891,7 @@
             </div>
             <el-form
               :model="delData"
-              label-width="100px"
+              label-width="120px"
               ref="delData"
               style="text-align: left; margin-top: 4%"
             >
@@ -889,23 +921,25 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="del = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="delTrue('delData')">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑2D 不可更该地图的编辑页面-->
           <el-dialog
-            width="30%"
-            :visible.sync="edit2D"
-            style="text-align: center"
+            class="device-dialog"
+            :title="$t('mapmanagements.text14')"
+            width="560px"
+            v-model="edit2D"
+            top="6vh"
           >
-            <div class="imageSize">
+            <div class="imageSize dialog-upload-indent-120">
               <el-image
                 style="width: 100px; height: 100px"
                 :src="imgUrl"
@@ -946,11 +980,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text15") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -971,9 +1005,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("mapmanagements.text16") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -994,11 +1028,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text17") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1019,11 +1053,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text18") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1047,7 +1081,21 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('mapmanagements.remark')">
+              <el-form-item
+                :label="$t('mapmanagement.sysmemo1')"
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+              >
+                <el-input
+                  type="textarea"
+                  show-word-limit
+                  maxlength="64"
+                  v-model="editData.sysmemo"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('mapmanagements.remark')"
+                v-if="contrForPrionum != 1 && contrForPrionum != 2"
+              >
                 <el-input
                   type="textarea"
                   show-word-limit
@@ -1057,47 +1105,55 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="edit2D = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="editTrue('editData')">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 企业级编辑2D，可以修改地图 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text14')"
-            width="30%"
-            :visible.sync="editCompany2D"
-            style="text-align: center"
+            width="560px"
+            v-model="editCompany2D"
             @close="closeMap()"
+            top="5vh"
           >
-            <el-upload
-              :disabled="changeImg"
-              :action="ImagePathEdit"
-              list-type="picture-card"
-              :file-list="fileListEdit"
-              :on-preview="handlePictureCardPreviewEdit"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPicEdit"
-              :on-success="picSuccessEdit"
-              :on-error="picErrorEdit"
-              :headers="myHeaderEdit"
-              :auto-upload="false"
-              :on-change="choseApi"
-              :on-exceed="handleExceedEdit"
-              :before-upload="beforeAvatarUploadEdit"
+            <div
+              class="map-edit-upload"
+              :class="{ 'is-full': hideEditMapUpload }"
             >
-              <div slot="tip" class="el-upload__tip">
-                {{ $t("mapmanagements.text6") }}
-              </div>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+              <el-upload
+                class="dialog-upload-indent-120"
+                :disabled="changeImg"
+                :action="ImagePathEdit"
+                list-type="picture-card"
+                v-model:file-list="fileListEdit"
+                :on-preview="handlePictureCardPreviewEdit"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPicEdit"
+                :on-success="picSuccessEdit"
+                :on-error="picErrorEdit"
+                :headers="myHeaderEdit"
+                :auto-upload="false"
+                :on-change="choseApi"
+                :on-remove="handleRemoveEdit"
+                :on-exceed="handleExceedEdit"
+                :before-upload="beforeAvatarUploadEdit"
+              >
+                <template #tip><div class="el-upload__tip">
+                  {{ $t("mapmanagements.text6") }}
+                </div></template>
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
               :model="editDatas"
               label-width="120px"
@@ -1124,19 +1180,18 @@
                   type="primary"
                   class="reset"
                   @click="chooseMapPoint()"
-                  >{{ $t("mapmanagements.mapselection") }}</el-button
-                >
+                  >{{ $t("mapmanagements.mapselection") }}</el-button>
                 <el-tooltip
                   class="item"
                   effect="light"
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text15") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1157,9 +1212,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("mapmanagements.text16") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1180,11 +1235,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text17") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1205,11 +1260,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("mapmanagements.text18") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1233,7 +1288,21 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('mapmanagements.remark')">
+              <el-form-item
+                :label="$t('mapmanagement.sysmemo1')"
+                v-if="contrForPrionum == 1 || contrForPrionum == 2"
+              >
+                <el-input
+                  type="textarea"
+                  show-word-limit
+                  maxlength="64"
+                  v-model="editDatas.sysmemo"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('mapmanagements.remark')"
+                v-if="contrForPrionum != 1 && contrForPrionum != 2"
+              >
                 <el-input
                   type="textarea"
                   show-word-limit
@@ -1243,24 +1312,25 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCompany2D = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="editTrues('editDatas')">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑3D地图 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('mapmanagements.text14')"
-            width="60%"
-            :visible.sync="edit3D"
-            style="text-align: center"
+            width="80%"
+            v-model="edit3D"
             @opened="onmap()"
             @close="closeCheck('editData')"
+            top="5vh"
           >
             <div class="check_3d_box">
               <div class="check_3d_info">
@@ -1275,10 +1345,7 @@
                     :label="$t('mapmanagements.Mapname')"
                     prop="mapname"
                   >
-                    <el-input
-                      v-model="editData.mapname"
-                      :disabled="passEdit || changeImg"
-                    ></el-input>
+                    <el-input v-model="editData.mapname"></el-input>
                   </el-form-item>
                   <el-form-item
                     :label="$t('mapmanagements.mapNumber')"
@@ -1306,11 +1373,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("mapmanagements.text17") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -1331,11 +1398,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("mapmanagements.text18") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -1356,11 +1423,11 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("mapmanagements.scaleTip") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -1384,7 +1451,21 @@
                       ></el-option>
                     </el-select>
                   </el-form-item>
-                  <el-form-item :label="$t('mapmanagements.remark')">
+                  <el-form-item
+                    :label="$t('mapmanagement.sysmemo1')"
+                    v-if="contrForPrionum == 1 || contrForPrionum == 2"
+                  >
+                    <el-input
+                      type="textarea"
+                      show-word-limit
+                      maxlength="64"
+                      v-model="editData.sysmemo"
+                    ></el-input>
+                  </el-form-item>
+                  <el-form-item
+                    :label="$t('mapmanagements.remark')"
+                    v-if="contrForPrionum != 1 && contrForPrionum != 2"
+                  >
                     <el-input
                       type="textarea"
                       show-word-limit
@@ -1393,26 +1474,31 @@
                     ></el-input>
                   </el-form-item>
                 </el-form>
-
-                <div slot="footer" class="dialog-footer">
-                  <el-button @click="closeCheck('editData')">{{
-                    $t("warning.Cancel")
-                  }}</el-button>
-                  <el-button type="primary" @click="editTrue3D('editData')">{{
-                    $t("warning.Sure")
-                  }}</el-button>
-                </div>
               </div>
               <div class="check_3d_map">
                 <div
                   id="fengMap"
+                  ref="fengMap"
                   v-loading="loading"
                   v-if="edit3D"
                   :element-loading-text="$t('mapmanagements.text19')"
                 ></div>
               </div>
             </div>
+            <template #footer><div class="dialog-footer">
+              <el-button
+                @click="closeCheck('editData')"
+                :disabled="edit3DSubmitting"
+                >{{ $t("warning.Cancel") }}</el-button>
+              <el-button
+                type="primary"
+                @click="editTrue3D('editData')"
+                :loading="edit3DSubmitting"
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
+
+
         </el-main>
       </el-container>
     </div>
@@ -1421,6 +1507,7 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min"; //核心包
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import "fengmap/build/fengmap.plugin.ui.min"; //UI控件包
 import "fengmap/build/fengmap.analyser.min"; //分析器包
 import "fengmap/build/fengmap.plugin.navi.min"; //导航包
@@ -1437,6 +1524,7 @@ import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 
 import host from "../../host";
+import { markRaw } from "vue";
 
 import "ol/ol.css";
 import Map from "ol/Map";
@@ -1470,7 +1558,6 @@ export default {
     return {
       i8n: this.$store.state.i18n,
       // 地图相关
-      map: null,
       mapName: "map",
       draw: "",
       snap: "",
@@ -1492,6 +1579,8 @@ export default {
       total: 0,
       add2D: false,
       add3D: false,
+      add3DSubmitting: false, // 添加3D：加载地图取尺寸并提交中
+      edit3DSubmitting: false, // 编辑3D：从已加载地图取尺寸并提交中
       addData: {
         mapname: "",
         filename: "",
@@ -1547,17 +1636,16 @@ export default {
         ],
         realwidth: [
           {
-            // pattern: /^\+?[1-9]\d*$/,
-            pattern: /^\+?\d*$/,
-            message: this.$t("mapmanagement.tit"),
+            // 大于 0 的数（可含小数），空值允许
+            pattern: /^$|^(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$/,
+            message: this.$t("mapmanagement.titPositive"),
             trigger: "blur",
           },
         ],
         reallength: [
           {
-            // pattern: /^\+?[1-9]\d*$/,
-            pattern: /^\+?\d*$/,
-            message: this.$t("mapmanagement.tit"),
+            pattern: /^$|^(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$/,
+            message: this.$t("mapmanagement.titPositive"),
             trigger: "blur",
           },
         ],
@@ -1612,13 +1700,16 @@ export default {
       projectList: [],
       dialogImageUrl: "",
       dialogVisible: false,
+      mapDialogInitTimer: null,
+      mapDialogInitSeq: 0,
+      mapImageRaw: null,
       fileListAdd: [],
 
       fileListEdit: [],
       userIdForPic: {}, //添加图片携带参数
       userIdForPicEdit: {}, //编辑图片携带参数
-      ImagePath: host.host + "map/addMapInfoAndMapFile",
-      ImagePathEdit: host.host + "map/updateMapFile",
+      ImagePath: host.host + "service/addMapInfoAndMapFile",
+      ImagePathEdit: host.host + "service/updateMapFile",
       myHeader: {
         tenantkey: this.$store.state.userInfo.tenantkey,
         ts: new Date().getTime(),
@@ -1642,6 +1733,7 @@ export default {
         width: "",
         length: "",
         memo: "",
+        sysmemo: "",
         projectid: "",
         realwidth: "",
         reallength: "",
@@ -1655,6 +1747,7 @@ export default {
         width: "",
         length: "",
         memo: "",
+        sysmemo: "",
         projectid: "",
         realwidth: "",
         reallength: "",
@@ -1668,6 +1761,8 @@ export default {
       // projectEdit: false, //企业级别的管理员在地图已使用的时候不可以修改所属项目
       del: false,
       delData: {},
+
+      clickTrue: true,
       map3d: null,
       themeId: "", //3D地图主题id
       fmapId: "",
@@ -1675,9 +1770,11 @@ export default {
       fmapName: "",
       loading: true,
       scrollFloorControl: "",
+
       imgUrl: "",
-      imageInfo: {}, //原始图片的分辨率，用来审核用户添加的长宽比例
+      imageInfo: {}, //原始图片的分辨率，用于校验实际宽高比例
       srcList: [],
+
       mapIdList: [],
       featureNum: 0,
       actualrange: "",
@@ -1689,46 +1786,233 @@ export default {
       mapOptions: [],
     };
   },
+  created() {
+    this.map = null;
+    this.mapClickEvent = null;
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+    // 编辑2D：已有地图图片时隐藏上传入口；删除图片后才可再传
+    hideEditMapUpload() {
+      return Array.isArray(this.fileListEdit) && this.fileListEdit.length > 0;
+    },
+  },
   methods: {
+    resolveUploadImageUrl(file) {
+      if (!file) {
+        return "";
+      }
+      if (file.url) {
+        return file.url;
+      }
+      return "";
+    },
+    readMapImageDataUrl(raw) {
+      return new Promise((resolve, reject) => {
+        if (!(raw instanceof Blob)) {
+          reject(new Error("invalid map image"));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(raw);
+      });
+    },
+    rememberMapImageFile(file) {
+      const raw = file?.raw instanceof Blob ? file.raw : null;
+      if (raw) {
+        this.mapImageRaw = raw;
+      }
+    },
+    loadMapImageSource() {
+      const finish = (url) => {
+        if (!url) {
+          return Promise.reject(new Error("empty map image url"));
+        }
+        this.dialogImageUrl = url;
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            if (!img.width || !img.height) {
+              reject(new Error("invalid map image size"));
+              return;
+            }
+            resolve({
+              url,
+              width: img.width,
+              height: img.height,
+            });
+          };
+          img.onerror = reject;
+          img.src = url;
+        });
+      };
+
+      if (this.mapImageRaw) {
+        return this.readMapImageDataUrl(this.mapImageRaw).then(finish);
+      }
+
+      const fallbackUrl = this.getCurrentMapImageUrl();
+      if (fallbackUrl) {
+        return finish(fallbackUrl);
+      }
+
+      return Promise.reject(new Error("no map image"));
+    },
+    getCurrentMapImageUrl() {
+      if (this.add2D && this.fileListAdd.length) {
+        return this.resolveUploadImageUrl(this.fileListAdd[0]);
+      }
+      if (this.editCompany2D && this.fileListEdit.length) {
+        return this.resolveUploadImageUrl(this.fileListEdit[0]);
+      }
+      if (this.edit2D && this.imgUrl) {
+        return this.imgUrl;
+      }
+      if (this.dialogImageUrl) {
+        return this.dialogImageUrl;
+      }
+      return "";
+    },
+    clearPendingMapImage() {
+      this.mapImageRaw = null;
+      this.dialogImageUrl = "";
+    },
+    clearMapDialogInitTimer() {
+      if (this.mapDialogInitTimer) {
+        clearTimeout(this.mapDialogInitTimer);
+        this.mapDialogInitTimer = null;
+      }
+    },
+    scheduleMapDialogInit() {
+      this.clearMapDialogInitTimer();
+      const token = this.mapDialogInitSeq;
+      this.mapDialogInitTimer = setTimeout(() => {
+        if (token !== this.mapDialogInitSeq || !this.dialogVisible) {
+          return;
+        }
+        this.initMapFromImageUrl();
+      }, 280);
+    },
+    openMapView(imageUrl) {
+      if (imageUrl) {
+        this.dialogImageUrl = imageUrl;
+      }
+      if (!this.mapImageRaw && !this.dialogImageUrl && !this.getCurrentMapImageUrl()) {
+        this.$message({
+          message: this.$t("mapmanagement.tit4"),
+          type: "warning",
+        });
+        return;
+      }
+      this.mapDialogInitSeq += 1;
+      this.dialogVisible = true;
+    },
+    initMapFromImageUrl() {
+      if (!this.dialogVisible) {
+        return;
+      }
+      this.loadMapImageSource()
+        .then(({ url, width, height }) => {
+          if (!this.dialogVisible) {
+            return;
+          }
+          this.dialogImageUrl = url;
+          this.imageX = width;
+          this.imageY = height;
+          this.imageInfo = {
+            width: width,
+            height: height,
+          };
+          this.mapInit(width, height);
+        })
+        .catch(() => {
+          this.$message({
+            message: this.$t("mapmanagement.maprule1"),
+            type: "warning",
+          });
+        });
+    },
     // 初始话地图
     mapInit(x, y) {
       var that = this;
       that.actualrange = "";
+      if (this.map) {
+        this.map.setTarget(null);
+        this.map = null;
+      }
       var extent = [0, 0, x, y];
+      const projectionCode = `map-image-${x}-${y}-${Date.now()}`;
       var projection = new Projection({
-        code: "xkcd-image",
+        code: projectionCode,
         units: "pixels",
         extent: extent,
       });
-      setTimeout(() => {
-        this.$refs.map.style.width = "100%";
-        this.$refs.map.style.height = "90%";
-        this.map = new Map({
+      const mapEl = this.$refs.map;
+      const mapContentEl = this.$refs.mapContent;
+      if (!mapEl || !mapContentEl) {
+        return;
+      }
+      const tipsEl = mapContentEl.querySelector(".map_tips");
+      const tipsHeight = tipsEl ? tipsEl.offsetHeight + 12 : 48;
+      const mapHeight = Math.max(mapContentEl.clientHeight - tipsHeight, 420);
+      mapEl.style.width = "100%";
+      mapEl.style.height = `${mapHeight}px`;
+      mapEl.style.minHeight = `${mapHeight}px`;
+      this.map = markRaw(
+        new Map({
           layers: [
             new ImageLayer({
               source: new Static({
                 url: that.dialogImageUrl,
                 projection: projection,
                 imageExtent: extent,
+                imageSize: [x, y],
+                imageLoadFunction(image, src) {
+                  image.getImage().src = that.dialogImageUrl || src;
+                },
               }),
             }),
           ],
-          target: this.mapName,
+          target: mapEl,
           view: new View({
             projection: projection,
             center: getCenter(extent),
-            zoom: 1,
-            maxZoom: 6,
+            zoom: 2,
+            maxZoom: 8,
+            minZoom: 1,
           }),
+        })
+      );
+      this.mapClick();
+      this.$nextTick(() => {
+        if (!this.map) {
+          return;
+        }
+        this.map.updateSize();
+        this.map.getView().fit(extent, {
+          size: this.map.getSize(),
+          padding: [20, 20, 20, 20],
+          constrainResolution: false,
         });
-        // this.addSubPolygon();
-        // this.selectSingleClick();
-        this.mapClick();
-        // this.mapRightClick(that.map);
-      }, 0);
+        setTimeout(() => {
+          if (this.map) {
+            this.map.updateSize();
+            this.map.renderSync();
+          }
+        }, 200);
+      });
     },
     removeMap() {
-      this.map.setTarget(undefined);
+      this.clearMapDialogInitTimer();
+      if (this.map) {
+        this.map.setTarget(null);
+        this.map = null;
+      }
       this.featureNum = 0;
     },
     mapClick() {
@@ -1902,6 +2186,16 @@ export default {
       return dateStr;
     },
     // 时间转换
+    formatDateCreattime(row, column) {
+      if (row.creattime == null || row.creattime == 0) {
+        return "";
+      }
+      let date = new Date(parseInt(row.creattime) * 1000);
+      let date2 = date.toUTCString();
+      return this.datetimecut(date2);
+    },
+
+    // 时间转换
     formatDateEdittime(row, column) {
       if (row.edittime == null || row.edittime == 0) {
         return "";
@@ -1910,6 +2204,9 @@ export default {
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
     },
+
+    // 时间转换
+
 
     myHeaderd() {
       let d = new Date();
@@ -1921,31 +2218,13 @@ export default {
     },
 
     handlePictureCardPreview(file) {
-      var that = this;
-      this.dialogImageUrl = file.url;
-
-      let img = new Image();
-      img.src = file.url;
-      img.onload = function () {
-        that.imageX = img.width;
-        that.imageY = img.height;
-        that.mapInit(img.width, img.height);
-      };
-      this.dialogVisible = true;
+      this.rememberMapImageFile(file);
+      this.openMapView(this.resolveUploadImageUrl(file));
     },
 
     handlePictureCardPreviewEdit(file) {
-      var that = this;
-      this.dialogImageUrl = file.url;
-
-      let img = new Image();
-      img.src = file.url;
-      img.onload = function () {
-        that.imageX = img.width;
-        that.imageY = img.height;
-        that.mapInit(img.width, img.height);
-      };
-      this.dialogVisible = true;
+      this.rememberMapImageFile(file);
+      this.openMapView(this.resolveUploadImageUrl(file));
     },
 
     picSuccess(response, file, fileList) {
@@ -2004,9 +2283,33 @@ export default {
       this.$message.warning(this.$t("mapmanagement.maprule"));
     },
 
-    handleChange(file) {
-      this.dialogImageUrl = file.url;
-      this.recordImageSize(file && file.url);
+    handleChange(uploadFile, uploadFiles) {
+      var that = this;
+      if (uploadFiles && uploadFiles.length) {
+        this.fileListAdd = uploadFiles;
+      }
+      this.rememberMapImageFile(uploadFile);
+      const previewUrl = this.resolveUploadImageUrl(uploadFile);
+      if (previewUrl) {
+        this.dialogImageUrl = previewUrl;
+        let img = new Image();
+        img.src = previewUrl;
+        img.onload = function () {
+          that.userIdForPic.width = img.height;
+          that.userIdForPic.length = img.width;
+          that.imageInfo = {
+            width: img.width,
+            height: img.height,
+          };
+          that.imageX = img.width;
+          that.imageY = img.height;
+        };
+      }
+      if (this.mapImageRaw) {
+        this.readMapImageDataUrl(this.mapImageRaw).then((dataUrl) => {
+          that.dialogImageUrl = dataUrl;
+        });
+      }
     },
 
     beforeAvatarUpload(file) {
@@ -2056,6 +2359,7 @@ export default {
     },
     addMap() {
       this.fileListAdd = [];
+      this.clearPendingMapImage();
       this.themeId = "";
       if (this.contrForPrionum == 3 || this.contrForPrionum == 4) {
         this.addData = {
@@ -2095,10 +2399,6 @@ export default {
         };
       }
       this.choseMap = false;
-      this.imageInfo = {};
-      this.imageX = "";
-      this.imageY = "";
-      this.dialogImageUrl = "";
     },
     // 添加2D 地图
     addMap2D() {
@@ -2108,25 +2408,33 @@ export default {
     // 添加3D 地图
     addMap3D() {
       this.addMap();
+      this.add3DSubmitting = false;
+      this.loading = false;
       this.add3D = true;
     },
     addCancel2D(addData) {
       this.add2D = false;
-      this.$refs[addData].resetFields();
+      this.fileListAdd = [];
+      this.clearPendingMapImage();
+      if (this.$refs[addData]) {
+        this.$refs[addData].resetFields();
+      }
     },
     addCancel3D(addData) {
+      this.add3DSubmitting = false;
+      this.disposeFengMap3D();
       this.add3D = false;
-      this.$refs[addData].resetFields();
+      this.themeId = "";
+      this.fmapId = "";
+      this.fmapKey = "";
+      this.fmapName = "";
+      if (this.$refs[addData] && typeof this.$refs[addData].resetFields === "function") {
+        this.$refs[addData].resetFields();
+      }
     },
     addTrue2D(addData) {
       this.$refs[addData].validate((valid) => {
-        if (!valid) {
-          return false;
-        }
-        this.ensureImagePixels(null, (ok) => {
-          if (!ok) {
-            return;
-          }
+        if (valid) {
           if (
             !this.validateRealSizeRatio(
               this.addData.realwidth,
@@ -2145,41 +2453,141 @@ export default {
           this.userIdForPic.reallength = this.addData.reallength;
           this.userIdForPic.distance = this.addData.distance;
           this.userIdForPic.active = this.addData.active;
-          this.userIdForPic.width = this.imageInfo.height;
-          this.userIdForPic.length = this.imageInfo.width;
           this.$refs.upload.submit();
-        });
+        } else {
+          return false;
+        }
       });
     },
     addTrue3D(addData) {
       var that = this;
+      if (this.add3DSubmitting) {
+        return;
+      }
       this.$refs[addData].validate((valid) => {
-        if (valid) {
-          this.addData.filetype = this.themeId;
-          this.addData.maptype = 2;
-          addMapInfo(
-            this.addData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
+        if (!valid) {
+          return;
+        }
+        if (!that.addData.filename || !that.addData.mapkey || !that.addData.appname) {
+          that.$message({
+            message: that.$t("mapmanagements.Please3dmapkey"),
+            type: "warning",
+          });
+          return;
+        }
+        that.add3DSubmitting = true;
+        that.loading = true;
+        that.addData.filetype = that.themeId;
+        that.addData.maptype = 2;
+        that.fmapId = that.addData.filename;
+        that.fmapKey = that.addData.mapkey;
+        that.fmapName = that.addData.appname;
+        // 先加载 3D 地图，loaded 后取 getBound 再调添加接口
+        that.onmap({
+          mode: "add",
+          onLoaded: function () {
+            if (!that.applyFengMapBoundToAddData()) {
+              that.stopAdd3DLoading();
               that.$message({
-                message: that.$t("mapmanagement.addsuccess"),
+                message: that.$t("mapmanagements.loadSizeFail"),
                 type: "warning",
               });
-              that.getMapInfoLists();
-              that.add3D = false;
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
+              return;
             }
-          });
-        }
+            that.submitAdd3DInfo();
+          },
+          onError: function () {
+            that.stopAdd3DLoading();
+          },
+        });
       });
     },
+    stopAdd3DLoading() {
+      this.clearFengMapLoadTimer();
+      this.add3DSubmitting = false;
+      this.loading = false;
+    },
+    // 从蜂鸟包围盒写入长宽/实际长宽（添加、编辑共用，不取表格旧值）
+    applyFengMapBoundTo(target) {
+      if (!target || !this.map3d || typeof this.map3d.getBound !== "function") {
+        return false;
+      }
+      var bound = this.map3d.getBound();
+      if (!bound || !bound.min || !bound.max) {
+        return false;
+      }
+      target.width = bound.min.y;
+      target.length = bound.min.x;
+      target.realwidth = bound.max.y;
+      target.reallength = bound.max.x;
+      return true;
+    },
+    applyFengMapBoundToAddData() {
+      return this.applyFengMapBoundTo(this.addData);
+    },
+    applyFengMapBoundToEditData() {
+      return this.applyFengMapBoundTo(this.editData);
+    },
+    submitAdd3DInfo() {
+      var that = this;
+      addMapInfo(
+        this.addData,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          that.stopAdd3DLoading();
+          if (res.code == 1001) {
+            that.$message({
+              message: that.$t("mapmanagement.addsuccess"),
+              type: "success",
+            });
+            that.getMapInfoLists();
+            that.disposeFengMap3D();
+            that.add3D = false;
+          } else {
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+          }
+        })
+        .catch(() => {
+          that.stopAdd3DLoading();
+        });
+    },
+    clearFengMapLoadTimer() {
+      if (this._fengMapLoadTimer) {
+        clearTimeout(this._fengMapLoadTimer);
+        this._fengMapLoadTimer = null;
+      }
+    },
+    failFengMapLoad(msgKey, onError) {
+      this.clearFengMapLoadTimer();
+      this.loading = false;
+      this.disposeFengMap3D();
+      if (msgKey) {
+        this.$message({
+          message: this.$t(msgKey),
+          type: "error",
+        });
+      }
+      if (typeof onError === "function") {
+        onError();
+      }
+    },
+    disposeFengMap3D() {
+      this.clearFengMapLoadTimer();
+      this.unobserveFengMapResize();
+      if (this.map3d && typeof this.map3d.dispose === "function") {
+        try {
+          this.map3d.dispose();
+        } catch (e) {}
+      }
+      this.map3d = null;
+    },
+
     //获取地图信息
     getMapInfoLists() {
       getMapInfoList(
@@ -2258,6 +2666,7 @@ export default {
     searchInfo() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getMapInfoList(
         this.searchList,
@@ -2281,12 +2690,12 @@ export default {
             });
           }
         }
-        that.searchList.count = 20;
       });
     },
 
     //刷新
     clearBtn() {
+      this.pageCount = 20;
       if (
         this.$store.state.userInfo.prionum == 1 ||
         this.$store.state.userInfo.prionum == 2
@@ -2294,7 +2703,7 @@ export default {
         this.searchList = {
           mapid: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           projectid: "",
         };
       } else if (
@@ -2305,7 +2714,7 @@ export default {
         this.searchList = {
           mapid: "",
           page: 1,
-          count: this.pageCount,
+          count: 20,
           projectid: this.$store.state.intoProjectid,
         };
       }
@@ -2317,21 +2726,25 @@ export default {
     //编辑
     editMap(index) {
       var that = this;
+      // 避免添加弹框残留图片影响编辑预览
+      this.fileListAdd = [];
+      this.clearPendingMapImage();
       this.changeImg = this.tableData[index].inuseNum > 0;
       if (this.contrForPrionum == 1 || this.contrForPrionum == 2) {
         this.passEdit = true;
 
         this.editData.mapid = this.tableData[index].mapid;
         this.editData.mapname = this.tableData[index].mapname;
-        this.editData.width = this.tableData[index].width;
-        this.editData.length = this.tableData[index].length;
         this.editData.memo = this.tableData[index].memo;
+        this.editData.sysmemo = this.tableData[index].sysmemo;
         this.editData.projectid = this.tableData[index].projectid;
         this.editData.distance = this.tableData[index].distance;
-        this.editData.reallength = this.tableData[index].reallength;
-        this.editData.realwidth = this.tableData[index].realwidth;
         this.editData.active = this.tableData[index].active;
         if (this.tableData[index].maptype == 1) {
+          this.editData.width = this.tableData[index].width;
+          this.editData.length = this.tableData[index].length;
+          this.editData.reallength = this.tableData[index].reallength;
+          this.editData.realwidth = this.tableData[index].realwidth;
           this.imgUrl = "";
           this.srcList = [];
 
@@ -2346,24 +2759,32 @@ export default {
 
           this.edit2D = true;
         } else {
+          // 3D：长宽/实际长宽不取表格，等地图加载后 getBound 写入
+          this.editData.width = "";
+          this.editData.length = "";
+          this.editData.reallength = "";
+          this.editData.realwidth = "";
           this.editData.filename = this.tableData[index].filename;
+          this.editData.scale = this.tableData[index].scale;
           this.fmapId = this.tableData[index].filename;
           this.fmapKey = this.tableData[index].mapkey;
           this.themeId = this.tableData[index].filetype;
           this.fmapName = this.tableData[index].appname;
+          this.edit3DSubmitting = false;
           this.edit3D = true;
           this.loading = true;
         }
       } else {
-        this.passEdit = false;
         // changeImg
         this.changeImg = this.tableData[index].inuseNum > 0;
+
 
         this.editDatas.mapid = this.tableData[index].mapid;
         this.editDatas.mapname = this.tableData[index].mapname;
         this.editDatas.width = this.tableData[index].width;
         this.editDatas.length = this.tableData[index].length;
         this.editDatas.memo = this.tableData[index].memo;
+        this.editDatas.sysmemo = this.tableData[index].sysmemo;
         this.editDatas.projectid = this.tableData[index].projectid;
         this.editDatas.realwidth = this.tableData[index].realwidth;
         this.editDatas.reallength = this.tableData[index].reallength;
@@ -2387,12 +2808,14 @@ export default {
           this.editData.mapid = this.tableData[index].mapid;
           this.editData.mapname = this.tableData[index].mapname;
           this.editData.memo = this.tableData[index].memo;
+          this.editData.sysmemo = this.tableData[index].sysmemo;
           this.editData.projectid = this.tableData[index].projectid;
           this.editData.distance = this.tableData[index].distance;
-          this.editData.width = this.tableData[index].width;
-          this.editData.length = this.tableData[index].length;
-          this.editData.realwidth = this.tableData[index].realwidth;
-          this.editData.reallength = this.tableData[index].reallength;
+          // 3D：长宽/实际长宽不取表格，等地图加载后 getBound 写入
+          this.editData.width = "";
+          this.editData.length = "";
+          this.editData.realwidth = "";
+          this.editData.reallength = "";
           this.editData.active = this.tableData[index].active;
           this.editData.filename = this.tableData[index].filename;
           this.editData.scale = this.tableData[index].scale;
@@ -2400,6 +2823,7 @@ export default {
           this.fmapKey = this.tableData[index].mapkey;
           this.themeId = this.tableData[index].filetype;
           this.fmapName = this.tableData[index].appname;
+          this.edit3DSubmitting = false;
           this.edit3D = true;
           this.loading = true;
         }
@@ -2409,13 +2833,7 @@ export default {
     editTrue(editData) {
       var that = this;
       this.$refs[editData].validate((valid) => {
-        if (!valid) {
-          return false;
-        }
-        this.ensureImagePixels(this.editData, (ok) => {
-          if (!ok) {
-            return;
-          }
+        if (valid) {
           if (
             !this.validateRealSizeRatio(
               this.editData.realwidth,
@@ -2445,63 +2863,102 @@ export default {
               });
             }
           });
-        });
-      });
-    },
-    // 3D地图编辑确定
-    editTrue3D(editData) {
-      var that = this;
-      this.editData.filetype = this.themeId;
-      this.$refs[editData].validate((valid) => {
-        if (valid) {
-          updateMapInfo(
-            this.editData,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.edit3D = false;
-              that.getMapInfoLists();
-              that.getSearchMapInfoList();
-              that.$message({
-                message: that.$t("mapmanagement.editsuccess"),
-                type: "success",
-              });
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
         } else {
           return false;
         }
       });
     },
+    // 3D地图编辑确定：与添加一致，从已加载地图 getBound 取长宽后再提交
+    editTrue3D(editData) {
+      var that = this;
+      if (this.edit3DSubmitting) {
+        return;
+      }
+      this.editData.filetype = this.themeId;
+      this.$refs[editData].validate((valid) => {
+        if (!valid) {
+          return false;
+        }
+        that.edit3DSubmitting = true;
+        that.loading = true;
+        var afterBound = function () {
+          if (!that.applyFengMapBoundToEditData()) {
+            that.stopEdit3DLoading();
+            that.$message({
+              message: that.$t("mapmanagements.loadSizeFail"),
+              type: "warning",
+            });
+            return;
+          }
+          that.submitEdit3DInfo();
+        };
+        // 弹窗已打开并加载过地图则直接取尺寸；否则重新加载后再取
+        if (that.map3d && typeof that.map3d.getBound === "function") {
+          afterBound();
+        } else {
+          that.onmap({
+            mode: "edit",
+            onLoaded: afterBound,
+            onError: function () {
+              that.stopEdit3DLoading();
+            },
+          });
+        }
+      });
+    },
+    stopEdit3DLoading() {
+      this.clearFengMapLoadTimer();
+      this.edit3DSubmitting = false;
+      this.loading = false;
+    },
+    submitEdit3DInfo() {
+      var that = this;
+      updateMapInfo(
+        this.editData,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          that.stopEdit3DLoading();
+          if (res.code == 1001) {
+            that.disposeFengMap3D();
+            that.edit3D = false;
+            that.getMapInfoLists();
+            that.getSearchMapInfoList();
+            that.$message({
+              message: that.$t("mapmanagement.editsuccess"),
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+          }
+        })
+        .catch(() => {
+          that.stopEdit3DLoading();
+        });
+    },
+
 
     //判断有没有更换地图，从而选择接口
     choseApi(file, fileList) {
+      this.fileListEdit = fileList || [];
       if (this.needChangeAPI) {
         this.choseApiEdit = true;
       }
-      if (file && file.url) {
-        this.dialogImageUrl = file.url;
-        this.recordImageSize(file.url);
-      }
+    },
+    handleRemoveEdit(file, fileList) {
+      this.fileListEdit = fileList || [];
+      this.choseApiEdit = false;
     },
     //企业级管理员编辑确定
     editTrues(editDatas) {
       var that = this;
       this.$refs[editDatas].validate((valid) => {
-        if (!valid) {
-          return false;
-        }
-        this.ensureImagePixels(this.editDatas, (ok) => {
-          if (!ok) {
-            return;
-          }
+        if (valid) {
           if (
             !this.validateRealSizeRatio(
               this.editDatas.realwidth,
@@ -2514,8 +2971,8 @@ export default {
             this.userIdForPicEdit.projectid = this.editDatas.projectid;
             this.userIdForPicEdit.mapid = this.editDatas.mapid;
             this.userIdForPicEdit.mapname = this.editDatas.mapname;
-            this.userIdForPicEdit.width = this.imageInfo.height;
-            this.userIdForPicEdit.length = this.imageInfo.width;
+            this.userIdForPicEdit.width = this.editDatas.width;
+            this.userIdForPicEdit.length = this.editDatas.length;
             this.userIdForPicEdit.memo = this.editDatas.memo;
             this.userIdForPicEdit.distance = this.editDatas.distance;
             this.userIdForPicEdit.reallength = this.editDatas.reallength;
@@ -2545,9 +3002,10 @@ export default {
               }
             });
           }
-        });
+        }
       });
     },
+
 
     //删除
     delMap(index) {
@@ -2566,6 +3024,7 @@ export default {
       var that = this;
       if (this.tableData[index].inuseNum < 1) {
         //未使用
+
         that.imgUrl = "";
         that.srcList = [];
         that.delData = that.tableData[index];
@@ -2607,33 +3066,191 @@ export default {
       );
     },
 
-    onmap() {
+    getFengMapContainer(mode) {
+      if (mode === "add") {
+        return this.$refs.fengMapAdd || document.getElementById("fengMapAdd");
+      }
+      return this.$refs.fengMap || document.getElementById("fengMap");
+    },
+    onmap(options) {
       var that = this;
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
-        level: 1, //默认聚焦楼层
-        visibleLevels: [1], //初始显示楼层ID数组
-        focusAlphaMode: false, //是否对不可见图层启用透明设置，默认true
-        focusAlpha: 0.1,
-        appName: that.fmapName,
-        key: that.fmapKey,
-        mapID: that.fmapId,
-        defaultControlsPose: 0, //角度值
-        modelSelectedEffect: false, //支持单击模型高亮，false为单击时模型不高亮
-        defaultViewMode: fengmap.FMViewMode.MODE_3D, //设置地图2d/3d显示
-        themeID: that.themeId,
+      var opts = options || {};
+      var mode = opts.mode || "edit";
+      var onLoaded = typeof opts.onLoaded === "function" ? opts.onLoaded : null;
+      var onError = typeof opts.onError === "function" ? opts.onError : null;
+      var loadFinished = false;
+      var finishError = function (msgKey) {
+        if (loadFinished) {
+          return;
+        }
+        loadFinished = true;
+        that.failFengMapLoad(msgKey || "mapmanagements.loadMapFail", onError);
       };
-      this.map3d = new fengmap.FMMap(mapOpation);
+      var tryInit = function (remain) {
+        var container = that.getFengMapContainer(mode);
+        if (!container) {
+          if (remain > 0) {
+            setTimeout(function () {
+              tryInit(remain - 1);
+            }, 50);
+          } else {
+            finishError("mapmanagements.loadMapFail");
+          }
+          return;
+        }
+        var width = Math.floor(container.clientWidth || container.offsetWidth);
+        var height = Math.floor(container.clientHeight || container.offsetHeight);
+        if (width < 10 || height < 10) {
+          // 弹窗动画未完成时容器可能为 0，稍后重试
+          if (remain > 0) {
+            setTimeout(function () {
+              tryInit(remain - 1);
+            }, 50);
+          } else {
+            finishError("mapmanagements.loadMapFail");
+          }
+          return;
+        }
+        if (!that.fmapId || !that.fmapKey || !that.fmapName) {
+          finishError("mapmanagements.Please3dmapkey");
+          return;
+        }
+        that.disposeFengMap3D();
+        container.style.margin = "0";
+        container.style.width = "100%";
+        container.style.height = "100%";
+        container.style.display = "flex";
 
-      this.map3d.on("loaded", function () {
-        that.loading = false;
-        that.loadScrollFloorCtrl();
+        var mapOpation = applyFengmapLocalLoad({
+          container: container,
+          level: 1,
+          visibleLevels: [1],
+          focusAlphaMode: false,
+          focusAlpha: 0.1,
+          appName: that.fmapName,
+          key: that.fmapKey,
+          mapID: that.fmapId,
+          defaultControlsPose: 0,
+          modelSelectedEffect: false,
+          defaultViewMode: fengmap.FMViewMode.MODE_3D,
+          themeID: that.themeId,
+        });
+        try {
+          that.map3d = markRaw(new fengmap.FMMap(mapOpation));
+        } catch (e) {
+          finishError("mapmanagements.webglFail");
+          return;
+        }
+        that._fengMapMode = mode;
+        that._fengMapLastWidth = 0;
+        that._fengMapLastHeight = 0;
+
+        // 加载超时：WebGL 异步失败、错误 key 等不会触发 loaded
+        that.clearFengMapLoadTimer();
+        that._fengMapLoadTimer = setTimeout(function () {
+          if (!loadFinished) {
+            finishError("mapmanagements.loadMapTimeout");
+          }
+        }, 20000);
+
+        var handleLoaded = function () {
+          if (loadFinished) {
+            return;
+          }
+          loadFinished = true;
+          that.clearFengMapLoadTimer();
+          that.loading = false;
+          that.loadScrollFloorCtrl();
+          that.resizeFengMap();
+          that.observeFengMapResize();
+          setTimeout(function () {
+            that.resizeFengMap();
+            if (onLoaded) {
+              onLoaded();
+            }
+          }, 120);
+        };
+
+        that.map3d.on("loaded", handleLoaded);
+        // 部分版本会抛 load 相关错误事件
+        if (typeof that.map3d.on === "function") {
+          that.map3d.on("loadError", function () {
+            finishError("mapmanagements.loadMapFail");
+          });
+          that.map3d.on("error", function () {
+            finishError("mapmanagements.loadMapFail");
+          });
+        }
+        // 捕获 FMMap 创建后的异步 WebGL Promise 拒绝
+        Promise.resolve()
+          .then(function () {
+            return that.map3d;
+          })
+          .catch(function () {
+            finishError("mapmanagements.webglFail");
+          });
+      };
+      this.$nextTick(function () {
+        tryInit(20);
       });
     },
+    resizeFengMap() {
+      var container = this.getFengMapContainer(this._fengMapMode || "edit");
+      var map = this.map3d;
+      if (!container || !map) {
+        return;
+      }
+      var width = Math.floor(container.clientWidth || container.offsetWidth);
+      var height = Math.floor(container.clientHeight || container.offsetHeight);
+      if (width < 10 || height < 10) {
+        return;
+      }
+      if (
+        width === this._fengMapLastWidth &&
+        height === this._fengMapLastHeight
+      ) {
+        return;
+      }
+      this._fengMapLastWidth = width;
+      this._fengMapLastHeight = height;
+      // 必须传宽高；无参 resize 会把画布设成无效尺寸导致白屏
+      if (typeof map.resize === "function") {
+        map.resize(width, height);
+      }
+    },
+    observeFengMapResize() {
+      this.unobserveFengMapResize();
+      var mode = this._fengMapMode || "edit";
+      var target =
+        this.getFengMapContainer(mode) ||
+        document.querySelector(".check_3d_map");
+      if (!target || typeof ResizeObserver === "undefined") {
+        return;
+      }
+      var that = this;
+      this._fengMapResizeObserver = new ResizeObserver(function () {
+        clearTimeout(that._fengMapResizeTimer);
+        that._fengMapResizeTimer = setTimeout(function () {
+          that.resizeFengMap();
+        }, 80);
+      });
+      this._fengMapResizeObserver.observe(target);
+    },
+    unobserveFengMapResize() {
+      clearTimeout(this._fengMapResizeTimer);
+      this._fengMapResizeTimer = null;
+      if (this._fengMapResizeObserver) {
+        this._fengMapResizeObserver.disconnect();
+        this._fengMapResizeObserver = null;
+      }
+    },
     closeCheck(rule) {
-      this.map3d.dispose();
+      this.edit3DSubmitting = false;
+      this.disposeFengMap3D();
       this.edit3D = false;
-      this.$refs[rule].resetFields();
+      if (this.$refs[rule] && typeof this.$refs[rule].resetFields === "function") {
+        this.$refs[rule].resetFields();
+      }
     },
     //加载滚动楼层控制
     loadScrollFloorCtrl() {
@@ -2648,9 +3265,11 @@ export default {
         floorModeControl: true,
         needAllLayerBtn: false,
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
     },
+
+
     //调整操作栏宽度
     autoWidth() {
       if (this.contrForPrionum == 1) {
@@ -2666,7 +3285,8 @@ export default {
       this.$router.push("/projectmanagement");
     },
     closeMap() {
-      this.dialogImageUrl = "";
+      this.clearPendingMapImage();
+      this.fileListEdit = [];
     },
     setImageInfoFromMap(row) {
       if (!row) {
@@ -2698,59 +3318,6 @@ export default {
       };
       img.src = url;
     },
-    getMapImageUrl() {
-      if (this.dialogImageUrl) {
-        return this.dialogImageUrl;
-      }
-      if (this.add2D && this.$refs.upload && this.$refs.upload.uploadFiles) {
-        var addFiles = this.$refs.upload.uploadFiles;
-        if (addFiles[0] && addFiles[0].url) {
-          return addFiles[0].url;
-        }
-      }
-      if (this.editCompany2D && this.fileListEdit[0] && this.fileListEdit[0].url) {
-        return this.fileListEdit[0].url;
-      }
-      if (this.edit2D && this.imgUrl) {
-        return this.imgUrl;
-      }
-      return "";
-    },
-    ensureImagePixels(form, done) {
-      if (this.imageInfo && this.imageInfo.width && this.imageInfo.height) {
-        done(true);
-        return;
-      }
-      if (form && form.width && form.length) {
-        this.setImageInfoFromMap(form);
-        if (this.imageInfo && this.imageInfo.width && this.imageInfo.height) {
-          done(true);
-          return;
-        }
-      }
-      var url = this.getMapImageUrl();
-      if (!url) {
-        this.$message.warning(this.$t("mapmanagement.tit4"));
-        done(false);
-        return;
-      }
-      var that = this;
-      var img = new Image();
-      img.onload = function () {
-        that.imageInfo = {
-          width: img.width,
-          height: img.height,
-        };
-        that.imageX = img.width;
-        that.imageY = img.height;
-        done(true);
-      };
-      img.onerror = function () {
-        that.$message.warning(that.$t("mapmanagement.tit4"));
-        done(false);
-      };
-      img.src = url;
-    },
     // 实际宽高比需接近图片高/宽（width 对应图片高，length 对应图片宽），偏差超过 20% 拦截
     validateRealSizeRatio(realwidth, reallength) {
       var rw = Number(realwidth);
@@ -2775,25 +3342,18 @@ export default {
     },
     // 点击打开地图计算实际宽度
     chooseMapPoint() {
-      let that = this;
-      if (this.editCompany2D) {
-        this.dialogImageUrl = this.fileListEdit[0].url;
+      this.mapImageRaw = null;
+      let imageUrl = "";
+      if (this.add2D && this.fileListAdd[0]) {
+        this.rememberMapImageFile(this.fileListAdd[0]);
+        imageUrl = this.resolveUploadImageUrl(this.fileListAdd[0]);
+      } else if (this.editCompany2D && this.fileListEdit[0]) {
+        this.rememberMapImageFile(this.fileListEdit[0]);
+        imageUrl = this.resolveUploadImageUrl(this.fileListEdit[0]);
+      } else if (this.edit2D && this.imgUrl) {
+        imageUrl = this.imgUrl;
       }
-      if (this.dialogImageUrl == "") {
-        that.$message({
-          message: this.$t("mapmanagement.tit4"),
-          type: "warning",
-        });
-        return;
-      }
-      let img = new Image();
-      img.src = this.dialogImageUrl;
-      img.onload = function () {
-        that.imageX = img.width;
-        that.imageY = img.height;
-        that.mapInit(img.width, img.height);
-      };
-      this.dialogVisible = true;
+      this.openMapView(imageUrl);
     },
   },
   beforeMount() {
@@ -2818,7 +3378,20 @@ export default {
     this.getMapInfoLists();
     this.getSearchMapInfoList();
   },
+  beforeUnmount() {
+    this.clearMapDialogInitTimer();
+    this.removeMap();
+  },
   watch: {
+    dialogVisible(val) {
+      if (val) {
+        this.$nextTick(() => {
+          this.scheduleMapDialogInit();
+        });
+      } else {
+        this.clearMapDialogInitTimer();
+      }
+    },
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
       Object.assign(
@@ -2877,10 +3450,10 @@ export default {
   display: -webkit-box;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2889,35 +3462,66 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.imageSize >>> .el-image-viewer__img {
+.map-search-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.map-search-bar :deep(.el-breadcrumb) {
+  margin: 0 0 10px 2px !important;
+  align-self: flex-start;
+}
+
+.map-search-row {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 12px 0 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+.map-search-row .map-search-form,
+.map-search-row :deep(.demo-form-inline) {
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  justify-content: flex-start !important;
+}
+
+.imageSize :deep(.el-image-viewer__img) {
   position: absolute !important;
 }
 
 .el-page-header__content {
   margin-left: 30px;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
 .el-form-item .el-button {
@@ -2926,65 +3530,462 @@ export default {
 /* .move {
   transform: translateX(4px);
 } */
+.edit-3d-actions {
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 8px;
+}
 .check_3d_box {
   display: flex;
-  height: 100%;
+  position: relative;
+  width: 100%;
+  height: 520px;
+  min-height: 520px;
+  margin: 0 !important;
 }
 .check_3d_info {
   width: 40%;
-  margin-left: 0;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  position: relative;
+  z-index: 2;
+  overflow: auto;
+  box-sizing: border-box;
 }
 .check_3d_map {
-  position: absolute;
-  right: 1%;
-  width: 59%;
-  height: 80%;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  left: auto !important;
+  width: 59% !important;
+  height: 100% !important;
+  border-radius: 10px;
+  margin: 0 !important;
+  z-index: 1;
+  overflow: hidden;
+  background: #0e2232;
 }
-#fengMap {
-  width: 100%;
-  height: 100%;
-  display: flex;
+#fengMap,
+#fengMapAdd {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  display: flex !important;
+  position: relative !important;
+  margin: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+  background: #0e2232;
 }
-.mapview >>> .el-dialog {
+.mapview :deep(.el-dialog) {
   margin-top: 0 !important;
-  height: 90%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
-.mapview >>> .el-dialog__body {
-  height: 95%;
+.mapview :deep(.el-dialog__body) {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 .mapContent {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  height: 90%;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(90vh - 160px);
+}
+
+.map-image-stage {
+  position: relative;
+  flex: 1;
+  min-height: 420px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #eef2f7;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.mapContent #map {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  background: #f5f7fa;
+}
+
+.mapContent :deep(.ol-viewport),
+.mapContent :deep(.ol-overlaycontainer),
+.mapContent :deep(.ol-overlaycontainer-stopevent) {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.mapContent :deep(.ol-viewport canvas) {
+  background: transparent !important;
 }
 .map_tips {
+  margin: 12px 0 0 !important;
   text-align: center;
-  /* white-space: nowrap; */
+  font-size: 13px;
+  color: #475569;
 }
 .mapview_dialog_footer {
   text-align: right;
 }
 .actualrange {
-  width: 60px;
+  width: 72px;
+  height: 26px;
+  margin: 0 6px;
+  padding: 0 8px;
   border: 1px solid #dcdfe6;
+  border-radius: 6px;
   background-color: #f5f7fa;
   border-color: #e4e7ed;
+  box-sizing: border-box;
+  outline: none;
   /* cursor: not-allowed; */
 }
 .actualrange_dis {
-  width: 60px;
+  width: 72px;
+  height: 26px;
+  margin: 0 6px;
+  padding: 0 8px;
   border: 1px solid #dcdfe6;
+  border-radius: 6px;
   background-color: #f5f7fa;
   border-color: #e4e7ed;
+  box-sizing: border-box;
+  outline: none;
   cursor: not-allowed;
 }
 .actualrange:focus {
   border-color: #409eff;
 }
-.actual_width >>> .el-form-item__content {
+.actual_width :deep(.el-form-item__content) {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.actual_width :deep(.el-form-item__content > .el-input) {
+  width: auto !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.actual_width :deep(.el-form-item__content > .el-button) {
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 0 !important;
+}
+
+.actual_width :deep(.el-form-item__content > .el-tooltip) {
+  flex-shrink: 0;
 }
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 编辑3D弹窗：固定地图区域尺寸，并抵消 App.vue *{margin:0 auto} */
+.check_3d_box {
+  display: flex !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 66vh !important;
+  min-height: 420px !important;
+  margin: 0 !important;
+}
+.check_3d_info {
+  width: 40% !important;
+  height: 100% !important;
+  overflow: auto !important;
+  margin: 0 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+.check_3d_map {
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  left: auto !important;
+  width: 59% !important;
+  height: 100% !important;
+  border-radius: 10px;
+  margin: 0 !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+  background: #0e2232 !important;
+}
+.check_3d_map #fengMap,
+.check_3d_map #fengMapAdd,
+#fengMap,
+#fengMapAdd {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  display: flex !important;
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+  background: #0e2232 !important;
+}
+.check_3d_map #fengMap canvas,
+.check_3d_map #fengMapAdd canvas,
+#fengMap canvas,
+#fengMapAdd canvas {
+  margin: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  display: block !important;
+}
+.edit-3d-actions {
+  margin-top: 16px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* 编辑2D：已有地图时隐藏 picture-card 上传按钮（Element Plus 达 limit 不会自动隐藏） */
+.map-edit-upload.is-full .el-upload--picture-card {
+  display: none !important;
+}
+.map-edit-upload.is-full .el-upload__tip {
+  display: none !important;
+}
+
+</style>
+

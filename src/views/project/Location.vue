@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,10 +7,10 @@
       <el-container class="asi">
         <el-aside><Project /></el-aside>
         <el-main>
-          <div class="project_input">
+          <div class="project_input location-search-bar">
             <el-breadcrumb
               separator="/"
-              style="margin-left: 0"
+              class="location-breadcrumb"
               v-if="contrForPrionum == 3 || contrForPrionum == 4"
             >
               <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
@@ -21,69 +21,73 @@
                 $t("Breadcrumb.Locationdata")
               }}</el-breadcrumb-item>
             </el-breadcrumb>
-            <el-form
-              class="demo-form-inline"
-              :model="searchList"
-              style="display: flex; white-space: nowrap; justify-content: end"
+            <div
+              class="location-search-row terminal-filter-flow page-panel"
+              :class="filterLangClass"
             >
-              <el-form-item
-                :label="$t('floormanagement.device')"
-                style="display: flex; margin-right: 2%"
+              <el-form
+                class="demo-form-inline terminal-filter-form"
+                :model="searchList"
               >
-                <el-input
-                  v-model="searchList.deveui"
-                  :placeholder="$t('staffmanagement.text')"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('floormanagement.Floornumber')"
-                style="display: flex; margin-right: 2%"
-              >
-                <el-input
-                  v-model="searchList.groundid"
-                  :placeholder="$t('staffmanagement.text')"
-                ></el-input>
-              </el-form-item>
-              <el-form-item
-                :label="$t('locationoutdoor.time')"
-                style="display: flex; margin-right: 2%"
-              >
-                <el-date-picker
-                  v-model="tasktime"
-                  type="datetimerange"
-                  :picker-options="pickerOptions"
-                  :range-separator="$t('locationoutdoorh.to')"
-                  :start-placeholder="$t('locationoutdoorh.starttime')"
-                  :end-placeholder="$t('locationoutdoorh.endtime')"
-                ></el-date-picker>
-              </el-form-item>
-              <el-form-item style="margin-left: 0">
-                <el-button
-                  type="primary"
-                  class="querry"
-                  @click="searchInfo()"
-                  >{{ $t("locationoutdoorh.search") }}</el-button
+                <el-form-item
+                  :label="$t('floormanagement.device')"
+                  class="terminal-filter-item"
                 >
-                <el-button type="primary" class="reset" @click="clearBtn()">{{
-                  $t("locationoutdoorh.reset")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="delDevGpsList()"
-                  >{{ $t("inspection.batchdeletion") }}</el-button
+                  <el-input
+                    v-model="searchList.deveui"
+                    :placeholder="$t('staffmanagement.text')"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  :label="$t('floormanagement.Floornumber')"
+                  class="terminal-filter-item"
                 >
-              </el-form-item>
-            </el-form>
+                  <el-input
+                    v-model="searchList.groundid"
+                    :placeholder="$t('staffmanagement.text')"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item
+                  :label="$t('locationoutdoor.time')"
+                  class="terminal-filter-item"
+                >
+                  <el-date-picker
+                    v-model="tasktime"
+                    type="datetimerange"
+                    :shortcuts="pickerOptions.shortcuts"
+                    :disabled-date="pickerOptions.disabledDate"
+                    @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
+                    :range-separator="$t('locationoutdoorh.to')"
+                    :start-placeholder="$t('locationoutdoorh.starttime')"
+                    :end-placeholder="$t('locationoutdoorh.endtime')"
+                  ></el-date-picker>
+                </el-form-item>
+                <el-form-item class="terminal-toolbar-item">
+                  <el-button
+                    type="primary"
+                    class="querry"
+                    @click="searchInfo()"
+                    >{{ $t("locationoutdoorh.search") }}</el-button>
+                  <el-button type="primary" class="reset" @click="clearBtn()">{{
+                    $t("locationoutdoorh.reset")
+                  }}</el-button>
+                  <el-button
+                    type="primary"
+                    class="reset"
+                    @click="delDevGpsList()"
+                    >{{ $t("inspection.batchdeletion") }}</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
           </div>
 
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
               border
               highlight-current-row
               max-height="660"
@@ -165,7 +169,7 @@
                   delprio == 1
                 "
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -174,7 +178,7 @@
                   >
                     <el-button
                       type="danger"
-                      class="edits"
+                      class="icon_button"
                       @click="DelDevCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -183,28 +187,33 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('LocationIndoorHis.text2')" :visible.sync="del">
+          <el-dialog
+            width="960px"
+            class="device-dialog"
+            :title="$t('LocationIndoorHis.text2')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
               <el-table-column
@@ -251,7 +260,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -259,9 +268,8 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -298,33 +306,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -343,6 +351,15 @@ export default {
       loading: false,
       deleteData: [],
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang =
+        this.i8n ||
+        this.$store.state.i18n ||
+        (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //返回项目管理
@@ -427,7 +444,7 @@ export default {
     clearBtn() {
       this.currentPage1 = 1;
       this.tasktime = [];
-      if (this.$store.state.intoProjectprojectType == 1) {
+      if (this.$store.state.intoProjectType == 1) {
         this.searchList = {
           projectid: this.$store.state.intoProjectid,
           deveui: "",
@@ -439,7 +456,7 @@ export default {
           page: 1,
           count: 20,
         };
-      } else if (this.$store.state.intoProjectprojectType == 2) {
+      } else if (this.$store.state.intoProjectType == 2) {
         this.searchList = {
           projectid: this.$store.state.intoProjectid,
           deveui: "",
@@ -464,6 +481,10 @@ export default {
           this.$t("project.tet16"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -563,7 +584,7 @@ export default {
     },
   },
   beforeMount() {
-    if (this.$store.state.intoProjectprojectType == 1) {
+    if (this.$store.state.intoProjectType == 1) {
       this.searchList = {
         projectid: this.$store.state.intoProjectid,
         deveui: "",
@@ -575,7 +596,7 @@ export default {
         page: 1,
         count: 20,
       };
-    } else if (this.$store.state.intoProjectprojectType == 2) {
+    } else if (this.$store.state.intoProjectType == 2) {
       this.searchList = {
         projectid: this.$store.state.intoProjectid,
         deveui: "",
@@ -638,10 +659,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
@@ -652,32 +673,111 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
 
-.backProject >>> .el-page-header__left {
+.location-search-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+.location-breadcrumb {
+  margin: 0 0 10px 2px !important;
+  align-self: flex-start;
+}
+.location-search-row.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 12px;
+}
+.location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.location-search-row.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.location-search-row.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  margin: 0 !important;
+}
+
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
   min-width: 160px !important;
   height: 48px !important;
@@ -687,6 +787,62 @@ export default {
   overflow: hidden;
 }
 .el-form-item .el-button {
-  margin-left: 4px !important;
+  margin-left: 0 !important;
 }
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+</style>
+
+<style>
+.location-search-row.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 12px !important;
+}
+.location-search-row.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.location-breadcrumb {
+  margin: 0 0 10px 2px !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 </style>

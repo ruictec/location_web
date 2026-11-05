@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
       <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
       {{ $t("warning.Vehiclewarning") }}
@@ -7,15 +7,13 @@
     <div class="content">
       <el-container>
         <el-main>
-          <div class="warning_input">
-            <el-form class="demo-form-inline" style="display: flex; white-space: nowrap">
+          <div class="warning_input terminal-filter-flow page-panel" :class="filterLangClass">
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.AlertType')"
-                style="display: flex; width: 15%; margin-left: 2%; margin-right: 0"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.type"
-                  style="width: 95%; float: left"
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -27,7 +25,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 1%">
+              <el-form-item class="terminal-toolbar-item">
                 <el-button type="primary" class="querry" @click="searchInfo()">{{
                   $t("beacon.search")
                 }}</el-button>
@@ -41,12 +39,13 @@
             </el-form>
           </div>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%; z-index: 1"
-              border
+              class="device-table"
+              style="width: 100%; text-align: center; z-index: 1"
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -61,7 +60,7 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ formatAlertType(scope.row) }}
                 </template>
               </el-table-column>
@@ -77,21 +76,19 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-popover
                     trigger="hover"
                     placement="bottom"
                   >
                     <p>{{ $t("tet.tet2") }}</p>
-                    <div slot="reference" class="name-wrapper">
-                      <el-button
+                    <template #reference><div class="name-wrapper">
+                      <el-button text
                         @click="ShowTranches(scope.$index)"
-                        type="text"
                         size="small"
                         style="width: 60%"
-                        >{{ scope.row.tranches }}</el-button
-                      >
-                    </div>
+                        >{{ scope.row.tranches }}</el-button>
+                    </div></template>
                   </el-popover>
                 </template>
               </el-table-column>
@@ -115,6 +112,9 @@
                 show-overflow-tooltip
                 align="center"
               >
+                <template #default="scope">
+                  {{ formatWarnum(scope.row) }}
+                </template>
               </el-table-column>
               <el-table-column
                 property="memo"
@@ -127,9 +127,9 @@
                 fixed="right"
                 :label="$t('warning.operate')"
                 align="center"
-                min-width="100"
+                min-width="120"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -138,8 +138,8 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
-                      class="editss"
+                      size="small"
+                      class="editss icon_button"
                       @click="EditWarningCommand(scope.$index)"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
@@ -152,8 +152,8 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
-                      class="edits"
+                      size="small"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -161,15 +161,15 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div class="block" style="text-align: center; width: 100%; margin-top: 1%">
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -177,10 +177,11 @@
 
           <!-- 添加告警设置 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('warning.title1')"
-            :visible.sync="add"
-            width="30%"
-            style="text-align: center"
+            v-model="add"
+            width="480px"
+            align-center
             @close="addCancel(addData)"
           >
             <el-form
@@ -204,7 +205,11 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.triggerMethod')" prop="meth" v-if="showWarnum == false">
+              <el-form-item
+                :label="$t('warning.triggerMethod')"
+                prop="meth"
+                v-if="addData.type == 4"
+              >
                 <el-select v-model="addData.meth" :placeholder="$t('warning.selectTriggerMethod')">
                   <el-option
                     v-for="item in methList"
@@ -214,9 +219,13 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.vehicletype1')">
+              <el-form-item
+                :label="$t('warning.vehicletype1')"
+                prop="worktypesSelect"
+                :required="isWorktypeRequired(addData.type)"
+              >
                 <el-select
-                  v-model="addWorktypes"
+                  v-model="addData.worktypesSelect"
                   multiple
                   :placeholder="$t('warning.text8')"
                 >
@@ -228,13 +237,28 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(addData.type)"
+              >
                 <el-select
-                  v-model="addTranches"
+                  v-model="addData.tranchesSelect"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleAddTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <el-option
                     v-for="item in trancheLists"
                     :key="item.id"
@@ -265,7 +289,64 @@
               <el-form-item
                 :label="$t('warning.threshold1')"
                 prop="warnum"
-                v-if="showWarnum"
+                class="gather-warnum-item"
+                v-if="showWarnum && isGatherType(addData.type)"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in addWarnumList"
+                    :key="'add-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="addWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="addWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('add')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('add', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === addWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('add')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="addWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                        <template #content><div>
+                          <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ $t("warning.title2Gather") }}</p>
+                        </div></template>
+                        <i class="el-icon-question gather-warnum-help" />
+                      </el-tooltip>
+                      <span
+                        v-else
+                        class="gather-warnum-help-placeholder"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                v-else-if="showWarnum"
               >
                 <el-input
                   v-model="addData.warnum"
@@ -283,13 +364,33 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
-                    <p>
+                  <template #content><div>
+                    <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">
                       {{ $t("warning.title2") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="addData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="addData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
@@ -300,22 +401,23 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel(addData)">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" :loading="loading" @click="addTrue(addData)">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑告警设置 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('warning.title1')"
-            :visible.sync="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            width="480px"
+            align-center
             @close="editCancel(editData)"
           >
             <el-form
@@ -341,13 +443,17 @@
               </el-form-item>
               <el-form-item
                 :label="$t('warning.triggerMethod')"
-                v-if="showWarnum == false"
+                v-if="editData.type == 4"
               >
                 <span>{{ formatMeth(editData.meth) }}</span>
               </el-form-item>
-              <el-form-item :label="$t('warning.vehicletype1')">
+              <el-form-item
+                :label="$t('warning.vehicletype1')"
+                prop="worktypesSelect"
+                :required="isWorktypeRequired(editData.type)"
+              >
                 <el-select
-                  v-model="editWorktypes"
+                  v-model="editData.worktypesSelect"
                   multiple
                   :placeholder="$t('warning.text8')"
                 >
@@ -359,13 +465,28 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item :label="$t('warning.area1')">
+              <el-form-item
+                :label="$t('warning.area1')"
+                prop="tranchesSelect"
+                :required="isAreaRequired(editData.type)"
+              >
                 <el-select
-                  v-model="editTranches"
+                  v-model="editData.tranchesSelect"
                   multiple
+                  clearable
                   :placeholder="$t('warning.text6')"
                   @change="handleEditTrancheChange"
                 >
+                  <el-option
+                    :key="'__TRANCHE_ALL__'"
+                    :label="$t('warning.selectAllAreas')"
+                    :value="'__TRANCHE_ALL__'"
+                  ></el-option>
+                  <el-option
+                    :key="'__TRANCHE_CLEAR__'"
+                    :label="$t('warning.clearAllAreas')"
+                    :value="'__TRANCHE_CLEAR__'"
+                  ></el-option>
                   <el-option
                     v-for="item in trancheLists"
                     :key="item.id"
@@ -396,7 +517,64 @@
               <el-form-item
                 :label="$t('warning.threshold1')"
                 prop="warnum"
-                v-if="showWarnum"
+                class="gather-warnum-item"
+                v-if="showWarnum && isGatherType(editData.type)"
+              >
+                <div class="gather-warnum-list">
+                  <div
+                    v-for="(level, index) in editWarnumList"
+                    :key="'edit-gather-' + index"
+                    class="gather-warnum-row"
+                  >
+                    <span
+                      v-if="editWarnumList.length > 1"
+                      class="gather-warnum-level"
+                    >{{ $t("warning.thresholdLevel", { n: index + 1 }) }}</span>
+                    <el-input
+                      class="gather-warnum-input"
+                      v-model="editWarnumList[index]"
+                      :placeholder="$t('warning.text7Gather')"
+                      @input="syncGatherWarnum('edit')"
+                    ></el-input>
+                    <div class="gather-warnum-actions">
+                      <el-button
+                        v-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn"
+                        @click="removeGatherWarnumLevel('edit', index)"
+                      >{{ $t("warning.removeThreshold") }}</el-button>
+                      <el-button
+                        v-if="index === editWarnumList.length - 1"
+                        type="primary"
+                        class="gather-warnum-btn"
+                        @click="addGatherWarnumLevel('edit')"
+                      >{{ $t("warning.addThreshold") }}</el-button>
+                      <span
+                        v-else-if="editWarnumList.length > 1"
+                        class="gather-warnum-btn-placeholder"
+                      ></span>
+                      <el-tooltip
+                        v-if="index === 0"
+                        class="item"
+                        effect="light"
+                        placement="right-start"
+                      >
+                        <template #content><div>
+                          <p style="margin:0;white-space:pre-line;line-height:1.5;max-width:280px">{{ $t("warning.title2Gather") }}</p>
+                        </div></template>
+                        <i class="el-icon-question gather-warnum-help" />
+                      </el-tooltip>
+                      <span
+                        v-else
+                        class="gather-warnum-help-placeholder"
+                      ></span>
+                    </div>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item
+                :label="$t('warning.threshold1')"
+                prop="warnum"
+                v-else-if="showWarnum"
               >
                 <el-input
                   v-model="editData.warnum"
@@ -414,13 +592,33 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("warning.title2") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficer1')"
+              >
+                <el-input
+                  v-model="editData.principal"
+                  :placeholder="$t('warning.enterSafetyOfficer')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item
+                v-if="$store.state.i18n == 'zh'"
+                :label="$t('warning.safetyOfficerTel1')"
+                prop="tel"
+              >
+                <el-input
+                  v-model="editData.tel"
+                  :placeholder="$t('warning.enterSafetyOfficerTel')"
+                  maxlength="11"
+                ></el-input>
               </el-form-item>
               <el-form-item :label="$t('warning.Remark1')">
                 <el-input
@@ -431,21 +629,22 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel(editData)">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" :loading="loading" @click="editTrue(editData)">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <el-dialog
+            class="device-dialog"
             :title="$t('tet.Regionaldetails')"
-            :visible.sync="showTranchesDetails"
-            width="40%"
-            style="text-align: center"
+            v-model="showTranchesDetails"
+            width="640px"
+            align-center
             @close="closeAction"
           >
             <div style="padding-bottom: 3%">
@@ -471,7 +670,7 @@
                   min-width="100"
                   align="center"
                 >
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <span v-if="scope.row.groundid === 0 || scope.row.groundid == 0">
                       {{ $t("warningVoice.outdoorGps") }}
                     </span>
@@ -545,22 +744,26 @@ export default {
       pageCount: 20,
       add: false,
       showWarnum: true,
+      addWarnumList: [""],
+      editWarnumList: [""],
       addData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 2,
         meth: "",
         postype: "",
       },
 
-      addWorktypes: "", //添加角色集合
-      addTranches: [], //添加区域集合
       worktypeList: [],
       typeval: "",
       posTypeVal: "",
@@ -582,6 +785,40 @@ export default {
             trigger: "change",
           },
         ],
+        worktypesSelect: [
+          {
+            validator: (rule, value, callback) => {
+              const type = this.edit ? this.editData.type : this.addData.type;
+              if (!this.isWorktypeRequired(type)) {
+                callback();
+                return;
+              }
+              if (!value || !value.length) {
+                callback(new Error(this.$t("beacon.Pvehicletype")));
+                return;
+              }
+              callback();
+            },
+            trigger: "change",
+          },
+        ],
+        tranchesSelect: [
+          {
+            validator: (rule, value, callback) => {
+              const type = this.edit ? this.editData.type : this.addData.type;
+              if (!this.isAreaRequired(type)) {
+                callback();
+                return;
+              }
+              if (!value || !value.length) {
+                callback(new Error(this.$t("beacon.Pleasearea")));
+                return;
+              }
+              callback();
+            },
+            trigger: "change",
+          },
+        ],
         warnum: [
           {
             required: true,
@@ -590,20 +827,29 @@ export default {
             trigger: "blur",
           },
         ],
+        tel: [
+          {
+            required: false,
+            pattern: /^1[3|4|5|7|8][0-9]\d{8}$/,
+            message: this.$t("companymanagement.clienttelrule3"),
+            trigger: "blur",
+          },
+        ],
       },
       edit: false,
-      editWorktypes: "", //编辑角色集合
-      editTranches: [], //编辑区域集合
-      editTranche: "", //编辑区域集合,用来拼接
       editData: {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         id: "",
         cate: 2,
         postype: "",
@@ -630,6 +876,10 @@ export default {
           index: 4,
           value: this.$t("warning.Passingalarm"),
         },
+        {
+          index: 5,
+          value: this.$t("warning.DoorOpenalarm"),
+        },
       ], // 告警定位类型
       postypeList: [
         {
@@ -653,63 +903,157 @@ export default {
       ],
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
-    // 判断是否是选择越界告警和聚集告警
+    isGatherType(type) {
+      return Number(type) === 2;
+    },
+    parseWarnumToList(warnum) {
+      if (warnum === "" || warnum === null || warnum === undefined) {
+        return [""];
+      }
+      const parts = String(warnum)
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+      return parts.length ? parts : [""];
+    },
+    syncGatherWarnum(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      const joined = (list || [])
+        .map((s) => String(s == null ? "" : s).trim())
+        .filter((s) => s !== "")
+        .join(",");
+      if (mode === "edit") {
+        this.editData.warnum = joined;
+      } else {
+        this.addData.warnum = joined;
+      }
+    },
+    addGatherWarnumLevel(mode) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      list.push("");
+      this.syncGatherWarnum(mode);
+    },
+    removeGatherWarnumLevel(mode, index) {
+      const list = mode === "edit" ? this.editWarnumList : this.addWarnumList;
+      if (list.length <= 1) return;
+      list.splice(index, 1);
+      this.syncGatherWarnum(mode);
+    },
+    updateGatherWarnumRules(type) {
+      if (this.isGatherType(type)) {
+        this.addRules.warnum = [
+          {
+            validator: (rule, value, callback) => {
+              const list = this.edit ? this.editWarnumList : this.addWarnumList;
+              const parts = (list || []).map((s) =>
+                String(s == null ? "" : s).trim()
+              );
+              if (!parts.length || parts.some((p) => !/^[1-9]\d*$/.test(p))) {
+                callback(new Error(this.$t("warning.positiveinteger")));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur",
+          },
+        ];
+      } else {
+        this.addRules.warnum = [
+          {
+            required: true,
+            pattern: /^[1-9]\d*$/,
+            message: this.$t("warning.positiveinteger"),
+            trigger: "blur",
+          },
+        ];
+      }
+    },
+    buildWarningPayload(formData) {
+      const data = Object.assign({}, formData);
+      data.worktypes = (formData.worktypesSelect || []).join(",");
+      data.tranches = (formData.tranchesSelect || []).join(",");
+      delete data.worktypesSelect;
+      delete data.tranchesSelect;
+      if (this.isGatherType(data.type)) {
+        data.warnum = String(data.warnum || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "")
+          .join(",");
+      }
+      return data;
+    },
+    // 选了告警类型后车辆种类必填
+    isWorktypeRequired(type) {
+      return !(type === "" || type === null || type === undefined);
+    },
+    // 区域必填规则与车辆种类一致
+    isAreaRequired(type) {
+      return this.isWorktypeRequired(type);
+    },
+    // 越界(4)隐藏门限并显示触发方式；开门告警(5)隐藏门限且不显示触发方式
     changeType(val) {
-      if (val == 4) {
+      if (val == 4 || val == 5) {
         this.addData.warnum = "";
         this.showWarnum = false;
       } else {
         this.showWarnum = true;
       }
+      if (val != 4) {
+        this.addData.meth = "";
+      }
+      if (this.isGatherType(val)) {
+        this.addWarnumList = this.parseWarnumToList(this.addData.warnum);
+        this.syncGatherWarnum("add");
+      } else {
+        this.addWarnumList = [""];
+      }
+      this.updateGatherWarnumRules(val);
       this.typeval = val;
+      this.$nextTick(() => {
+        if (this.$refs.addData) {
+          this.$refs.addData.clearValidate("warnum");
+          this.$refs.addData.clearValidate("worktypesSelect");
+          this.$refs.addData.clearValidate("tranchesSelect");
+          if (this.isWorktypeRequired(val)) {
+            this.$refs.addData.validateField("worktypesSelect");
+          }
+          if (this.isAreaRequired(val)) {
+            this.$refs.addData.validateField("tranchesSelect");
+          }
+        }
+      });
     },
     // 处理区域选择变化
-    handleTrancheChange(values, target) {
-      const ids = values || [];
+    handleTrancheChange(values, mode) {
+      const SELECT_ALL = "__TRANCHE_ALL__";
+      const SELECT_CLEAR = "__TRANCHE_CLEAR__";
+      const formData = mode === "edit" ? this.editData : this.addData;
+      let ids = values || [];
+      if (ids.includes(SELECT_CLEAR)) {
+        ids = [];
+        formData.tranchesSelect = ids;
+      } else if (ids.includes(SELECT_ALL)) {
+        ids = (this.trancheLists || []).map((item) => item.id);
+        formData.tranchesSelect = ids;
+      }
       const selected = this.trancheLists.filter((item) => ids.includes(item.id));
       const hasOutdoor = selected.some((item) => item.groundid === 0);
       const hasIndoor = selected.some((item) => item.groundid !== 0);
-
-      if (hasOutdoor && hasIndoor) {
-        // 混选室内和室外围栏时，保留最后选择的类型
-        const lastId = ids[ids.length - 1];
-        const lastItem = this.trancheLists.find((item) => item.id === lastId);
-        if (lastItem) {
-          const keepOutdoor = lastItem.groundid === 0;
-          const filtered = selected
-            .filter((item) => (item.groundid === 0) === keepOutdoor)
-            .map((item) => item.id);
-          this[target] = filtered;
-          this.setPostypeBySelection(target, keepOutdoor);
-          
-          // 使用i18n翻译的提示消息
-          const fenceTypeLabel = keepOutdoor 
-            ? this.$t("warningVoice.outdoorGps") 
-            : this.$t("warningVoice.indoorBle");
-          const message = this.$t("warningVoice.cannotMixFence", { type: fenceTypeLabel });
-          
-          this.$message({
-            message: message,
-            type: "warning",
-          });
-        }
-        return;
-      }
+      // 室内外可同时选择；有室外时 postype 优先记为室外
       if (hasOutdoor) {
-        this.setPostypeBySelection(target, true);
+        formData.postype = 2;
       } else if (hasIndoor) {
-        this.setPostypeBySelection(target, false);
+        formData.postype = 1;
       } else {
-        this.setPostypeBySelection(target, null);
-      }
-    },
-    setPostypeBySelection(target, isOutdoor) {
-      const value = isOutdoor === null ? "" : isOutdoor ? 2 : 1;
-      if (target === "addTranches") {
-        this.addData.postype = value;
-      } else {
-        this.editData.postype = value;
+        formData.postype = "";
       }
     },
     formatMeth(meth) {
@@ -733,11 +1077,38 @@ export default {
       }
       return typeName || "-";
     },
+    // 英文：数值与单位之间加空格；中文：紧挨单位
+    formatValueWithUnit(value, unitKey) {
+      const unit = String(this.$t(unitKey) || "").trim();
+      if (!unit) return String(value);
+      const lang = this.i8n || this.$store.state.i18n;
+      return lang === "en" ? `${value} ${unit}` : `${value}${unit}`;
+    },
+    // 聚集显示「人」；越界/开门无门限；其余显示「分钟」
+    formatWarnum(row) {
+      if (row.warnum === "" || row.warnum === null || row.warnum === undefined) {
+        return "-";
+      }
+      if (row.type == 4 || row.type == 5) {
+        return "-";
+      }
+      if (row.type == 2) {
+        const parts = String(row.warnum)
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s !== "");
+        if (!parts.length) return "-";
+        return parts
+          .map((p) => this.formatValueWithUnit(p, "warning.unitPeople"))
+          .join(",");
+      }
+      return this.formatValueWithUnit(row.warnum, "warning.minutes");
+    },
     handleAddTrancheChange(val) {
-      this.handleTrancheChange(val, "addTranches");
+      this.handleTrancheChange(val, "add");
     },
     handleEditTrancheChange(val) {
-      this.handleTrancheChange(val, "editTranches");
+      this.handleTrancheChange(val, "edit");
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -889,48 +1260,48 @@ export default {
     addWarning() {
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.addWorktypes = "";
-      this.addTranches = [];
+      this.addWarnumList = [""];
       this.addData = {
         projectid: this.$store.state.intoProjectid,
         type: "",
         worktypes: "",
+        worktypesSelect: [],
         tranches: "",
+        tranchesSelect: [],
         begintime: "",
         endtime: "",
         warnum: "",
         memo: "",
+        principal: "",
+        tel: "",
         cate: 2,
         meth: "",
         postype: "",
       };
       this.add = true;
       this.showWarnum = true;
+      this.updateGatherWarnumRules("");
+      this.$nextTick(() => {
+        if (this.$refs.addData) this.$refs.addData.clearValidate();
+      });
     },
     addCancel(addData) {
       this.add = false;
       this.loading = false;
+      this.addWarnumList = [""];
       this.$refs.addData.resetFields();
     },
     addTrue(addData) {
+      if (this.isGatherType(this.addData.type)) {
+        this.syncGatherWarnum("add");
+      }
       this.$refs.addData.validate((valid) => {
         if (valid) {
           var that = this;
-          if (that.addWorktypes.length == 0) {
-            that.$message({
-              message: this.$t("beacon.Pvehicletype"),
-              type: "warning",
-            });
-            return;
-          }
-          if (that.addTranches.length == 0) {
-            that.$message({
-              message: this.$t("beacon.Pleasearea"),
-              type: "warning",
-            });
-            return;
-          }
-          if (!that.addData.postype) {
+          if (
+            that.isAreaRequired(that.addData.type) &&
+            !that.addData.postype
+          ) {
             that.$message({
               message: this.$t("project.Locationtype"),
               type: "warning",
@@ -958,22 +1329,15 @@ export default {
             });
             return;
           }
-          for (let i = 0; i < that.addWorktypes.length; i++) {
-            that.addData.worktypes += that.addWorktypes[i] + ",";
-          }
-          that.addData.worktypes = that.addData.worktypes.slice(
-            0,
-            that.addData.worktypes.length - 1
-          );
-          if (that.addData.worktypes.length > 320) {
+          const payload = that.buildWarningPayload(that.addData);
+          if (payload.worktypes.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
             });
             return;
           }
-          that.addData.tranches = that.addTranches.join(",");
-          if (that.addData.tranches.length > 320) {
+          if (payload.tranches.length > 320) {
             that.$message({
               message: this.$t("tet.tet9"),
               type: "warning",
@@ -982,7 +1346,7 @@ export default {
           }
           that.loading = true;
           addWarningConfig(
-            that.addData,
+            payload,
             that.tenantkey_A,
             that.tenantid_A,
             that.userName
@@ -1016,16 +1380,20 @@ export default {
       var that = this;
       this.getBranchNameList();
       this.getFenceManageAndPointLists();
-      this.editWorktypes = "";
-      this.editTranches = [];
       this.editData.worktypes = "";
+      this.editData.worktypesSelect = (this.tableData[index].worktypes || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       this.editData.tranches = "";
-      this.editWorktypes = this.tableData[index].worktypes.split(",");
-      const trancheIds = this.tableData[index].tranches.split(",");
+      const trancheIds = (this.tableData[index].tranches || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
 
       this.editData.type = this.tableData[index].type;
       this.editData.postype = this.tableData[index].postype;
-      if (this.editData.type == 4) {
+      if (this.editData.type == 4 || this.editData.type == 5) {
         this.showWarnum = false;
       } else {
         this.showWarnum = true;
@@ -1035,7 +1403,16 @@ export default {
       this.editData.endtime = this.tableData[index].endtime;
       this.editData.begintime = this.tableData[index].begintime;
       this.editData.warnum = this.tableData[index].warnum;
+      this.editWarnumList = this.isGatherType(this.editData.type)
+        ? this.parseWarnumToList(this.editData.warnum)
+        : [""];
+      this.updateGatherWarnumRules(this.editData.type);
+      if (this.isGatherType(this.editData.type)) {
+        this.syncGatherWarnum("edit");
+      }
       this.editData.memo = this.tableData[index].memo;
+      this.editData.principal = this.tableData[index].principal || "";
+      this.editData.tel = this.tableData[index].tel || "";
       this.editData.id = this.tableData[index].id;
       
       // 等待围栏数据加载完成后再设置选中的区域
@@ -1043,7 +1420,8 @@ export default {
         const selectedItems = this.trancheLists.filter((item) => 
           trancheIds.includes(String(item.id))
         );
-        this.editTranches = selectedItems.map((item) => item.id);
+        this.editData.tranchesSelect = selectedItems.map((item) => item.id);
+        if (this.$refs.editData) this.$refs.editData.clearValidate();
       });
       
       this.edit = true;
@@ -1051,78 +1429,72 @@ export default {
     editCancel(editData) {
       this.edit = false;
       this.loading = false;
+      this.editWarnumList = [""];
       this.$refs.editData.resetFields();
     },
     editTrue(editData) {
       var that = this;
-      if (that.editWorktypes.length == 0) {
-        that.$message({
-          message: this.$t("beacon.Pvehicletype"),
-          type: "warning",
-        });
-        return;
+      if (that.isGatherType(that.editData.type)) {
+        that.syncGatherWarnum("edit");
       }
-      if (that.editTranches.length == 0) {
-        that.$message({
-          message: this.$t("beacon.Pleasearea"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.begintime == "" || this.editData.begintime == null) {
-        that.$message({
-          message: this.$t("beacon.Pleasestarttime"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.endtime == "" || this.editData.endtime == null) {
-        that.$message({
-          message: this.$t("beacon.Pleaseendtime"),
-          type: "warning",
-        });
-        return;
-      }
-      if (this.editData.endtime == this.editData.begintime) {
-        that.$message({
-          message: this.$t("beacon.Startendtime"),
-          type: "warning",
-        });
-        return;
-      }
-      for (let i = 0; i < that.editWorktypes.length; i++) {
-        that.editData.worktypes += that.editWorktypes[i] + ",";
-      }
-      that.editData.worktypes = that.editData.worktypes.slice(
-        0,
-        that.editData.worktypes.length - 1
-      );
-
-      // 直接使用选中的id数组
-      that.editData.tranches = that.editTranches.join(",");
-      updateWarningConfig(
-        that.editData,
-        that.tenantkey_A,
-        that.tenantid_A,
-        that.userName
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.edit = false;
-          that.getWarningLists();
+      this.$refs.editData.validate((valid) => {
+        if (!valid) return;
+        if (
+          that.isAreaRequired(that.editData.type) &&
+          !that.editData.postype
+        ) {
           that.$message({
-            message: that.$t("beacon.editsuccess"),
-            type: "success",
+            message: this.$t("project.Locationtype"),
+            type: "warning",
           });
-          that.loading = false;
-          that.$refs.editData.resetFields();
-        } else {
-          that.edit = false;
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-            type: "error",
-          });
-          that.loading = false;
+          return;
         }
+        if (this.editData.begintime == "" || this.editData.begintime == null) {
+          that.$message({
+            message: this.$t("beacon.Pleasestarttime"),
+            type: "warning",
+          });
+          return;
+        }
+        if (this.editData.endtime == "" || this.editData.endtime == null) {
+          that.$message({
+            message: this.$t("beacon.Pleaseendtime"),
+            type: "warning",
+          });
+          return;
+        }
+        if (this.editData.endtime == this.editData.begintime) {
+          that.$message({
+            message: this.$t("beacon.Startendtime"),
+            type: "warning",
+          });
+          return;
+        }
+        const payload = that.buildWarningPayload(that.editData);
+        updateWarningConfig(
+          payload,
+          that.tenantkey_A,
+          that.tenantid_A,
+          that.userName
+        ).then((res) => {
+          if (res.code == 1001) {
+            that.edit = false;
+            that.getWarningLists();
+            that.$message({
+              message: that.$t("beacon.editsuccess"),
+              type: "success",
+            });
+            that.loading = false;
+            that.$refs.editData.resetFields();
+          } else {
+            that.edit = false;
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+            that.loading = false;
+          }
+        });
       });
     },
     // 显示区域详情
@@ -1176,6 +1548,10 @@ export default {
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
       })
         .then(() => {
           let data = {
@@ -1254,6 +1630,72 @@ export default {
 </script>
 
 <style scoped>
+.gather-warnum-item :deep(.el-form-item__content) {
+  width: 100%;
+}
+.gather-warnum-list {
+  width: 100%;
+}
+.gather-warnum-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.gather-warnum-row:last-child {
+  margin-bottom: 0;
+}
+.gather-warnum-level {
+  flex: 0 0 64px;
+  width: 64px;
+  color: #606266;
+  font-size: 13px;
+  line-height: 32px;
+  white-space: nowrap;
+  text-align: right;
+}
+.gather-warnum-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+.gather-warnum-row :deep(.gather-warnum-input),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__wrapper),
+.gather-warnum-row :deep(.gather-warnum-input .el-input__inner) {
+  width: 100% !important;
+}
+.gather-warnum-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+.gather-warnum-btn {
+  padding: 7px 12px !important;
+  margin: 0 !important;
+  min-width: 56px;
+}
+.gather-warnum-btn-placeholder {
+  display: inline-block;
+  width: 56px;
+  height: 1px;
+}
+.gather-warnum-help {
+  font-size: 130%;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 18px;
+  width: 18px;
+  text-align: center;
+}
+.gather-warnum-help-placeholder {
+  display: inline-block;
+  width: 18px;
+  height: 1px;
+  flex: 0 0 18px;
+}
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);
@@ -1298,10 +1740,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
@@ -1309,27 +1751,250 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

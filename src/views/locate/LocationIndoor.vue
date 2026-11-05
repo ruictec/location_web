@@ -1,5 +1,5 @@
 <template>
-  <div class="content" style="height: 100%; width: 100%">
+  <div class="content location-indoor" style="width: 100%">
     <ul class="imags_ul" v-show="btnShow">
       <li>
         <el-tooltip
@@ -16,18 +16,62 @@
         </el-tooltip>
       </li>
       <li>
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="$t('LocationIndoor.Selectbuilding')"
-          placement="left"
+        <el-popover
+          v-model:visible="buildShow"
+          placement="left-end"
+          trigger="click"
+          :width="260"
+          :offset="14"
+          popper-class="indoor-building-picker-popper"
+          @show="showBuild()"
         >
-          <el-image
-            src="../../../static/switch.png"
-            style="width: 32px; height: 32px"
-            @click="showBuild()"
-          ></el-image>
-        </el-tooltip>
+          <template #reference>
+            <span class="imags_ul-trigger">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="$t('LocationIndoor.Selectbuilding')"
+                placement="left"
+                :disabled="buildShow"
+              >
+                <el-image
+                  src="../../../static/switch.png"
+                  style="width: 32px; height: 32px"
+                ></el-image>
+              </el-tooltip>
+            </span>
+          </template>
+          <div class="building-picker">
+            <div class="building-picker-head">
+              <span>{{ $t("LocationIndoor.Selectbuilding") }}</span>
+              <em>{{ buildings.length }}</em>
+            </div>
+            <el-input
+              v-if="buildings.length > 6"
+              v-model="buildingKeyword"
+              class="building-picker-search"
+              size="small"
+              clearable
+              :prefix-icon="Search"
+              :placeholder="$t('LocationIndoor.searchBuilding')"
+            />
+            <ul class="building-picker-list">
+              <li
+                v-for="item in filteredBuildings"
+                :key="item.id"
+                :class="{ 'is-active': item.id == isactive }"
+                @click="pickBuilding(item.id)"
+              >
+                <el-icon class="building-picker-icon"><OfficeBuilding /></el-icon>
+                <span class="building-picker-name">{{ item.building }}</span>
+                <span class="building-picker-tag">{{ item.buildtypestr }}</span>
+              </li>
+              <li v-if="!filteredBuildings.length" class="is-empty">
+                {{ $t("LocationIndoor.noMatchBuilding") }}
+              </li>
+            </ul>
+          </div>
+        </el-popover>
       </li>
       <li>
         <el-tooltip
@@ -59,7 +103,7 @@
       </li>
     </ul>
 
-    <div class="inputContent" style="display: flex; flex-wrap: wrap">
+    <div class="inputContent page-panel" style="display: flex; flex-wrap: wrap">
       <transition
         v-on:before-enter="beforeEnter"
         v-on:enter="enter"
@@ -68,7 +112,7 @@
       >
         <el-form
           class="demo-form-inline"
-          style="display: flex; white-space: nowrap; margin-left: 1%"
+          style="display: flex; white-space: nowrap; margin-left: 0"
           :model="searchLists"
           v-if="searchShow"
         >
@@ -156,6 +200,9 @@
             <el-button type="primary" class="reset" @click="clearBtn()">{{
               $t("LocationIndoor.reset")
             }}</el-button>
+            <el-button type="primary" class="reset" @click="goHis()">{{
+              $t("Breadcrumb.Historicaltrack")
+            }}</el-button>
           </el-form-item>
         </el-form>
       </transition>
@@ -163,64 +210,54 @@
 
     <div
       :class="fullscreen ? 'fullscreen_containers' : 'containers'"
-      style="width: 100%; height: 98%"
+      style="width: 100%"
     >
-      <div class="float_box">
-        <div v-if="isAllData" style="width: 100%">
-          <dv-decoration-7 style="width: 100%; height: 30px">{{
-            $t("LocationIndoor.statistics")
-          }}</dv-decoration-7>
-          <dv-border-box-6 :key="borderkey">
-            <div class="all_num_box">
-              <div class="all_num">
-                <p>{{ allPerson }}</p>
-                <p>{{ $t("LocationIndoor.Numpeople") }}</p>
-              </div>
-              <div class="all_num">
-                <p>{{ allCar }}</p>
-                <p>{{ $t("LocationIndoor.NumCar") }}</p>
-              </div>
-              <div class="all_num">
-                <p>{{ allAsste }}</p>
-                <p>{{ $t("LocationIndoor.Numassets") }}</p>
-              </div>
+      <div
+        class="float_box"
+        v-if="isAllData || isRoleData || isDepartmentData || isSosData"
+      >
+        <div v-if="isAllData" class="fb-section">
+          <div class="fb-title">{{ $t("LocationIndoor.statistics") }}</div>
+          <div class="all_num_box">
+            <div class="all_num">
+              <p class="all_num-value">{{ allPerson }}</p>
+              <p class="all_num-label">{{ $t("LocationIndoor.Numpeople") }}</p>
             </div>
-          </dv-border-box-6>
+            <div class="all_num">
+              <p class="all_num-value">{{ allCar }}</p>
+              <p class="all_num-label">{{ $t("LocationIndoor.NumCar") }}</p>
+            </div>
+            <div class="all_num">
+              <p class="all_num-value">{{ allAsste }}</p>
+              <p class="all_num-label">{{ $t("LocationIndoor.Numassets") }}</p>
+            </div>
+          </div>
         </div>
 
-        <div class="statistics_box">
-          <div v-if="isRoleData">
-            <dv-decoration-7 style="width: 100%; height: 30px">{{
-              $t("LocationIndoor.RoleStatistics")
-            }}</dv-decoration-7>
-            <dv-capsule-chart :config="roleData" class="rloe_data" />
+        <div v-if="isRoleData" class="fb-section">
+          <div class="fb-title">{{ $t("LocationIndoor.RoleStatistics") }}</div>
+          <dv-capsule-chart :config="roleData" class="rloe_data" />
+        </div>
+        <div v-if="isDepartmentData" class="fb-section">
+          <div class="fb-title">
+            {{ $t("LocationIndoor.DepartmentStatistics") }}
           </div>
-          <div v-if="isDepartmentData">
-            <dv-decoration-7
-              style="width: 100%; height: 30px; margin-top: 20px"
-              >{{ $t("LocationIndoor.DepartmentStatistics") }}</dv-decoration-7
-            >
-            <dv-capsule-chart
-              :config="departmentData"
-              class="department_data"
-            />
-          </div>
-          <div v-if="isSosData">
-            <dv-decoration-7
-              style="width: 100%; height: 30px; margin-top: 20px"
-              >{{ $t("Breadcrumb.AlarmStatistics") }}</dv-decoration-7
-            >
-            <dv-active-ring-chart :config="sosDatas" class="sosDatas_data" />
-          </div>
+          <dv-capsule-chart :config="departmentData" class="department_data" />
+        </div>
+        <div v-if="isSosData" class="fb-section">
+          <div class="fb-title">{{ $t("Breadcrumb.AlarmStatistics") }}</div>
+          <dv-active-ring-chart :config="sosDatas" class="sosDatas_data" />
         </div>
       </div>
 
       <!-- 2D地图 -->
-      <div v-show="mapTypes" class="mapConent">
+      <div
+        v-show="mapTypes"
+        class="mapConent page-panel"
+        :class="{ 'is-map-hidden': !mapTypes }"
+      >
         <div id="allmap" ref="map" class="allmap">
-          <div
-            style="position: absolute; bottom: 2%; right: 4px; z-index: 1001"
-          >
+          <div class="indoor-filter-anchor">
             <transition
               v-on:before-enter="beforeEnter"
               v-on:enter="enter"
@@ -228,83 +265,50 @@
               v-bind:css="false"
             >
               <el-checkbox-group
+                class="indoor-filter-panel"
                 @change="changeSetting"
                 v-if="settingShow"
                 v-model="checkList"
-                style="
-                  display: flex;
-                  flex-direction: column;
-                  align-items: flex-start;
-                "
               >
-                <el-checkbox
-                  :label="$t('LocationIndoor.personnel')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.assets')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.vehicle')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute1')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute5')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute10')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute20')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute30')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.hour')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <!-- <el-checkbox
-                  label="所有"
-                  style="margin-left: 0"
-                ></el-checkbox> -->
-              </el-checkbox-group></transition
-            >
+                <div class="indoor-filter-title">{{ $t("LocationIndoor.Parameterconfiguration") }}</div>
+                <div class="indoor-filter-label">{{ $t("LocationIndoor.filterType") }}</div>
+                <div class="indoor-filter-options is-type">
+                  <el-checkbox
+                    v-for="opt in filterTypeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >{{ $t(opt.label) }}</el-checkbox>
+                </div>
+                <div class="indoor-filter-label">{{ $t("LocationIndoor.filterTime") }}</div>
+                <div class="indoor-filter-options is-time">
+                  <el-checkbox
+                    v-for="opt in filterTimeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >{{ $t(opt.label) }}</el-checkbox>
+                </div>
+              </el-checkbox-group></transition>
           </div>
           <!-- 楼栋选择 -->
-          <div class="selectBuild">
-            <transition
-              v-on:before-enter="beforeEnter"
-              v-on:enter="enter"
-              v-on:leave="leave"
-              v-bind:css="false"
+          <div class="selectBuild" v-if="buildings.length">
+            <el-select
+              v-model="isactive"
+              class="building-chip"
+              :placeholder="$t('LocationIndoor.Selectbuilding')"
+              @change="getGrounds"
+              popper-class="location-indoor-building-select"
             >
-              <el-select
-                v-model="isactive"
-                placeholder=""
-                @change="getGrounds(isactive)"
-                :popper-append-to-body="false"
-                style="position: absolute; right: 0; z-index: 1001"
-                v-if="buildShow"
+              <template #prefix>
+                <el-icon class="building-chip-icon"><OfficeBuilding /></el-icon>
+              </template>
+              <el-option
+                v-for="item in buildings"
+                :key="item.id"
+                :label="item.building"
+                :value="item.id"
               >
-                <el-option
-                  v-for="item in buildings"
-                  :key="item.id"
-                  :label="item.building"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </transition>
+              </el-option>
+            </el-select>
           </div>
           <transition
             v-on:before-enter="beforeEnter"
@@ -312,49 +316,37 @@
             v-on:leave="leave"
             v-bind:css="false"
           >
-            <div
-              class="statistics"
-              style="
-                display: flex;
-                background-color: #fff;
-                border-radius: 6px;
-                box-shadow: 1px 1px 3px 1px #b5c6dd;
-                position: absolute;
-                right: 0;
-                top: 0;
-                z-index: 1000;
-                align-items: center;
-              "
-              v-show="groundShow"
-            >
+            <div class="statistics ground-stats" v-show="groundShow">
               <div
                 v-show="
                   (tableData[0].num > 0 || tableData[1].num > 0) && showEcharts
                 "
-                style="
-                  width: 100%;
-                  height: 100%;
-                  display: flex;
-                  flex-wrap: wrap;
-                "
+                class="statistics-charts"
               >
-                <div>
-                  <div style="width: 220px; height: 220px" id="echarts"></div>
-                  <div style="width: 220px; height: 220px" id="echarts1"></div>
-                </div>
-                <div>
-                  <div style="width: 220px; height: 220px" id="echarts2"></div>
-                  <div style="width: 220px; height: 220px" id="echarts3"></div>
-                </div>
+                <div class="ground-chart" id="echarts"></div>
+                <div class="ground-chart" id="echarts1"></div>
+                <div class="ground-chart" id="echarts2"></div>
+                <div class="ground-chart" id="echarts3"></div>
               </div>
-              <div class="show_echarts" @click="showEchart()">
-                {{ show_echart }}
+              <div
+                class="show_echarts ground-stats-toggle"
+                :class="{ 'is-disabled': !(tableData[0].num > 0 || tableData[1].num > 0) }"
+                @click="showEchart()"
+              >
+                <span class="ground-stats-toggle-icon">{{
+                  showEcharts ? "›" : "‹"
+                }}</span>
+                <span class="ground-stats-toggle-text">{{
+                  $t("LocationIndoor.chartAnalysis")
+                }}</span>
               </div>
-              <div>
+              <div class="statistics-table-wrap">
+                <div class="ground-stats-head">{{
+                  $t("LocationIndoor.floorStats")
+                }}</div>
                 <el-table
+                  class="device-table ground-stats-table"
                   :data="groundData"
-                  style="width: 100%; margin-bottom: 20px"
-                  border
                   max-height="300"
                   :cell-class-name="selectGrounds"
                   :summary-method="getSummaries"
@@ -413,7 +405,7 @@
           </transition>
         </div>
         <!-- 楼层选择 -->
-        <div class="selectGround" style="z-index: 1">
+        <div class="selectGround">
           <div
             style="
               width: 42px;
@@ -468,11 +460,13 @@
       </div>
 
       <!-- 3D地图 -->
-      <div v-show="!mapTypes" class="mapConentD">
+      <div
+        v-show="!mapTypes"
+        class="mapConentD page-panel"
+        :class="{ 'is-map-hidden': mapTypes }"
+      >
         <div id="fengMap" class="fengMap">
-          <div
-            style="position: absolute; bottom: 10%; right: 2%; z-index: 1001"
-          >
+          <div class="indoor-filter-anchor is-3d">
             <transition
               v-on:before-enter="beforeEnter"
               v-on:enter="enter"
@@ -480,78 +474,50 @@
               v-bind:css="false"
             >
               <el-checkbox-group
+                class="indoor-filter-panel"
                 @change="changeSetting"
                 v-if="settingShow"
                 v-model="checkList"
-                style="
-                  display: flex;
-                  flex-direction: column;
-                  align-items: flex-start;
-                "
               >
-                <el-checkbox
-                  :label="$t('LocationIndoor.personnel')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.assets')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.vehicle')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute1')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute5')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute10')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute20')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.minute30')"
-                  style="margin-left: 0"
-                ></el-checkbox>
-                <el-checkbox
-                  :label="$t('LocationIndoor.hour')"
-                  style="margin-left: 0"
-                ></el-checkbox> </el-checkbox-group
-            ></transition>
+                <div class="indoor-filter-title">{{ $t("LocationIndoor.Parameterconfiguration") }}</div>
+                <div class="indoor-filter-label">{{ $t("LocationIndoor.filterType") }}</div>
+                <div class="indoor-filter-options is-type">
+                  <el-checkbox
+                    v-for="opt in filterTypeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >{{ $t(opt.label) }}</el-checkbox>
+                </div>
+                <div class="indoor-filter-label">{{ $t("LocationIndoor.filterTime") }}</div>
+                <div class="indoor-filter-options is-time">
+                  <el-checkbox
+                    v-for="opt in filterTimeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >{{ $t(opt.label) }}</el-checkbox>
+                </div>
+              </el-checkbox-group></transition>
           </div>
           <!-- 楼栋选择 -->
-          <div class="selectBuild selectBuild3d">
-            <transition
-              v-on:before-enter="beforeEnter"
-              v-on:enter="enter"
-              v-on:leave="leave"
-              v-bind:css="false"
+          <div class="selectBuild selectBuild3d" v-if="buildings.length">
+            <el-select
+              v-model="isactive"
+              class="building-chip"
+              :placeholder="$t('LocationIndoor.Selectbuilding')"
+              @change="getGrounds"
+              popper-class="location-indoor-building-select"
             >
-              <el-select
-                v-model="isactive"
-                placeholder=""
-                @change="getGrounds(isactive)"
-                :popper-append-to-body="false"
-                v-if="buildShow"
-                style="position: absolute; right: 0; z-index: 1001"
+              <template #prefix>
+                <el-icon class="building-chip-icon"><OfficeBuilding /></el-icon>
+              </template>
+              <el-option
+                v-for="item in buildings"
+                :key="item.id"
+                :label="item.building"
+                :value="item.id"
               >
-                <el-option
-                  v-for="item in buildings"
-                  :key="item.building"
-                  :label="item.building"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </transition>
+              </el-option>
+            </el-select>
           </div>
           <transition
             v-on:before-enter="beforeEnter"
@@ -559,51 +525,38 @@
             v-on:leave="leave"
             v-bind:css="false"
           >
-            <div class="statistics statistics3d" v-show="groundShow">
+            <div class="statistics statistics3d ground-stats" v-show="groundShow">
               <div
                 v-show="
                   (tableData[0].num > 0 || tableData[1].num > 0) && showEcharts
                 "
-                style="
-                  width: 100%;
-                  height: 100%;
-                  display: flex;
-                  flex-wrap: wrap;
-                "
+                class="statistics-charts"
               >
-                <div>
-                  <div
-                    style="width: 220px; height: 220px"
-                    id="echarts_3D"
-                  ></div>
-                  <div
-                    style="width: 220px; height: 220px"
-                    id="echarts1_3D"
-                  ></div>
-                </div>
-                <div>
-                  <div
-                    style="width: 220px; height: 220px"
-                    id="echarts2_3D"
-                  ></div>
-                  <div
-                    style="width: 220px; height: 220px"
-                    id="echarts3_3D"
-                  ></div>
-                </div>
+                <div class="ground-chart" id="echarts_3D"></div>
+                <div class="ground-chart" id="echarts1_3D"></div>
+                <div class="ground-chart" id="echarts2_3D"></div>
+                <div class="ground-chart" id="echarts3_3D"></div>
               </div>
               <div
-                class="show_echarts"
+                class="show_echarts ground-stats-toggle"
+                :class="{ 'is-disabled': !(tableData[0].num > 0 || tableData[1].num > 0) }"
                 @click="showEchart()"
                 v-if="tenantid_A != 'yvi0xfwr'"
               >
-                {{ show_echart }}
+                <span class="ground-stats-toggle-icon">{{
+                  showEcharts ? "›" : "‹"
+                }}</span>
+                <span class="ground-stats-toggle-text">{{
+                  $t("LocationIndoor.chartAnalysis")
+                }}</span>
               </div>
-              <div>
+              <div class="statistics-table-wrap">
+                <div class="ground-stats-head">{{
+                  $t("LocationIndoor.floorStats")
+                }}</div>
                 <el-table
+                  class="device-table ground-stats-table"
                   :data="groundData"
-                  style="width: 100%; margin-bottom: 20px"
-                  border
                   max-height="500"
                   :cell-class-name="selectGrounds"
                   :summary-method="getSummaries"
@@ -664,15 +617,7 @@
             </div>
           </transition>
         </div>
-        <p
-          style="
-            position: absolute;
-            top: 94.5%;
-            text-align: left;
-            color: white;
-            z-index: 11;
-          "
-        >
+        <p class="indoor-map-tip">
           {{ $t("LocationIndoor.tet") }}
         </p>
       </div>
@@ -680,10 +625,12 @@
 
     <!-- 点击地图上图标显示的内容 -->
     <el-dialog
-      :visible.sync="visible"
+      v-model="visible"
       :width="showBracelet ? '25%' : '20%'"
-      class="Info_dialog"
+      class="Info_dialog indoor-info-dialog"
       :modal="false"
+      :append-to-body="true"
+      :destroy-on-close="false"
     >
       <!-- 左键显示内容的 -->
       <div id="popups" class="ol-popups">
@@ -723,11 +670,9 @@
               <li class="goDev bracelet_dev">
                 <span
                   >{{ $t("terminal.deveui") }}
-                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span
-                >
+                  <a @click="goDevs(maplabel)">{{ maplabel }}</a></span>
                 <span v-if="battery"
-                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span
-                >
+                  >{{ $t("locationoutdoor.electricity") }}{{ battery }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("terminal.Locationupdatetime1") }}{{ gpstime }}</li>
@@ -741,21 +686,17 @@
                 <span>{{ $t("terminal.deveui") }} {{ bracelet_eui }}</span>
                 <span
                   >{{ $t("locationoutdoor.electricity")
-                  }}{{ bracelet_soc }}%</span
-                >
+                  }}{{ bracelet_soc }}%</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li class="bracelet_dev">
                 <span
-                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span
-                >
+                  >{{ $t("LocationIndoor.heartRate") }}{{ bracelet_rate }}</span>
                 <span
                   >{{ $t("LocationIndoor.temperature")
-                  }}{{ bracelet_tem }} °C</span
-                >
+                  }}{{ bracelet_tem }} °C</span>
                 <span
-                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span
-                >
+                  >{{ $t("LocationIndoor.oxygen") }}{{ bracelet_oxygen }}</span>
               </li>
               <!-- <el-divider class="divider"></el-divider> -->
               <li>{{ $t("home.Dataupdatetime") }}{{ bracelet_time }}</li>
@@ -843,8 +784,42 @@
 
 <script>
 import fengmap from "fengmap/build/fengmap.map.min";
+import "fengmap/build/fengmap.plugin.ui.min";
+import "fengmap/build/fengmap.plugin.markers.min";
+import "fengmap/build/toolBarStyle.css";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
+import { markRaw } from "vue";
 import host from "../../host";
-import Fullscreen from "vue-fullscreen/src/component.vue";
+import { component as Fullscreen } from "vue-fullscreen";
+
+/** Vue3 Proxy 会破坏 fengmap WebGL 节点（modelViewMatrix / center.set），标记并修正 renderNode */
+function patchFengmapRenderNode(marker) {
+  if (
+    !marker ||
+    marker.__patchedRenderNode ||
+    typeof marker.getRenderNode !== "function"
+  ) {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
 
 import {
   getBuildingByProjectid,
@@ -862,8 +837,8 @@ import {
   getMapidByBuildid,
   getCountNum,
   getWarnNumList,
+  getFenceManageAndPointListByPage,
 } from "../../axios/api";
-import { worktypeIconUrl } from "../../utils/worktypeIcon";
 
 // 布置相关
 import "ol/ol.css";
@@ -887,11 +862,36 @@ import * as echarts from "echarts";
 // 用来添加相关文字描述的
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
+import Polygon from "ol/geom/Polygon";
 
 // 控制
 import { defaults as defaultControls } from "ol/control";
+import { OfficeBuilding, Search } from "@element-plus/icons-vue";
+
+const FILTER_TYPE_OPTIONS = [
+  { value: "person", label: "LocationIndoor.personnel" },
+  { value: "asset", label: "LocationIndoor.assets" },
+  { value: "tbox", label: "LocationIndoor.vehicle" },
+];
+const FILTER_TIME_OPTIONS = [
+  { value: 60, label: "LocationIndoor.minute1" },
+  { value: 300, label: "LocationIndoor.minute5" },
+  { value: 600, label: "LocationIndoor.minute10" },
+  { value: 1200, label: "LocationIndoor.minute20" },
+  { value: 1800, label: "LocationIndoor.minute30" },
+  { value: 3600, label: "LocationIndoor.hour" },
+];
+
+function deviceTypeKey(devtype) {
+  const t = Number(devtype);
+  if (t === 4) return "tbox";
+  if (t === 3) return "asset";
+  return "person";
+}
+
 export default {
-  components: { Fullscreen },
+  components: { Fullscreen, OfficeBuilding },
   name: "LocationIndoor",
   data() {
     return {
@@ -899,6 +899,8 @@ export default {
       i8n: this.$store.state.i18n,
       checkList: [],
       checkList1: [],
+      filterTypeOptions: FILTER_TYPE_OPTIONS,
+      filterTimeOptions: FILTER_TIME_OPTIONS,
       contrForPrionum: this.$store.state.userInfo.prionum,
       intoProjectName: this.$store.state.intoProjectName,
       intoProjectid: this.$store.state.intoProjectid,
@@ -912,8 +914,11 @@ export default {
       homeGround: "", //用户从首页点击跳转传过来的楼层
       warningBuildingId: "", //用户从告警信息（人群聚集）点击跳转传过来的楼栋id
       warningGround: "", //用户从告警信息（人群聚集）点击跳转传过来的楼层
+      warningPoints: null, // 告警点位（getWarningPointByWarningid），聚集可多人
       isactiveGround: false,
       buildings: "", //所有楼栋
+      buildingKeyword: "",
+      Search,
       building: "", //当前选中楼栋
       grounds: "", //所有楼层
       ground: "", //当前选中楼层
@@ -1028,18 +1033,26 @@ export default {
       mapTypes: true, //用于判断选择2d还是3d显示
       changemap: true,
       map3d: null,
+      map3dReady: false,
       fmapId: "",
       themeId: "",
-      scrollFloorControl: "",
+      scrollFloorControl: null,
+      map3dLoadToken: 0,
       layer: null,
       layerList: [],
       layer2: null,
       setNewMarker: true, //标注
       groundVals: "",
+      fenceManageList: [],
+      fenceVectorSource: null,
+      fenceVectorLayer: null,
+      fenceFeatures2d: [],
+      fencePolygonMarkers: [],
+      fenceNameMarkers3d: [],
 
       gl: "",
       timer: null,
-      searchShow: false,
+      searchShow: true,
       buildShow: false,
       groundShow: false,
       settingShow: false,
@@ -1071,11 +1084,13 @@ export default {
       },
       activeName: "role",
       sosDatas: {
-        radius: "40%",
-        activeRadius: "45%",
+        radius: "62%",
+        activeRadius: "68%",
+        lineWidth: 10,
         data: [],
         digitalFlopStyle: {
-          fontSize: 12,
+          fontSize: 14,
+          fill: "#5ec8ff",
         },
         showOriginValue: true,
         activeTimeGap: 2000, //切换间隔
@@ -1104,6 +1119,48 @@ export default {
         query: {
           username: username,
         },
+      });
+    },
+    // 跳转定位管理-历史轨迹页：只带已选人员/资产/车辆的名称，查不到名称时才带设备号
+    goHis() {
+      const query = {};
+      if (this.perDeveui) {
+        const item =
+          (this.userOptions || []).find(
+            (i) => i.maplabel === this.perDeveui
+          ) ||
+          (this.userList || []).find((i) => i.maplabel === this.perDeveui);
+        if (item && item.username) {
+          query.username = item.username;
+        } else {
+          query.perDeveui = this.perDeveui;
+        }
+      } else if (this.assetDeveui) {
+        const item =
+          (this.assetOptions || []).find(
+            (i) => i.beaconid === this.assetDeveui
+          ) ||
+          (this.assetList || []).find((i) => i.beaconid === this.assetDeveui);
+        if (item && item.name) {
+          query.username = item.name;
+        } else {
+          query.assetDeveui = this.assetDeveui;
+        }
+      } else if (this.tboxDeveui) {
+        const item =
+          (this.tboxOptions || []).find(
+            (i) => i.maplabel === this.tboxDeveui
+          ) ||
+          (this.tboxList || []).find((i) => i.maplabel === this.tboxDeveui);
+        if (item && item.sn) {
+          query.sn = item.sn;
+        } else {
+          query.tboxDeveui = this.tboxDeveui;
+        }
+      }
+      this.$router.push({
+        path: "/location/historytrajectory",
+        query,
       });
     },
     // 点击信息弹框中的卡号,跳转查询
@@ -1236,7 +1293,6 @@ export default {
         buildid: this.building,
         groundid: this.groundid,
         status: 1,
-        endtype: 8,
       };
       that.sosDatas.data = [];
       that.sosDatas = { ...that.sosDatas };
@@ -1276,6 +1332,18 @@ export default {
           this.show_echart = ">";
         }
         this.showEcharts = !this.showEcharts;
+        if (this.showEcharts) {
+          this.$nextTick(() => {
+            const ids = this.mapTypes
+              ? ["echarts", "echarts1", "echarts2", "echarts3"]
+              : ["echarts_3D", "echarts1_3D", "echarts2_3D", "echarts3_3D"];
+            ids.forEach((id) => {
+              const el = document.getElementById(id);
+              const chart = el && echarts.getInstanceByDom(el);
+              if (chart) chart.resize();
+            });
+          });
+        }
       }
     },
     // 3D楼栋获取地图的编号
@@ -1326,152 +1394,68 @@ export default {
           obj[arr].push({ name: item.name, value: item.num });
         }
       });
-      option = {
+      const palette = [
+        "#409eff",
+        "#36cfc9",
+        "#73d13d",
+        "#ffc53d",
+        "#ff7a45",
+        "#9254de",
+        "#f759ab",
+        "#597ef7",
+      ];
+      const buildPie = (title, data) => ({
+        color: palette,
         title: {
-          text: this.$t("LocationIndoor.Jobsdistribution"),
+          text: title,
           left: "center",
-          textStyle: {
-            fontSize: 15,
-          },
+          top: 6,
+          textStyle: { fontSize: 13, fontWeight: 600, color: "#1f2937" },
         },
-        tooltip: {
-          trigger: "item",
-
-          confine: true,
-        },
-        legend: {
-          orient: "horizontal",
-          left: "left",
-          top: "10%",
-          show: false,
-        },
+        tooltip: { trigger: "item", confine: true, formatter: "{b}：{c}（{d}%）" },
+        graphic: data.length
+          ? []
+          : [
+              {
+                type: "text",
+                left: "center",
+                top: "middle",
+                style: {
+                  text: this.$t("LocationIndoor.noDataShort"),
+                  fill: "#9ca3af",
+                  fontSize: 12,
+                },
+              },
+            ],
         series: [
           {
-            name: this.$t("LocationIndoor.Jobsdistribution"),
-            top: "0%",
-
+            name: title,
             type: "pie",
-            radius: "45%",
-            data: obj.arr1,
+            radius: ["26%", "44%"],
+            center: ["50%", "56%"],
+            showEmptyCircle: false,
+            avoidLabelOverlap: true,
+            itemStyle: { borderColor: "#fff", borderWidth: 2, borderRadius: 4 },
+            label: {
+              fontSize: 11,
+              color: "#4b5563",
+              width: 72,
+              overflow: "truncate",
+            },
+            labelLine: { length: 6, length2: 6 },
+            data,
             emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
+              scale: true,
+              scaleSize: 4,
+              label: { fontWeight: 600 },
             },
           },
         ],
-      };
-      option1 = {
-        title: {
-          text: this.$t("LocationIndoor.Sectordistribution"),
-          left: "center",
-          textStyle: {
-            fontSize: 15,
-          },
-        },
-        tooltip: {
-          trigger: "item",
-
-          confine: true,
-        },
-        legend: {
-          orient: "horizontal",
-          left: "left",
-          top: "10%",
-          show: false,
-        },
-        series: [
-          {
-            name: this.$t("LocationIndoor.Sectordistribution"),
-            top: "0%",
-
-            type: "pie",
-            radius: "45%",
-            data: obj.arr2,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-          },
-        ],
-      };
-      option2 = {
-        title: {
-          text: this.$t("LocationIndoor.Assetdistribution"),
-          left: "center",
-          textStyle: {
-            fontSize: 15,
-          },
-        },
-        tooltip: {
-          trigger: "item",
-
-          confine: true,
-        },
-        legend: {
-          orient: "horizontal",
-          left: "left",
-          top: "10%",
-          show: false,
-        },
-        series: [
-          {
-            name: this.$t("LocationIndoor.Assetdistribution"),
-            type: "pie",
-            top: "0%",
-            radius: "45%",
-            data: obj.arr3,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-          },
-        ],
-      };
-      option3 = {
-        title: {
-          text: this.$t("LocationIndoor.Vehicledistribution"),
-          left: "center",
-          textStyle: {
-            fontSize: 15,
-          },
-        },
-        tooltip: {
-          trigger: "item",
-
-          confine: true,
-        },
-        legend: {
-          orient: "horizontal",
-          left: "left",
-          top: "-10%",
-          show: false,
-        },
-        series: [
-          {
-            name: this.$t("LocationIndoor.Vehicledistribution"),
-            type: "pie",
-            radius: "45%",
-            top: "0%",
-            data: obj.arr4,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-          },
-        ],
-      };
+      });
+      option = buildPie(this.$t("LocationIndoor.Jobsdistribution"), obj.arr1);
+      option1 = buildPie(this.$t("LocationIndoor.Sectordistribution"), obj.arr2);
+      option2 = buildPie(this.$t("LocationIndoor.Assetdistribution"), obj.arr3);
+      option3 = buildPie(this.$t("LocationIndoor.Vehicledistribution"), obj.arr4);
       option && myChart.setOption(option);
       option1 && myChart1.setOption(option1);
 
@@ -1480,309 +1464,115 @@ export default {
       option3 && myChart3.setOption(option3);
     },
     changeSetting() {
-      var that = this;
-      clearInterval(that.timeOut);
-      that.timeOut = null;
-      //获取当前新选中的选项
-      if (that.websock) {
-        // this.websock.close(); //断开websocket
+      const added = this.checkList.find((k) => !this.checkList1.includes(k));
+      if (added !== undefined) {
+        const addedIsTime = typeof added === "number";
+        this.checkList = this.checkList.filter(
+          (k) => k === added || (typeof k === "number") !== addedIsTime
+        );
       }
-      let newv = that.checkList.filter((i) => {
-        return !that.checkList1.includes(i);
-      });
-
-      that.checkList1 = that.checkList;
-      let a = [
-        that.$t("LocationIndoor.personnel"),
-        that.$t("LocationIndoor.assets"),
-        that.$t("LocationIndoor.vehicle"),
-      ];
-      let b = [
-        that.$t("LocationIndoor.minute1"),
-        that.$t("LocationIndoor.minute5"),
-        that.$t("LocationIndoor.minute10"),
-        that.$t("LocationIndoor.minute20"),
-        that.$t("LocationIndoor.minute30"),
-        that.$t("LocationIndoor.hour"),
-      ];
-      let c = [60, 300, 600, 1200, 1800, 3600];
-
-      if (newv[0]) {
-        that.checkList.forEach((e, i) => {
-          if (a.includes(newv[0]) && a.includes(e) && e !== newv[0]) {
-            that.checkList.splice(i, 1);
-          }
-          if (b.includes(newv[0]) && b.includes(e) && e !== newv[0]) {
-            that.checkList.splice(i, 1);
-          }
-        });
-        //如果选中的是时间 获取数据
-        let index = b.indexOf(newv[0]);
-        if (index > -1) {
-          that.time = c[index];
-          let data = {
-            projectid: that.$store.state.projectid,
-            buildid: that.building,
-            groundid: that.groundid,
-            gpstype: 1,
-            devtype: 0,
-            time: that.time,
-          };
-          getLastDevGps(
-            data,
-            that.tenantkey_A,
-            that.tenantid_A,
-            that.userName
-          ).then((res) => {
-            if (res.code === 1001) {
-              that.mapInfo = res.data;
-              let devList = that.mapInfo.map((item) => {
-                return item.deveui;
-              });
-
-              if (that.map) {
-                let LayerArrays = that.map.getLayers().getArray();
-                for (let i = 1; i < LayerArrays.length; i++) {
-                  that.map.removeLayer(LayerArrays[i]);
-                  i--;
-                }
-              } else {
-                that.layerList.forEach((item) => {
-                  item.remove();
-                });
-              }
-
-              for (let i = 0; i < that.mapInfo.length; i++) {
-                if (
-                  that.mapInfo[i].devtype === 4 &&
-                  ((that.checkList.indexOf(that.$t("LocationIndoor.assets")) ==
-                    -1 &&
-                    that.checkList.indexOf(
-                      that.$t("LocationIndoor.personnel")
-                    ) == -1) ||
-                    that.checkList.length === 0)
-                ) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addTBox(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconTBox(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("tbox", that.mapInfo[i]);
-                  }
-                }
-                if (
-                  ((that.mapInfo[i].devtype == 1 ||
-                    that.mapInfo[i].devtype == 2) &&
-                    that.checkList.indexOf(that.$t("LocationIndoor.vehicle")) ==
-                      -1 &&
-                    that.checkList.indexOf(that.$t("LocationIndoor.assets")) ==
-                      -1) ||
-                  that.checkList.length === 0
-                ) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addMarker(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconMarkers(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("person", that.mapInfo[i]);
-                  }
-                }
-                if (
-                  that.mapInfo[i].devtype === 3 &&
-                  ((that.checkList.indexOf(that.$t("LocationIndoor.vehicle")) ==
-                    -1 &&
-                    that.checkList.indexOf(
-                      that.$t("LocationIndoor.personnel")
-                    ) == -1) ||
-                    that.checkList.length === 0)
-                ) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addAsset(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconAssets(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("asset", that.mapInfo[i]);
-                  }
-                }
-              }
-              that.hideLayers(devList);
-              that.timeOut = setInterval(() => {
-                that.delTimeOut();
-              }, 10000);
-            }
-          });
-        } else {
-          that.timeOut = setInterval(() => {
-            that.delTimeOut();
-          }, 10000);
-          that.hideLayers();
-        }
+      this.checkList1 = [...this.checkList];
+      const seconds = this.checkList.find((k) => typeof k === "number") || 0;
+      if (seconds !== this.time) {
+        this.time = seconds;
+        this.reloadFilteredDevices();
       } else {
-        let isTime =
-          that.checkList.length === 0
-            ? false
-            : that.checkList.every((item) => b.includes(item));
-        //取消选中重新发请求
-        if (!isTime) {
-          that.time = 0;
-          let data = {
-            projectid: that.$store.state.projectid,
-            buildid: that.building,
-            groundid: that.groundid,
-            gpstype: 1,
-            devtype: 0,
-            time: that.time,
-          };
-          getLastDevGps(
-            data,
-            that.tenantkey_A,
-            that.tenantid_A,
-            that.userName
-          ).then((res) => {
-            if (res.code === 1001) {
-              that.mapInfo = res.data;
-              if (that.map3d) {
-                that.layerList.forEach((item) => {
-                  item.remove();
-                });
-              } else {
-                let LayerArrays = that.map.getLayers().getArray();
-                for (let i = 1; i < LayerArrays.length; i++) {
-                  that.map.removeLayer(LayerArrays[i]);
-                  i--;
-                }
-              }
-
-              for (let i = 0; i < that.mapInfo.length; i++) {
-                if (that.mapInfo[i].devtype === 4) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addTBox(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconTBox(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("tbox", that.mapInfo[i]);
-                  }
-                }
-                if (
-                  that.mapInfo[i].devtype === 1 ||
-                  that.mapInfo[i].devtype === 2
-                ) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addMarker(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconMarkers(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("person", that.mapInfo[i]);
-                  }
-                }
-                if (that.mapInfo[i].devtype === 3) {
-                  if (that.map3d) {
-                    that.groundListCopy.forEach((item) => {
-                      if (item.ground == that.mapInfo[i].ground) {
-                        that.mapInfo[i].newground = item.newground;
-                      }
-                    });
-                    that.addAsset(that.groundVals, that.mapInfo[i]);
-                  } else {
-                    // that.addIconAssets(that.map, that.mapInfo[i]);
-                    that.addOrUpdateFeature("asset", that.mapInfo[i]);
-                  }
-                }
-              }
-              that.timeOut = setInterval(() => {
-                that.delTimeOut();
-              }, 10000);
-              this.hideLayers();
-            }
-          });
-        } else {
-          that.timeOut = setInterval(() => {
-            that.delTimeOut();
-          }, 10000);
-          this.hideLayers();
-        }
+        this.applyFilter();
       }
-      this.checkList1 = this.checkList;
+      this.restartFilterTimer();
     },
-
-    //隐藏图标
-    hideLayers(devList) {
-      var that = this;
-      //devlist是时间筛选设备deveui集合
-      //showList显示设备类型的选中项
-      let showList = [];
-      this.checkList.forEach((item) => {
-        if (item === that.$t("LocationIndoor.personnel")) {
-          showList.push(1);
-        }
-        if (item === that.$t("LocationIndoor.assets")) {
-          showList.push(3);
-        }
-        if (item === that.$t("LocationIndoor.vehicle")) {
-          showList.push(4);
-        }
-      });
-      if (this.map) {
-        //遍历所有图标隐藏显示
-        let LayerArrays = that.map.getLayers().getArray();
-        for (let i = 1; i < LayerArrays.length; i++) {
-          //没有选择设备类型并且没有时间段设备 图标全部显示
-          if (showList.length === 0 && !devList) {
-            LayerArrays[i].setVisible(true);
+    resetTimeFilter() {
+      clearInterval(this.timeOut);
+      this.timeOut = null;
+      this.time = 0;
+      this.checkList = this.checkList.filter((k) => typeof k !== "number");
+      this.checkList1 = [...this.checkList];
+    },
+    restartFilterTimer() {
+      clearInterval(this.timeOut);
+      this.timeOut = null;
+      if (this.time > 0) {
+        this.timeOut = setInterval(() => {
+          this.delTimeOut();
+        }, 10000);
+      }
+    },
+    isExpired(gpstime) {
+      if (!(this.time > 0)) return false;
+      return Number(gpstime) < Math.floor(Date.now() / 1000) - this.time;
+    },
+    isDeviceVisible(devtype, gpstime) {
+      const type = this.checkList.find((k) => typeof k === "string");
+      if (type && deviceTypeKey(devtype) !== type) return false;
+      return !this.isExpired(gpstime);
+    },
+    // 时间筛选变化后按新时间段重新拉取当前楼层设备
+    reloadFilteredDevices() {
+      const is3d = !this.mapTypes;
+      const data = {
+        projectid: this.$store.state.projectid,
+        buildid: this.building,
+        groundid: is3d && this.showAllGround ? "" : this.groundid,
+        gpstype: 1,
+        devtype: 0,
+        time: this.time,
+      };
+      getLastDevGps(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
+        (res) => {
+          if (res.code !== 1001) return;
+          const list = res.data || [];
+          if (is3d) {
+            (this.layerList || []).forEach((item) => item.remove());
+            this.layerList = [];
+            list.forEach((info) => {
+              const found = this.groundListCopy.find(
+                (g) => g.ground == info.ground
+              );
+              if (found) info.newground = found.newground;
+              const type = deviceTypeKey(info.devtype);
+              if (type === "tbox") this.addTBox(this.groundVals, info);
+              else if (type === "asset") this.addAsset(this.groundVals, info);
+              else this.addMarker(this.groundVals, info);
+            });
           } else {
-            if (
-              (!showList.includes(
-                LayerArrays[i].getSource().getFeatures()[0].values_.devtype
-              ) &&
-                showList.length !== 0) ||
-              (devList
-                ? !devList.includes(
-                    LayerArrays[i].getSource().getFeatures()[0].values_.deveui
-                  )
-                : false)
-            ) {
-              LayerArrays[i].setVisible(false);
-            } else {
-              LayerArrays[i].setVisible(true);
-            }
+            this.mapInfo = list;
+            if (!this.sourceMap) return;
+            Object.keys(this.sourceMap).forEach((type) => {
+              this.sourceMap[type].clear();
+              this.featureMap[type] = {};
+            });
+            list.forEach((info) => {
+              this.addOrUpdateFeature(deviceTypeKey(info.devtype), info);
+            });
           }
+          this.applyFilter();
+        }
+      );
+    },
+    // 按类型 / 最近上报时间控制设备图标显隐
+    applyFilter() {
+      if (this.mapTypes) {
+        if (!this.layerMap) return;
+        const type = this.checkList.find((k) => typeof k === "string");
+        Object.keys(this.layerMap).forEach((key) => {
+          this.layerMap[key].setVisible(!type || type === key);
+        });
+        if (this.time > 0) {
+          Object.keys(this.featureMap).forEach((key) => {
+            const features = this.featureMap[key];
+            Object.keys(features).forEach((id) => {
+              const f = features[id];
+              if (this.isExpired(f.get("gpstime"))) {
+                this.sourceMap[key].removeFeature(f);
+                delete features[id];
+              }
+            });
+          });
         }
       } else {
-        that.layerList.forEach((item) => {
-          //没有选择设备类型并且没有时间段设备 图标全部显示
-          if (showList.length === 0 && !devList) {
-            item.visible = true;
-          } else {
-            if (
-              (!showList.includes(item.selfAttr.devtype) &&
-                showList.length !== 0) ||
-              (devList ? !devList.includes(item.selfAttr.deveui) : false)
-            ) {
-              item.visible = false;
-            } else {
-              item.visible = true;
-            }
-          }
+        (this.layerList || []).forEach((item) => {
+          const attr = item.selfAttr || {};
+          item.visible = this.isDeviceVisible(attr.devtype, attr.gpstime);
         });
       }
     },
@@ -1813,11 +1603,15 @@ export default {
         clearInterval(this.timer);
         this.timer = null;
       }
-      this.buildShow = !this.buildShow;
-      this.searchShow = false;
-
+      this.buildingKeyword = "";
       this.groundShow = false;
       this.settingShow = false;
+    },
+    pickBuilding(id) {
+      this.buildShow = false;
+      if (id == this.isactive) return;
+      this.isactive = id;
+      this.getGrounds(id);
     },
     showGround() {
       var that = this;
@@ -1860,24 +1654,33 @@ export default {
     // 选择哪一层时，表格里标识选中的楼层数据
     selectGrounds({ row }) {
       var that = this;
-      if (this.map3d) {
-        let focusGroupID = that.groundListCopy.find(function (item) {
-          return item.newground == that.map3d.getLevel();
-        });
-        if (focusGroupID.groundid == row.id) {
+      if (!this.mapTypes) {
+        const level = this.getMap3dLevelSafe();
+        if (level != null) {
+          const focusGroupID = that.groundListCopy.find(function (item) {
+            return item.newground == level;
+          });
+          if (focusGroupID && focusGroupID.groundid == row.id) {
+            return "cell-blue";
+          }
+        } else if (that.groundid && row.id == that.groundid) {
           return "cell-blue";
         }
-      } else {
-        let ground;
-        if (row.ground.slice(0, 1) == "B") {
-          ground = -row.ground.slice(1);
-        } else {
-          ground = row.ground.slice(1);
-        }
+        return;
+      }
 
-        if (that.isactiveGround == ground) {
-          return "cell-blue";
-        }
+      let ground;
+      if (!row.ground) {
+        return;
+      }
+      if (row.ground.slice(0, 1) == "B") {
+        ground = -row.ground.slice(1);
+      } else {
+        ground = row.ground.slice(1);
+      }
+
+      if (that.isactiveGround == ground) {
+        return "cell-blue";
       }
     },
     //输入框模糊查询
@@ -2000,37 +1803,42 @@ export default {
         return;
       }
 
-      //判断是否从告警管理页面跳转过来的，如果是，就使用触发告警时的信息
+      //判断是否从告警管理页面跳转过来的：楼栋/楼层用告警信息，坐标用接口点位
       if (that.$route.query.warning == "true") {
-        let sosData = that.$store.state.sosData;
+        let sosData = that.$store.state.sosData || {};
         let isactive1 = sosData.buildid;
         let isactiveGround1 = sosData.groundid;
+        const points = Array.isArray(sosData.points) ? sosData.points : [];
+        const isMulti = Number(sosData.type) === 2 || points.length > 1;
 
         if (val) {
-          that.remoteUserMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteUserMethod(eui);
           setTimeout(() => {
-            that.perDeveui = sosData.deveui;
+            that.perDeveui = eui;
             that.assetDeveui = "";
             that.tboxDeveui = "";
           }, 201);
         }
         if (assetVal) {
-          that.remoteAssetMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteAssetMethod(eui);
           setTimeout(() => {
             that.perDeveui = "";
-            that.assetDeveui = sosData.deveui;
+            that.assetDeveui = eui;
             that.tboxDeveui = "";
           }, 201);
         }
         if (tboxVal) {
-          that.remoteTBoxMethod(sosData.deveui);
+          const eui = (points[0] && points[0].deveui) || sosData.deveui;
+          that.remoteTBoxMethod(eui);
           setTimeout(() => {
             that.perDeveui = "";
             that.assetDeveui = "";
-            that.tboxDeveui = sosData.deveui;
+            that.tboxDeveui = eui;
           }, 201);
         }
-        if (vals) {
+        if (vals || isMulti) {
           that.searchLists.perDeveui = "";
           that.searchLists.assetDeveui = "";
           that.searchLists.tboxDeveui = "";
@@ -2041,10 +1849,47 @@ export default {
         if (that.websock) {
           that.websock.close(); //断开websocket
         }
-        let mapInfo = sosData;
+
+        // 点位来自 getWarningPointByWarningid；楼栋楼层仍用告警信息
+        that.warningPoints = isMulti
+          ? points.map((p) => ({
+              ...p,
+              projectid: sosData.projectid,
+              ground: sosData.ground,
+              groundid: sosData.groundid,
+              buildid: sosData.buildid,
+              devtype: p.devtype || sosData.devtype || 1,
+            }))
+          : null;
+
+        const first = points[0] || {};
+        let mapInfo = isMulti
+          ? null
+          : {
+              ...sosData,
+              ...first,
+              deveui: first.deveui || sosData.deveui,
+              username: first.username || sosData.username,
+              projectid: sosData.projectid,
+              ground: sosData.ground,
+              groundid: sosData.groundid,
+              buildid: sosData.buildid,
+              devtype: sosData.devtype || first.devtype || 1,
+              x: first.x,
+              y: first.y,
+              gpstime: first.gpstime,
+            };
+
         var found = that.buildings.find(function (item) {
           return item.id == sosData.buildid;
         });
+        if (!found) {
+          that.$message({
+            message: that.$t("tet.tet8"),
+            type: "warning",
+          });
+          return;
+        }
         // 2D
         if (found.buildtypestr == "2D") {
           that.mapTypes = true;
@@ -2079,10 +1924,7 @@ export default {
             if (that.map) {
               that.map.setTarget("sss");
             }
-            if (that.map3d) {
-              that.map3d.dispose();
-              that.map3d = null;
-            }
+            that.destroyMap3d();
             that.loadingFun();
             that.mapInit(
               res.data.list[0].length,
@@ -2096,7 +1938,6 @@ export default {
           // 3D
           that.showAllGround = found.flag;
           that.mapTypes = false;
-          // that.getMapid(found.id);
           // 3D地图下，获取该楼栋下所有的楼层，设定新的楼层数与楼层的id的对应关系
           let data = {
             buildid: sosData.buildid,
@@ -2125,10 +1966,8 @@ export default {
               if (that.map) {
                 that.map.setTarget("sss");
               }
-              if (that.map3d) {
-                that.map3d.dispose();
-                that.map3d = null;
-              }
+              that.map3dLoadToken += 1;
+              that.destroyMap3d();
               that.loadingFun();
               that.onmap(
                 "",
@@ -2136,7 +1975,8 @@ export default {
                 mapInfo,
                 res.data[0].appname,
                 res.data[0].mapkey,
-                that.groundListCopy
+                that.groundListCopy,
+                that.map3dLoadToken
               );
             } else {
               that.$message({
@@ -2229,10 +2069,7 @@ export default {
                     if (that.map) {
                       that.map.setTarget("sss");
                     }
-                    if (that.map3d) {
-                      that.map3d.dispose();
-                      that.map3d = null;
-                    }
+                    that.destroyMap3d();
                     that.loadingFun();
                     that.mapInit(
                       res.data.list[0].length,
@@ -2277,10 +2114,8 @@ export default {
                       if (that.map) {
                         that.map.setTarget("sss");
                       }
-                      if (that.map3d) {
-                        that.map3d.dispose();
-                        that.map3d = null;
-                      }
+                      that.map3dLoadToken += 1;
+                      that.destroyMap3d();
                       that.loadingFun();
                       that.onmap(
                         "",
@@ -2288,7 +2123,8 @@ export default {
                         mapInfo,
                         res.data[0].appname,
                         res.data[0].mapkey,
-                        that.groundListCopy
+                        that.groundListCopy,
+                        that.map3dLoadToken
                       );
                       that.wsuri = host.ws + "map/" + that.searchList.deveui;
                       that.initWebsocketOne();
@@ -2304,6 +2140,10 @@ export default {
                   this.$t("LocationIndoor.tet4"),
                   this.$t("Building.tips"),
                   {
+                    customClass: "device-message-box",
+                    confirmButtonClass: "device-message-confirm",
+                    cancelButtonClass: "device-message-cancel",
+                    roundButton: false,
                     confirmButtonText: this.$t("terminal.confirm"),
                     cancelButtonText: this.$t("terminal.cancel"),
                     type: "warning",
@@ -2394,7 +2234,7 @@ export default {
             anchor: [0.5, 1],
             // 说明：图片地址改为从环境变量读取基础地址，默认使用你当前线上地址，便于本地调试
             src: info.colour
-              ? worktypeIconUrl(info.colour)
+              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
               : "../../../static/user1.png",
             scale: 1,
           }),
@@ -2473,13 +2313,18 @@ export default {
           case 10:
             imgsrc = "../../../static/10.png";
             break;
+          case 11:
+          case 12:
+          case 13:
+            imgsrc = "../../../static/alarm.png";
+            break;
           default:
             imgsrc = "../../../static/user1.png";
             break;
         }
       }
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2508,7 +2353,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
 
       that.layer.selfAttr = info;
 
@@ -2663,7 +2508,7 @@ export default {
         level: info.newground,
       };
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2692,7 +2537,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(info.newground);
@@ -2732,7 +2577,7 @@ export default {
       } else {
         imgsrc = "../../../static/tbox.png";
       }
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -2762,7 +2607,7 @@ export default {
           url: imgsrc,
           size: [100, 100],
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(info.newground);
@@ -2803,33 +2648,7 @@ export default {
 
     // 定时删除
     delTimeOut() {
-      var that = this;
-      if (this.time == 0) return;
-      let timeNow = Date.parse(new Date()).toString(); //获取到毫秒的时间戳，精确到毫秒
-      timeNow = timeNow.substr(0, 10) - this.time; //精确到秒
-      if (this.map3d) {
-        that.layerList.forEach((item) => {
-          if (item.selfAttr.gpstime < timeNow) {
-            item.remove();
-          }
-        });
-      } else {
-        let LayerArrays = this.map.getLayers().getArray();
-        for (let i = 1; i < LayerArrays.length; i++) {
-          if (
-            LayerArrays[i].getSource().getFeatures()[0].values_.gpstime <
-            timeNow
-          ) {
-            LayerArrays[i]
-              .getSource()
-              .getFeatures()
-              .forEach(function (feature) {
-                LayerArrays[i].getSource().removeFeature(feature);
-              });
-            that.map.removeLayer(LayerArrays[i]);
-          }
-        }
-      }
+      if (this.time > 0) this.applyFilter();
     },
     //删除
     delFeature(e) {
@@ -2858,18 +2677,280 @@ export default {
         }
       });
     },
+    hexToRgba(hex, opacity) {
+      if (!hex) {
+        return `rgba(255, 0, 0, ${opacity})`;
+      }
+      let color = String(hex).replace("#", "");
+      if (color.length === 3) {
+        color = color
+          .split("")
+          .map((item) => item + item)
+          .join("");
+      }
+      const rgb = parseInt(color, 16);
+      const r = (rgb >> 16) & 0xff;
+      const g = (rgb >> 8) & 0xff;
+      const b = rgb & 0xff;
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    },
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
+    escapeFenceName(name) {
+      return String(name || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
+    getFencePolygonCenter(points) {
+      if (!points || points.length === 0) {
+        return { x: 0, y: 0 };
+      }
+      var validPoints = points;
+      if (
+        points.length > 1 &&
+        (points[0].x || points[0].pointX) ===
+          (points[points.length - 1].x || points[points.length - 1].pointX) &&
+        (points[0].y || points[0].pointY) ===
+          (points[points.length - 1].y || points[points.length - 1].pointY)
+      ) {
+        validPoints = points.slice(0, -1);
+      }
+      var centerX = 0;
+      var centerY = 0;
+      validPoints.forEach(function (point) {
+        centerX += point.x || point.pointX || 0;
+        centerY += point.y || point.pointY || 0;
+      });
+      return {
+        x: centerX / validPoints.length,
+        y: centerY / validPoints.length,
+      };
+    },
+    ensureFenceLayer2d() {
+      if (!this.map) {
+        return;
+      }
+      if (this.fenceVectorLayer) {
+        var onMap =
+          this.map.getLayers().getArray().indexOf(this.fenceVectorLayer) !== -1;
+        if (onMap) {
+          return;
+        }
+        this.fenceVectorLayer = null;
+        this.fenceVectorSource = null;
+      }
+      this.fenceVectorSource = new OlSourceVector();
+      this.fenceVectorLayer = new OlLayerVector({
+        source: this.fenceVectorSource,
+        zIndex: 2,
+      });
+      this.fenceVectorLayer.set("isElectronicFenceLayer", true);
+      this.map.addLayer(this.fenceVectorLayer);
+    },
+    clearIndoorFences2d() {
+      if (this.fenceVectorSource) {
+        this.fenceVectorSource.clear();
+      }
+      this.fenceFeatures2d = [];
+      this.fenceManageList = [];
+      if (this.fenceVectorLayer && this.map) {
+        this.map.removeLayer(this.fenceVectorLayer);
+      }
+      this.fenceVectorLayer = null;
+      this.fenceVectorSource = null;
+    },
+    clearIndoorFences3d() {
+      this.fencePolygonMarkers.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏标记失败:", e);
+        }
+      });
+      this.fencePolygonMarkers = [];
+      this.fenceNameMarkers3d.forEach(function (marker) {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error("清除电子围栏名称标记失败:", e);
+        }
+      });
+      this.fenceNameMarkers3d = [];
+    },
+    loadIndoorFences() {
+      var that = this;
+      if (!that.groundid || !that.intoProjectid) {
+        return;
+      }
+      getFenceManageAndPointListByPage(
+        {
+          projectid: that.intoProjectid,
+          groundid: that.groundid,
+        },
+        that.tenantkey_A,
+        that.tenantid_A,
+        that.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.fenceManageList = res.data.list || [];
+          if (that.mapTypes) {
+            that.renderIndoorFences2d();
+          } else {
+            that.renderIndoorFences3d();
+          }
+        }
+      });
+    },
+    renderIndoorFences2d() {
+      var that = this;
+      if (!that.map) {
+        return;
+      }
+      that.ensureFenceLayer2d();
+      that.fenceFeatures2d.forEach(function (feature) {
+        that.fenceVectorSource.removeFeature(feature);
+      });
+      that.fenceFeatures2d = [];
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      that.fenceManageList.forEach(function (fence) {
+        if (!fence.list || fence.list.length < 3) {
+          return;
+        }
+        var polygonCoords = fence.list.map(function (point) {
+          return [point.pointX || point.x, point.pointY || point.y];
+        });
+        polygonCoords.push(polygonCoords[0]);
+        var polygon = new Polygon([polygonCoords]);
+        var feature = new OlFeature(polygon);
+        var color = fence.colour || "#FF0000";
+        var fenceName = fence.name || "";
+        var fenceOpacity = that.normalizeFenceOpacity(fence.opacity);
+        feature.setStyle(
+          new OlStyleStyle({
+            fill: new Fill({
+              color: that.hexToRgba(color, fenceOpacity),
+            }),
+            stroke: new Stroke({
+              color: color,
+              width: 2,
+            }),
+            text: fenceName
+              ? new Text({
+                  text: fenceName,
+                  font: "bold 13px Microsoft YaHei, sans-serif",
+                  fill: new Fill({
+                    color: "#333333",
+                  }),
+                  stroke: new Stroke({
+                    color: "#ffffff",
+                    width: 3,
+                  }),
+                  overflow: true,
+                  textAlign: "center",
+                  textBaseline: "middle",
+                })
+              : undefined,
+          })
+        );
+        feature.set("isElectronicFence", true);
+        that.fenceVectorSource.addFeature(feature);
+        that.fenceFeatures2d.push(feature);
+      });
+    },
+    renderIndoorFences3d() {
+      var that = this;
+      if (!that.map3d || !that.map3dReady) {
+        return;
+      }
+      that.clearIndoorFences3d();
+      if (!that.fenceManageList || that.fenceManageList.length === 0) {
+        return;
+      }
+      try {
+        var level = that.map3d.getLevel();
+        var group = that.map3d.getFloor(level);
+        that.fenceManageList.forEach(function (fence) {
+          if (!fence.list || fence.list.length < 3) {
+            return;
+          }
+          var polygonPoints = fence.list.map(function (point) {
+            return {
+              x: point.pointX || point.x,
+              y: point.pointY || point.y,
+              z: 0.2,
+            };
+          });
+          polygonPoints.push({
+            x: polygonPoints[0].x,
+            y: polygonPoints[0].y,
+            z: 0.2,
+          });
+          var polygonMarker = new fengmap.FMPolygonMarker({
+            points: polygonPoints,
+            color: fence.colour || "#FF0000",
+            alpha: that.normalizeFenceOpacity(fence.opacity),
+            lineWidth: 2,
+            lineColor: fence.colour || "#FF0000",
+          });
+          polygonMarker.selfAttr = {
+            fenceId: fence.id,
+            fenceName: fence.name,
+            isElectronicFence: true,
+          };
+          polygonMarker.addTo(group);
+          that.fencePolygonMarkers.push(polygonMarker);
+          var fenceName = fence.name || "";
+          if (fenceName) {
+            var center = that.getFencePolygonCenter(polygonPoints);
+            var borderColor = fence.colour || "#FF0000";
+            var nameHtml =
+              '<div style="padding:2px 8px;background:rgba(255,255,255,0.92);border:1px solid ' +
+              borderColor +
+              ';border-radius:4px;color:#333;font-size:12px;line-height:18px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.2);">' +
+              that.escapeFenceName(fenceName) +
+              "</div>";
+            var nameMarker = new fengmap.FMDomMarker({
+              x: center.x,
+              y: center.y,
+              height: 2,
+              anchor: fengmap.FMMarkerAnchor.CENTER,
+              collision: false,
+              domWidth: Math.min(220, Math.max(48, fenceName.length * 14 + 20)),
+              domHeight: 28,
+              content: nameHtml,
+            });
+            nameMarker.selfAttr = {
+              fenceId: fence.id,
+              fenceName: fenceName,
+              isNameLabel: true,
+            };
+            nameMarker.addTo(group);
+            that.fenceNameMarkers3d.push(nameMarker);
+          }
+        });
+      } catch (e) {
+        console.error("渲染电子围栏失败:", e);
+      }
+    },
 
     mapInit(x, y, maxX, maxY, mapInfo) {
       document.oncontextmenu = function (e) {
         return false;
       };
+      this.clearIndoorFences2d();
+      this.clearIndoorFences3d();
       if (this.map) {
         this.map.setTarget("sss");
       }
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.destroyMap3d();
       var that = this;
       that.AllSource = new OlSourceVector();
       that.AllLayer = new OlLayerVector({
@@ -2921,6 +3002,7 @@ export default {
           }),
         });
 
+        that.AllLayer.setZIndex(10);
         that.map.addLayer(that.AllLayer);
         that.AllFeatures = {};
         this.featureMap = { person: {}, asset: {}, tbox: {} };
@@ -2932,16 +3014,38 @@ export default {
         };
 
         this.layerMap = {
-          person: new OlLayerVector({ source: this.sourceMap.person }),
-          asset: new OlLayerVector({ source: this.sourceMap.asset }),
-          tbox: new OlLayerVector({ source: this.sourceMap.tbox }),
+          person: new OlLayerVector({
+            source: this.sourceMap.person,
+            zIndex: 12,
+          }),
+          asset: new OlLayerVector({
+            source: this.sourceMap.asset,
+            zIndex: 12,
+          }),
+          tbox: new OlLayerVector({
+            source: this.sourceMap.tbox,
+            zIndex: 12,
+          }),
         };
 
         this.map.addLayer(this.layerMap.person);
         this.map.addLayer(this.layerMap.asset);
         this.map.addLayer(this.layerMap.tbox);
+        this.loadIndoorFences();
 
-        if (mapInfo && this.searchLists.perDeveui) {
+        if (that.warningPoints && that.warningPoints.length) {
+          that.warningPoints.forEach((p) => {
+            const dtype = Number(p.devtype);
+            if (dtype === 4) {
+              that.addOrUpdateFeature("tbox", p);
+            } else if (dtype === 3) {
+              that.addOrUpdateFeature("asset", p);
+            } else {
+              that.addOrUpdateFeature("person", p);
+            }
+          });
+          that.warningPoints = null;
+        } else if (mapInfo && this.searchLists.perDeveui) {
           // this.addIconMarker(this.map, mapInfo);
           this.addOrUpdateFeature("person", mapInfo);
         } else if (mapInfo && this.searchLists.assetDeveui) {
@@ -3121,11 +3225,14 @@ export default {
       let src = "";
 
       if (type === "person") {
-        if (info.status === 3) {
+        // 与室外 addIconMarker / 旧 2D addIconMarker 一致：告警跳转 sostype 用红色图标
+        if (this.sostype) {
+          src = "../../../static/usersos.png";
+        } else if (info.status === 3) {
           src = "../../../static/user1down.png";
         } else if (info.colour) {
           // 说明：图片地址改为从环境变量读取基础地址
-          src = worktypeIconUrl(info.colour);
+          src = `${process.env.VUE_APP_ASSET_BASE}/image/${info.colour}.png`;
         } else {
           src = "../../../static/user1.png";
         }
@@ -3156,13 +3263,29 @@ export default {
       });
     },
 
+    isFenceHit(feature, layer) {
+      if (layer && layer.get && layer.get("isElectronicFenceLayer")) {
+        return true;
+      }
+      if (feature && feature.get && feature.get("isElectronicFence")) {
+        return true;
+      }
+      return false;
+    },
+    getClickableFeatureAtPixel(map, pixel) {
+      var that = this;
+      return map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+        if (that.isFenceHit(feature, layer)) {
+          return undefined;
+        }
+        return feature;
+      });
+    },
     //鼠标经过图标改变鼠标样式
     userMapMouse(map) {
       var that = this;
       map.on("pointermove", function (evt) {
-        var feature = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-          return feature;
-        });
+        var feature = that.getClickableFeatureAtPixel(map, evt.pixel);
         if (feature) {
           if (feature.values_.x != "" || feature.values_.x != null) {
             map.getTargetElement().style.cursor = "pointer";
@@ -3177,12 +3300,7 @@ export default {
     mapClick() {
       var that = this;
       this.map.on("click", (evt) => {
-        var feature = this.map.forEachFeatureAtPixel(
-          evt.pixel,
-          function (feature) {
-            return feature;
-          }
-        );
+        var feature = that.getClickableFeatureAtPixel(this.map, evt.pixel);
 
         that.battery = "";
         if (feature) {
@@ -3409,7 +3527,7 @@ export default {
             anchor: [0.5, 1],
             // 说明：图片地址改为从环境变量读取基础地址
             src: info.colour
-              ? worktypeIconUrl(info.colour)
+              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
               : "../../../static/user1.png",
             scale: 1,
           }),
@@ -3486,12 +3604,17 @@ export default {
           case 10:
             imgsrc = "../../../static/10.png";
             break;
+          case 11:
+          case 12:
+          case 13:
+            imgsrc = "../../../static/alarm.png";
+            break;
           default:
             imgsrc = "../../../static/user1.png";
             break;
         }
       }
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -3521,7 +3644,7 @@ export default {
           url: imgsrc,
           size: [100, 100],
         },
-      });
+      }));
       this.layer.selfAttr = info;
       if (this.showAllGround) {
         var group = this.map3d.getFloor(mapinfo.newground);
@@ -3593,7 +3716,7 @@ export default {
         level: mapinfo.newground,
       };
 
-      that.layer = new fengmap.FMCompositeMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
         layout: {
           style: "timage-btext",
           align: "center",
@@ -3622,7 +3745,7 @@ export default {
           baseon: "image",
           anchor: fengmap.FMMarkerAnchor.CENTER,
         },
-      });
+      }));
 
       this.layer.selfAttr = info;
       if (this.showAllGround) {
@@ -3721,30 +3844,70 @@ export default {
       });
     },
 
+    destroyFengmapFloorToolbar() {
+      try {
+        const ctrl = this.scrollFloorControl;
+        if (ctrl && typeof ctrl.remove === "function") {
+          ctrl.remove();
+        }
+      } catch (e) {
+        // ignore toolbar remove errors
+      }
+      this.scrollFloorControl = null;
+      document
+        .querySelectorAll("#fengMap .fm-control-groups, .mapConentD .fm-control-groups")
+        .forEach((el) => el.remove());
+    },
+    destroyMap3d() {
+      this.map3dReady = false;
+      this.clearIndoorFences3d();
+      this.destroyFengmapFloorToolbar();
+      try {
+        if (this.map3d && typeof this.map3d.dispose === "function") {
+          this.map3d.dispose();
+        }
+      } catch (e) {
+        // ignore map dispose errors
+      }
+      this.map3d = null;
+      this.destroyFengmapFloorToolbar();
+    },
+    getMap3dLevelSafe() {
+      if (!this.map3d || !this.map3dReady) {
+        return null;
+      }
+      try {
+        const level = this.map3d.getLevel();
+        return level == null ? null : level;
+      } catch (e) {
+        return null;
+      }
+    },
     // 点击楼栋，判断楼栋是2D还是3D
     getGrounds(val) {
       var that = this;
+      if (val == null || val === "") {
+        return;
+      }
+      this.map3dLoadToken += 1;
       var found = this.buildings.find(function (item) {
         return item.id == val;
       });
+      if (!found) {
+        return;
+      }
       if (found.buildtypestr == "2D") {
         if (that.map) {
           that.map.setTarget("sss");
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.destroyMap3d();
         this.mapTypes = true;
         this.getGroundLists(val);
       } else if (found.buildtypestr == "3D") {
         if (that.map) {
           that.map.setTarget("sss");
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.destroyMap3d();
 
         this.showAllGround = found.flag;
         this.mapTypes = false;
@@ -3786,6 +3949,8 @@ export default {
     //获取楼层3D
     getGroundLists3D(val, ground, found) {
       var that = this;
+      const loadToken = this.map3dLoadToken;
+      that.groundListCopy = [];
       if (this.websockNum != 0) {
         this.websock.close();
       }
@@ -3799,6 +3964,9 @@ export default {
       };
       getGround(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
         (res) => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
+          }
           if (res.code == 1001) {
             for (let i = 0; i < res.data.length; i++) {
               let groundinfo = {
@@ -3811,10 +3979,7 @@ export default {
             that.scale = res.data[0].scale;
             if (that.showAllGround) {
               // 显示全部楼层时
-              if (that.map3d) {
-                that.map3d.dispose();
-                that.map3d = null;
-              }
+              that.destroyMap3d();
               if (that.$route.query.deveui) {
                 that.perDeveui = "";
               }
@@ -3835,7 +4000,8 @@ export default {
                 "",
                 res.data[0].appname,
                 res.data[0].mapkey,
-                that.groundListCopy
+                that.groundListCopy,
+                loadToken
               );
               that.wsuri = host.ws + "map/build_" + val;
 
@@ -3847,6 +4013,9 @@ export default {
                 that.tenantid_A,
                 that.userName
               ).then((res) => {
+                if (loadToken !== that.map3dLoadToken) {
+                  return;
+                }
                 if (res.code == 1001) {
                   that.grounds = res.data.reverse();
                   that.building = val;
@@ -3871,10 +4040,8 @@ export default {
     //获取楼层详情3D
     getBuildGroundLists3D(val) {
       this.ground = val;
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      const loadToken = this.map3dLoadToken;
+      this.destroyMap3d();
       if (this.$route.query.deveui) {
         this.perDeveui = "";
       }
@@ -3921,6 +4088,8 @@ export default {
       ];
       if (val) {
         this.isactiveGround = val;
+        // 切换楼层取消时间筛选，类型筛选保留
+        this.resetTimeFilter();
         var that = this;
         let data = {
           projectid: this.intoProjectid,
@@ -3933,6 +4102,9 @@ export default {
           this.tenantid_A,
           this.userName
         ).then((res) => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
+          }
           if (res.code == 1001) {
             if (res.data.list.length > 0) {
               that.groundid = res.data.list[0].id;
@@ -3944,6 +4116,9 @@ export default {
                 that.websock.close();
               }
               setTimeout(() => {
+                if (loadToken !== that.map3dLoadToken) {
+                  return;
+                }
                 let focusGroupID = that.groundListCopy.find(function (item) {
                   return item.ground == val;
                 });
@@ -3954,7 +4129,8 @@ export default {
                   "",
                   res.data.list[0].appname,
                   res.data.list[0].mapkey,
-                  that.groundListCopy
+                  that.groundListCopy,
+                  loadToken
                 );
                 that.initWebsocket();
               }, 1);
@@ -3964,8 +4140,14 @@ export default {
       }
     },
     //加载3D地图
-    onmap(projectid, groundVal, mapInfo, appname, mapkey, groundList) {
+    onmap(projectid, groundVal, mapInfo, appname, mapkey, groundList, loadToken) {
       var that = this;
+      if (loadToken == null) {
+        this.map3dLoadToken += 1;
+        loadToken = this.map3dLoadToken;
+      } else if (loadToken !== this.map3dLoadToken) {
+        return;
+      }
       if (this.dataTimer) {
         clearInterval(this.dataTimer);
         this.dataTimer = null;
@@ -3980,6 +4162,7 @@ export default {
       if (this.map) {
         this.map.setTarget("sss");
       }
+      this.destroyMap3d();
       let ground;
       if (groundVal) {
         ground = groundVal;
@@ -3992,100 +4175,151 @@ export default {
       groundList.forEach((item) => {
         newGroundList.push(item.newground);
       });
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
-        level: ground,
-        visibleLevels: that.showAllGround ? newGroundList : [ground],
-        appName: appname,
-        key: mapkey,
-        mapID: that.fmapId,
-        themeID: that.themeId,
-        highlightPicker: ["hover"],
-        floorSpace: 5,
-        zoomRange: [1, 25],
-        buildingOptions: {
-          level: ground,
-          floorSpace: 5,
-        },
-      };
-      this.map3d = new fengmap.FMMap(mapOpation);
-      this.map3d.on("loaded", function () {
-        console.log("地图加载完成");
-        if (that.showAllGround) {
-          let bound = that.map3d.getBound();
-          that.map3d.setFitView(bound);
-        } else {
-          let bound = that.map3d.getFloor(1).getBound();
-          that.map3d.setFitView(bound);
-        }
-        that.loading.close();
-        that.loadScrollFloorCtrl();
-        if (projectid) {
-          that.getData();
-          // 刚进入页面以及刷新的时候会调用接口查询最后一次的位置信息
 
-          if (that.intoProjectType == 1) {
-            //正向项目
-            that.getDevGpsLocation3D(that.groundid, that.map3d.getLevel());
-          } else if (that.intoProjectType == 2) {
-            //反向项目
-            that.getBeaconGpss3D(that.groundid, that.map3d.getLevel());
+      // 等 3D 容器显示后再初始化，避免 WebGL 在隐藏/半宽容器里初始化后黑屏
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          if (loadToken !== that.map3dLoadToken) {
+            return;
           }
-        }
-
-        // 搜索的时候会调用
-        that.groundListCopy.forEach((item) => {
-          if (item.ground == mapInfo.ground) {
-            mapInfo.newground = item.newground;
+          const container = document.getElementById("fengMap");
+          if (!container) {
+            that.loading.close();
+            return;
           }
-        });
-        if (mapInfo && that.searchLists.perDeveui) {
-          that.addMarker(groundVal, mapInfo);
-        } else if (mapInfo && that.searchLists.assetDeveui) {
-          that.addAsset(groundVal, mapInfo);
-        } else if (mapInfo && that.searchLists.tboxDeveui) {
-          that.addTBox(groundVal, mapInfo);
-        }
-      });
+          container.style.width = "100%";
+          container.style.height = "100%";
+          container.style.margin = "0";
 
-      // 聚焦楼层改变事件
-      this.map3d.on("levelChanged", function (event) {
-        if (that.showAllGround) return;
-        if (that.websockNum != 0) {
-          that.websock.close();
-        }
-        that.layerList.forEach((item) => {
-          item.remove();
-        });
+          var mapOpation = applyFengmapLocalLoad({
+            container: container,
+            level: ground,
+            visibleLevels: that.showAllGround ? newGroundList : [ground],
+            appName: appname,
+            key: mapkey,
+            mapID: that.fmapId,
+            themeID: that.themeId,
+            highlightPicker: ["hover"],
+            floorSpace: 5,
+            zoomRange: [1, 25],
+            buildingOptions: {
+              level: ground,
+              floorSpace: 5,
+            },
+          });
+          that.map3d = markRaw(new fengmap.FMMap(mapOpation));
+          that.map3dReady = false;
+          that.map3d.on("loaded", function () {
+            if (loadToken !== that.map3dLoadToken) {
+              return;
+            }
+            that.map3dReady = true;
+            console.log("地图加载完成");
+            try {
+              if (that.showAllGround) {
+                let bound = that.map3d.getBound();
+                that.map3d.setFitView(bound);
+              } else {
+                const level = that.map3d.getLevel() || ground || 1;
+                let bound = that.map3d.getFloor(level).getBound();
+                that.map3d.setFitView(bound);
+              }
+            } catch (e) {
+              // ignore fit view errors
+            }
+            that.loading.close();
+            that.loadScrollFloorCtrl();
+            that.loadIndoorFences();
+            if (projectid) {
+              that.getData();
+              if (that.intoProjectType == 1) {
+                that.getDevGpsLocation3D(that.groundid, that.map3d.getLevel());
+              } else if (that.intoProjectType == 2) {
+                that.getBeaconGpss3D(that.groundid, that.map3d.getLevel());
+              }
+            }
 
-        let focusGroupID = that.groundListCopy.find(function (item) {
-          return item.newground == that.map3d.getLevel();
-        });
-        that.groundVals = focusGroupID.ground;
+            that.groundListCopy.forEach((item) => {
+              if (mapInfo && item.ground == mapInfo.ground) {
+                mapInfo.newground = item.newground;
+              }
+            });
+            if (that.warningPoints && that.warningPoints.length) {
+              that.warningPoints.forEach((p) => {
+                that.groundListCopy.forEach((item) => {
+                  if (item.ground == p.ground || item.groundid == p.groundid) {
+                    p.newground = item.newground;
+                  }
+                });
+                const dtype = Number(p.devtype);
+                if (dtype === 4) {
+                  that.addTBox(groundVal, p);
+                } else if (dtype === 3) {
+                  that.addAsset(groundVal, p);
+                } else {
+                  that.addMarker(groundVal, p);
+                }
+              });
+              that.warningPoints = null;
+            } else if (mapInfo && that.searchLists.perDeveui) {
+              that.addMarker(groundVal, mapInfo);
+            } else if (mapInfo && that.searchLists.assetDeveui) {
+              that.addAsset(groundVal, mapInfo);
+            } else if (mapInfo && that.searchLists.tboxDeveui) {
+              that.addTBox(groundVal, mapInfo);
+            }
+          });
 
-        let bound = that.map3d.getFloor(focusGroupID.newground).getBound();
-        that.map3d.setFitView(bound, {
-          animate: true,
-          finish: function () {
-            that.getBuildGroundListsAll(that.groundVals, that.building);
-            that.getData();
-          },
-        });
-      });
+          that.map3d.on("levelChanged", function (event) {
+            if (that.showAllGround) return;
+            if (that.websockNum != 0) {
+              that.websock.close();
+            }
+            that.layerList.forEach((item) => {
+              item.remove();
+            });
+            that.layerList = [];
 
-      // 鼠标左键单击事件
-      this.map3d.on("click", function (event) {
-        // if (event.nodeType == 31) {
-        //event.nodeType=31表示图片标注
-        if (event.targets[0].type == "64" || event.targets[0].type == "8") {
-          // 64: "TEXT_MARKER",
-          //   8: "IMAGE_MARKER",
-          that.setNewMarker = false;
-          if (event.mouseEvent.button == 0) {
-            //左键点击
-            that.addPopInfoWindowLeft(event.targets[0]);
-          }
-        }
+            let focusGroupID = that.groundListCopy.find(function (item) {
+              return item.newground == that.map3d.getLevel();
+            });
+            if (!focusGroupID) {
+              return;
+            }
+            that.groundVals = focusGroupID.ground;
+
+            let bound = that.map3d.getFloor(focusGroupID.newground).getBound();
+            that.map3d.setFitView(bound, {
+              animate: true,
+              finish: function () {
+                that.getBuildGroundListsAll(that.groundVals, that.building);
+                that.getData();
+              },
+            });
+          });
+
+          that.map3d.on("click", function (event) {
+            var targets = event.targets || [];
+            var marker = targets.find(function (item) {
+              if (!item) {
+                return false;
+              }
+              if (
+                item.selfAttr &&
+                (item.selfAttr.isElectronicFence || item.selfAttr.isNameLabel)
+              ) {
+                return false;
+              }
+              return item.type == "64" || item.type == "8";
+            });
+            if (marker) {
+              that.setNewMarker = false;
+              if (event.mouseEvent.button == 0) {
+                that.addPopInfoWindowLeft(marker);
+              }
+            }
+          });
+        });
       });
     },
 
@@ -4125,6 +4359,7 @@ export default {
             that.worktype = res.data.member.worktype;
             that.username = res.data.member.username;
             that.gpstime = that.formatDate(marker.selfAttr.gpstime);
+            that.battery = marker.selfAttr.battery || "";
             that.imagePer = res.data.member.filename
               ? host.host + "profile/" + res.data.member.filename
               : res.data.member.sex == "1"
@@ -4209,7 +4444,7 @@ export default {
         getTboxOne(data, that.tenantkey_A, that.tenantid_A, that.userName).then(
           (res) => {
             if (res.code == 1001) {
-              that.battery = feature.values_.battery;
+              that.battery = marker.selfAttr.battery || "";
               that.tboxName = res.data.sn;
               that.tboxType = res.data.type;
               that.tboxMaplabel = res.data.maplabel;
@@ -4248,8 +4483,20 @@ export default {
           y: 20,
         },
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.destroyFengmapFloorToolbar();
+      this.scrollFloorControl = markRaw(new fengmap.FMToolbar(scrollFloorCtlOpt));
       this.scrollFloorControl.addTo(this.map3d);
+      this.$nextTick(() => {
+        const groups = document.querySelectorAll(
+          "#fengMap .fm-control-groups, .mapConentD .fm-control-groups"
+        );
+        groups.forEach((el) => {
+          el.style.zIndex = "30";
+          el.style.pointerEvents = "auto";
+          el.style.marginLeft = "0";
+          el.style.marginRight = "0";
+        });
+      });
     },
 
     //获取楼层详情
@@ -4301,6 +4548,8 @@ export default {
       ];
       if (val) {
         this.isactiveGround = val;
+        // 切换楼层取消时间筛选，类型筛选保留
+        this.resetTimeFilter();
         var that = this;
         let data = {
           projectid: this.intoProjectid,
@@ -4347,21 +4596,6 @@ export default {
                 that.timer = setInterval(() => {
                   that.getGroundDevNums(that.groundid);
                 }, 5000);
-              }
-              //切换楼层 取消时间筛选
-              let a = [
-                that.$t("LocationIndoor.personnel"),
-                that.$t("LocationIndoor.assets"),
-                that.$t("LocationIndoor.vehicle"),
-              ];
-
-              clearInterval(that.timeOut);
-              that.timeOut = null;
-              for (let index = 0; index < that.checkList.length; index++) {
-                if (!a.includes(that.checkList[index])) {
-                  that.checkList.splice(index, 1);
-                  index--;
-                }
               }
             } else {
               that.$message({
@@ -4411,7 +4645,7 @@ export default {
               that.addOrUpdateFeature("asset", this.mapInfo[i]);
             }
           }
-          that.hideLayers();
+          that.applyFilter();
         }
       });
     },
@@ -4452,6 +4686,7 @@ export default {
               that.addAssets(mapInfo[i], groupID);
             }
           }
+          that.applyFilter();
         }
       });
     },
@@ -4489,7 +4724,7 @@ export default {
               that.addOrUpdateFeature("asset", this.mapInfo[i]);
             }
           }
-          that.hideLayers();
+          that.applyFilter();
         }
       });
     },
@@ -4530,6 +4765,7 @@ export default {
               that.addAssets(mapInfo[i], groupID);
             }
           }
+          that.applyFilter();
         }
       });
     },
@@ -4740,6 +4976,7 @@ export default {
     //获取楼栋下所有的楼层信息
     getBuildGroundListsAll(groundVals, buildid) {
       var that = this;
+      this.resetTimeFilter();
       let data = {
         projectid: this.intoProjectid,
         buildid: buildid,
@@ -4774,6 +5011,7 @@ export default {
           //反向项目
           that.getBeaconGpss3D(that.groundid, found.ground);
         }
+        that.loadIndoorFences();
       });
     },
 
@@ -4883,84 +5121,24 @@ export default {
                     return;
                   }
                 }
+                const type = deviceTypeKey(data[i].devtype);
                 if (data[i].maptype == 1) {
-                  if (
-                    data[i].devtype == 3 &&
-                    ((this.checkList.indexOf(
-                      this.$t("LocationIndoor.vehicle")
-                    ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.personnel")
-                      ) == -1) ||
-                      this.checkList.length === 0)
-                  ) {
-                    // that.addIconAsset(that.map, data[i]);
-                    that.addOrUpdateFeature("asset", data[i]);
-                  } else if (
-                    data[i].devtype == 4 &&
-                    ((this.checkList.indexOf(
-                      this.$t("LocationIndoor.assets")
-                    ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.personnel")
-                      ) == -1) ||
-                      this.checkList.length === 0)
-                  ) {
-                    // that.addIconTBox(that.map, data[i]);
-                    that.addOrUpdateFeature("tbox", data[i]);
-                  } else if (
-                    ((data[i].devtype == 1 || data[i].devtype == 2) &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.vehicle")
-                      ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.assets")
-                      ) == -1) ||
-                    this.checkList.length === 0
-                  ) {
-                    // that.addIconMarker(that.map, data[i]);
-                    that.addOrUpdateFeature("person", data[i]);
-                  }
+                  that.addOrUpdateFeature(type, data[i]);
+                  that.applyFilter();
                 } else if (data[i].maptype == 2) {
                   that.groundListCopy.forEach((item) => {
                     if (item.ground == data[i].ground) {
                       data[i].newground = item.newground;
                     }
                   });
-                  if (
-                    data[i].devtype == 3 &&
-                    ((this.checkList.indexOf(
-                      this.$t("LocationIndoor.vehicle")
-                    ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.personnel")
-                      ) == -1) ||
-                      this.checkList.length === 0)
-                  ) {
+                  if (type === "asset") {
                     that.addAsset(data[i].ground, data[i]);
-                  } else if (
-                    data[i].devtype == 4 &&
-                    ((this.checkList.indexOf(
-                      this.$t("LocationIndoor.assets")
-                    ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.personnel")
-                      ) == -1) ||
-                      this.checkList.length === 0)
-                  ) {
+                  } else if (type === "tbox") {
                     that.addTBox(data[i].ground, data[i]);
-                  } else if (
-                    ((data[i].devtype == 1 || data[i].devtype == 2) &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.vehicle")
-                      ) == -1 &&
-                      this.checkList.indexOf(
-                        this.$t("LocationIndoor.assets")
-                      ) == -1) ||
-                    this.checkList.length === 0
-                  ) {
+                  } else {
                     that.addMarker(data[i].ground, data[i]);
                   }
+                  that.applyFilter();
                 }
               }
             }
@@ -5037,20 +5215,20 @@ export default {
       }
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timeOut);
     this.timeOut = null;
+    this.clearIndoorFences2d();
+    this.clearIndoorFences3d();
     if (this.map) {
       this.map.setTarget("sss");
       this.map = null;
     }
-    if (this.map3d) {
-      this.map3d.dispose();
-      this.map3d = null;
-    }
+    this.map3dLoadToken += 1;
+    this.destroyMap3d();
   },
 
-  destroyed() {
+  unmounted() {
     if (this.websock) {
       this.websock.close();
     }
@@ -5062,6 +5240,14 @@ export default {
   computed: {
     show1() {
       return this.$store.state.show;
+    },
+    filteredBuildings() {
+      const list = Array.isArray(this.buildings) ? this.buildings : [];
+      const kw = this.buildingKeyword.trim().toLowerCase();
+      if (!kw) return list;
+      return list.filter((b) =>
+        String(b.building || "").toLowerCase().includes(kw)
+      );
     },
   },
   watch: {
@@ -5113,11 +5299,11 @@ export default {
 </script>
 
 <style scoped>
-.Info_dialog >>> .el-dialog {
+.Info_dialog :deep(.el-dialog) {
   border-radius: 20px !important;
   background: rgba(0, 0, 0, 0.5);
 }
-.Info_dialog >>> .el-dialog__body {
+.Info_dialog :deep(.el-dialog__body) {
   color: white !important;
 }
 .container {
@@ -5165,28 +5351,61 @@ export default {
   margin: 0;
   padding: 0;
 }
-.selectGround >>> .el-scrollbar__wrap {
+.selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
->>> .el-notification.right {
-  right: 30px;
+.selectGround {
+  position: relative;
+  z-index: 1002;
+  align-self: flex-start;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.selectGround label,
+.selectGround .fm-layer-list > div {
+  pointer-events: auto;
 }
 .selectBuild {
-  width: 100%;
   position: absolute;
-  right: 0;
-  z-index: 1;
+  top: 12px;
+  right: 12px;
+  z-index: 1001;
+  margin: 0;
 }
-.selectBuild >>> .el-scrollbar__wrap {
-  overflow-x: hidden !important;
+.selectBuild3d {
+  top: 20px;
+  right: 120px;
 }
-.selectBuild >>> .el-select {
-  width: 200px;
-  margin-right: 0%;
+.selectBuild .building-chip {
   display: block;
+  width: auto;
+  min-width: 180px;
+  max-width: 300px;
 }
-.selectBuild3d >>> .el-select {
-  margin-right: 4%;
+.selectBuild .building-chip :deep(.el-select__wrapper) {
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14);
+  transition: box-shadow 0.2s;
+}
+.selectBuild .building-chip :deep(.el-select__wrapper:hover),
+.selectBuild .building-chip :deep(.el-select__wrapper.is-focused) {
+  box-shadow: 0 0 0 1px #2f7bff, 0 4px 14px rgba(47, 123, 255, 0.2);
+}
+.selectBuild .building-chip :deep(.el-select__prefix) {
+  margin-right: 8px;
+}
+.selectBuild .building-chip-icon {
+  font-size: 18px;
+  color: #2f7bff;
+}
+.selectBuild .building-chip :deep(.el-select__selected-item),
+.selectBuild .building-chip :deep(.el-select__placeholder) {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
 }
 .home {
   height: 100%;
@@ -5216,11 +5435,12 @@ li {
   justify-content: flex-start;
   height: 100%;
   width: 100%;
-  margin-left: 0%;
+  max-width: 100%;
+  margin: 0 !important;
   background-color: #0e2232;
 }
 
-.addclass >>> span {
+.addclass :deep(span) {
   color: #409eff;
   transition: all 0.3s;
 }
@@ -5230,24 +5450,24 @@ li {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px !important;
   line-height: 34px !important;
   cursor: text !important;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -5282,14 +5502,51 @@ a {
 }
 
 .statistics {
-  margin-left: 0%;
+  margin-left: 0% !important;
+  margin-right: 0 !important;
+  overflow-x: hidden;
+  justify-content: flex-start;
+  text-align: left;
+  width: fit-content !important;
+  max-width: calc(100% - 48px);
+  flex-shrink: 0;
 }
 
-.statistics >>> .el-table tr {
+.statistics-charts {
+  display: flex;
+  flex-wrap: wrap;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.statistics-table-wrap {
+  width: auto;
+  flex-shrink: 0;
+}
+
+.statistics > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+.statistics :deep(.el-table) {
+  width: 320px !important;
+  max-width: 320px !important;
+  margin: 0 !important;
+}
+
+.statistics :deep(.el-table__body-wrapper),
+.statistics :deep(.el-table__header-wrapper),
+.statistics :deep(.el-table__footer-wrapper) {
+  width: 100% !important;
+}
+
+.statistics :deep(.el-table tr) {
   background-color: #f5f7fa !important;
 }
 
-.statistics >>> .cell-blue {
+.statistics :deep(.cell-blue) {
   background: #bed7f0 !important;
 }
 .statistics3d {
@@ -5301,10 +5558,32 @@ a {
   box-shadow: 1px 1px 3px 1px #b5c6dd;
   position: absolute;
   right: 0%;
-  z-index: 1;
+  z-index: 1000;
   align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  margin-left: 0 !important;
+  overflow-x: hidden;
+  width: fit-content !important;
+  max-width: calc(100% - 48px);
+  flex-shrink: 0;
 }
-.statistics3d >>> .el-table td {
+.statistics3d > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+.statistics3d :deep(.el-table) {
+  width: 320px !important;
+  max-width: 320px !important;
+  margin: 0 !important;
+}
+.statistics3d :deep(.el-table__body-wrapper),
+.statistics3d :deep(.el-table__header-wrapper),
+.statistics3d :deep(.el-table__footer-wrapper) {
+  width: 100% !important;
+}
+.statistics3d :deep(.el-table td) {
   padding: 10px 0 !important;
 }
 .buildings-item li {
@@ -5327,7 +5606,11 @@ a {
   background-color: #f2f2f2;
 }
 .containers {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
 }
 .fullscreen_containers {
   display: flex;
@@ -5335,6 +5618,7 @@ a {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  margin: 0 !important;
 }
 
 .fullscreen_containers .mapConent .allmap,
@@ -5346,33 +5630,51 @@ a {
 .fengMap {
   position: relative;
   z-index: 1;
+  margin: 0 !important;
 }
 .fullscreen {
   background-color: #fff !important;
 }
-.statistics {
-  overflow-x: hidden;
-}
->>> .el-select-dropdown.el-popper {
-  top: 39px !important;
-  text-align: left;
-}
->>> .el-select-dropdown__wrap.el-scrollbar__wrap {
-  margin-bottom: 0 !important;
-}
 
 .mapConentD {
-  display: flex;
+  display: block;
   height: 100%;
   width: 100%;
-  margin-left: 0%;
+  max-width: 100%;
+  margin: 0 !important;
+  position: relative;
+  background-color: #0e2232;
 }
 
-#fengMap {
-  width: 100%;
-  height: 100%;
-  display: flex;
+#fengMap,
+.mapConentD #fengMap,
+.mapConentD .fengMap {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  /* 与蜂鸟默认一致用 flex，勿改 block，否则 WebGL 易黑屏 */
+  display: flex !important;
+  position: relative !important;
   z-index: 11;
+  margin: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* 只清 margin，不改 canvas 的 position/left/top，避免破坏蜂鸟渲染 */
+.mapConentD #fengMap canvas,
+#fengMap canvas {
+  margin: 0 !important;
+}
+
+/* 蜂鸟楼层控件：避免被 canvas / 全局 margin:0 auto 挤掉或盖住 */
+.mapConentD #fengMap .fm-control-groups,
+.mapConentD .fm-control-groups {
+  position: absolute !important;
+  z-index: 30 !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
 }
 .scrollbar {
   max-height: 250px;
@@ -5384,14 +5686,62 @@ a {
   position: fixed;
   bottom: 100px;
   right: 20px;
-  z-index: 99;
+  z-index: 1100;
+  pointer-events: auto;
+}
+.indoor-map-tip {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  top: auto;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  color: #fff;
+  z-index: 1002;
+  pointer-events: none;
+  font-size: 13px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
 }
 .imags_ul li {
   margin-top: 20px;
 }
+.imags_ul-trigger {
+  display: block;
+  line-height: 0;
+  cursor: pointer;
+}
+.location-indoor {
+  text-align: left !important;
+}
 .inputContent {
-  padding-top: 10px;
-  margin-bottom: -10px;
+  margin: 0 0 12px !important;
+  width: auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  justify-content: flex-start !important;
+  align-items: center;
+  gap: 8px 16px;
+  text-align: left !important;
+}
+.inputContent .demo-form-inline {
+  justify-content: flex-start !important;
+  align-items: center;
+  gap: 8px 16px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: left !important;
+  width: auto !important;
+  max-width: 100%;
+}
+.inputContent .demo-form-inline > .el-form-item {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 0 !important;
+}
+.inputContent.page-panel:empty {
+  display: none !important;
 }
 .show_echarts {
   border: 2px solid #f2f2f2;
@@ -5400,54 +5750,126 @@ a {
   width: 25px;
   text-align: center;
   line-height: 50px;
+  margin: 0 !important;
+  flex-shrink: 0;
 }
 .float_box {
-  background-color: rgba(0, 0, 0, 0.2);
   position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 999;
   display: flex;
   flex-direction: column;
-  z-index: 999;
-  color: white;
+  gap: 14px;
+  width: 290px;
+  max-height: calc(100% - 24px);
+  margin: 0 !important;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: #e5edf7;
+  background: rgba(12, 26, 46, 0.86);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(2, 8, 23, 0.35);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+.fb-section {
+  margin: 0 !important;
+}
+.fb-title {
+  position: relative;
+  margin: 0 0 10px !important;
+  padding-left: 10px;
+  font-size: 13px;
   font-weight: 600;
-  left: 10px;
+  line-height: 18px;
+  color: #fff;
+  text-align: left;
+}
+.fb-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #38bdf8, #409eff);
 }
 .all_num_box {
-  display: flex;
-  margin-top: 1%;
-  margin-bottom: 1%;
-  justify-content: space-between;
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 !important;
+}
+.all_num {
+  margin: 0 !important;
+  padding: 8px 0;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
 }
 .all_num p {
-  font-size: 18px;
-  opacity: 0.7;
+  margin: 0 !important;
 }
-.statistics_box {
-  margin-top: 4%;
+.all_num .all_num-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 26px;
+  color: #5ec8ff;
+  font-variant-numeric: tabular-nums;
+}
+.all_num .all_num-label {
+  margin-top: 2px !important;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(226, 232, 240, 0.72);
 }
 .rloe_data,
 .department_data,
 .sosDatas_data {
-  width: 300px;
-  margin-top: -10px;
-}
-.rloe_data >>> .capsule-item-column,
-.department_data >>> .capsule-item-column,
-.rloe_data >>> .capsule-item-column .capsule-item-value,
-.department_data >>> .capsule-item-column .capsule-item-value {
-  margin: 0;
-}
-.rloe_data >>> .capsule-container .unit-label,
-.department_data >>> .capsule-container .unit-label {
+  width: 100%;
   margin: 0 !important;
 }
-.rloe_data >>> .capsule-container .unit-label div,
-.department_data >>> .capsule-container .unit-label div {
+.rloe_data :deep(.label-column),
+.department_data :deep(.label-column) {
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.85);
+}
+.rloe_data :deep(.capsule-container),
+.department_data :deep(.capsule-container) {
+  padding-right: 18px;
+  box-sizing: border-box;
+}
+.rloe_data :deep(.capsule-item-column),
+.department_data :deep(.capsule-item-column),
+.rloe_data :deep(.capsule-item-column .capsule-item-value),
+.department_data :deep(.capsule-item-column .capsule-item-value) {
+  margin: 0;
+}
+.rloe_data :deep(.capsule-item-value),
+.department_data :deep(.capsule-item-value) {
+  font-size: 12px;
+  color: #fff;
+}
+.rloe_data :deep(.capsule-container .unit-label),
+.department_data :deep(.capsule-container .unit-label) {
+  margin: 0 !important;
+  color: rgba(148, 163, 184, 0.8);
+  font-size: 11px;
+}
+.rloe_data :deep(.capsule-container .unit-label div),
+.department_data :deep(.capsule-container .unit-label div) {
   margin: 0 !important;
   padding: 0 !important;
 }
 .sosDatas_data {
-  height: 200px;
+  height: 180px;
 }
 .statistics_img {
   width: 32px;
@@ -5458,18 +5880,18 @@ a {
 .pan_box {
   margin-left: 4%;
 }
-.pan_box >>> .el-tabs__header {
+.pan_box :deep(.el-tabs__header) {
   border: 0px !important;
 }
-.pan_box >>> .el-tabs__nav {
+.pan_box :deep(.el-tabs__nav) {
   border: 0px !important;
 }
-.pan_box >>> .el-tabs__nav .is-active {
+.pan_box :deep(.el-tabs__nav .is-active) {
   color: white;
   background-color: gray;
   opacity: 0.7;
 }
-.pan_box >>> .el-tabs__item {
+.pan_box :deep(.el-tabs__item) {
   border: 0px !important;
   color: white;
   opacity: 0.7;
@@ -5481,20 +5903,214 @@ a {
 .data_table::before {
   height: 0 !important;
 }
-.data_table >>> .has-gutter tr th {
+.data_table :deep(.has-gutter tr th) {
   background: transparent !important;
 }
-.data_table >>> tr {
+.data_table :deep(tr) {
   background: transparent !important;
   color: white;
   opacity: 0.7;
 }
-.data_table >>> tr td,
-.data_table >>> tr th {
+.data_table :deep(tr td),
+.data_table :deep(tr th) {
   border: 0px !important;
   padding: 5px 0;
 }
-.data_table >>> .el-table__body tr:hover > td {
+.data_table :deep(.el-table__body tr:hover > td) {
   background: transparent !important;
+}
+
+/* 右下角“过滤器”面板 */
+.indoor-filter-anchor {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1001;
+}
+/* 3D 地图铺到右侧图标列下方，需让出图标列宽度 */
+.indoor-filter-anchor.is-3d {
+  bottom: 10%;
+  right: 76px;
+}
+.indoor-filter-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 272px;
+  padding: 12px 14px 14px;
+  margin: 0 !important;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+  text-align: left;
+}
+.indoor-filter-title {
+  margin: 0 0 2px !important;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 20px;
+}
+.indoor-filter-label {
+  margin: 2px 0 0 !important;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 18px;
+}
+.indoor-filter-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 !important;
+}
+.indoor-filter-options :deep(.el-checkbox) {
+  height: 30px !important;
+  margin: 0 !important;
+  padding: 0 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.indoor-filter-options :deep(.el-checkbox:hover) {
+  border-color: #93c5fd;
+}
+.indoor-filter-options :deep(.el-checkbox.is-checked) {
+  border-color: #409eff;
+  background: #ecf5ff;
+}
+.indoor-filter-options :deep(.el-checkbox__label) {
+  padding-left: 6px;
+  font-size: 13px;
+  line-height: 1;
+  color: #374151;
+}
+.indoor-filter-options :deep(.el-checkbox.is-checked .el-checkbox__label) {
+  color: #409eff;
+  font-weight: 600;
+}
+
+/* “查看详情”楼层统计面板 */
+.statistics.ground-stats {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: 0 !important;
+  padding: 0;
+  max-width: calc(100% - 24px);
+  max-height: calc(100% - 24px);
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+}
+/* 3D 楼层控件由地图引擎绘制在地图内右侧，需让开 */
+.statistics.statistics3d.ground-stats {
+  top: 20px;
+  right: 120px;
+}
+.selectBuild ~ .statistics.ground-stats {
+  top: 66px;
+  max-height: calc(100% - 78px);
+}
+.selectBuild3d ~ .statistics.statistics3d.ground-stats {
+  top: 74px;
+}
+.ground-stats .statistics-charts {
+  display: grid;
+  grid-template-columns: repeat(2, 300px);
+  grid-auto-rows: 250px;
+  gap: 0;
+  padding: 8px;
+  border-right: 1px solid #f1f5f9;
+  overflow-y: auto;
+}
+.ground-stats .ground-chart {
+  width: 300px;
+  height: 250px;
+  margin: 0 !important;
+}
+.ground-stats .show_echarts.ground-stats-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 30px;
+  height: auto;
+  line-height: 1;
+  padding: 10px 0;
+  margin: 0 !important;
+  border: 0;
+  border-right: 1px solid #f1f5f9;
+  background: #f8fafc;
+  color: #409eff;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+.ground-stats .ground-stats-toggle:hover {
+  background: #ecf5ff;
+}
+.ground-stats .ground-stats-toggle.is-disabled {
+  color: #c0c4cc;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+.ground-stats-toggle-icon {
+  font-size: 18px;
+  font-weight: 600;
+}
+.ground-stats-toggle-text {
+  writing-mode: vertical-rl;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+.ground-stats .statistics-table-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  padding: 12px 14px 14px;
+  box-sizing: border-box;
+}
+.ground-stats-head {
+  margin: 0 0 10px !important;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 20px;
+  text-align: left;
+}
+.ground-stats :deep(.el-table.ground-stats-table) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+.ground-stats :deep(.ground-stats-table tr) {
+  background-color: #fff !important;
+}
+.ground-stats :deep(.ground-stats-table .el-table__footer-wrapper td) {
+  background: #f8fafc !important;
+  font-weight: 600;
+  color: #1f2937;
+}
+.ground-stats :deep(.ground-stats-table td.cell-blue) {
+  background: #ecf5ff !important;
+  color: #409eff;
+  font-weight: 600;
 }
 </style>

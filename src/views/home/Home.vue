@@ -15,67 +15,36 @@
               contrForPrionum == 4
             "
           >
-            <div
-              style="display: flex; justify-content: space-between; width: 100%"
-            >
-              <el-card class="box-card" style="width: 48%; margin-left: 1%">
-                <div
-                  slot="header"
-                  class="clearfix"
-                  style="text-align: left; font-weight: 600"
-                  @click="goBeacon()"
-                >
+            <div class="charts-top">
+              <el-card class="box-card home-admin-card">
+                <template #header><div class="clearfix home-admin-title" @click="goBeacon()">
                   <span>{{ $t("home.BeaconStatus") }}</span>
-                </div>
-                <div style="display: flex">
-                  <div id="beacon" style="width: 50%"></div>
-                  <div id="beaconPower" style="width: 50%"></div>
+                </div></template>
+                <div class="beacon-charts">
+                  <div id="beacon"></div>
+                  <div id="beaconPower"></div>
                 </div>
               </el-card>
 
-              <el-card class="box-card" style="width: 25%">
-                <div
-                  slot="header"
-                  class="clearfix"
-                  style="text-align: left; font-weight: 600"
-                >
+              <el-card class="box-card home-admin-card">
+                <template #header><div class="clearfix home-admin-title">
                   <span>{{ $t("home.ProjectType") }}</span>
-                </div>
+                </div></template>
                 <div id="projectType" style="width: 100%"></div>
               </el-card>
 
-              <el-card class="box-card" style="width: 20%">
-                <div
-                  slot="header"
-                  class="clearfix"
-                  style="text-align: left; font-weight: 600"
-                  @click="goTerminal()"
-                >
+              <el-card class="box-card device-type-card home-admin-card">
+                <template #header><div class="clearfix home-admin-title" @click="goTerminal()">
                   <span>{{ $t("home.DeviceType") }}</span>
-                </div>
+                </div></template>
                 <div id="gatewayType" style="width: 100%"></div>
               </el-card>
             </div>
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                margin-top: 1%;
-                width: 100%;
-              "
-            >
-              <el-card
-                class="box-card local"
-                style="margin-left: 1%; width: 42%"
-              >
-                <div
-                  slot="header"
-                  class="clearfix"
-                  style="text-align: left; font-weight: 600"
-                  @click="goTerminal()"
-                >
+            <div class="charts-bottom">
+              <el-card class="box-card local home-admin-card">
+                <template #header><div class="clearfix home-admin-title" @click="goTerminal()">
                   <span>{{ $t("home.DeviceState") }}</span>
-                </div>
+                </div></template>
                 <div id="gateway" style="width: 100%"></div>
               </el-card>
               <!-- 地图 -->
@@ -87,37 +56,22 @@
                   @change="onMapStyleChange"
                 />
                 <div id="gatewayMap" ref="map"></div>
-                <div class="tips">
-                  <span style="color: #fff; font-size: 18px">
-                    - {{ $t("home.BaseStation") }} -</span
-                  >
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.Online") }}
-                    <div
-                      class="color"
-                      style="background-color: #1c9ef7; font-size: 14px"
-                    >
-                      {{ gatewayLength.on }}
-                    </div>
+                <div class="tips map-stat-card">
+                  <div class="map-stat-title">{{ $t("home.BaseStation") }}</div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-online"></i>
+                    <span class="map-stat-label">{{ $t("home.Online") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.on }}</b>
                   </div>
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.Offline") }}
-                    <div
-                      class="color"
-                      style="background-color: #d63333; font-size: 14px"
-                    >
-                      {{ gatewayLength.off }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-offline"></i>
+                    <span class="map-stat-label">{{ $t("home.Offline") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.off }}</b>
                   </div>
-                  <div class="item" style="font-size: 14px">
-                    {{ $t("home.NeverOnline") }}
-
-                    <div
-                      class="color"
-                      style="background-color: #898989; font-size: 14px"
-                    >
-                      {{ gatewayLength.unknown }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-never"></i>
+                    <span class="map-stat-label">{{ $t("home.NeverOnline") }}</span>
+                    <b class="map-stat-num">{{ gatewayLength.unknown }}</b>
                   </div>
                 </div>
                 <!-- 左键显示内容的 -->
@@ -187,6 +141,12 @@ import Feature from "ol/Feature";
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
+import {
+  CHART_TONES,
+  CHART_PALETTE,
+  buildDualRingOption,
+  buildCapsuleBarOption,
+} from "../../utils/homeChartTheme";
 export default {
   mixins: [mapStyleMixin],
   components: {
@@ -283,701 +243,156 @@ export default {
       var beaconPower = this.$echarts.init(
         document.getElementById("beaconPower")
       );
-      var gateway = this.$echarts.init(document.getElementById("gateway"));
+      var gatewayEl = document.getElementById("gateway");
+      // 避免 ECharts 在容器未撑开时写入固定 300px 宽度后无法再铺满
+      if (gatewayEl) {
+        gatewayEl.style.width = "100%";
+        gatewayEl.style.height = "100%";
+        const oldChart = this.$echarts.getInstanceByDom(gatewayEl);
+        if (oldChart) oldChart.dispose();
+      }
+      var gateway = this.$echarts.init(gatewayEl);
       var gatewayType = this.$echarts.init(
         document.getElementById("gatewayType")
       );
 
-      //项目
-      //项目定位类型
-      let project_type_data =
-        that.project_type == ""
-          ? ""
-          : [
-              {
-                name: this.$t("home.Forward"),
-                value: that.project_type.project_pos_type1,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.reverse"),
-                value: that.project_type.project_pos_type2,
-                url: host.projectUrl,
-              },
-            ];
-      //项目类型
-      let project_projectype_data =
-        that.project_projectype == ""
-          ? ""
-          : [
-              {
-                name: this.$t("home.school"),
-                value: that.project_projectype.project_type1,
-                url: host.projectUrl,
-                itemStyle: { color: "red" },
-              },
-              {
-                name: this.$t("home.hospital"),
-                value: that.project_projectype.project_type2,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.OfficeBuilding"),
-                value: that.project_projectype.project_type3,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.residencecommunity"),
-                value: that.project_projectype.project_type4,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.factory"),
-                value: that.project_projectype.project_type5,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.Warehouse"),
-                value: that.project_projectype.project_type6,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.beadhouse"),
-                value: that.project_projectype.project_type7,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.market"),
-                value: that.project_projectype.project_type8,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.Parkinglot"),
-                value: that.project_projectype.project_type9,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.constructionsite"),
-                value: that.project_projectype.project_type10,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.Tunnel"),
-                value: that.project_projectype.project_type11,
-                url: host.projectUrl,
-              },
-              {
-                name: this.$t("home.other"),
-                value: that.project_projectype.project_type12,
-                url: host.projectUrl,
-              },
-            ];
-      for (let i = project_projectype_data.length - 1; i > -1; i--) {
-        if (project_projectype_data[i].value == undefined) {
-          project_projectype_data.splice(i, 1);
-        }
-      }
-      var projectTypeOption = {
-        tooltip: {
-          trigger: "item",
-          formatter: "{b}: {c} ({d}%)",
-          // formatter: "{a} <br/>{b}: {c} ({d}%)",
-        },
-        legend: {
-          type: "scroll",
-          orient: "vertical",
-          x: "right",
-        },
-        series: [
-          //第一环
-          {
-            // name: "项目数量",
-            type: "pie",
-            selectedMode: "single",
-            center: ["30%", "50%"],
-            radius: ["0%", "35%"],
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-            data: project_type_data,
-          },
-          //第二环
-          {
-            // name: "项目数量",
-            type: "pie",
-            radius: ["45%", "60%"],
-            center: ["30%", "50%"],
+      const T = CHART_TONES;
+      const t = (key) => this.$t(key);
+      const sum = (list) => list.reduce((a, d) => a + (Number(d.value) || 0), 0);
+      const pt = that.project_type || null;
+      const pp = that.project_projectype || null;
+      const bt = that.beacon_type || null;
+      const ba = that.beacon_inallot || null;
+      const bu = that.beacon_inuse || null;
+      const bd = that.beacon_devtime || null;
+      const bb = that.beacon_bat || null;
+      const dt = that.dev_type || null;
+      const dc = that.dev_custom || null;
 
-            label: {
-              normal: {
-                show: false,
-                formatter: (params) => {
-                  return (
-                    params.name +
-                    ":" +
-                    params.value +
-                    "个(" +
-                    params.percent.toFixed(1) +
-                    "%)"
-                  );
-                },
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 10,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
-            },
-            data: project_projectype_data,
-          },
+      // 项目：内环定位类型，外环项目类型
+      const projectInner = pt
+        ? [
+            { name: t("home.Forward"), value: pt.project_pos_type1, url: host.projectUrl, tone: T.blue },
+            { name: t("home.reverse"), value: pt.project_pos_type2, url: host.projectUrl, tone: T.purple },
+          ]
+        : [];
+      const projectKeys = [
+        "school", "hospital", "OfficeBuilding", "residencecommunity", "factory", "Warehouse",
+        "beadhouse", "market", "Parkinglot", "constructionsite", "Tunnel", "other",
+      ];
+      const projectOuter = pp
+        ? projectKeys
+            .map((key, i) => ({
+              name: t("home." + key),
+              value: pp["project_type" + (i + 1)],
+              url: host.projectUrl,
+              tone: CHART_PALETTE[i % CHART_PALETTE.length],
+            }))
+            .filter((d) => d.value !== undefined)
+        : [];
+      const projectTypeOption = buildDualRingOption({
+        inner: projectInner,
+        outer: projectOuter,
+        center: ["32%", "50%"],
+        centerValue: projectInner.length ? sum(projectInner) : null,
+        centerLabel: t("home.projectTotal"),
+        legend: { type: "scroll", orient: "vertical", right: 0, top: "middle" },
+      });
+
+      // 信标：内环扫描情况，外环分配/使用
+      const beaconInner = bd
+        ? [
+            { name: t("home.Scanneddays"), value: bd.beacon_low_3day, url: host.beaconUrl, tone: T.green },
+            { name: t("home.scannedwithin"), value: bd.beacon_more_3day, url: host.beaconUrl, tone: T.yellow },
+            { name: t("home.Neverscanned"), value: bd.beacon_time_unknown, url: host.beaconUrl, tone: T.gray },
+          ]
+        : [];
+      const beaconOuter = ba
+        ? [
+            { name: t("home.Assigned"), value: ba.inallot_yes, url: host.beaconUrl, tone: T.blue },
+            { name: t("home.Unassigned"), value: ba.inallot_no, url: host.beaconUrl, tone: T.slate },
+            { name: t("home.Used"), value: bu && bu.inuse_yes, url: host.beaconUrl, tone: T.teal },
+            { name: t("home.Unused"), value: bu && bu.inuse_no, url: host.beaconUrl, tone: T.orange },
+          ]
+        : [];
+      const beaconOption = buildDualRingOption({
+        inner: beaconInner,
+        outer: beaconOuter,
+        center: ["32%", "50%"],
+        centerValue: ba ? (Number(ba.inallot_yes) || 0) + (Number(ba.inallot_no) || 0) : null,
+        centerLabel: t("home.beaconTotal"),
+        legend: { orient: "vertical", right: 0, top: "middle" },
+      });
+
+      // 信标：内环类型，外环电量
+      const powerInner = bt
+        ? [
+            { name: t("home.location"), value: bt.beacon_position, url: host.beaconUrl, tone: T.blue },
+            { name: t("home.assets"), value: bt.beacon_asset, url: host.beaconUrl, tone: T.purple },
+            { name: t("home.alarm"), value: bt.beacon_hazardous, url: host.beaconUrl, tone: T.pink },
+          ]
+        : [];
+      const powerOuter = bb
+        ? [
+            { name: ">60%", value: bb.bat_60_100, url: host.beaconUrl, tone: T.green },
+            { name: ">20%", value: bb.bat_20_60, url: host.beaconUrl, tone: T.yellow },
+            { name: "<20%", value: bb.bat_0_20, url: host.beaconUrl, tone: T.red },
+          ]
+        : [];
+      const beaconPowerOption = buildDualRingOption({
+        inner: powerInner,
+        outer: powerOuter,
+        center: ["38%", "50%"],
+        legend: { orient: "vertical", right: 0, top: "middle" },
+      });
+
+      // 设备状态柱状图：中性状态用灰色，避免“未使用/未分配”看起来像故障
+      const ds = that.dev_hbstatus || {};
+      const dw = that.dev_workstate || {};
+      const du = that.dev_inuse || {};
+      const da = that.dev_inallot || {};
+      const db = that.dev_bat || {};
+      const gatewayOption = buildCapsuleBarOption(
+        [
+          { name: t("home.normal"), value: dw.workstate1, tone: T.green },
+          { name: t("home.fault"), value: dw.workstate2, tone: T.red },
+          { name: t("home.Online"), value: ds.dev_online, tone: T.green },
+          { name: t("home.Offline"), value: ds.dev_offline, tone: T.orange },
+          { name: t("home.NeverOnline"), value: ds.dev_unknown, tone: T.gray },
+          { name: t("home.Used"), value: du.inuse_yes, tone: T.blue },
+          { name: t("home.Unused"), value: du.inuse_no, tone: T.gray },
+          { name: t("home.Assigned"), value: da.inallot_yes, tone: T.blue },
+          { name: t("home.Unassigned"), value: da.inallot_no, tone: T.gray },
+          { name: "<20%", value: db.bat_0_20, tone: T.red },
+          { name: ">20%", value: db.bat_20_60, tone: T.yellow },
+          { name: ">60%", value: db.bat_60_100, tone: T.green },
         ],
-      };
+        { rotate: 30 }
+      );
 
-      // 信标
-      let beacon_type_data =
-        that.beacon_type == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.location"),
-                value: that.beacon_type.beacon_position,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#61a0a8",
-                },
-              },
-              {
-                name: this.$t("home.assets"),
-                value: that.beacon_type.beacon_asset,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#e16215",
-                },
-              },
-              {
-                name: this.$t("home.alarm"),
-                value: that.beacon_type.beacon_hazardous,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#c23531",
-                },
-              },
-            ];
-      let beacon_data1 =
-        that.beacon_inallot == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.Assigned"),
-                value: that.beacon_inallot.inallot_yes,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#6AB0B8",
-                },
-              },
-              {
-                name: this.$t("home.Unassigned"),
-                value: that.beacon_inallot.inallot_no,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#334B5C",
-                },
-              },
-              {
-                name: this.$t("home.Used"),
-                value: that.beacon_inuse.inuse_yes,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#9FDABF",
-                },
-              },
-              {
-                name: this.$t("home.Unused"),
-                value: that.beacon_inuse.inuse_no,
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#D48265",
-                },
-              },
-            ];
-      let beacon_data2 =
-        that.beacon_devtime == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.Scanneddays"),
-                value: that.beacon_devtime.beacon_low_3day,
-                url: host.beaconUrl,
-                itemStyle: { color: "#5acc5a" },
-              },
-              {
-                name: this.$t("home.scannedwithin"),
-                value: that.beacon_devtime.beacon_more_3day,
-                url: host.beaconUrl,
-                itemStyle: { color: "red" },
-              },
-              {
-                name: this.$t("home.Neverscanned"),
-                value: that.beacon_devtime.beacon_time_unknown,
-                url: host.beaconUrl,
-              },
-            ];
-      var beaconOption = {
-        tooltip: {
-          trigger: "item",
-          // formatter: "{a} <br/>{b}: {c} ({d}%)",
-          formatter: "{b}: {c} ({d}%)",
-        },
-        legend: {
-          type: "scroll",
-          orient: "vertical",
-          x: "right",
-        },
-        series: [
-          // 第一环
-          {
-            // name: "信标数量",
-            type: "pie",
-            // selectedMode: "single",
-            center: ["30%", "50%"],
-            radius: ["0%", "35%"],
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-            data: beacon_data2,
-          },
-          //第二环
-          {
-            // name: "信标数量",
-            type: "pie",
-            radius: ["45%", "60%"],
-            center: ["30%", "50%"],
-
-            label: {
-              normal: {
-                show: false,
-                formatter: (params) => {
-                  return (
-                    params.name +
-                    ":" +
-                    params.value +
-                    "个(" +
-                    params.percent.toFixed(1) +
-                    "%)"
-                  );
-                },
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 10,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
-            },
-            data: beacon_data1,
-          },
-        ],
-      };
-
-      //信标电量
-      let beacon_bat_data =
-        that.beacon_bat == null
-          ? ""
-          : [
-              {
-                value: that.beacon_bat.bat_60_100,
-                name: ">60%",
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#ea9518",
-                },
-              },
-              {
-                value: that.beacon_bat.bat_20_60,
-                name: ">20%",
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#e16531",
-                },
-              },
-              {
-                value: that.beacon_bat.bat_0_20,
-                name: "<20%",
-                url: host.beaconUrl,
-                itemStyle: {
-                  color: "#d81e06",
-                },
-              },
-            ];
-      var beaconPowerOption = {
-        tooltip: {
-          trigger: "item",
-          formatter: "{b}: {c} ({d}%)",
-          // formatter: "{a} <br/>{b}: {c} ({d}%)",
-        },
-        legend: {
-          type: "scroll",
-          orient: "vertical",
-          x: "right",
-          data: [
-            {
-              name: this.$t("home.location"),
-            },
-            {
-              name: this.$t("home.assets"),
-            },
-            {
-              name: this.$t("home.alarm"),
-            },
-            {
-              name: ">60%",
-              icon: "image://../../../../static/echartsIcon/60.png",
-              textStyle: {
-                color: "#52ca52",
-              },
-            },
-            {
-              name: ">20%",
-              icon: "image://../../../../static/echartsIcon/20.png",
-              textStyle: {
-                color: "#E1D95B",
-              },
-            },
-            {
-              name: "<20%",
-              icon: "image://../../../../static/echartsIcon/0.png",
-              textStyle: {
-                color: "#d72a14",
-              },
-            },
-          ],
-        },
-        series: [
-          // 第一环
-          {
-            // name: "信标数量",
-            type: "pie",
-            center: ["50%", "50%"],
-            radius: ["0%", "35%"],
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-            data: beacon_type_data,
-          },
-          //第二环
-          {
-            // name: "信标数量",
-            type: "pie",
-            radius: ["45%", "60%"],
-            label: {
-              show: false,
-              formatter: (params) => {
-                return (
-                  params.name +
-                  ":" +
-                  params.value +
-                  "个(" +
-                  params.percent.toFixed(1) +
-                  "%)"
-                );
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 10,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
-            },
-            data: beacon_bat_data,
-          },
-        ],
-      };
-
-      // 设备
-      let dev_hbstatus_data =
-        that.dev_workstate == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.normal"),
-                value: that.dev_workstate.workstate1,
-              },
-              {
-                name: this.$t("home.fault"),
-                value: that.dev_workstate.workstate2,
-              },
-              {
-                name: this.$t("home.Online"),
-                value: that.dev_hbstatus.dev_online,
-              },
-              {
-                name: this.$t("home.Offline"),
-                value: that.dev_hbstatus.dev_offline,
-              },
-              {
-                name: this.$t("home.NeverOnline"),
-                value: that.dev_hbstatus.dev_unknown,
-              },
-              {
-                name: this.$t("home.Used"),
-                value: that.dev_inuse.inuse_yes,
-              },
-
-              {
-                name: this.$t("home.Unused"),
-                value: that.dev_inuse.inuse_no,
-              },
-              {
-                name: this.$t("home.Assigned"),
-                value: that.dev_inallot.inallot_yes,
-              },
-              {
-                name: this.$t("home.Unassigned"),
-                value: that.dev_inallot.inallot_no,
-              },
-              {
-                name: "<20%",
-                value: that.dev_bat.bat_0_20,
-              },
-              {
-                name: ">20%",
-                value: that.dev_bat.bat_20_60,
-              },
-              {
-                name: ">60%",
-                value: that.dev_bat.bat_60_100,
-              },
-            ];
-      for (let i = dev_hbstatus_data.length - 1; i > -1; i--) {
-        if (dev_hbstatus_data[i].value == undefined) {
-          // dev_hbstatus_data.splice(i, 1);
-          dev_hbstatus_data[i].value = 0;
-        }
-      }
-      let dev_hbstatus_xAx = [];
-      let dev_hbstatus_yAy = [];
-      for (let i = 0; i < dev_hbstatus_data.length; i++) {
-        dev_hbstatus_xAx.push(dev_hbstatus_data[i].name);
-        dev_hbstatus_yAy.push(dev_hbstatus_data[i].value);
-      }
-      var gatewayOption;
-      if (dev_hbstatus_xAx == [] && dev_hbstatus_yAy == []) {
-        gatewayOption = {};
-      } else {
-        gatewayOption = {
-          aria: {
-            enabled: true,
-            decal: {
-              show: true,
-            },
-          },
-          tooltip: {},
-          xAxis: {
-            data: dev_hbstatus_xAx,
-            axisLabel: {
-              interval: 0,
-              rotate: 30,
-            },
-            axisTick: {
-              alignWithLabel: true,
-            },
-          },
-          yAxis: {
-            type: "value",
-          },
-          legend: {
-            show: true,
-          },
-          series: [
-            {
-              // name: "设备数量",
-              type: "bar",
-              // label: {
-              //   show: true,
-              //   position: "insideTop",
-              // },
-              itemStyle: {
-                normal: {
-                  color: function (params) {
-                    var colorList = [
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#52ca52"],
-                      ["#d72a14"],
-                      ["#d72a14"],
-                      ["#E1D95B"],
-                      ["#52ca52"],
-                    ];
-                    return colorList[params.dataIndex];
-                  },
-                },
-              },
-              barCategoryGap: "60%",
-              data: dev_hbstatus_yAy,
-            },
-          ],
-        };
-      }
-
-      // 设备类型
-      let dev_type_data =
-        that.dev_type == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.gateway"),
-                value: that.dev_type.dev_gateway,
-                url: host.terminalUrl,
-              },
-              {
-                name: this.$t("home.Jobcard"),
-                value: that.dev_type.dev_badge,
-                url: host.terminalUrl,
-              },
-
-              {
-                name: this.$t("home.vehicledevice"),
-                value: that.dev_type.dev_tbox,
-                url: host.terminalUrl,
-              },
-            ];
-      let dev_custom_data =
-        that.dev_custom == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.systemdevice"),
-                value: that.dev_custom.dev_custom_yes,
-                url: host.terminalUrl,
-              },
-              {
-                name: this.$t("home.Nonsystemdevice"),
-                value: that.dev_custom.dev_custom_no,
-                url: host.terminalUrl,
-              },
-            ];
-      var gatewayTypeOption = {
-        tooltip: {
-          trigger: "item",
-          formatter: "{b}: {c} ({d}%)",
-        },
-        legend: {
-          type: "scroll",
-          // show: true,
-          // type: "plain",
-          orient: "vertical",
-          x: "right",
-        },
-        series: [
-          //第一环
-          {
-            type: "pie",
-            selectedMode: "single",
-            radius: ["0%", "35%"],
-            center: ["30%", "50%"],
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-            data: dev_custom_data,
-          },
-          //第二环
-          {
-            type: "pie",
-            radius: ["45%", "60%"],
-            center: ["30%", "50%"],
-
-            label: {
-              normal: {
-                show: false,
-                formatter: (params) => {
-                  return (
-                    params.name +
-                    ":" +
-                    params.value +
-                    "个(" +
-                    params.percent.toFixed(1) +
-                    "%)"
-                  );
-                },
-              },
-              rich: {
-                a: {
-                  color: "#999",
-                  lineHeight: 22,
-                  align: "center",
-                },
-                hr: {
-                  borderColor: "#aaa",
-                  width: "100%",
-                  borderWidth: 0.5,
-                  height: 0,
-                },
-                b: { fontSize: 16, lineHeight: 33 },
-                per: {
-                  color: "#eee",
-                  backgroundColor: "#334455",
-                  padding: [2, 4],
-                  borderRadius: 2,
-                },
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 10,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
-            },
-            data: dev_type_data,
-          },
-        ],
-      };
-      gateway.setOption(gatewayOption);
+      // 设备类型：内环系统/非系统，外环设备类别
+      const typeInner = dc
+        ? [
+            { name: t("home.systemdevice"), value: dc.dev_custom_yes, url: host.terminalUrl, tone: T.blue },
+            { name: t("home.Nonsystemdevice"), value: dc.dev_custom_no, url: host.terminalUrl, tone: T.slate },
+          ]
+        : [];
+      const typeOuter = dt
+        ? [
+            { name: t("home.gateway"), value: dt.dev_gateway, url: host.terminalUrl, tone: T.teal },
+            { name: t("home.Jobcard"), value: dt.dev_badge, url: host.terminalUrl, tone: T.purple },
+            { name: t("home.vehicledevice"), value: dt.dev_tbox, url: host.terminalUrl, tone: T.orange },
+          ]
+        : [];
+      const gatewayTypeOption = buildDualRingOption({
+        inner: typeInner,
+        outer: typeOuter,
+        center: ["50%", "40%"],
+        centerValue: typeInner.length ? sum(typeInner) : null,
+        centerLabel: t("home.deviceTotal"),
+        legend: { type: "plain", bottom: 0, left: "center", itemGap: 10 },
+      });
+      gateway.setOption(gatewayOption, true);
       gateway.on("click", function (param) {
         switch (param.name) {
           case that.$t("home.normal"):
@@ -1018,7 +433,7 @@ export default {
             break;
         }
       });
-      gatewayType.setOption(gatewayTypeOption);
+      gatewayType.setOption(gatewayTypeOption, true);
       gatewayType.on("click", function (param) {
         switch (param.data.name) {
           case that.$t("home.systemdevice"):
@@ -1043,7 +458,7 @@ export default {
             break;
         }
       });
-      projectType.setOption(projectTypeOption);
+      projectType.setOption(projectTypeOption, true);
       projectType.on("click", function (param) {
         if (
           that.$store.state.userInfo.prionum == 1 ||
@@ -1098,7 +513,7 @@ export default {
             break;
         }
       });
-      beacon.setOption(beaconOption);
+      beacon.setOption(beaconOption, true);
       beacon.on("click", function (param) {
         switch (param.data.name) {
           case that.$t("home.Assigned"):
@@ -1126,7 +541,7 @@ export default {
             break;
         }
       });
-      beaconPower.setOption(beaconPowerOption);
+      beaconPower.setOption(beaconPowerOption, true);
       beaconPower.on("click", function (param) {
         switch (param.data.name) {
           case that.$t("home.location"):
@@ -1150,6 +565,28 @@ export default {
           default:
             break;
         }
+      });
+      this.$nextTick(() => {
+        const resizeCharts = () => {
+          if (gatewayEl && gateway) {
+            gatewayEl.style.width = "100%";
+            gatewayEl.style.height = "100%";
+            const w = gatewayEl.clientWidth;
+            const h = gatewayEl.clientHeight;
+            if (w > 0 && h > 0) {
+              gateway.resize({ width: w, height: h });
+            } else {
+              gateway.resize();
+            }
+          }
+          [projectType, beacon, beaconPower, gatewayType].forEach(
+            (chart) => chart && chart.resize()
+          );
+          if (this.map) this.map.updateSize();
+        };
+        resizeCharts();
+        setTimeout(resizeCharts, 50);
+        setTimeout(resizeCharts, 200);
       });
     },
 
@@ -1443,8 +880,7 @@ export default {
                 text: "", // 添加文字描述
                 font: "12px font-size", // 设置字体大小
                 fill: new Fill({
-                  // 设置字体颜色
-                  color: "white",
+                  color: that.getMarkerTextColor(),
                 }),
                 offsetY: 10, // 设置文字偏移量
               }),
@@ -1560,6 +996,11 @@ export default {
       this.getFristPages();
       this.initGatewayMap();
       this.getGwActiveInfos();
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (this.map) this.map.updateSize();
+        }, 100);
+      });
     }
   },
   computed: {
@@ -1591,10 +1032,134 @@ export default {
   position: relative;
 }
 
+.content {
+  height: calc(100% - 60px);
+}
+
 .asi {
   position: absolute;
-  top: 50px;
+  top: 60px;
+  bottom: 30px;
+  left: 0;
   width: 99%;
+}
+
+.asi :deep(.el-main) {
+  padding: 8px 8px 0 !important;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.Echarts {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.charts-top {
+  display: grid;
+  grid-template-columns: minmax(0, 48fr) minmax(0, 25fr) minmax(0, 20fr);
+  gap: 12px;
+  width: 100%;
+  padding: 4px 4px 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.charts-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 42fr) minmax(0, 56fr);
+  gap: 12px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 0 4px 4px;
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+}
+
+/* 抵消 App.vue 全局 * { margin: 0 auto }，否则网格项会收缩成内容宽度 */
+.charts-top > *,
+.charts-bottom > * {
+  margin: 0 !important;
+  min-width: 0;
+}
+
+.home-admin-card {
+  border: 1px solid #eef1f6;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+  transition: box-shadow 0.3s;
+}
+.home-admin-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09) !important;
+}
+.home-admin-card :deep(.el-card__header) {
+  position: relative;
+  width: 100%;
+  margin: 0 !important;
+  padding: 10px 16px 10px 26px;
+  box-sizing: border-box;
+  border-bottom-color: #f1f4f8;
+}
+.home-admin-card :deep(.el-card__header)::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, #22d3ee, #2f7bff);
+  box-shadow: 0 0 6px rgba(47, 123, 255, 0.45);
+}
+.home-admin-title {
+  margin: 0 !important;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+.home-admin-title > span {
+  margin: 0 !important;
+}
+.beacon-charts {
+  display: flex;
+}
+.beacon-charts > div {
+  flex: 1 1 50%;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.charts-bottom .local {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+}
+
+.charts-bottom .local :deep(.el-card__header) {
+  flex-shrink: 0;
+}
+
+.charts-bottom .local :deep(.el-card__body) {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  position: relative;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.device-type-card :deep(.el-card__body) {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .box-card span {
@@ -1604,42 +1169,33 @@ export default {
 #beacon,
 #beaconPower,
 #projectType,
-#gatewayType,
-#gateway {
+#gatewayType {
   height: 300px;
+}
+
+#gateway {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0;
 }
 
 /* 地图 */
 .mapConent {
-  width: 56%;
+  width: 100%;
   position: relative;
+  height: 100%;
 }
 
 .mapConent .tips {
   position: absolute;
   right: 10px;
   top: 10px;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px;
-  border-radius: 4px;
-}
-
-.mapConent .tips .item {
-  display: flex;
-  margin-right: 0;
-  align-items: center;
-  font-size: 10px;
-  color: #fff;
-  padding: 1px 0 1px 0;
-}
-
-.mapConent .tips .item .color {
-  padding: 2px 6px 2px 6px;
-  border-radius: 2px;
-  margin-left: 6px;
-  font-size: 8px;
+  z-index: 2;
 }
 
 /* .tips .textwrapper {

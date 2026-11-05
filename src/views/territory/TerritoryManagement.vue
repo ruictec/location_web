@@ -1,28 +1,21 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
     <div class="content">
       <el-container class="asi">
         <el-main>
-          <el-form
+                    <div class="terminal-filter-flow page-panel" :class="filterLangClass">
+<el-form
             :inline="true"
             :model="searchList"
-            class="demo-form-inline"
-            style="display: flex; white-space: nowrap"
+            class="demo-form-inline terminal-filter-form"
           >
             <el-form-item
               :label="$t('territorymanagement.country')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 2%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-select
-                style="width: 95%; float: left"
                 v-model="searchList.username"
                 filterable
                 :placeholder="$t('territorymanagement.Pleaseenter')"
@@ -35,7 +28,7 @@
                 ></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item style="margin-left: 1%">
+            <el-form-item class="terminal-toolbar-item">
               <el-button type="primary" @click="seachInfo()" class="query">{{
                 $t("territorymanagement.search")
               }}</el-button>
@@ -44,12 +37,13 @@
               }}</el-button>
             </el-form-item>
           </el-form>
-          <div class="content_country">
+          </div>
+          <div class="content_country page-panel table-panel">
             <!-- 展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -90,7 +84,7 @@
                 width="120"
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -100,7 +94,7 @@
                     <el-button
                       type="primary"
                       @click="teeritoryEdit(scope.row)"
-                      class="edits"
+                      class="icon_button"
                       ><img src="../../../static/edit2.png"
                     /></el-button>
                   </el-tooltip>
@@ -109,17 +103,16 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -128,17 +121,16 @@
           <!-- 编辑模态框 -->
           <el-dialog
             :title="$t('territorymanagement.editinfor2')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="editData"
               ref="editData"
               class="demo-ruleForm"
               label-width="130px"
-              style="text-align: left; margin-left: 10px"
             >
               <el-form-item :label="$t('territorymanagement.country')">
                 <el-input
@@ -173,7 +165,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(edit = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -181,9 +173,8 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -220,6 +211,12 @@ export default {
       editData: { username: "", gwnumber: "", nodenumber: "", memo: "" },
       edit: false,
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //分页
@@ -419,13 +416,13 @@ export default {
   margin-top: 20px;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
-.el-form-item >>> .el-form-item__content .el-button {
+.el-form-item :deep(.el-form-item__content .el-button) {
   padding: 10px 14px !important;
 }
 
@@ -433,19 +430,19 @@ export default {
 .reset {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -458,4 +455,227 @@ export default {
 .edits:hover {
   background-color: rgb(25, 86, 201);
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header">
       <Menu v-if="contrForPrionum != 5" />
     </div>
@@ -10,16 +10,14 @@
           <el-tabs v-model="activeName" @tab-click="changeTab">
             <!-- 巡检任务 -->
             <el-tab-pane :label="$t('inspection.Inspectiontasks')" name="first">
-              <div class="checkwork_input">
+              <div class="checkwork_input terminal-filter-flow page-panel" :class="filterLangClass">
                 <el-form
-                  class="demo-form-inline"
-                  style="display: flex; white-space: nowrap"
+                  class="demo-form-inline terminal-filter-form"
                   :model="searchList"
                 >
                   <el-form-item
                     :label="$t('inspection.state')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
-                  >
+                   class="terminal-filter-item">
                     <el-select
                       v-model="searchList.states"
                       :placeholder="$t('inspection.title')"
@@ -37,37 +35,33 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.time')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
-                  >
+                   class="terminal-filter-item">
                     <el-date-picker
                       v-model="tasktime"
                       type="datetimerange"
-                      :picker-options="pickerOptions"
+                      :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                       :range-separator="$t('checkwork.to')"
                       :start-placeholder="$t('checkwork.starttime')"
                       :end-placeholder="$t('checkwork.endtime')"
                     ></el-date-picker>
                   </el-form-item>
-                  <el-form-item style="margin-left: 1%">
+                  <el-form-item class="terminal-toolbar-item">
                     <el-button
                       type="primary"
                       class="querry"
                       @click="searchInfo()"
-                      >{{ $t("inspection.search") }}</el-button
-                    >
+                      >{{ $t("inspection.search") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="clearBtn()"
-                      >{{ $t("inspection.reset") }}</el-button
-                    >
+                      >{{ $t("inspection.reset") }}</el-button>
 
                     <el-button
                       type="primary"
                       class="reset"
                       @click="addInspection()"
-                      >{{ $t("inspection.addtask") }}</el-button
-                    ><el-tooltip
+                      >{{ $t("inspection.addtask") }}</el-button><el-tooltip
                       class="item"
                       effect="light"
                       placement="right-start"
@@ -79,14 +73,14 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("inspection.tttt2") }}<br />
                           {{ $t("inspection.tttt3") }}<br />
                           {{ $t("inspection.tttt4") }}<br />
                           {{ $t("inspection.tttt5") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -94,18 +88,18 @@
               </div>
 
               <!-- 展示 -->
-              <div>
-                <el-table
+              <div class="page-panel table-panel"><el-table class="device-table"
                   ref="multipleTable"
                   :data="tableData"
                   @current-change="handleCurrentChangeIns"
                   style="
-                    width: 98%;
+                    width: 100%;
                     text-align: center;
-                    margin-left: 2%;
+                    
                     z-index: 1;
                   "
-                  border
+                  :border="contrForPrionum != 5"
+                  max-height="650"
                   highlight-current-row
                 >
                   <!-- <el-table-column type="selection" width="55">
@@ -196,17 +190,15 @@
                     min-width="80"
                     align="center"
                   >
-                    <template slot-scope="scope">
-                      <el-button
+                    <template #default="scope">
+                      <el-button text
                         v-if="
                           scope.row.userids != '' && scope.row.userids != null
                         "
                         @click="showInspectionPer(scope.$index)"
-                        type="text"
                         size="small"
                         style="width: 60%"
-                        >{{ $t("inspection.Check") }}</el-button
-                      >
+                        >{{ $t("inspection.Check") }}</el-button>
                       <p
                         v-if="
                           scope.row.userids == '' || scope.row.userids == null
@@ -222,8 +214,9 @@
                     min-width="250"
                     align="center"
                   >
-                    <template slot-scope="scope">
-                      <el-dropdown size="mini" type="primary" trigger="click">
+                    <template #default="scope">
+                      <el-dropdown size="small" type="primary" trigger="click">
+                        <span class="el-dropdown-link">
                         <el-tooltip
                           class="item"
                           effect="dark"
@@ -234,8 +227,9 @@
                             <img src="../../../static/control.png" />
                           </el-button>
                         </el-tooltip>
-                        <el-dropdown-menu
-                          slot="dropdown"
+                        </span>
+<template #dropdown><el-dropdown-menu
+                         
                           style="background-color: rgb(219, 222, 231)"
                           class="selects"
                         >
@@ -245,12 +239,10 @@
                               background-color: rgb(219, 222, 231);
                             "
                             ><el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="editTask(scope.$index, tableData)"
-                              >{{ $t("inspection.edit") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.edit") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -258,12 +250,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="updateTask(scope.$index, tableData)"
-                              >{{ $t("inspection.distribution") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.distribution") }}</el-button></el-dropdown-item>
 
                           <el-dropdown-item
                             style="
@@ -272,17 +262,16 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="dels"
                               @click="delTask(scope.$index, tableData)"
-                              >{{ $t("inspection.delete") }}</el-button
-                            ></el-dropdown-item
-                          >
-                        </el-dropdown-menu>
+                              >{{ $t("inspection.delete") }}</el-button></el-dropdown-item>
+                        </el-dropdown-menu></template>
                       </el-dropdown>
 
                       <!-- 路线操作 -->
-                      <el-dropdown size="mini" type="primary" trigger="click">
+                      <el-dropdown size="small" type="primary" trigger="click">
+                        <span class="el-dropdown-link">
                         <el-tooltip
                           class="item"
                           effect="dark"
@@ -293,8 +282,9 @@
                             <img src="../../../static/route.png" />
                           </el-button>
                         </el-tooltip>
-                        <el-dropdown-menu
-                          slot="dropdown"
+                        </span>
+<template #dropdown><el-dropdown-menu
+                         
                           style="background-color: rgb(219, 222, 231)"
                           class="selects"
                         >
@@ -305,12 +295,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="setInspection(scope.$index, tableData)"
-                              >{{ $t("inspection.setroute") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.setroute") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -318,12 +306,10 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="openDetail(scope.$index)"
-                              >{{ $t("inspection.route1") }}</el-button
-                            ></el-dropdown-item
-                          >
+                              >{{ $t("inspection.route1") }}</el-button></el-dropdown-item>
                           <el-dropdown-item
                             style="
                               margin-top: 4%;
@@ -331,16 +317,15 @@
                             "
                           >
                             <el-button
-                              size="mini"
+                              size="small"
                               class="edits"
                               @click="removeInspection(scope.$index)"
-                              >{{ $t("inspection.RemoveRoute") }}</el-button
-                            ></el-dropdown-item
-                          >
-                        </el-dropdown-menu>
+                              >{{ $t("inspection.RemoveRoute") }}</el-button></el-dropdown-item>
+                        </el-dropdown-menu></template>
                       </el-dropdown>
 
                       <el-tooltip
+                        v-if="scope.row.states == 2"
                         class="item"
                         effect="dark"
                         :content="$t('inspection.start')"
@@ -350,13 +335,13 @@
                           type="danger"
                           class="icon_button"
                           @click="onTask(scope.$index, 1)"
-                          v-show="scope.row.states == 2"
                           :disabled="showButton(scope.row)"
                           ><img src="../../../static/start1.png"
                         /></el-button>
                       </el-tooltip>
 
                       <el-tooltip
+                        v-if="scope.row.states != 2"
                         class="item"
                         effect="dark"
                         :content="$t('inspection.stop')"
@@ -364,10 +349,9 @@
                       >
                         <el-button
                           type="danger"
-                          size="mini"
+                          size="small"
                           class="icon_button"
                           @click="onTask(scope.$index, 2)"
-                          v-show="scope.row.states !== 2"
                           :disabled="showButton(scope.row)"
                           ><img src="../../../static/stop.png"
                         /></el-button>
@@ -377,13 +361,13 @@
                 </el-table>
                 <!-- 分页 -->
                 <div
-                  class="block"
+                  class="block device-pagination"
                   style="text-align: center; width: 100%; margin-top: 1%"
                 >
                   <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page.sync="currentPage1"
+                    v-model:current-page="currentPage1"
                     :page-sizes="[10, 20, 30, 40, 50]"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="total"
@@ -398,20 +382,14 @@
               :label="$t('inspection.Inspectionhistory')"
               name="second"
             >
-              <div class="taskHis">
+              <div class="taskHis terminal-filter-flow page-panel" :class="filterLangClass">
                 <el-form
-                  class="demo-form-inline"
-                  style="display: flex; white-space: nowrap"
+                  class="demo-form-inline terminal-filter-form"
                   :model="searchListHis"
                 >
                   <el-form-item
                     :label="$t('inspection.Name')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 12%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.userid"
@@ -429,12 +407,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.Taskname')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 12%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.taskid"
@@ -452,12 +425,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.Taskstatus')"
-                    style="
-                      display: flex;
-                      margin-left: 2%;
-                      margin-right: 0;
-                      width: 14%;
-                    "
+                    class="terminal-filter-item"
                   >
                     <el-select
                       v-model="searchListHis.taskstatus"
@@ -476,58 +444,55 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('inspection.time')"
-                    style="display: flex; margin-left: 2%; margin-right: 0"
+                    class="terminal-filter-item"
                   >
                     <el-date-picker
                       v-model="searchListHis.taskdate"
                       type="date"
-                      value-format="yyyy-MM-dd"
+                      value-format="YYYY-MM-DD"
                       :placeholder="$t('inspection.Selectdate')"
                     ></el-date-picker>
                   </el-form-item>
-                  <el-form-item style="z-index: 1; margin-left: 1%">
+                  <el-form-item class="terminal-toolbar-item">
                     <el-button
                       type="primary"
                       class="querry"
                       @click="searchInfoHis()"
-                      >{{ $t("inspection.search") }}</el-button
-                    >
+                      >{{ $t("inspection.search") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="clearBtnHis()"
-                      >{{ $t("inspection.reset") }}</el-button
-                    >
+                      >{{ $t("inspection.reset") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="delTaskListHis()"
-                      >{{ $t("inspection.batchdeletion") }}</el-button
-                    >
+                      >{{ $t("inspection.batchdeletion") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="taskListHisInfo()"
-                      >{{ $t("inspection.Inspectiondetails") }}</el-button
-                    >
+                      >{{ $t("inspection.Inspectiondetails") }}</el-button>
                   </el-form-item>
                 </el-form>
               </div>
 
               <!-- 展示巡检历史 -->
-              <div class="checkHistory">
+              <div class="checkHistory page-panel table-panel">
                 <el-table
                   ref="multipleTableHis"
+                  class="inspection-history-table device-table"
                   :data="tableDataHis"
                   @selection-change="handleSelectionChangeHis"
                   @row-click="handleRowClick"
                   style="
-                    width: 97%;
+                    width: 100%;
                     text-align: center;
-                    margin-left: 2%;
                     z-index: 1;
                   "
-                  border
+                  :border="contrForPrionum != 5"
+                  max-height="650"
                   highlight-current-row
                 >
                   <el-table-column type="selection" width="55">
@@ -559,7 +524,7 @@
                     show-overflow-tooltip
                     align="center"
                   >
-                    <template slot="header" slot-scope="scope">
+                    <template #header="scope">
                       <span class="cell" style="padding-right: 0">{{
                         $t("inspection.Inspectionrecord")
                       }}</span>
@@ -569,11 +534,11 @@
                         placement="right-start"
                         style="font-size: 130%"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           <p>
                             {{ $t("inspection.tttt") }}
                           </p>
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </template>
@@ -606,7 +571,7 @@
                     show-overflow-tooltip
                     align="center"
                   >
-                    <template slot="header" slot-scope="scope">
+                    <template #header="scope">
                       <span class="cell" style="padding-right: 0">{{
                         $t("inspection.number")
                       }}</span>
@@ -616,11 +581,11 @@
                         placement="right-start"
                         style="font-size: 130%"
                       >
-                        <div slot="content">
+                        <template #content><div>
                           <p>
                             {{ $t("inspection.tttt1") }}
                           </p>
-                        </div>
+                        </div></template>
                         <i class="el-icon-question" />
                       </el-tooltip>
                     </template>
@@ -639,7 +604,7 @@
                     align="center"
                     class-name="taskstatustr"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <p :class="tableCellClassName(scope.row)"></p>
                       <span>
                         {{
@@ -660,16 +625,16 @@
                 </el-table>
                 <!-- 分页 -->
                 <div
-                  class="block"
+                  class="block device-pagination"
                   style="text-align: center; width: 100%; margin-top: 1%"
                 >
                   <el-pagination
                     @size-change="handleSizeChangeHis"
                     @current-change="handleCurrentChangeHis"
-                    :current-page.sync="currentPage1"
+                    v-model:current-page="currentPageHis"
                     :page-sizes="[10, 20, 30, 40, 50]"
                     layout="total, sizes, prev, pager, next, jumper"
-                    :total="total"
+                    :total="totalHis"
                     :page-size="pageCountHis"
                   >
                   </el-pagination>
@@ -679,7 +644,13 @@
           </el-tabs>
 
           <!-- 批量删除巡检历史 -->
-          <el-dialog :title="$t('inspection.text2')" :visible.sync="delHis">
+          <el-dialog
+            width="960px"
+            class="device-dialog"
+            :title="$t('inspection.text2')"
+            v-model="delHis"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -758,7 +729,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(delHis = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -766,182 +737,166 @@
                 type="primary"
                 :loading="loading"
                 @click="deleteTrueHis()"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 查看巡检历史里的巡检详情 -->
           <el-dialog
-            :visible.sync="taskHisInfo"
+            v-model="taskHisInfo"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            :show-close="false"
+            append-to-body
             @close="closeTaskInfoHis"
-            class="setInspection"
+            @opened="handleSetInspectionDialogOpened"
+            class="arrangeDialog setInspection"
           >
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 0"
-            >
-              <el-button
-                type="primary"
-                round
-                @click="closeTaskInfoHisCancle()"
-                style="width: 90px; height: 30px; text-align: left"
-                size="mini"
-                icon="el-icon-arrow-left"
-                >{{ $t("login.return") }}</el-button
-              >
+            <div class="arrange-dialog-inner">
+              <div class="searchArrange">
+                <el-form class="demo-form-inline">
+                  <el-button
+                    type="primary"
+                    round
+                    @click="closeTaskInfoHisCancle()"
+                    style="width: 90px; height: 30px; text-align: left"
+                    size="small"
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
-              <el-form-item
-                :label="$t('inspection.Building')"
-                style="display: flex; margin-left: 2%; margin-right: 0"
-              >
-                <el-select
-                  clearable
-                  filterable
-                  v-model="isactive"
-                  @change="getGroundsHis(isactive)"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in buildingListHis"
-                    :key="item.buildid"
-                    :label="item.building"
-                    :value="item.buildid"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <div v-show="mapTypes" class="mapConent">
-              <div id="allmapHis" ref="map" class="allmap"></div>
-              <div class="selectGround">
-                <div
-                  class="fm-control-groups"
-                  style="
-                    width: 42px;
-                    background-color: white;
-                    box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
-                    border-radius: 2px;
-                  "
-                >
-                  <div style="overflow: hidden" class="fm-layer-list">
-                    <div
-                      v-for="(item, index) in groundListHis"
-                      :key="item"
-                      @click="getBuildGroundLists(item)"
-                      :class="isactiveGround == item ? 'addclass' : ''"
+                  <el-form-item :label="$t('inspection.Building')">
+                    <el-select
+                      clearable
+                      filterable
+                      v-model="isactive"
+                      @change="getGroundsHis(isactive)"
+                      :placeholder="$t('terminal.choose')"
                     >
-                      <label
-                        data-gid="2"
-                        id="gid_24.99322021/3/1/11:04:43"
-                        style="
-                          display: inline-block;
-                          text-align: center;
-                          width: 42px;
-                          height: 42px;
-                          line-height: 42px;
-                          margin: 0px;
-                          cursor: pointer;
-                          font-size: 0.8em;
-                          font-weight: bold;
-                          color: rgb(102, 102, 102);
-                        "
-                      >
-                        <span v-if="item > 0">F{{ item }}</span>
-                        <span v-if="item < 0">B{{ -item }}</span>
-                      </label>
-                      <hr
-                        v-show="
-                          grounds.length > 1 && index !== grounds.length - 1
-                        "
-                        style="
-                          height: 1px;
-                          border-top: 1px solid rgba(153, 153, 153, 0.45);
-                          border-right: none;
-                          border-bottom: none;
-                          border-left: none;
-                          border-image: initial;
-                          width: 60%;
-                          margin: 0px 20%;
-                        "
-                      />
+                      <el-option
+                        v-for="item in buildingListHis"
+                        :key="item.buildid"
+                        :label="item.building"
+                        :value="item.buildid"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="arrange-map-row">
+                <div v-if="mapTypes" class="mapContent inspection-map-content">
+                  <div id="allmapHis" ref="map" class="allmap"></div>
+                  <div class="selectGround">
+                    <div
+                      class="fm-control-groups"
+                      style="
+                        width: 42px;
+                        background-color: white;
+                        box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
+                        border-radius: 2px;
+                      "
+                    >
+                      <div style="overflow: hidden" class="fm-layer-list">
+                        <div
+                          v-for="(item, index) in groundListHis"
+                          :key="item"
+                          @click="getBuildGroundLists(item)"
+                          :class="isactiveGround == item ? 'addclass' : ''"
+                        >
+                          <label
+                            data-gid="2"
+                            id="gid_24.99322021/3/1/11:04:43"
+                            style="
+                              display: inline-block;
+                              text-align: center;
+                              width: 42px;
+                              height: 42px;
+                              line-height: 42px;
+                              margin: 0px;
+                              cursor: pointer;
+                              font-size: 0.8em;
+                              font-weight: bold;
+                              color: rgb(102, 102, 102);
+                            "
+                          >
+                            <span v-if="item > 0">F{{ item }}</span>
+                            <span v-if="item < 0">B{{ -item }}</span>
+                          </label>
+                          <hr
+                            v-show="
+                              groundListHis.length > 1 &&
+                              index !== groundListHis.length - 1
+                            "
+                            style="
+                              height: 1px;
+                              border-top: 1px solid rgba(153, 153, 153, 0.45);
+                              border-right: none;
+                              border-bottom: none;
+                              border-left: none;
+                              border-image: initial;
+                              width: 60%;
+                              margin: 0px 20%;
+                            "
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <div class="groundControl">
+                    <el-button-group>
+                      <el-button
+                        type="primary"
+                        :disabled="lastBuilding"
+                        @click="lastBuildings"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="lastGroup"
+                        @click="lastGroups"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextGroup"
+                        @click="nextGroups"
+                        >{{ $t("inspection.Nextlevel")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextBuilding"
+                        @click="nextBuildings"
+                        >{{ $t("inspection.nextbuilding")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                    </el-button-group>
+                  </div>
                 </div>
-              </div>
-              <div class="groundControl">
-                <el-button-group>
-                  <el-button
-                    type="primary"
-                    icon="el-icon-arrow-left"
-                    :disabled="lastBuilding"
-                    @click="lastBuildings"
-                    >{{ $t("inspection.previousbuilding") }}</el-button
-                  >
-                  <el-button
-                    type="primary"
-                    icon="el-icon-arrow-left"
-                    :disabled="lastGroup"
-                    @click="lastGroups"
-                    >{{ $t("inspection.previouslayer") }}</el-button
-                  >
-                  <el-button
-                    type="primary"
-                    :disabled="nextGroup"
-                    @click="nextGroups"
-                    >{{ $t("inspection.Nextlevel")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i
-                  ></el-button>
-                  <el-button
-                    type="primary"
-                    :disabled="nextBuilding"
-                    @click="nextBuildings"
-                    >{{ $t("inspection.nextbuilding")
-                    }}<i class="el-icon-arrow-right el-icon--right"></i
-                  ></el-button>
-                </el-button-group>
-              </div>
-            </div>
 
-            <div v-show="!mapTypes" class="mapConentD">
-              <div id="fengMapHis">
-                <div class="groundControl3D">
-                  <el-button-group>
-                    <el-button
-                      type="primary"
-                      icon="el-icon-arrow-left"
-                      :disabled="lastBuilding"
-                      @click="lastBuildings"
-                      style="z-index: 1"
-                      >{{ $t("inspection.previousbuilding") }}</el-button
-                    >
-                    <el-button
-                      type="primary"
-                      icon="el-icon-arrow-left"
-                      :disabled="lastGroup3D"
-                      @click="lastGroups3D"
-                      style="z-index: 1"
-                      >{{ $t("inspection.previouslayer") }}</el-button
-                    >
-                    <el-button
-                      type="primary"
-                      :disabled="nextGroup3D"
-                      @click="nextGroups3D"
-                      style="z-index: 1"
-                      >{{ $t("inspection.Nextlevel")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i
-                    ></el-button>
-                    <el-button
-                      type="primary"
-                      :disabled="nextBuilding"
-                      @click="nextBuildings"
-                      style="z-index: 1"
-                      >{{ $t("inspection.nextbuilding")
-                      }}<i class="el-icon-arrow-right el-icon--right"></i
-                    ></el-button>
-                  </el-button-group>
+                <div v-if="!mapTypes" class="mapConentD inspection-map-3d">
+                  <div id="fengMapHis"></div>
+                  <div class="groundControl3D">
+                    <el-button-group>
+                      <el-button
+                        type="primary"
+                        :disabled="lastBuilding"
+                        @click="lastBuildings"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previousbuilding") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="lastGroup3D"
+                        @click="lastGroups3D"
+                        ><i class="el-icon-arrow-left"></i>{{ $t("inspection.previouslayer") }}</el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextGroup3D"
+                        @click="nextGroups3D"
+                        >{{ $t("inspection.Nextlevel")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                      <el-button
+                        type="primary"
+                        :disabled="nextBuilding"
+                        @click="nextBuildings"
+                        >{{ $t("inspection.nextbuilding")
+                        }}<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                    </el-button-group>
+                  </div>
                 </div>
               </div>
             </div>
@@ -949,127 +904,127 @@
 
           <!-- 设置巡检详情 -->
           <el-dialog
-            :visible.sync="setInspectionMap"
+            v-model="setInspectionMap"
             :fullscreen="true"
             width="100%"
             :close-on-press-escape="false"
+            :show-close="false"
+            append-to-body
             @close="closeInspection"
-            class="setInspection"
+            @opened="handleSetInspectionDialogOpened"
+            class="arrangeDialog setInspection"
           >
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 0"
-            >
-              <el-button
-                type="primary"
-                round
-                @click="inspectioncancel()"
-                style="width: 90px; height: 30px; text-align: left"
-                size="mini"
-                icon="el-icon-arrow-left"
-                >{{ $t("login.return") }}</el-button
-              >
+            <div class="arrange-dialog-inner">
+              <div class="searchArrange">
+                <el-form class="demo-form-inline">
+                  <el-button
+                    type="primary"
+                    round
+                    @click="inspectioncancel()"
+                    style="width: 90px; height: 30px; text-align: left"
+                    size="small"
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
-              <el-form-item
-                :label="$t('inspection.Building')"
-                style="display: flex; margin-left: 2%; margin-right: 0"
-              >
-                <el-select
-                  clearable
-                  filterable
-                  v-model="isactive"
-                  @change="getGrounds(isactive)"
-                  :placeholder="$t('terminal.choose')"
-                >
-                  <el-option
-                    v-for="item in buildingList"
-                    :key="item.id"
-                    :label="item.building"
-                    :value="item.id"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item style="margin-left: 0">
-                <el-button
-                  type="primary"
-                  @click="updateTaskManagementDetailsTrue()"
-                  class="reset"
-                  >{{ $t("inspection.preservation") }}</el-button
-                >
-              </el-form-item>
-            </el-form>
-            <div v-show="mapTypes" class="mapConent">
-              <div id="allmap" ref="map" class="allmap"></div>
-              <div class="selectGround">
-                <div
-                  class="fm-control-groups"
-                  style="
-                    width: 42px;
-                    background-color: white;
-                    box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
-                    border-radius: 2px;
-                  "
-                >
-                  <div style="overflow: hidden" class="fm-layer-list">
-                    <div
-                      v-for="(item, index) in grounds"
-                      :key="item"
-                      @click="getBuildGroundLists(item)"
-                      :class="isactiveGround == item ? 'addclass' : ''"
+                  <el-form-item :label="$t('inspection.Building')">
+                    <el-select
+                      clearable
+                      filterable
+                      v-model="isactive"
+                      @change="getGrounds(isactive)"
+                      :placeholder="$t('terminal.choose')"
                     >
-                      <label
-                        data-gid="2"
-                        id="gid_24.99322021/3/1/11:04:43"
-                        style="
-                          display: inline-block;
-                          text-align: center;
-                          width: 42px;
-                          height: 42px;
-                          line-height: 42px;
-                          margin: 0px;
-                          cursor: pointer;
-                          font-size: 0.8em;
-                          font-weight: bold;
-                          color: rgb(102, 102, 102);
-                        "
-                      >
-                        <span v-if="item > 0">F{{ item }}</span>
-                        <span v-if="item < 0">B{{ -item }}</span>
-                      </label>
-                      <hr
-                        v-show="
-                          grounds.length > 1 && index !== grounds.length - 1
-                        "
-                        style="
-                          height: 1px;
-                          border-top: 1px solid rgba(153, 153, 153, 0.45);
-                          border-right: none;
-                          border-bottom: none;
-                          border-left: none;
-                          border-image: initial;
-                          width: 60%;
-                          margin: 0px 20%;
-                        "
-                      />
+                      <el-option
+                        v-for="item in buildingList"
+                        :key="item.id"
+                        :label="item.building"
+                        :value="item.id"
+                      ></el-option>
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button
+                      type="primary"
+                      @click="updateTaskManagementDetailsTrue()"
+                      class="reset"
+                      >{{ $t("inspection.preservation") }}</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
+              <div class="arrange-map-row">
+                <div v-if="mapTypes" class="mapContent inspection-map-content">
+                  <div id="allmap" ref="map" class="allmap"></div>
+                  <div class="selectGround">
+                    <div
+                      class="fm-control-groups"
+                      style="
+                        width: 42px;
+                        background-color: white;
+                        box-shadow: rgba(0, 0, 0, 0.3) 2px 2px 3px;
+                        border-radius: 2px;
+                      "
+                    >
+                      <div style="overflow: hidden" class="fm-layer-list">
+                        <div
+                          v-for="(item, index) in grounds"
+                          :key="item"
+                          @click="getBuildGroundLists(item)"
+                          :class="isactiveGround == item ? 'addclass' : ''"
+                        >
+                          <label
+                            data-gid="2"
+                            id="gid_24.99322021/3/1/11:04:43"
+                            style="
+                              display: inline-block;
+                              text-align: center;
+                              width: 42px;
+                              height: 42px;
+                              line-height: 42px;
+                              margin: 0px;
+                              cursor: pointer;
+                              font-size: 0.8em;
+                              font-weight: bold;
+                              color: rgb(102, 102, 102);
+                            "
+                          >
+                            <span v-if="item > 0">F{{ item }}</span>
+                            <span v-if="item < 0">B{{ -item }}</span>
+                          </label>
+                          <hr
+                            v-show="
+                              grounds.length > 1 && index !== grounds.length - 1
+                            "
+                            style="
+                              height: 1px;
+                              border-top: 1px solid rgba(153, 153, 153, 0.45);
+                              border-right: none;
+                              border-bottom: none;
+                              border-left: none;
+                              border-image: initial;
+                              width: 60%;
+                              margin: 0px 20%;
+                            "
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div v-show="!mapTypes" class="mapConentD">
-              <div id="fengMap"></div>
-              <div v-show="!mapTypes" class="mapConentD"></div>
+                <div v-if="!mapTypes" class="mapConentD inspection-map-3d">
+                  <div id="fengMap"></div>
+                </div>
+              </div>
             </div>
           </el-dialog>
 
           <!-- 显示巡检路线详情 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text3')"
-            :visible.sync="showInspection"
-            width="40%"
-            style="text-align: center"
+            v-model="showInspection"
+            width="720px"
             @close="closeInspection"
+            top="8vh"
           >
             <div style="padding-bottom: 3%">
               <el-table :data="showInspectionData" border max-height="660">
@@ -1116,39 +1071,37 @@
                   width="170"
                   align="center"
                 >
-                  <template slot-scope="scope">
+                  <template #default="scope">
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits"
                       @click="
                         goShowInspection(scope.$index, showInspectionData)
                       "
-                      >{{ $t("inspection.Check") }}</el-button
-                    >
+                      >{{ $t("inspection.Check") }}</el-button>
                     <el-button
                       type="danger"
-                      size="mini"
+                      size="small"
                       class="dels"
                       @click="
                         delShowInspection(scope.$index, showInspectionData)
                       "
-                      >{{ $t("inspection.delete") }}</el-button
-                    >
-                  </template></el-table-column
-                >
+                      >{{ $t("inspection.delete") }}</el-button>
+                  </template></el-table-column>
               </el-table>
             </div>
           </el-dialog>
 
           <!-- 添加巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text4')"
-            width="40%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="560px"
+            v-model="add"
             @close="addCancel('addData')"
             @opened="openDialog('addData')"
+            top="8vh"
           >
             <el-form
               :model="addData"
@@ -1195,22 +1148,20 @@
               <el-form-item :label="$t('inspection.Date')">
                 <el-date-picker
                   v-model="totleDate"
-                  format="yyyy-MM-dd"
-                  value-format="yyyy-MM-dd"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                   type="daterange"
                   :range-separator="$t('inspection.to')"
                   :start-placeholder="$t('inspection.startdate')"
                   :end-placeholder="$t('inspection.enddate')"
-                  :picker-options="above_now"
+                  :disabled-date="above_now.disabledDate"
+                  @calendar-change="(val) => above_now.onPick && above_now.onPick({ minDate: val[0], maxDate: val[1] })"
                 >
                 </el-date-picker>
               </el-form-item>
               <el-form-item :label="$t('inspection.time')">
                 <el-time-picker
                   is-range
-                  :picker-options="{
-                    selectableRange: '00:00 - 24:00',
-                  }"
                   v-model="totleTime"
                   format="HH:mm"
                   value-format="HH:mm"
@@ -1231,7 +1182,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1239,17 +1190,17 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 编辑巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text5')"
-            width="40%"
-            :visible.sync="edit"
-            style="text-align: center"
+            width="560px"
+            v-model="edit"
             @close="editCancel('editData')"
+            top="8vh"
           >
             <el-form
               :model="editData"
@@ -1297,13 +1248,14 @@
               <el-form-item :label="$t('inspection.Date')">
                 <el-date-picker
                   v-model="totleDate"
-                  format="yyyy-MM-dd"
-                  value-format="yyyy-MM-dd"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
                   type="daterange"
                   :range-separator="$t('inspection.to')"
                   :start-placeholder="$t('inspection.startdate')"
                   :end-placeholder="$t('inspection.enddate')"
-                  :picker-options="above_now"
+                  :disabled-date="above_now.disabledDate"
+                  @calendar-change="(val) => above_now.onPick && above_now.onPick({ minDate: val[0], maxDate: val[1] })"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -1311,9 +1263,6 @@
                 <el-time-picker
                   is-range
                   arrow-control
-                  :picker-options="{
-                    selectableRange: '00:00 - 24:00',
-                  }"
                   v-model="totleTime"
                   format="HH:mm"
                   value-format="HH:mm"
@@ -1334,7 +1283,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1342,16 +1291,16 @@
                 type="primary"
                 @click="editTaskTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 分配巡检任务 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.text6')"
-            width="30%"
-            :visible.sync="update"
-            style="text-align: center"
+            width="480px"
+            v-model="update"
+            align-center
           >
             <el-form
               label-width="100px"
@@ -1362,7 +1311,6 @@
               <el-form-item
                 :label="$t('inspection.taskname1')"
                 prop="name"
-                style="width: 70%; margin-left: 0"
               >
                 <el-input v-model="updateData.name" disabled></el-input>
               </el-form-item>
@@ -1384,7 +1332,7 @@
                 </el-select>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="update = false">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -1392,19 +1340,19 @@
                 type="primary"
                 @click="updateTaskTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 显示巡检任务分配人员 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('inspection.Personneldetails')"
-            width="40%"
-            :visible.sync="showUser"
-            style="text-align: center"
+            width="900px"
+            v-model="showUser"
             @close="closeAction"
+            align-center
           >
-            <div style="padding-bottom: 3%">
+            <div>
               <el-table :data="userDetails" border max-height="600">
                 <el-table-column
                   property="username"
@@ -1452,6 +1400,13 @@
   </div>
 </template>
 <script>
+import { markRaw } from "vue";
+import { resolveElTab } from '../../utils/elementTab'
+import fengmap from "fengmap/build/fengmap.map.min";
+import "fengmap/build/fengmap.plugin.ui.min";
+import "fengmap/build/fengmap.plugin.markers.min";
+import "fengmap/build/toolBarStyle.css";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import host from "../../host";
 import Menu from "../../components/menu/Menu";
 import basecard from "../../components/card/base-card";
@@ -1503,6 +1458,36 @@ import {
   removeTaskManagementDetails,
 } from "../../axios/api";
 import util from "../../common/util";
+
+// Vue3 下 FMCompositeMarker 图片 onload 时 getRenderNode 可能取到无 center 的节点，需与 Arrange3dMap 同样补丁
+function patchFengmapRenderNode(marker) {
+  if (
+    !marker ||
+    marker.__patchedRenderNode ||
+    typeof marker.getRenderNode !== "function"
+  ) {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
+
 export default {
   components: {
     Menu,
@@ -1531,33 +1516,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -1599,11 +1584,13 @@ export default {
       taskList: [],
       taskInfoTimeList: [], //巡检历史时间
       total: 0,
+      totalHis: 0,
       totalMember: 0,
       pageCount: 20,
       pageCountHis: 20,
       pageCountMem: 20,
       currentPage1: 1,
+      currentPageHis: 1,
       edit: false,
       editData: {
         id: "",
@@ -1973,6 +1960,12 @@ export default {
       taskHis: false, //判断是否为巡检历史页面
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     // 巡检历史里面根据状态设置表格样式
     tableCellClassName(row) {
@@ -2072,12 +2065,24 @@ export default {
       return result;
     },
 
+    // 清理巡检历史勾选（避免切 tab 后界面无勾选但内存仍保留）
+    clearHistorySelection() {
+      this.multipleSelection = [];
+      this.currentRowHis = null;
+      this.$nextTick(() => {
+        const table = this.$refs.multipleTableHis;
+        if (table && typeof table.clearSelection === "function") {
+          table.clearSelection();
+        }
+      });
+    },
     //切换标签
     changeTab(tab, event) {
       var that = this;
-      switch (tab.index) {
+      switch (resolveElTab(tab).index) {
         case "0":
           //巡检任务
+          that.clearHistorySelection();
           that.searchList = {
             projectid: this.$store.state.projectid,
             begintime: "",
@@ -2094,21 +2099,11 @@ export default {
           that.getTaskManagementLists();
           break;
         case "1":
-          //巡检历史
-          that.searchListHis = {
-            userid: "",
-            taskid: "",
-            projectid: that.$store.state.projectid,
-            taskdate: "",
-            taskstatus: "",
-            begintaskstatus: "",
-            endtaskstatus: "",
-            page: 1,
-            count: 20,
-          };
-          that.currentPage1 = 1;
-          that.pageCountHis = 20;
-          that.taskData = [];
+          //巡检历史：保留筛选/分页，仅刷新数据并清理勾选
+          that.clearHistorySelection();
+          that.searchListHis.projectid = that.$store.state.projectid;
+          that.currentPageHis = that.searchListHis.page || 1;
+          that.pageCountHis = that.searchListHis.count || that.pageCountHis || 20;
           that.taskHis = true;
           that.getTaskNameIds();
           that.getMemberLists2();
@@ -2124,14 +2119,9 @@ export default {
       this.isactive = "";
       this.buildingList = [];
       this.grounds = "";
-      if (this.map) {
-        this.map.setTarget("nnnnnn");
-        this.map = null;
-      }
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap2D(this.mapName);
+      this.disposeMap3D();
+      this.mapTypes = true;
       this.inspectionName = this.tableData[index].name;
       this.inspectionId = this.tableData[index].id;
       if (this.tableData[index].details) {
@@ -2144,6 +2134,10 @@ export default {
     removeInspection(index) {
       var that = this;
       this.$confirm(this.$t("inspection.RemoveRouteText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -2174,6 +2168,59 @@ export default {
       });
     },
 
+    disposeMap2D(targetId) {
+      try {
+        if (this.map) {
+          this.map.setTarget(null);
+          this.map = null;
+        }
+      } catch (e) {
+        this.map = null;
+      }
+      const mapEl = document.getElementById(targetId || this.mapName);
+      if (mapEl) {
+        mapEl.innerHTML = "";
+      }
+    },
+
+    disposeMap3D() {
+      if (this.layerList.length > 0) {
+        this.layerList.forEach((item) => {
+          try {
+            item.remove();
+          } catch (e) {
+            // ignore marker remove errors
+          }
+        });
+        this.layerList = [];
+      }
+      try {
+        if (
+          this.scrollFloorControl &&
+          typeof this.scrollFloorControl.remove === "function"
+        ) {
+          this.scrollFloorControl.remove();
+        }
+      } catch (e) {
+        // ignore toolbar remove errors
+      }
+      this.scrollFloorControl = null;
+      try {
+        if (this.map3d && typeof this.map3d.dispose === "function") {
+          this.map3d.dispose();
+        }
+      } catch (e) {
+        // ignore map dispose errors
+      }
+      this.map3d = null;
+      ["fengMap", "fengMapHis"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.innerHTML = "";
+        }
+      });
+    },
+
     //获取楼栋号的下拉框
     getBuildings(buildingId, ground) {
       var that = this;
@@ -2197,11 +2244,16 @@ export default {
               return item.id == buildingId;
             });
             if (found.buildtype == 1) {
+              that.disposeMap3D();
               that.mapTypes = true;
               that.getGroundLists(buildingId, ground);
             } else if (found.buildtype == 2) {
+              that.disposeMap2D(that.mapName);
+              that.grounds = [];
               that.mapTypes = false;
-              that.getGroundLists3D(buildingId, ground);
+              that.$nextTick(() => {
+                that.getGroundLists3D(buildingId, ground);
+              });
             }
           }
         }
@@ -2215,15 +2267,17 @@ export default {
         return item.id == val;
       });
       if (found.buildtype == 1) {
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.disposeMap3D();
         this.mapTypes = true;
         this.getGroundLists(val);
       } else if (found.buildtype == 2) {
+        that.disposeMap2D(that.mapName);
+        this.grounds = [];
+        this.featureArrs = [];
         this.mapTypes = false;
-        that.getGroundLists3D(val);
+        this.$nextTick(() => {
+          that.getGroundLists3D(val);
+        });
       }
     },
 
@@ -2282,14 +2336,11 @@ export default {
         if (that.groundListHis.length == 1) {
           that.lastGroup = true;
           that.nextGroup = true;
-        } else if (that.groundListHis.length > 1) {
+        } else         if (that.groundListHis.length > 1) {
           that.lastGroup = true;
           that.nextGroup = false;
         }
-        if (that.map3d) {
-          that.map3d.dispose();
-          that.map3d = null;
-        }
+        that.disposeMap3D();
         this.mapTypes = true;
         this.getBuildGroundLists(
           this.groundListHis[this.groundListHis.length - 1]
@@ -2302,8 +2353,11 @@ export default {
           that.lastGroup3D = true;
           that.nextGroup3D = false;
         }
+        that.disposeMap2D(that.mapNameHis);
         this.mapTypes = false;
-        that.getGroundLists3D(val, arrData[0].ground);
+        this.$nextTick(() => {
+          that.getGroundLists3D(val, arrData[0].ground);
+        });
       }
     },
     // 巡检历史页面，上一栋
@@ -2362,6 +2416,7 @@ export default {
     getGroundLists(val, ground) {
       var that = this;
       this.featureArrs = [];
+      this.disposeMap3D();
       this.isactive = val;
       let data = {
         buildid: val,
@@ -2390,10 +2445,8 @@ export default {
       that.groundListCopy = [];
       this.isactive = build;
       this.building = build;
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap3D();
+      this.disposeMap2D(this.taskHis ? this.mapNameHis : this.mapName);
 
       let data = {
         buildid: build,
@@ -2411,7 +2464,7 @@ export default {
             }
             that.fmapId = res.data[0].filename;
             that.themeId = res.data[0].filetype;
-            setTimeout(() => {
+            that.$nextTick(() => {
               let gound;
               if (ground) {
                 let focusGroupID = that.groundListCopy.find(function (item) {
@@ -2434,7 +2487,7 @@ export default {
                   res.data[0].mapkey
                 );
               }
-            }, 1);
+            });
           }
         }
       );
@@ -2451,8 +2504,13 @@ export default {
         return false;
       };
       var that = this;
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
+      const container = document.getElementById("fengMap");
+      if (!container) {
+        return;
+      }
+      this.disposeMap3D();
+      var mapOpation = applyFengmapLocalLoad({
+        container: container,
         level: ground,
         visibleLevels: [ground],
         appName: appname,
@@ -2461,11 +2519,9 @@ export default {
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
         console.log("地图加载完成");
         that.loadScrollFloorCtrl();
@@ -2551,8 +2607,13 @@ export default {
         return false;
       };
       var that = this;
-      var mapOpation = {
-        container: document.getElementById("fengMapHis"),
+      const container = document.getElementById("fengMapHis");
+      if (!container) {
+        return;
+      }
+      this.disposeMap3D();
+      var mapOpation = applyFengmapLocalLoad({
+        container: container,
         level: ground, //默认聚焦楼层
         visibleLevels: [ground], //初始显示楼层ID数组
         appName: appname,
@@ -2560,11 +2621,9 @@ export default {
         viewMode: fengmap.FMViewMode.MODE_2D, //设置地图2d显示
         mapID: that.fmapId,
         themeID: that.themeId,
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
+      });
 
-      this.map3d = new fengmap.FMMap(mapOpation);
+      this.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
       this.map3d.on("loaded", function () {
         console.log("地图加载完成");
         let focusGroupID = that.groundListCopy.find(function (item) {
@@ -2677,7 +2736,9 @@ export default {
           y: 20,
         },
       };
-      this.scrollFloorControl = new fengmap.FMToolbar(scrollFloorCtlOpt);
+      this.scrollFloorControl = keepFengmapRaw(
+        new fengmap.FMToolbar(scrollFloorCtlOpt)
+      );
       this.scrollFloorControl.addTo(this.map3d);
     },
 
@@ -2802,7 +2863,7 @@ export default {
       }
       if (this.intoProjectType == 1) {
         if (mapinfo.inspection) {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2833,9 +2894,9 @@ export default {
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
             height: 2,
-          });
+          }));
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2866,11 +2927,11 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       } else if (this.intoProjectType == 2) {
         if (mapinfo.inspection) {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2901,9 +2962,9 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2934,13 +2995,19 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       }
 
       this.layer.selfAttr = info;
+      if (!this.map3d || !this.layer) {
+        return;
+      }
       var level = this.map3d.getLevel();
       var group = this.map3d.getFloor(level);
+      if (!group) {
+        return;
+      }
       this.layer.addTo(group);
       this.layerList.push(this.layer);
     },
@@ -2995,7 +3062,7 @@ export default {
                 icon = item;
               }
             });
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3035,9 +3102,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3068,10 +3135,10 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -3102,12 +3169,12 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       } else if (this.intoProjectType == 2) {
         if (mapinfo.inspection) {
           if (that.inspectionInfodetails.includes(info.beaconid)) {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3138,9 +3205,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -3171,10 +3238,10 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -3205,13 +3272,19 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       }
 
       this.layer.selfAttr = info;
+      if (!this.map3d || !this.layer) {
+        return;
+      }
       var level = this.map3d.getLevel();
       var group = this.map3d.getFloor(level);
+      if (!group) {
+        return;
+      }
       this.layer.addTo(group);
       this.layerList.push(this.layer);
     },
@@ -3298,10 +3371,7 @@ export default {
     },
 
     mapInit(x, y) {
-      if (this.map) {
-        this.map.setTarget("masssss");
-        this.map = null;
-      }
+      this.disposeMap2D(this.mapName);
       var that = this;
       var extent = [0, 0, x, y];
       var projection = new Projection({
@@ -3324,8 +3394,12 @@ export default {
         xx = x;
         yy = y;
       }
-      this.$refs.map.style.width = "100%";
-      this.$refs.map.style.height = "100%";
+      const mapEl = document.getElementById(this.mapName);
+      if (!mapEl) {
+        return;
+      }
+      mapEl.style.width = "100%";
+      mapEl.style.height = "100%";
       this.map = new Map({
         layers: [
           new ImageLayer({
@@ -3345,13 +3419,11 @@ export default {
         }),
       });
       this.mapClick();
+      this.refreshInspectionMapSize();
       // }, 0);
     },
     mapInitHis(x, y) {
-      if (this.map) {
-        this.map.setTarget("masssss");
-        this.map = null;
-      }
+      this.disposeMap2D(this.mapNameHis);
       var that = this;
       var extent = [0, 0, x, y];
       var projection = new Projection({
@@ -3373,8 +3445,12 @@ export default {
         xx = x;
         yy = y;
       }
-      this.$refs.map.style.width = "100%";
-      this.$refs.map.style.height = "100%";
+      const mapEl = document.getElementById(this.mapNameHis);
+      if (!mapEl) {
+        return;
+      }
+      mapEl.style.width = "100%";
+      mapEl.style.height = "100%";
       this.map = new Map({
         layers: [
           new ImageLayer({
@@ -3393,6 +3469,7 @@ export default {
           maxZoom: 6,
         }),
       });
+      this.refreshInspectionMapSize();
     },
 
     //反向项目获取地图上已布置的设备
@@ -3952,14 +4029,30 @@ export default {
       this.setInspectionMap = false;
     },
 
+    handleSetInspectionDialogOpened() {
+      this.refreshInspectionMapSize();
+    },
+
+    refreshInspectionMapSize() {
+      this.$nextTick(() => {
+        if (this.map) {
+          this.map.updateSize();
+        }
+        setTimeout(() => {
+          if (this.map) {
+            this.map.updateSize();
+          }
+        }, 350);
+      });
+    },
+
     //关闭设置巡检详情关闭回调
     closeInspection() {
       this.showInspection = false;
       this.getTaskManagementLists();
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
+      this.disposeMap2D(this.mapName);
+      this.disposeMap2D(this.mapNameHis);
+      this.disposeMap3D();
     },
     //是否禁用启动、终止按钮
     showButton(row) {
@@ -4061,6 +4154,10 @@ export default {
         this.$t("warning.permissiondelete1"),
         this.$t("change.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -4462,6 +4559,8 @@ export default {
       // this.searchListHis.begindate = this.begindate;
       // this.searchListHis.enddate = this.enddate;
       that.searchListHis.page = 1;
+      that.currentPageHis = 1;
+      that.clearHistorySelection();
       getTaskInfoList(
         this.searchListHis,
         this.tenantkey_A,
@@ -4470,7 +4569,7 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.tableDataHis = res.data.list;
-          that.total = res.data.size;
+          that.totalHis = res.data.size;
           if (res.data.size > 0) {
             that.$message({
               message: that.$t("buildingmanagement.searchsuccess"),
@@ -4510,13 +4609,15 @@ export default {
     handleCurrentChangeHis(val) {
       this.searchListHis.page = val;
       this.searchListHis.count = this.pageCountHis;
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
     handleSizeChangeHis(val1) {
       this.pageCountHis = val1;
       this.searchListHis.count = val1;
       this.searchListHis.page = 1;
-      this.currentPage1 = 1;
+      this.currentPageHis = 1;
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
 
@@ -4547,7 +4648,8 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.tableDataHis = res.data.list;
-          that.total = res.data.size;
+          that.totalHis = res.data.size;
+          that.clearHistorySelection();
         }
       });
     },
@@ -4581,12 +4683,13 @@ export default {
         page: 1,
         count: 20,
       };
-      this.currentPage1 = 1;
+      this.currentPageHis = 1;
       this.pageCountHis = 20;
       this.taskData = [
         // new Date().getTime() - (1 * 60 * 60 * 1000 * 24 - 1),
         // new Date(),
       ];
+      this.clearHistorySelection();
       this.getTaskInfoLists();
     },
     //删除巡检任务
@@ -4608,6 +4711,10 @@ export default {
           this.$t("beacon.Pinspectiontask"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -4821,8 +4928,10 @@ export default {
         (res) => {
           if (res.code == 1001) {
             that.delHis = false;
+            that.deleteData = [];
             that.searchListHis.page = 1;
-            that.currentPage1 = 1;
+            that.currentPageHis = 1;
+            that.clearHistorySelection();
             that.getTaskInfoLists();
             that.$message({
               message: that.$t("downlink.deletesuccess"),
@@ -4862,14 +4971,10 @@ export default {
           this.buildingListHis = [];
 
           this.grounds = "";
-          if (this.map) {
-            this.map.setTarget("nnnnnn");
-            this.map = null;
-          }
-          if (this.map3d) {
-            this.map3d.dispose();
-            this.map3d = null;
-          }
+          this.disposeMap2D(this.mapName);
+          this.disposeMap2D(this.mapNameHis);
+          this.disposeMap3D();
+          this.mapTypes = true;
           this.inspectionName = this.currentRowHis.name;
           this.inspectionId = this.currentRowHis.id;
           if (this.currentRowHis.details) {
@@ -5010,16 +5115,16 @@ export default {
     },
 
     //关闭巡检历史页面巡检详情关闭回调
+    closeTaskInfoHisCancle() {
+      this.taskHisInfo = false;
+    },
+
     closeTaskInfoHis() {
       this.taskHisInfo = false;
       this.getTaskInfoLists();
-      if (this.map3d) {
-        this.map3d.dispose();
-        this.map3d = null;
-      }
-    },
-    closeTaskInfoHisCancle() {
-      this.taskHisInfo = false;
+      this.disposeMap2D(this.mapNameHis);
+      this.disposeMap3D();
+      this.mapTypes = true;
     },
 
     getMemberNameIds() {
@@ -5193,10 +5298,16 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.inspection-history-table :deep(.el-table__row td) {
+  padding: 8px 0 !important;
+}
+.inspection-history-table :deep(.el-table__header th) {
+  padding: 10px 0 !important;
+}
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .el-table .not-conducted {
@@ -5206,7 +5317,7 @@ export default {
   height: 12px;
   border-radius: 50%;
 }
-.el-table >>> .taskstatustr {
+.el-table :deep(.taskstatustr) {
   display: flex;
   text-align: left;
 }
@@ -5217,14 +5328,14 @@ export default {
   height: 12px;
   border-radius: 50%;
 }
-.el-table >>> .finished {
+.el-table :deep(.finished) {
   display: inline-block;
   width: 12px;
   height: 12px;
   border-radius: 50%;
   background: rgba(0, 255, 0, 1);
 }
-.el-table >>> .unfinished {
+.el-table :deep(.unfinished) {
   display: inline-block;
   width: 12px;
   height: 12px;
@@ -5237,23 +5348,23 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
@@ -5261,7 +5372,7 @@ export default {
   margin-left: 4px !important;
 }
 
-.addInspection >>> .el-range-separator {
+.addInspection :deep(.el-range-separator) {
   width: auto !important;
   padding: 0 !important;
 }
@@ -5297,7 +5408,7 @@ export default {
   background-color: white;
 }
 
-.selectGround >>> .el-scrollbar__wrap {
+.selectGround :deep(.el-scrollbar__wrap) {
   overflow-x: hidden !important;
 }
 .selectGround {
@@ -5348,21 +5459,230 @@ export default {
   margin-right: 0;
   cursor: pointer;
 }
-.setInspection {
-  background-color: #f1f5f7 !important;
-}
-.setInspection >>> .el-dialog {
-  background-color: #f1f5f7 !important;
-}
-
-.setInspection >>> .el-dialog__header {
-  display: none;
-}
-.setInspection >>> .el-dialog__body {
-  width: 100%;
-  height: 100%;
-}
 #floors {
   position: absolute;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

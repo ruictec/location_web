@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -8,22 +8,16 @@
       <el-container class="asi">
         <el-aside><Devicemanagement /></el-aside>
         <el-main>
-          <div class="device_input">
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
-            >
+                    <div
+            class="device_input terminal-filter-flow page-panel"
+            :class="filterLangClass"
+          >
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.state')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.status"
                   clearable
                   filterable
@@ -37,30 +31,29 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-         
-              <el-form-item style="margin-left: 2%">
+            </el-form>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
                 <el-button type="primary" class="query" @click="searchInfo()">
-                  {{ $t("nsconfig.search") }}</el-button
-                ><el-button type="primary" class="reset" @click="clearBtn()">
-                  {{ $t("nsconfig.reset") }}</el-button
-                >
+                  {{ $t("nsconfig.search") }}</el-button>
+                <el-button type="primary" class="reset" @click="clearBtn()">
+                  {{ $t("nsconfig.reset") }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="addNS()"
                   v-if="contrForPrionum == 1"
-                  >{{ $t("ns.addns") }}</el-button
-                >
-              </el-form-item>
-            </el-form>
+                  >{{ $t("ns.addns") }}</el-button>
+              </div>
+            </div>
           </div>
 
           <!-- NS 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -149,8 +142,9 @@
                 align="center"
                 v-if="contrForPrionum == 1"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -161,8 +155,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -173,13 +168,11 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="nsEdit(scope.row)"
                           v-if="contrForPrionum == 1"
-                          >{{ $t("ns.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("ns.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -187,31 +180,28 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="nsDele(scope.row)"
                           v-if="contrForPrionum == 1"
-                          >{{ $t("ns.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("ns.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -219,17 +209,18 @@
 
           <!-- 添加NS -->
           <el-dialog
+            class="device-dialog"
             :title="$t('ns.addns1')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="800px"
+            v-model="add"
             @close="addCancel('addData')"
+            align-center
           >
             <el-form
+              class="dialog-form-2col"
               :model="addData"
               label-width="130px"
               ref="addData"
-              style="text-align: left"
               :rules="addRules"
             >
               <el-form-item :label="$t('ns.Name')" prop="name">
@@ -297,7 +288,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -308,24 +299,23 @@
               >
                 {{ $t("terminal.confirm") }}
               </el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑Ns -->
           <el-dialog
             :title="$t('ns.editns')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="800px"
             @close="editCancel('editData')"
+            align-center
           >
             <el-form
               :model="editData"
               ref="editData"
-              class="demo-ruleForm"
+              class="demo-ruleForm dialog-form-2col"
               label-width="130px"
-              style="text-align: left; margin-left: 10px"
               :rules="addRules"
             >
               <el-form-item :label="$t('ns.Name')" prop="name">
@@ -393,7 +383,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -402,9 +392,8 @@
                 @click="editTrue('editData')"
                 :loading="loading"
               >
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -558,6 +547,12 @@ export default {
         cert: "",
       },
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     // utc转本地
@@ -773,6 +768,10 @@ export default {
     nsDele(row) {
       var that = this;
       this.$confirm(this.$t("ns.deletemsg"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -863,10 +862,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .add,
@@ -877,4 +876,168 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.device_input.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.device_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.device_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.device_input.terminal-filter-flow .terminal-filter-item :deep(.el-select) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.query,
+.reset,
+.add {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item {
+  order: 999;
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

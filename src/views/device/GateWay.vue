@@ -1,5 +1,8 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div
+    :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'"
+    style="height: 100%"
+  >
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -8,19 +11,20 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Devicemanagement /></el-aside>
         <el-main>
-          <div class="gateway_input">
+          <div
+            class="gateway_input terminal-filter-flow page-panel"
+            :class="filterLangClass"
+          >
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form gateway-search-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap; margin-left: 1%; z-index: 1"
             >
               <el-form-item
                 :label="$t('gateway.company')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
                 v-if="contrForPrionum == 1 || contrForPrionum == 2"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.tenantid"
                   clearable
                   filterable
@@ -37,10 +41,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.deveui')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.deveui"
                   clearable
                   filterable
@@ -56,10 +59,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.scheme')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.scheme"
                   clearable
                   filterable
@@ -75,10 +77,9 @@
               </el-form-item>
               <el-form-item
                 :label="$t('gateway.Online')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.hbstatus"
                   clearable
                   filterable
@@ -93,12 +94,29 @@
                 </el-select>
               </el-form-item>
               <el-form-item
+                :label="$t('gateway.Accessmode')"
+                class="terminal-filter-item"
+              >
+                <el-select
+                  v-model="searchList.network"
+                  clearable
+                  filterable
+                  :placeholder="$t('terminal.choose')"
+                >
+                  <el-option
+                    v-for="item in typeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item
                 :label="$t('terminal.Project1')"
-                style="display: flex; width: 15%; margin-left: 1%; margin-right: 0"
+                class="terminal-filter-item"
                 v-if="contrForPrionum == 3 || contrForPrionum == 4"
               >
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.projectid"
                   clearable
                   filterable
@@ -112,7 +130,9 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 2%">
+            </el-form>
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
                 <el-button type="primary" class="query" @click="searchGateway()">{{
                   $t('gateway.search')
                 }}</el-button>
@@ -129,29 +149,28 @@
                     contrForPrionum == 3 ||
                     contrForPrionum == 4
                   "
-                  >{{ $t('gateway.addstation') }}</el-button
-                >
+                  >{{ $t('gateway.addstation') }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="GwToNs()"
                   v-if="contrForPrionum == 1 || contrForPrionum == 2"
-                  >{{ $t('gateway.Batchsynchronization') }}</el-button
-                >
-              </el-form-item>
-            </el-form>
+                  >{{ $t('gateway.Batchsynchronization') }}</el-button>
+              </div>
+            </div>
           </div>
 
           <!-- gateway展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
               @current-change="selectGateway"
               @selection-change="handleSelectionChange"
-              style="width: 98%; text-align: center; margin-left: 2%"
-              :max-height="contrForPrionum == 5 ? 660 : 300"
-              border
+              class="device-table"
+              style="width: 100%; text-align: center"
+              :max-height="300"
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column
@@ -223,15 +242,13 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
-                  <el-button
+                <template #default="scope">
+                  <el-button text
                     v-if="scope.row.network == 1 && scope.row.cardid"
                     @click="show4Gs(scope.$index)"
-                    type="text"
                     size="small"
                     style="width: 60%"
-                    >{{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}</el-button
-                  >
+                    >{{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}</el-button>
                   <p v-if="scope.row.network != 1 || scope.row.cardid == null">
                     {{ i8n == 'zh' ? scope.row.networkstr : scope.row.ennetwork }}
                   </p>
@@ -267,7 +284,7 @@
                 :label="$t('gateway.memo2')"
                 align="center"
                 show-overflow-tooltip
-                v-if="contrForPrionum != 1 && contrForPrionum != 2"
+                v-if="contrForPrionum == 3 || contrForPrionum == 4"
               ></el-table-column>
               <el-table-column
                 fixed="right"
@@ -281,8 +298,9 @@
                   contrForPrionum == 4
                 "
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -293,8 +311,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -302,7 +321,7 @@
                         style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="gatewayEdit(scope.row)"
                           v-if="
@@ -311,38 +330,33 @@
                             contrForPrionum == 3 ||
                             contrForPrionum == 4
                           "
-                          >{{ $t('gateway.edit') }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t('gateway.edit') }}</el-button></el-dropdown-item>
                       <el-dropdown-item style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="gatewayBack(scope.row)"
                           v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                          >{{ $t('terminal.recovery') }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t('terminal.recovery') }}</el-button></el-dropdown-item>
                       <el-dropdown-item style="margin-top: 4%; background-color: rgb(219, 222, 231)"
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="gatewayDele(scope.row)"
                           v-if="contrForPrionum == 1 || contrForPrionum == 3 || delprio == 1"
-                          >{{ $t('gateway.delete') }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t('gateway.delete') }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
             </el-table>
             <!-- 分页 -->
-            <div class="block" style="text-align: center; width: 100%; margin-top: 1%">
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
+                v-model:page-size="pageCount"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -352,7 +366,7 @@
           </div>
 
           <!-- 地图 -->
-          <div class="mapConent" v-if="contrForPrionum != 5">
+          <div class="mapConent page-panel">
             <div class="gateway-map-wrap">
               <MapLayerSwitcher
                 :map="map"
@@ -393,11 +407,12 @@
           </div>
           <!-- 添加gateway -->
           <el-dialog
+            class="device-dialog"
             :title="$t('gateway.addgateway')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="640px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -420,9 +435,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet1') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -440,9 +455,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet2') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -491,9 +506,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t('gateway.tet3') }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -590,22 +605,21 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')"> {{ $t('terminal.cancel') }}</el-button>
               <el-button type="primary" @click="addTrue('addData')" :loading="loading">
-                {{ $t('terminal.confirm') }}</el-button
-              >
-            </div>
+                {{ $t('terminal.confirm') }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 修改gateway -->
           <el-dialog
             :title="$t('gateway.editgateway')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="640px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -745,16 +759,22 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{ $t('terminal.cancel') }}</el-button>
               <el-button type="primary" @click="editTrue('editData')" :loading="loading">{{
                 $t('terminal.confirm')
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 显示4G信息 -->
-          <el-dialog width="30%" :visible.sync="show4Gdialog" style="text-align: center">
+          <el-dialog
+            class="device-dialog"
+            :title="$t('gateway.Networkmode')"
+            width="520px"
+            v-model="show4Gdialog"
+            align-center
+          >
             <el-form :model="show4GData" label-width="110px" style="text-align: left">
               <el-form-item :label="$t('gateway.Cardnumber')" prop="name" style="margin-right: 2%">
                 <el-input v-model="show4GData.cardid"></el-input>
@@ -1019,6 +1039,12 @@ export default {
       echarts2: true, //当两个echarts折线图渲染完成后才会触发点击事件
     }
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     //批量同步
     GwToNs() {
@@ -1045,6 +1071,10 @@ export default {
       }
 
       this.$confirm(this.$t('terminal.tet10'), this.$t('Building.tips'), {
+        customClass: 'device-message-box',
+        confirmButtonClass: 'device-message-confirm',
+        cancelButtonClass: 'device-message-cancel',
+        roundButton: false,
         confirmButtonText: this.$t('terminal.confirm'),
         cancelButtonText: this.$t('terminal.cancel'),
         type: 'warning',
@@ -1114,7 +1144,7 @@ export default {
     },
     //选中表格事件
     selectGateway(val) {
-      if (!val || this.contrForPrionum == 5) return
+      if (!val) return
       if (this.show4G) {
         var that = this
         if (this.echarts1 && this.echarts2 && this.clickTrue) {
@@ -1171,15 +1201,15 @@ export default {
             })
           }
 
-          if (Number(val.lastx) === 0 && Number(val.lasty) === 0) {
-            that.$message({
-              message: that.$t('gateway.noGps'),
-              type: 'warning',
-            })
-          } else {
-            that.map.getView().setCenter([val.lastx, val.lasty], 'EPSG:4326')
-            that.addIconMarker(that.map, val)
-          }
+          // 即使坐标为 (0,0) 也在地图上加载，方便手动拖拽布置
+          const lastx = Number(val.lastx) || 0
+          const lasty = Number(val.lasty) || 0
+          const markerInfo = Object.assign({}, val, {
+            lastx: lastx,
+            lasty: lasty,
+          })
+          that.map.getView().setCenter([lastx, lasty], 'EPSG:4326')
+          that.addIconMarker(that.map, markerInfo)
           that.clickTrue = true
         }
       }
@@ -1365,9 +1395,7 @@ export default {
         style: style,
       })
 
-      if (this.contrForPrionum != 5) {
-        this.modifyFeature(map, vectorLayer.getSource())
-      }
+      this.modifyFeature(map, vectorLayer.getSource())
       map.addLayer(vectorLayer)
     },
 
@@ -1393,6 +1421,13 @@ export default {
               message: that.$store.state.i18n == 'zh' ? res.msg : res.enMsg,
               type: 'error',
             })
+            return
+          }
+          // 同步表格坐标，避免再次点击该行时地图回到旧位置
+          const row = that.tableData.find(item => item.deveui === data.deveui)
+          if (row) {
+            row.lastx = data.longitude
+            row.lasty = data.latitude
           }
         })
       })
@@ -1616,16 +1651,14 @@ export default {
           if (res.code == 1001) {
             that.tableData = res.data.list
             that.total = res.data.size
-            if (that.contrForPrionum != 5) {
-              const currentRow =
-                that.tableData.find(item => item.custom == 1) || that.tableData[0]
-              if (currentRow) {
-                that.$nextTick(() => {
-                  if (that.$refs.multipleTable) {
-                    that.$refs.multipleTable.setCurrentRow(currentRow)
-                  }
-                })
-              }
+            const currentRow =
+              that.tableData.find(item => item.custom == 1) || that.tableData[0]
+            if (currentRow) {
+              that.$nextTick(() => {
+                if (that.$refs.multipleTable) {
+                  that.$refs.multipleTable.setCurrentRow(currentRow)
+                }
+              })
             }
           }
         }
@@ -1748,6 +1781,10 @@ export default {
         this.$t('Building.tips'),
 
         {
+          customClass: 'device-message-box',
+          confirmButtonClass: 'device-message-confirm',
+          cancelButtonClass: 'device-message-cancel',
+          roundButton: false,
           confirmButtonText: this.$t('terminal.confirm'),
           cancelButtonText: this.$t('terminal.cancel'),
           type: 'warning',
@@ -1783,6 +1820,10 @@ export default {
         this.$t('beacon.tet13') + row.deveui + this.$t('gateway.deletemsg1'),
         this.$t('Building.tips'),
         {
+          customClass: 'device-message-box',
+          confirmButtonClass: 'device-message-confirm',
+          cancelButtonClass: 'device-message-cancel',
+          roundButton: false,
           confirmButtonText: this.$t('terminal.confirm'),
           cancelButtonText: this.$t('terminal.cancel'),
           type: 'warning',
@@ -1848,14 +1889,16 @@ export default {
 
     // 刷新
     clearButton() {
+      this.pageCount = 10;
       if (this.$store.state.userInfo.prionum == 1 || this.$store.state.userInfo.prionum == 2) {
         this.searchList = {
           deveui: '',
           scheme: '',
           tenantid: '',
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: '',
         }
       } else if (this.$store.state.userInfo.prionum == 5) {
@@ -1864,8 +1907,9 @@ export default {
           scheme: '',
           tenantid: this.$store.state.intoProjectSuperid,
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: this.$store.state.projectid,
         }
       } else {
@@ -1874,8 +1918,9 @@ export default {
           scheme: '',
           tenantid: this.$store.state.userInfo.tenantid,
           page: 1,
-          count: this.pageCount,
+          count: 10,
           hbstatus: '',
+          network: '',
           projectid: '',
         }
       }
@@ -1984,6 +2029,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: '',
       }
     }
@@ -1995,6 +2041,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: this.$store.state.projectid,
       }
     }
@@ -2006,6 +2053,7 @@ export default {
         page: 1,
         count: 10,
         hbstatus: '',
+        network: '',
         projectid: '',
       }
       this.getSearchProjectList(this.$store.state.userInfo.tenantid)
@@ -2014,16 +2062,12 @@ export default {
 
     this.getCustomerNames()
     this.getSearchGatewayList()
-    if (this.contrForPrionum != 5) {
-      this.initMap()
-    }
+    this.initMap()
     this.getGatewayLists()
   },
   mounted() {
-    if (this.contrForPrionum != 5) {
-      this.drawLine1()
-      this.drawLine2()
-    }
+    this.drawLine1()
+    this.drawLine2()
   },
   watch: {
     totalbytes(v) {
@@ -2046,10 +2090,8 @@ export default {
       Object.assign(this.$data.editRules, this.$options.data.call(this).editRules)
       Object.assign(this.$data.typeList, this.$options.data.call(this).typeList)
 
-      if (this.contrForPrionum != 5) {
-        this.drawLine1()
-        this.drawLine2()
-      }
+      this.drawLine1()
+      this.drawLine2()
     },
   },
 }
@@ -2101,11 +2143,11 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td,
-.el-table >>> .current-row td {
+.el-table :deep(.hover-row td,
+.el-table >>> .current-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2114,21 +2156,26 @@ export default {
   padding: 8px 14px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
+}
+
+.terminal-filter-flow .gateway-search-form :deep(.el-form-item .el-form-item__content) {
+  flex: 0 0 auto;
+  min-width: 0;
 }
 
 /* 地图 */
@@ -2142,7 +2189,11 @@ export default {
 }
 
 .tips {
-  float: left;
+  display: block;
+  margin: 0 !important;
+  padding: 10px 14px 8px;
+  font-size: 12px;
+  color: #64748b;
   text-align: left;
 }
 #gatewayMap {
@@ -2195,4 +2246,228 @@ a {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button),
+.terminal-toolbar-row :deep(.el-dropdown) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.query,
+.reset,
+.add,
+.addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .el-dropdown,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

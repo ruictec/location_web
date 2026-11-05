@@ -10,8 +10,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 
-// 加载.env.local文件
-require('dotenv').config({ path: path.resolve(__dirname, '../.env.local') })
+// 应用配置见 config/app.js（不再从 .env.local 注入）
 
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)

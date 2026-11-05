@@ -2,12 +2,22 @@
 
 [中文](README.md) | English
 
-A comprehensive location tracking and management platform built with Vue.js 2.x technology stack.
+A location tracking and map management platform built with **Vue.js 3.x**.
 
-## 📋 Quick Navigation
+## Branch Overview
+
+| Branch | Description |
+|--------|-------------|
+| `main` | **Default branch**: Vue 3.x + Vite + Element Plus + Tianditu maps (this document's branch) |
+| `Tianditu` | Vue 2.x + Webpack legacy archive |
+
+> GitHub renders the README from the default branch `main`, which is the current Vue 3.x version.
+> For the legacy docs, see the [`Tianditu` branch README](https://github.com/ruictec/location_web/blob/Tianditu/README_EN.md).
+
+## Quick Navigation
 
 - [🚀 Quick Start](#quick-start)
-- [⚙️ Environment Variables](#environment-variables)
+- [⚙️ Injected Variables](#injected-variables)
 - [📖 Usage Guide](#usage-guide)
 - [🔧 Build Commands](#build-commands)
 - [📁 Project Structure](#project-structure)
@@ -21,41 +31,64 @@ A comprehensive location tracking and management platform built with Vue.js 2.x 
 - **Staff Management**: Employee location and trajectory tracking
 - **Project Management**: Multi-project support with 3D visualization
 - **Device Management**: Support for various positioning devices (AOA, BLE, GPS, etc.)
-- **Map Integration**: OpenLayers and Fengmap integration
+- **Map Integration**: OpenLayers, Fengmap, and Tianditu
 - **Multi-language Support**: Chinese and English interface
 
 ## Technology Stack
 
-**Current version uses Vue 2.x technology stack:**
+**The project uses the Vue 3.x stack:**
 
-- 🏗️ **Vue.js 2.6.12** - Frontend framework
-- 📦 **Older technology stack** - Based on 2018-2019 technology choices
-- 🔄 **Modernization plan** - Version 2.0 will upgrade to Vue 3.x and modern technology stack
+- 🏗️ **Vue.js 3.4.38** - Frontend framework
+- ⚡ **Vite 5.4** - Build tool
+- 🎨 **Element Plus 2.8** - UI library
+- 🗺️ **Tianditu / OpenLayers / FengMap** - Maps
+
+> For the Vue 2.x (Webpack) version, switch to the [`Tianditu`](https://github.com/ruictec/location_web/tree/Tianditu) branch.
 
 ### Technical Details
-- **Frontend**: Vue.js 2.6.12, Vue Router 3.4.6, Vuex 3.5.1
-- **Build Tool**: Webpack 3.12.0
-- **Maps**: OpenLayers 6.4.3, Fengmap 3.1.4
-- **UI Framework**: Element UI 2.14.1, View Design 4.5.0
-- **Charts**: ECharts 4.9.0
+- **Frontend**: Vue.js 3.4.38, Vue Router 4.4.5, Vuex 4.1.0
+- **Build Tool**: Vite 5.4.11
+- **Maps**: OpenLayers 6.4.3, Fengmap 3.1.4, Tianditu
+- **UI Framework**: Element Plus 2.8.8
+- **Charts**: ECharts 5.5.1
 - **3D Visualization**: Three.js 0.150.1
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 16.20.2 (recommended to use nvm for version management)
-- npm >= 6.x
+The `engines` field in `package.json` is the only version declaration in this project:
+
+```json
+"engines": {
+  "node": ">=18.18.0",
+  "npm": ">= 9.0.0"
+}
+```
+
+| Item | Requirement | Note |
+|------|-------------|------|
+| Node.js | `>=18.18.0` | Vite 5 does not support Node 16; verified on Node 22 LTS |
+| npm | `>= 9.0.0` | `package-lock.json` uses `lockfileVersion: 3` (npm 9+ format); older npm may rewrite the lockfile |
+
+> `engines` is **advisory, not enforced**: there is no `.npmrc` (`engine-strict` is off), no
+> `packageManager` field, and no CI version constraint. An older npm only produces an
+> `EBADENGINE` warning instead of failing the install.
+> Verified development environment: Node `v22.22.2` / npm `10.9.7`.
+> `.nvmrc` matches the table above; a plain `nvm use` is enough.
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone https://github.com/ruictec/location_web.git
 cd location_web
+
+nvm use
 
 # Install dependencies
 npm install
+# or if peer dependency conflicts occur:
+npm run install:legacy
 
 # Start development server
 npm run dev
@@ -63,86 +96,53 @@ npm run dev
 
 ### Configuration
 
-#### Development Environment
+All settings live in [`config/app.js`](config/app.js). **The project no longer reads `.env.local`**:
+`resolveAppEnv()` in that file produces the `VUE_APP_*` values, which `vite.config.js` injects into
+`process.env` at build time through `define`. There is no `dotenv` / `loadEnv` / `.env.local` logic
+anywhere in the repo, so edit `config/app.js` instead of creating a `.env` file.
 
-Create a `.env.local` file in the project root:
-
-```bash
-# Development Environment Configuration
-# Backend API and WebSocket addresses
-VUE_APP_API_BASE=http://localhost:14001/v1
-VUE_APP_WS_BASE=ws://localhost:14001/websocket
-
-# Document / help addresses
-VUE_APP_DOC_BASE=http://localhost:8078
-VUE_APP_HELP_BASE=http://localhost:8079
-
-# Map tile addresses
-VUE_APP_TILE_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png
-
-# Fengmap image resource addresses
-VUE_APP_FENGMAP_IMG_BASE=https://developer.fengmap.com/fmAPI/images
-
-# Baidu Analytics configuration (optional)
-VUE_APP_ENABLE_BAIDU_ANALYTICS=false
-VUE_APP_BAIDU_HM_ID=
-
-# MQTT server address
-VUE_APP_MQTT_BROKER_URL=tcp://mqtt.example.com:1883
-
-# Development environment proxy target address
-API_PROXY_TARGET=http://localhost:14001
-
-# WeChat Mini Program (if needed; do NOT commit secrets)
-VUE_APP_WECHAT_APPID=
-VUE_APP_WECHAT_SECRET=
+```js
+// config/app.js
+const config = {
+  active: 'cloud',   // backend target: cloud | lan | lan1 | docker
+  targets: {         // apiBase, wsBase, assetBase, docBase, helpBase per environment
+    cloud: { /* ... */ },
+  },
+  common: {          // map / analytics / MQTT / WeChat settings
+    mapProvider: 'tianditu',   // tianditu | osm
+    tiandituKey: '',           // never commit a real key
+  },
+}
 ```
 
-#### Production Environment
+`static/` is copied verbatim to `dist/static/` during the build. After deployment you can edit
+`dist/static/config.js` to override **map-related settings** (non-empty values only) without
+rebuilding. Backend endpoints and other values require editing `config/app.js` and rebuilding.
 
-Modify the addresses in `config/prod.env.js` or set server environment variables.
+## Injected Variables
 
-## Environment Variables
+`process.env.*` keys read by the code, and where their values come from in `config/app.js`:
 
-| Variable | Default Value | Description |
-|----------|---------------|-------------|
-| **Backend Service Addresses** | | |
-| `VUE_APP_API_BASE` | `http://localhost:14001/v1` | Backend API base address for API calls, file uploads, etc. (corresponds to host.host) |
-| `VUE_APP_WS_BASE` | `ws://localhost:14001/websocket` | WebSocket base address for real-time communication (corresponds to host.ws) |
-| **Document Addresses** | | |
-| `VUE_APP_DOC_BASE` | `http://localhost:8078` | Document/FAQ base address for Navbar.vue online documentation and FAQ |
-| `VUE_APP_HELP_BASE` | `http://localhost:8079` | Help documentation base address for Menu.vue help documentation and project guide links |
-| **Map Service Addresses** | | |
-| `VUE_APP_TILE_URL_TEMPLATE` | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | OSM tile URL template for OpenLayers map tile display |
-| `VUE_APP_FENGMAP_IMG_BASE` | `https://developer.fengmap.com/fmAPI/images` | Fengmap example image base address for Fengmap-related image resources |
-| **Analytics Configuration** | | |
-| `VUE_APP_BAIDU_HM_ID` | `''` | Baidu Analytics HM ID (empty by default, configure when needed) |
-| `VUE_APP_ENABLE_BAIDU_ANALYTICS` | `false` | Whether to enable Baidu Analytics (disabled by default) |
-| **Other Services** | | |
-| `VUE_APP_MQTT_BROKER_URL` | `tcp://mqtt.example.com:1883` | MQTT server address for data forwarding configuration |
-
-### Internal Navigation Addresses
-
-Project internal navigation addresses (such as beacon, project, terminal pages) are automatically generated based on the current access address and do not require configuration.
+| Variable | Source in `config/app.js` |
+|----------|---------------------------|
+| `VUE_APP_API_BASE`, `VUE_APP_WS_BASE` | `targets[active].apiBase` / `wsBase` (dev API is fixed to the `/v1` proxy) |
+| `VUE_APP_ASSET_BASE`, `VUE_APP_DOC_BASE`, `VUE_APP_HELP_BASE` | matching `targets[active]` fields |
+| `VUE_APP_MAP_PROVIDER`, `VUE_APP_TIANDITU_KEY`, `VUE_APP_TILE_URL_TEMPLATE` | matching `common` fields |
+| `VUE_APP_FENGMAP_IMG_BASE`, `VUE_APP_FENGMAP_MAP_URL`, `VUE_APP_FENGMAP_THEME_URL` | matching `common` fields |
+| `VUE_APP_ENABLE_BAIDU_ANALYTICS`, `VUE_APP_BAIDU_HM_ID`, `VUE_APP_MQTT_BROKER_URL` | matching `common` fields |
+| `VUE_APP_WECHAT_APPID`, `VUE_APP_WECHAT_SECRET` | matching `common` fields |
 
 ## Usage Guide
 
-1. **Development Environment**: Create a `.env.local` file and fill in environment variable values according to actual deployment.
-2. **Development**: Run `npm run dev` to use configurations from the `.env.local` file.
-3. **Production Environment**: Modify addresses in `config/prod.env.js` or set server environment variables.
-4. **Build**: Run `npm run build` to use configurations from `config/prod.env.js`.
+1. **Development**: Set `active` / `targets` / `common` in `config/app.js`, then run `npm run dev`.
+2. **Production build**: Run `npm run build` (output in `dist/`).
+3. **Deploy-time config**: Edit `dist/static/config.js` for map provider / Tianditu key.
 
 ## Important Notes
 
-- `.env` and `.env.local` are included in `.gitignore` to prevent accidental commits.
-- For production environments, please use your own domain/certificates to avoid bringing default values to production.
-- Baidu Analytics only loads when `VUE_APP_ENABLE_BAIDU_ANALYTICS=true`, and HM ID can be overridden via `VUE_APP_BAIDU_HM_ID`.
-
-## Proxy and Map Recommendations
-
-- **Development Proxy**: The `/v1` route in `config/index.js` can point to a test gateway via `API_PROXY_TARGET`.
-- **Map Tiles**: It's recommended to build your own OSM tiles or choose stable public services to avoid rate limiting from example addresses.
-- **Fengmap Images**: Can be replaced with your own static resources for faster access.
+- `.env` and `.env.local` are **not read** by the build — always use `config/app.js`.
+- Never commit Tianditu keys or WeChat secrets; prefer deploy-time `static/config.js` for keys.
+- Baidu Analytics loads only when `VUE_APP_ENABLE_BAIDU_ANALYTICS` is true (set `common.enableBaiduAnalytics` in `config/app.js`).
 
 ## Build Commands
 
@@ -153,33 +153,40 @@ npm run dev
 # Production build
 npm run build
 
-# Build analysis
-npm run build --report
+# Preview production build
+npm run preview
 ```
 
 ## Project Structure
 
 ```
-src/
-├── components/          # Reusable components
-├── views/              # Page components
-├── router/             # Route configuration
-├── store/              # Vuex state management
-├── axios/              # HTTP request configuration
-├── i18n/               # Internationalization
-├── config/             # Configuration files
-└── assets/             # Static resources
+location_web/
+├── config/app.js        # Single runtime config entry (backend / maps / analytics / WeChat)
+├── src/
+│   ├── components/      # Reusable components
+│   ├── views/           # Page components
+│   ├── router/          # Vue Router 4
+│   ├── store/           # Vuex 4
+│   ├── axios/           # HTTP helpers
+│   ├── i18n/            # i18n
+│   ├── shims/           # Third-party adapters (fengmap, etc.)
+│   └── assets/          # Static assets
+├── public/              # Images / dashboard assets
+├── scripts/             # Migration and helper scripts
+├── static/              # Runtime static files (config.js, copied to dist/static at build)
+├── vite.config.js
+└── package.json
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch from `main`
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
 
-For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md) / [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) / [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md).
 
 ## License
 
@@ -187,18 +194,16 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Security
 
-For security issues, see [SECURITY.md](SECURITY.md) / [SECURITY_EN.md](SECURITY_EN.md).
+See [SECURITY.md](SECURITY.md) / [SECURITY_EN.md](SECURITY_EN.md).
 
 ## Code of Conduct
 
-Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) / [CODE_OF_CONDUCT_EN.md](CODE_OF_CONDUCT_EN.md) for our community guidelines.
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) / [CODE_OF_CONDUCT_EN.md](CODE_OF_CONDUCT_EN.md).
 
 ## Backend Project
 
-This frontend project requires a backend service to function properly. The backend project is available at:
-
 - **Backend Repository**: [https://github.com/ruictec/edwei](https://github.com/ruictec/edwei)
-- **Project Description**: Backend for people and assets location management system, supporting smart badges, BLE beacons, GPS, UWB and other positioning technologies
+- **Description**: Backend for people and assets location management (smart badges, BLE beacons, GPS, UWB, etc.)
 
 ## Support
 
@@ -206,4 +211,5 @@ For technical support and questions, please contact the development team.
 
 ---
 
-**Technology Stack Note**: Current version is based on Vue 2.x technology stack, which is older but fully functional. Modern version v2.0 is under development.
+**Note**: The `main` branch is Vue 3.x + Vite. Use the `Tianditu` branch for the Vue 2.x legacy
+version. The GitHub homepage renders this README.

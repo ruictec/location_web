@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
       告警管理
@@ -10,19 +10,11 @@
           ><Data
         /></el-aside>
         <el-main>
-          <div class="warning_input">
-            <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
-            >
+          <div class="warning_input terminal-filter-flow page-panel" :class="filterLangClass">
+            <el-form class="demo-form-inline terminal-filter-form">
               <el-form-item
                 :label="$t('warning.DeviceNo')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
                   v-model="searchList.deveui"
@@ -33,12 +25,7 @@
               <el-form-item
                 v-if="contrForPrionum == 5"
                 :label="$t('warning.name')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-input
                   v-model="searchList.username"
@@ -47,14 +34,8 @@
               </el-form-item>
 
               <el-form-item
-                v-if="show"
                 :label="$t('warning.type')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  width: 18%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.devtype"
@@ -72,45 +53,15 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
+
               <el-form-item
-                v-if="!show"
-                style="display: flex; margin-left: 1%; margin-right: 0"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.more")
-                  }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-button
-                  type="primary"
-                  class="querry"
-                  @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button
-                >
-                <el-button type="primary" class="reset" @click="clearBtn()">{{
-                  $t("beacon.reset")
-                }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  @click="delWarningList()"
-                  >{{ $t("warning.batchdeletion") }}</el-button
-                >
-              </el-form-item>
-              <el-form-item
-                v-if="show"
                 :label="$t('warning.AlertType')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="types"
-                  style="width: 95%; float: left"
+                  clearable
                   :placeholder="$t('warning.text3')"
-                  @change="typeChange"
                 >
                   <el-option
                     v-for="item in contrForPrionum == 5 ? typeList1 : typeList"
@@ -123,19 +74,12 @@
               </el-form-item>
 
               <el-form-item
-                v-if="show"
                 :label="$t('warning.state')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                  z-index: 1;
-                "
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.status"
-                  style="width: 95%; float: left"
+                  clearable
                   :placeholder="$t('warning.text3')"
                 >
                   <el-option
@@ -147,41 +91,29 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-            </el-form>
 
-            <!-- 第二行 -->
-            <el-form
-              v-if="show"
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
-            >
               <el-form-item
                 :label="$t('warning.time')"
-                style="display: flex; margin-left: 2%; margin-right: 0"
+                class="terminal-filter-item"
               >
                 <el-date-picker
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts"
+                  :disabled-date="pickerOptions.disabledDate"
+                  @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('beacon.to')"
                   :start-placeholder="$t('beacon.starttime')"
                   :end-placeholder="$t('beacon.endtime')"
                 ></el-date-picker>
               </el-form-item>
+            </el-form>
 
-              <el-form-item
-                style="display: flex; margin-left: 1%; margin-right: 0"
-              >
-                <span class="el-dropdown-link" @click="changeItem()">
-                  {{ $t("beacon.putAway")
-                  }}<i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-button
-                  type="primary"
-                  class="querry"
-                  @click="searchInfo()"
-                  >{{ $t("beacon.search") }}</el-button
-                >
+            <div class="search-actions terminal-toolbar-item">
+              <div class="terminal-toolbar-row">
+                <el-button type="primary" class="query" @click="searchInfo()">{{
+                  $t("beacon.search")
+                }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("beacon.reset")
                 }}</el-button>
@@ -189,24 +121,23 @@
                   type="primary"
                   class="reset"
                   @click="delWarningList()"
-                  >{{ $t("warning.batchdeletion") }}</el-button
-                >
-              </el-form-item>
-            </el-form>
+                  >{{ $t("warning.batchdeletion") }}</el-button>
+              </div>
+            </div>
           </div>
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
+              class="device-table"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
                 z-index: 1;
               "
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
               max-height="660"
             >
@@ -217,6 +148,7 @@
                 :label="$t('warning.DeviceNo1')"
                 show-overflow-tooltip
                 align="center"
+                :formatter="formatDeveui"
               >
               </el-table-column>
               <el-table-column
@@ -253,6 +185,7 @@
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
                 align="center"
+                :formatter="formatAlertType"
               >
               </el-table-column>
               <el-table-column
@@ -277,7 +210,7 @@
                 align="center"
                 min-width="90"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -286,13 +219,29 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="icon_button"
                       @click="goLocation(scope.row)"
                       v-if="contrForPrionum == 5"
                     >
                       <img src="../../../static/location.png"
                     /></el-button>
+                  </el-tooltip>
+                  <el-tooltip
+                    v-if="isHealthType(scope.row.type)"
+                    class="item"
+                    effect="dark"
+                    :content="$t('staff.health')"
+                    placement="top-start"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="edits icon_button"
+                      @click="openHealthDialog(scope.row)"
+                    >
+                      <el-icon :size="16"><FirstAidKit /></el-icon>
+                    </el-button>
                   </el-tooltip>
                   <el-tooltip
                     class="item"
@@ -302,8 +251,8 @@
                   >
                     <el-button
                       type="danger"
-                      size="mini"
-                      class="edits"
+                      size="small"
+                      class="edits icon_button"
                       @click="DelWarningCommand(scope.row)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -312,24 +261,30 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
 
           <!-- 批量删除 -->
-          <el-dialog :title="$t('warning.title')" :visible.sync="del">
+          <el-dialog
+            width="720px"
+            class="device-dialog"
+            :title="$t('warning.title')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
               style="width: 100%; text-align: left"
@@ -340,6 +295,7 @@
                 property="deveui"
                 :label="$t('warning.DeviceNo1')"
                 show-overflow-tooltip
+                :formatter="formatDeveui"
               >
               </el-table-column>
               <el-table-column
@@ -353,6 +309,7 @@
                 :property="i8n == 'zh' ? 'typestr' : 'entype'"
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
+                :formatter="formatAlertType"
               >
               </el-table-column>
               <el-table-column
@@ -363,7 +320,7 @@
               >
               </el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -371,8 +328,47 @@
                 type="primary"
                 :loading="loading"
                 @click="deleteTrue()"
-                >{{ $t("warning.Sure") }}</el-button
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
+          </el-dialog>
+
+          <!-- 心率/体温异常告警：健康数据折线图 -->
+          <el-dialog
+            class="device-dialog health-dialog"
+            :title="healthTitle"
+            v-model="healthDialog"
+            width="70%"
+            @opened="onHealthDialogOpened"
+            @closed="disposeHealthChart"
+            top="6vh"
+          >
+            <div class="health-range-text">{{ healthRangeText }}</div>
+            <div v-if="healthEmpty" class="health-empty">
+              {{ $t("staff.healthEmpty") }}
+            </div>
+            <div v-else class="health-chart-card is-single">
+              <div
+                :class="[
+                  'health-chart-title',
+                  healthMetric === 'heartrate' ? 'is-heart' : 'is-tem',
+                ]"
               >
+                {{
+                  healthMetric === "heartrate"
+                    ? $t("staff.healthHeartrate")
+                    : $t("staff.healthTemperature")
+                }}
+                <span>{{
+                  healthMetric === "heartrate"
+                    ? $t("staff.healthUnitBpm")
+                    : $t("staff.healthUnitCelsius")
+                }}</span>
+              </div>
+              <div
+                ref="healthChart"
+                class="health-chart"
+                v-loading="healthLoading"
+              ></div>
             </div>
           </el-dialog>
         </el-main>
@@ -384,17 +380,20 @@
 <script>
 import Menu from "../../components/menu/Menu";
 import Data from "../../components/data/data";
-import { getWarningList, delWarning } from "../../axios/api";
+import { getWarningList, delWarning, getDevHealthListAsc } from "../../axios/api";
+import util from "../../common/util";
+import { FirstAidKit } from "@element-plus/icons-vue";
+import { jumpToWarningLocation } from "../../utils/warningLocation";
 export default {
   components: {
     Menu,
     Data,
+    FirstAidKit,
   },
   name: "WarningManagement",
   data() {
     return {
       i8n: this.$store.state.i18n,
-      show: false,
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -410,33 +409,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -493,7 +492,7 @@ export default {
           value: this.$t("warning.assets"),
         },
       ],
-      //状态()
+      //状态：仅未解除 / 已解除，与告警类型无关
       statusList: [
         {
           index: 1,
@@ -503,18 +502,13 @@ export default {
           index: 2,
           value: this.$t("warning.Released"),
         },
-        {
-          index: 3,
-          value: this.$t("tet.event"),
-        },
       ],
-      //告警类型
+      //告警类型（typeList / typeList1 保持一致）
       typeList: [
         {
           index: 1,
           value: this.$t("warning.SOSalarm"),
         },
-
         {
           index: 2,
           value: this.$t("warning.Aggregatealarm"),
@@ -549,23 +543,19 @@ export default {
         },
         {
           index: 10,
-          value: this.$t("terminal.Cancelsearch"),
+          value: this.$t("warning.DoorOpenalarm"),
         },
         {
           index: 11,
-          value: this.$t("tet.ble"),
+          value: this.$t("warning.LowBatteryAlarm"),
         },
         {
           index: 12,
-          value: this.$t("tet.lora"),
+          value: this.$t("warning.HeartbeatAbnormal"),
         },
         {
           index: 13,
-          value: this.$t("tet.seekfailed"),
-        },
-        {
-          index: 14,
-          value: this.$t("tet.tet6"),
+          value: this.$t("warning.TemperatureAbnormal"),
         },
       ],
 
@@ -574,7 +564,6 @@ export default {
           index: 1,
           value: this.$t("warning.SOSalarm"),
         },
-
         {
           index: 2,
           value: this.$t("warning.Aggregatealarm"),
@@ -607,22 +596,44 @@ export default {
           index: 9,
           value: this.$t("warning.CloseContact"),
         },
+        {
+          index: 10,
+          value: this.$t("warning.DoorOpenalarm"),
+        },
+        {
+          index: 11,
+          value: this.$t("warning.LowBatteryAlarm"),
+        },
+        {
+          index: 12,
+          value: this.$t("warning.HeartbeatAbnormal"),
+        },
+        {
+          index: 13,
+          value: this.$t("warning.TemperatureAbnormal"),
+        },
       ],
+      // 心率/体温异常告警的健康数据弹框
+      healthDialog: false,
+      healthLoading: false,
+      healthMetric: "heartrate", // heartrate | tem
+      healthTitle: "",
+      healthRangeText: "",
+      healthData: [],
+      healthEmpty: false,
+      healthChartInst: null,
     };
   },
-  methods: {
-    // 显示隐藏输入框
-    changeItem() {
-      this.show = !this.show;
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
     },
-    typeChange(type) {
-      let arr = [
-        {
-          index: 3,
-          value: this.$t("tet.event"),
-        },
-      ];
-      let arr1 = [
+  },
+  methods: {
+    //重置状态选择框选项
+    resetStatus() {
+      this.statusList = [
         {
           index: 1,
           value: this.$t("warning.Notreleased"),
@@ -632,45 +643,6 @@ export default {
           value: this.$t("warning.Released"),
         },
       ];
-      if (type > 9) {
-        this.statusList = arr;
-        this.searchList.status = 3;
-      } else {
-        this.statusList = arr1;
-        this.searchList.status =
-          this.searchList.status == 3 ? "" : this.searchList.status;
-      }
-      // this.resetStatus()
-    },
-    //重置状态选择框选项
-    resetStatus() {
-      if (this.contrForPrionum == 5) {
-        this.statusList = [
-          {
-            index: 1,
-            value: this.$t("warning.Notreleased"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Released"),
-          },
-        ];
-      } else {
-        this.statusList = [
-          {
-            index: 1,
-            value: this.$t("warning.Notreleased"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Released"),
-          },
-          {
-            index: 3,
-            value: this.$t("tet.event"),
-          },
-        ];
-      }
     },
     // utc转本地
     datetimecut(UTCDateString) {
@@ -710,6 +682,269 @@ export default {
       let date = new Date(parseInt(row.statustime) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
+    },
+    // 聚集告警：新数据 deveui 为门限级别（1/2/3…），旧数据可能是区域名称
+    isGatherType(type) {
+      return Number(type) === 2;
+    },
+    isGatherLevelValue(deveui) {
+      return /^[1-9]\d*$/.test(String(deveui == null ? "" : deveui).trim());
+    },
+    // 聚集级别：中文用一/二/三，英文用罗马数字Ⅰ/Ⅱ/Ⅲ
+    formatGatherLevelLabel(level) {
+      const n = Number(level);
+      if (!(n >= 1 && n <= 10)) return String(level);
+      const lang = this.i8n || this.$store.state.i18n;
+      if (lang === "en") {
+        return ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"][n];
+      }
+      return ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n];
+    },
+    formatDeveui(row) {
+      if (this.isGatherType(row.type)) {
+        const level = String(row.deveui == null ? "" : row.deveui).trim();
+        if (!level) return "-";
+        // 仅纯数字级别显示「N级聚集告警」；旧数据区域名原样展示
+        if (this.isGatherLevelValue(level)) {
+          return this.$t("warning.gatherLevelAlarm", {
+            n: this.formatGatherLevelLabel(level),
+          });
+        }
+        return level;
+      }
+      return row.deveui || "-";
+    },
+    // 低电 / 心率异常 / 体温异常：类型后附带 memo 实测值
+    formatAlertType(row) {
+      const typeName = this.i8n == "zh" ? row.typestr : row.entype;
+      const type = Number(row.type);
+      const memo = row.memo;
+      if (
+        (type === 11 || type === 12 || type === 13) &&
+        memo !== "" &&
+        memo != null &&
+        memo !== undefined
+      ) {
+        return `${typeName || ""}（${memo}）`;
+      }
+      return typeName || "-";
+    },
+
+    // 心率异常(12) / 体温异常(13) 才显示健康数据按钮
+    isHealthType(type) {
+      var t = Number(type);
+      return t === 12 || t === 13;
+    },
+    // 秒级时间戳转本地时间字符串
+    formatTimeStamp(sec) {
+      if (!sec) return "-";
+      return util.formatDate.format(
+        new Date(parseInt(sec) * 1000),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+    },
+    // 打开健康数据弹框：以告警时间为中点，取前后 1 小时
+    openHealthDialog(row) {
+      var that = this;
+      var isHeart = Number(row.type) === 12;
+      this.healthMetric = isHeart ? "heartrate" : "tem";
+      this.healthTitle = isHeart
+        ? this.$t("staff.healthHeartrate") +
+          "（" +
+          this.$t("staff.healthUnitBpm") +
+          "）"
+        : this.$t("staff.healthTemperature") +
+          "（" +
+          this.$t("staff.healthUnitCelsius") +
+          "）";
+      var center = parseInt(row.time) || 0;
+      var begin = center - 3600;
+      var end = center + 3600;
+      this.healthRangeText =
+        this.formatTimeStamp(begin) + " ~ " + this.formatTimeStamp(end);
+      this.healthData = [];
+      this.healthEmpty = false;
+      this.disposeHealthChart();
+      this.healthDialog = true;
+      this.$nextTick(() => {
+        that.fetchHealthData(row, begin, end);
+      });
+    },
+    // 调用 getDevHealthListAsc 拉取告警时间点前后 1 小时的数据
+    fetchHealthData(row, begin, end) {
+      var that = this;
+      var query = {
+        projectid:
+          row.projectid ||
+          this.projectid ||
+          this.$store.state.intoProjectid ||
+          "",
+        username: row.username,
+        begintime: begin,
+        endtime: end,
+      };
+      this.healthLoading = true;
+      getDevHealthListAsc(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          that.healthData = res && res.data ? res.data : [];
+          that.renderHealthChart();
+        })
+        .catch((err) => {
+          console.error("getDevHealthListAsc error:", err);
+          that.healthData = [];
+          that.healthEmpty = true;
+        })
+        .finally(() => {
+          that.healthLoading = false;
+        });
+    },
+    disposeHealthChart() {
+      if (this.healthChartInst) {
+        this.healthChartInst.dispose();
+        this.healthChartInst = null;
+      }
+    },
+    onHealthDialogOpened() {
+      if (this.healthChartInst) this.healthChartInst.resize();
+    },
+    // 渲染单指标（心率或体温）折线图
+    renderHealthChart() {
+      var that = this;
+      this.disposeHealthChart();
+      this.$nextTick(() => {
+        var list = that.healthData || [];
+        var isHeart = that.healthMetric === "heartrate";
+        var fullTimes = [];
+        var rawTimes = [];
+        var values = [];
+        for (var i = 0; i < list.length; i++) {
+          var item = list[i];
+          var t = item.dataTime ? item.dataTime * 1000 : null;
+          rawTimes.push(t);
+          fullTimes.push(that.formatTimeStamp(item.dataTime));
+          var v = isHeart ? item.heartrate : item.tem;
+          // 0 视为未读数（设备未上报有效值），置为 null 避免误导
+          values.push(v > 0 ? v : null);
+        }
+        var hasValue = false;
+        for (var k = 0; k < values.length; k++) {
+          if (values[k] !== null) {
+            hasValue = true;
+            break;
+          }
+        }
+        that.healthEmpty = !hasValue;
+        if (that.healthEmpty) return;
+        // 同一天只显示时分秒；跨天时补上日期，保证时间可辨识
+        var sameDay = true;
+        if (rawTimes.length > 1 && rawTimes[0] && rawTimes[rawTimes.length - 1]) {
+          sameDay =
+            new Date(rawTimes[0]).toDateString() ===
+            new Date(rawTimes[rawTimes.length - 1]).toDateString();
+        }
+        var axisPattern = sameDay ? "hh:mm:ss" : "MM-dd hh:mm";
+        var axisTimes = [];
+        for (var j = 0; j < rawTimes.length; j++) {
+          axisTimes.push(
+            rawTimes[j]
+              ? util.formatDate.format(new Date(rawTimes[j]), axisPattern)
+              : "-"
+          );
+        }
+        var seriesName = isHeart
+          ? that.$t("staff.healthHeartrate")
+          : that.$t("staff.healthTemperature");
+        var unit = isHeart
+          ? that.$t("staff.healthUnitBpm")
+          : that.$t("staff.healthUnitCelsius");
+        var color = isHeart ? "#f43f5e" : "#2f7bff";
+        var rgb = isHeart ? "244, 63, 94" : "47, 123, 255";
+        var option = {
+          tooltip: {
+            trigger: "axis",
+            formatter: function (params) {
+              if (!params || !params.length) return "";
+              var p = params[0];
+              var full = fullTimes[p.dataIndex] || p.axisValue;
+              var val = p.value === null || p.value === undefined ? "-" : p.value;
+              return full + "<br/>" + p.marker + seriesName + "：" + val + unit;
+            },
+          },
+          // containLabel: true 让 echarts 自动预留坐标轴文字空间，标签不会被画布裁切
+          grid: {
+            left: 10,
+            right: 24,
+            top: 24,
+            bottom: 10,
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: axisTimes,
+            boundaryGap: false,
+            axisTick: { alignWithLabel: true },
+            axisLabel: {
+              rotate: 0,
+              fontSize: 11,
+              margin: 10,
+              hideOverlap: true,
+              interval: "auto",
+            },
+          },
+          yAxis: {
+            type: "value",
+            scale: !isHeart,
+            min: isHeart
+              ? null
+              : function (v) {
+                  return Math.floor(v.min - 1);
+                },
+            max: isHeart
+              ? null
+              : function (v) {
+                  return Math.ceil(v.max + 1);
+                },
+            axisLabel: { fontSize: 11, margin: 10, color: "#64748b" },
+            splitLine: { lineStyle: { type: "dashed", color: "#e2e8f0" } },
+          },
+          series: [
+            {
+              name: seriesName,
+              type: "line",
+              smooth: false,
+              connectNulls: false,
+              symbolSize: 6,
+              lineStyle: { width: 2, color: color },
+              itemStyle: { color: color, borderColor: "#fff", borderWidth: 1 },
+              areaStyle: {
+                color: {
+                  type: "linear",
+                  x: 0,
+                  y: 0,
+                  x2: 0,
+                  y2: 1,
+                  colorStops: [
+                    { offset: 0, color: "rgba(" + rgb + ", 0.22)" },
+                    { offset: 1, color: "rgba(" + rgb + ", 0.02)" },
+                  ],
+                },
+              },
+              data: values,
+            },
+          ],
+        };
+        var el = that.$refs.healthChart;
+        if (!el) return;
+        var inst = that.$echarts.init(el);
+        that.healthChartInst = inst;
+        inst.setOption(option);
+        inst.resize();
+      });
     },
     //分页
     handleCurrentChange(val) {
@@ -801,7 +1036,7 @@ export default {
           status: "",
           username: "",
           devtype: "",
-          endtype: 9,
+          endtype: 13,
         };
         this.types = "";
         this.getWarningLists();
@@ -852,6 +1087,10 @@ export default {
           this.$t("beacon.deletemsg3"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1010,127 +1249,8 @@ export default {
 
     // 点击跳转到定位页面
     goLocation(row) {
-      var that = this;
-      if (
-        (row.x == "" || row.x == null) &&
-        (row.y == "" || row.y == null) &&
-        (row.tranche == "" || row.tranche == null)
-      ) {
-        this.$message({
-          message: this.$t("tet.tet8"),
-          type: "warning",
-        });
-        return;
-      }
-
-      if (row.type == 2) {
-        that.$router.push({
-          path: "/location/indoor/locationindoor",
-          query: {
-            buildid: row.buildid,
-            ground: row.ground,
-          },
-        });
-      } else {
-        let data = row;
-        that.$store.commit("changesosData", data);
-
-        //室内
-        if (data.postype == 1) {
-          if (row.status == 1) {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else if (row.devtype == 3) {
-              //资产告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  assetDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  deveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            }
-          } else {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/indoor/locationindoor",
-                query: { deveui: data.deveui, warning: true },
-              });
-            }
-          }
-        } else if (data.postype == 2) {
-          //室外
-          if (row.status == 1) {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  deveui: data.deveui,
-                  sostype: true,
-                  warning: true,
-                },
-              });
-            }
-          } else {
-            if (row.devtype == 4) {
-              //车辆告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: {
-                  tboxDeveui: data.deveui,
-                  warning: true,
-                },
-              });
-            } else {
-              //人告警
-              that.$router.push({
-                path: "/location/outdoor/locationoutdoor",
-                query: { deveui: data.deveui, warning: true },
-              });
-            }
-          }
-        }
-      }
+      // 无 postype 不可跳；有则查 getWarningPointByWarningid 再进室内/室外
+      return jumpToWarningLocation(this, row, { active: row.status == 1 });
     },
   },
   beforeMount() {
@@ -1146,7 +1266,7 @@ export default {
         count: 20,
         status: "",
         devtype: "",
-        endtype: 9,
+        endtype: 13,
       };
 
       // 判断是否从首页点击跳转过来
@@ -1207,10 +1327,6 @@ export default {
         this.$options.data.call(this).statusList
       );
       Object.assign(
-        this.$data.statusList1,
-        this.$options.data.call(this).statusList1
-      );
-      Object.assign(
         this.$data.typeList,
         this.$options.data.call(this).typeList
       );
@@ -1260,10 +1376,6 @@ export default {
 .edits:hover {
   background-color: rgb(196, 27, 27);
 }
-.icon_button,
-.edits {
-  padding: 2px 16px !important;
-}
 .icon_button:hover {
   background-color: rgb(25, 86, 201);
 }
@@ -1279,38 +1391,256 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .querry,
+.query,
 .reset {
-  padding: 8px 12px !important;
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-range-separator {
+.demo-form-inline :deep(.el-form-item .el-range-separator) {
   height: 34px;
   line-height: 34px;
 }
-.el-form-item .el-button {
-  margin-left: 4px !important;
+
+.warning_input.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
 }
+.warning_input.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.warning_input.terminal-filter-flow > .terminal-filter-form > .el-form-item,
+.warning_input.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.warning_input.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: 0 !important;
+}
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.warning_input.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > *,
+.terminal-toolbar-row :deep(.el-button) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-more {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  color: #409eff;
+  margin: 0 !important;
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409eff;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-row {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-row > .el-button,
+.terminal-toolbar-row > .terminal-filter-more {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

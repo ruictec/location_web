@@ -7,10 +7,12 @@ const STORAGE_KEY = 'location_web_tianditu_style'
 
 export const TIANDITU_STYLE_OPTIONS = ['vec', 'img', 'ter']
 
+// 天地图地形晕渲(ter)/地形注记(cta)只提供到 14 级：底图由 OpenLayers 放大 14 级瓦片显示，
+// 注记若同样放大会糊成大字，故地形改用支持到 18 级的矢量注记(cva)
 const TIANDITU_LAYER_TYPES = {
-  vec: { base: 'vec_w', label: 'cva_w' },
-  img: { base: 'img_w', label: 'cia_w' },
-  ter: { base: 'ter_w', label: 'cta_w' },
+  vec: { base: 'vec_w', label: 'cva_w', baseMaxZoom: 18 },
+  img: { base: 'img_w', label: 'cia_w', baseMaxZoom: 18 },
+  ter: { base: 'ter_w', label: 'cva_w', baseMaxZoom: 14 },
 }
 
 function useTianditu(isZh) {
@@ -35,11 +37,11 @@ export function saveTiandituStyle(style) {
   }
 }
 
-function tiandituXyzSource(type) {
+function tiandituXyzSource(type, maxZoom = 18) {
   return new XYZ({
     url: `https://t{0-7}.tianditu.gov.cn/DataServer?T=${type}&x={x}&y={y}&l={z}&tk=${TIANDITU_KEY}`,
     wrapX: true,
-    maxZoom: 18,
+    maxZoom,
     crossOrigin: '',
   })
 }
@@ -52,10 +54,12 @@ function markOutdoorBaseLayer(layer, isPrimary) {
 }
 
 function createTiandituLayers(style) {
-  const layerTypes = TIANDITU_LAYER_TYPES[style] || TIANDITU_LAYER_TYPES.vec
+  const styleKey = TIANDITU_LAYER_TYPES[style] ? style : 'vec'
+  const layerTypes = TIANDITU_LAYER_TYPES[styleKey]
   const baseLayer = new TileLayer({
-    className: 'baseLayerClass',
-    source: tiandituXyzSource(layerTypes.base),
+    // 第二个类名供大屏等页面按底图类型设置不同滤镜
+    className: `baseLayerClass baseLayer-${styleKey}`,
+    source: tiandituXyzSource(layerTypes.base, layerTypes.baseMaxZoom),
     zIndex: 0,
   })
   const labelLayer = new TileLayer({
@@ -77,6 +81,14 @@ function createOsmLayers(isZh) {
   })
   markOutdoorBaseLayer(layer, true)
   return [layer]
+}
+
+export function getOutdoorMarkerTextColor(style, isZh) {
+  const selectedStyle = style || getSavedTiandituStyle()
+  if (!isTiandituMapAvailable(isZh) || selectedStyle === 'vec') {
+    return '#303133'
+  }
+  return '#ffffff'
 }
 
 /**

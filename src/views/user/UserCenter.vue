@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -22,44 +22,54 @@
             <el-breadcrumb-item>系统管理</el-breadcrumb-item>
             <el-breadcrumb-item>个人中心</el-breadcrumb-item>
           </el-breadcrumb> -->
-          <div class="user_content">
-            <el-tabs type="border-card" style="width: 100%">
+          <div class="user_content page-panel">
+            <div class="usercenter-profile" v-if="contrForPrionum == 5">
+              <div class="usercenter-avatar">{{ avatarText }}</div>
+              <div class="usercenter-profile-main">
+                <div class="usercenter-profile-name">
+                  {{ userInfo.username }}
+                </div>
+                <div class="usercenter-profile-meta">
+                  <span class="usercenter-profile-tag">{{
+                    i8n == "zh" ? userInfo.prio : userInfo.enprio
+                  }}</span>
+                  <span v-if="userInfo.customername">{{
+                    userInfo.customername
+                  }}</span>
+                  <span v-if="userInfo.usermail">{{ userInfo.usermail }}</span>
+                </div>
+              </div>
+            </div>
+            <el-tabs class="usercenter-tabs" style="width: 100%">
               <!-- 用户资料 -->
               <el-tab-pane :label="$t('usercenter.Userdata')">
                 <el-form
-                  :label-position="labelPosition"
+                  class="usercenter-form"
+                  :label-position="formLabelPosition"
                   label-width="120px"
                   :model="userInfo"
-                  style="display: flex; width: 100%"
                 >
                   <el-form-item
                     :label="$t('usercenter.user')"
-                    style="width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input disabled v-model="userInfo.username"></el-input>
                   </el-form-item>
                   <el-form-item
                     :label="$t('usercenter.admintel')"
-                    style="margin-left: 2%; width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input disabled v-model="userInfo.usertel"></el-input>
                   </el-form-item>
                   <el-form-item
                     :label="$t('usercenter.usermail1')"
-                    style="margin-right: 1%; width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input disabled v-model="userInfo.usermail"></el-input>
                   </el-form-item>
-                </el-form>
-                <el-form
-                  :label-position="labelPosition"
-                  label-width="120px"
-                  :model="userInfo"
-                  style="display: flex; width: 100%"
-                >
                   <el-form-item
                     :label="$t('usercenter.company')"
-                    style="width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input
                       disabled
@@ -68,13 +78,13 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('usercenter.country')"
-                    style="margin-left: 2%; width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input disabled v-model="userInfo.country"></el-input>
                   </el-form-item>
                   <el-form-item
                     :label="$t('usercenter.prio')"
-                    style="margin-right: 1%; width: 33%"
+                    class="usercenter-field"
                   >
                     <el-input
                       disabled
@@ -93,21 +103,21 @@
                 "
               >
                 <el-form
-                  :label-position="labelPosition"
-                  label-width="180px"
+                  class="usercenter-form is-auth"
+                  :label-position="formLabelPosition"
+                  label-width="140px"
                   :model="userInfo"
-                  style="display: flex; width: 100%"
                 >
                   <el-form-item
                     :label="$t('usercenter.Accessrights')"
-                    style="width: 32%; margin-left: 0; margin-right: 0"
+                    class="usercenter-field"
                   >
                     <el-input disabled v-model="userInfo.accpriostr"></el-input>
                   </el-form-item>
 
                   <el-form-item
                     :label="$t('usercenter.Setlogo')"
-                    style="margin-left: 2%; width: 32%"
+                    class="usercenter-field"
                     v-if="
                       contrForPrionum == 3 ||
                       contrForPrionum == 4 ||
@@ -121,37 +131,34 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('companymanagement.item31')"
-                    style="margin-left: 0; width: 32%"
+                    class="usercenter-field"
                     v-if="contrForPrionum == 3 || contrForPrionum == 4"
                   >
                     <el-input disabled v-model="userInfo.validtime"></el-input>
                   </el-form-item>
-                </el-form>
-                <el-form
-                  :label-position="labelPosition"
-                  label-width="180px"
-                  :model="userInfo"
-                  style="display: flex; width: 100%"
-                  v-if="contrForPrionum == 3 || contrForPrionum == 4"
-                >
-                  <el-form-item
-                    :label="$t('companymanagement.item5')"
-                    style="width: 32%; margin-left: 0; margin-right: 0"
-                  >
-                    <el-input disabled v-model="userInfo.projectnum"></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('companymanagement.item6')"
-                    style="margin-left: 2%; margin-right: 0; width: 32%"
-                  >
-                    <el-input disabled v-model="userInfo.mapnum"></el-input>
-                  </el-form-item>
-                  <el-form-item
-                    :label="$t('companymanagement.item7')"
-                    style="width: 32%"
-                  >
-                    <el-input disabled v-model="userInfo.devnum"></el-input>
-                  </el-form-item>
+                  <template v-if="contrForPrionum == 3 || contrForPrionum == 4">
+                    <el-form-item
+                      :label="$t('companymanagement.item5')"
+                      class="usercenter-field"
+                    >
+                      <el-input
+                        disabled
+                        v-model="userInfo.projectnum"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item
+                      :label="$t('companymanagement.item6')"
+                      class="usercenter-field"
+                    >
+                      <el-input disabled v-model="userInfo.mapnum"></el-input>
+                    </el-form-item>
+                    <el-form-item
+                      :label="$t('companymanagement.item7')"
+                      class="usercenter-field"
+                    >
+                      <el-input disabled v-model="userInfo.devnum"></el-input>
+                    </el-form-item>
+                  </template>
                 </el-form>
               </el-tab-pane>
 
@@ -188,7 +195,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("usercenter.Embedprompt1") }}
                         </p>
@@ -201,7 +208,7 @@
                         <p>
                           {{ $t("usercenter.Embedprompt4") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
@@ -216,63 +223,46 @@
               </el-tab-pane> -->
             </el-tabs>
 
-            <el-form
-              :label-position="labelPosition"
-              :model="userInfo"
-              style="
-                display: flex;
-                margin-top: 2%;
-                width: 100%;
-                justify-content: center;
-              "
-            >
-              <el-form-item>
-                <el-button type="primary" class="edit" @click="editUser()">{{
-                  $t("usercenter.editinfor")
-                }}</el-button>
-                   <el-button type="primary" class="edit" @click="updateCode()"
-                  >{{
-                  $t("usercenter.Updatelicensekey")
-                }}</el-button
-                >
-                <el-button
-                  type="primary"
-                  class="edit"
-                  @click="resetUserKeys()"
-                  >{{ $t("usercenter.editpwd") }}</el-button
-                >
-
-                <el-button
-                  type="primary"
-                  class="edit"
-                  :disabled="deleteUser"
-                  @click="userDele()"
-                  v-if="!deleteUser"
-                  >{{ $t("usercenter.cancel") }}</el-button
-                >
-                <el-button type="primary" class="out" @click="logout()">{{
-                  $t("usercenter.signout")
-                }}</el-button>
-              </el-form-item>
-            </el-form>
+            <div class="usercenter-actions">
+              <el-button type="primary" class="edit" @click="editUser()">{{
+                $t("usercenter.editinfor")
+              }}</el-button>
+              <el-button type="primary" class="edit" @click="updateCode()">{{
+                $t("usercenter.Updatelicensekey")
+              }}</el-button>
+              <el-button
+                type="primary"
+                class="edit"
+                @click="resetUserKeys()"
+                >{{ $t("usercenter.editpwd") }}</el-button>
+              <el-button
+                type="primary"
+                class="edit"
+                :disabled="deleteUser"
+                @click="userDele()"
+                v-if="!deleteUser"
+                >{{ $t("usercenter.cancel") }}</el-button>
+              <el-button type="primary" class="out" @click="logout()">{{
+                $t("usercenter.signout")
+              }}</el-button>
+            </div>
           </div>
 
           <!-- 修改个人信息 -->
           <el-dialog
             :title="$t('usercenter.editinfor1')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="480px"
+            align-center
             @close="editCancel('editData')"
           >
             <el-form
               :model="editData"
               ref="editData"
-              class="demo-ruleForm"
-              label-width="120px"
+              class="demo-ruleForm usercenter-dialog-form"
+              label-width="auto"
               :rules="editRules"
-              style="text-align: left; margin-left: 10px"
             >
               <el-form-item :label="$t('usercenter.user')" prop="">
                 <el-input
@@ -309,7 +299,7 @@
               </el-form-item>
               <el-form-item :label="$t('usercenter.prio')">
                 <el-select
-                  :value="i8n == 'zh' ? editData.prio : editData.enprio"
+                  :model-value="i8n == 'zh' ? editData.prio : editData.enprio"
                   clearable
                   filterable
                   :placeholder="$t('usercenter.priorule')"
@@ -325,7 +315,7 @@
               </el-form-item>
             </el-form>
 
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("usercenter.cancel")
               }}</el-button>
@@ -333,25 +323,23 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("usercenter.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("usercenter.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 修改密码 -->
           <el-dialog
             :title="$t('usercenter.editpwd')"
-            width="30%"
-            style="text-align: center"
-            :visible.sync="passwordTpl"
-            class="passward"
+            width="480px"
+            align-center
+            v-model="passwordTpl"
+            class="passward device-dialog"
           >
             <el-form
               :model="passwordData"
               ref="passwordData"
-              class="demo-ruleForm"
-              label-width="150px"
-              style="text-align: left; margin-left: 10px"
+              class="demo-ruleForm usercenter-dialog-form"
+              label-width="auto"
               :rules="passwordRules"
             >
               <el-form-item :label="$t('usercenter.oldpwd')" prop="managerkey">
@@ -379,7 +367,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(passwordTpl = false), (loading = false)">{{
                 $t("usercenter.cancel")
               }}</el-button>
@@ -387,9 +375,8 @@
                 type="primary"
                 @click="passwordTrue('passwordData')"
                 :loading="loading"
-                >{{ $t("usercenter.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("usercenter.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -539,6 +526,15 @@ export default {
       ],
     };
   },
+  computed: {
+    formLabelPosition() {
+      return this.contrForPrionum == 5 ? "top" : this.labelPosition;
+    },
+    avatarText() {
+      const name = (this.userInfo && this.userInfo.username) || "";
+      return name.charAt(0).toUpperCase();
+    },
+  },
   methods: {
     // 更新注册码
     updateCode() {
@@ -554,7 +550,7 @@ export default {
       let formData = new FormData();
       formData.append("file", file);
       this.$axios
-        .post("user/updateRegisterFile", formData)
+        .post("service/updateRegisterFile", formData)
         .then((response) => {
           if (response.data.code === 1001) {
             that.$message({
@@ -813,6 +809,10 @@ export default {
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
       })
         .then(() => {
           var that = this;
@@ -861,6 +861,10 @@ export default {
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
         inputType: "password",
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
       }).then(({ value }) => {
         let data = {
           username: this.userInfo.username,
@@ -956,7 +960,235 @@ export default {
   margin-top: 4%;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  justify-content: baseline;
+  align-items: stretch;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.usercenter-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 20px;
+  row-gap: 4px;
+  width: 100%;
+  margin: 0;
+}
+
+.usercenter-form.is-auth {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.usercenter-field {
+  margin-right: 0 !important;
+  margin-bottom: 14px !important;
+  width: 100% !important;
+}
+
+.usercenter-field :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 1;
+  min-width: 0;
+}
+
+.usercenter-field :deep(.el-input),
+.usercenter-field :deep(.el-select) {
+  width: 100%;
+}
+
+.usercenter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 0;
+  padding: 14px 18px 16px;
+  box-sizing: border-box;
+  border-top: 1px solid #eef2f7;
+  background: #f8fafc;
+}
+
+.usercenter-actions > .el-button {
+  margin: 0 !important;
+}
+
+.usercenter-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 20px 24px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 100%);
+  border-bottom: 1px solid #e0ecff;
+}
+
+.usercenter-avatar {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+  box-shadow: 0 6px 16px rgba(47, 123, 255, 0.25);
+}
+
+.usercenter-profile-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+}
+
+.usercenter-profile-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.usercenter-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.usercenter-profile-meta > span {
+  margin: 0;
+}
+
+.usercenter-profile-tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #2f7bff;
+  font-weight: 600;
+  background: rgba(47, 123, 255, 0.1);
+}
+</style>
+
+<style>
+/* 企业用户个人中心：与 device-page 卡片体系对齐（非 scoped，覆盖 Element tabs） */
+.device-page .user_content.page-panel {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  height: auto !important;
+  max-width: 100%;
+}
+
+.device-page .usercenter-tabs.el-tabs {
+  width: 100%;
+}
+
+.device-page .usercenter-tabs > .el-tabs__header {
+  margin: 0;
+  padding: 0 8px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.device-page .usercenter-tabs > .el-tabs__header .el-tabs__nav-wrap::after {
+  display: none;
+}
+
+.device-page .usercenter-tabs > .el-tabs__header .el-tabs__item {
+  height: 44px;
+  line-height: 44px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 0 16px !important;
+}
+
+.device-page .usercenter-tabs > .el-tabs__header .el-tabs__item.is-active {
+  color: #2f7bff;
+}
+
+.device-page .usercenter-tabs > .el-tabs__header .el-tabs__active-bar {
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(90deg, #22d3ee, #2f7bff);
+}
+
+.device-page .usercenter-tabs > .el-tabs__content {
+  padding: 18px 20px 8px;
+}
+
+.device-page .user_content.page-panel {
+  text-align: left;
+}
+
+.device-page .usercenter-field.el-form-item--label-top .el-form-item__label,
+.device-page .usercenter-form .el-form-item__label {
+  display: block;
+  width: 100%;
+  text-align: left !important;
+  justify-content: flex-start;
+  margin: 0 0 6px;
+  padding: 0;
+  line-height: 20px;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.device-page .usercenter-field .el-input.is-disabled .el-input__wrapper {
+  border-radius: 8px;
+  background: #f8fafc;
+  box-shadow: 0 0 0 1px #e2e8f0 inset;
+}
+
+.device-page .usercenter-actions .el-button--primary.edit,
+.device-page .usercenter-actions .el-button--primary.out {
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff) !important;
+  box-shadow: 0 4px 10px rgba(47, 123, 255, 0.28);
+}
+
+.device-page .usercenter-actions .el-button--primary.out {
+  background: linear-gradient(135deg, #94a3b8, #64748b) !important;
+  box-shadow: 0 4px 10px rgba(100, 116, 139, 0.25);
+}
+
+.el-dialog.device-dialog .usercenter-dialog-form {
+  text-align: left;
+  padding: 4px 8px 0;
+}
+
+.el-dialog.device-dialog .usercenter-dialog-form .el-form-item__label {
+  white-space: nowrap;
+}
+
+.device-page .usercenter-actions .el-button--primary:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 1100px) {
+  .device-page .usercenter-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .device-page .usercenter-form,
+  .device-page .usercenter-form.is-auth {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu ref="menu" />
     </div>
@@ -9,59 +9,34 @@
 
         <el-main>
           <!-- 第一行 -->
-          <el-form
-            class="demo-form-inline"
+                    <div class="terminal-filter-flow page-panel" :class="[filterLangClass, { 'filter-grid': show }]">
+<el-form
+            class="demo-form-inline terminal-filter-form"
             :model="searchList"
-            style="display: flex; white-space: nowrap; margin-left: 1%"
           >
             <el-form-item
               :label="$t('asset.AssetName')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input v-model="searchList.name"></el-input>
             </el-form-item>
             <el-form-item
               :label="$t('asset.AssetNumber')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
-              <el-input style="width: 95%; float: left" v-model="searchList.id">
+             class="terminal-filter-item">
+              <el-input v-model="searchList.id">
               </el-input>
             </el-form-item>
             <el-form-item
               :label="$t('asset.Labelnumber')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input
-                style="width: 95%; float: left"
                 v-model="searchList.beaconid"
               >
               </el-input>
             </el-form-item>
             <el-form-item
               :label="$t('asset.AssetType')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
               v-if="show"
-            >
+             class="terminal-filter-item">
               <el-select
                 v-model="searchList.type"
                 filterable
@@ -78,16 +53,9 @@
             </el-form-item>
             <el-form-item
               :label="$t('asset.AssetModel')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
               v-if="show"
-            >
+             class="terminal-filter-item">
               <el-input
-                style="width: 95%; float: left"
                 v-model="searchList.model"
                 maxlength="32"
               >
@@ -95,15 +63,8 @@
             </el-form-item>
             <el-form-item
               :label="$t('asset.Department')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-                z-index: 1;
-              "
               v-if="show"
-            >
+             class="terminal-filter-item">
               <el-select
                 v-model="searchList.depart"
                 filterable
@@ -119,77 +80,27 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item
-              style="display: flex; margin-left: 1%; z-index: 1"
-              v-if="!show"
-            >
-              <span class="el-dropdown-link" @click="changeItem()">
-                {{ $t("asset.More")
-                }}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-button type="primary" class="query" @click="searchStaff()">{{
-                $t("asset.search")
-              }}</el-button>
-              <el-button type="primary" class="reset" @click="clearBtn()">{{
-                $t("asset.reset")
-              }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
-              <el-button type="primary" class="add" @click="addStaff()">{{
-                $t("asset.Addassets")
-              }}</el-button
-              ><el-button type="danger" class="add" @click="removeStaffs()">{{
-                $t("asset.unbind")
-              }}</el-button>
-              <el-button
-                type="primary"
-                class="add add2"
-                @click="goSetAsset()"
-                >{{ $t("asset.AssetSettings") }}</el-button
-              >
-            </el-form-item>
           </el-form>
           <!-- 第二行 -->
           <el-form
-            class="demo-form-inline"
+            class="demo-form-inline terminal-filter-form"
             :model="searchList"
-            style="display: flex; white-space: nowrap; margin-left: 1%"
             v-if="show"
           >
             <el-form-item
               :label="$t('asset.User')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input v-model="searchList.username"></el-input>
             </el-form-item>
-            <el-form-item style="display: flex; margin-left: 1%">
-              <span class="el-dropdown-link" @click="changeItem()">
-                {{ $t("inspection.State")
-                }}<i class="el-icon-arrow-up el-icon--right"></i>
+          </el-form>
+          <div class="search-actions terminal-toolbar-item">
+            <div class="terminal-toolbar-row">
+              <span class="terminal-filter-more" @click="changeItem()">
+                {{ show ? $t("beacon.putAway") : $t("asset.More") }}
+                <i
+                  :class="show ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                  class="el-icon--right"
+                ></i>
               </span>
               <el-button type="primary" class="query" @click="searchStaff()">{{
                 $t("asset.search")
@@ -197,41 +108,38 @@
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("asset.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="asset-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.exportSelected")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("asset.Addassets")
-              }}</el-button
-              ><el-button type="danger" class="add" @click="removeStaffs()">{{
+              }}</el-button><el-button type="danger" class="add" @click="removeStaffs()">{{
                 $t("asset.unbind")
               }}</el-button>
               <el-button
                 type="primary"
                 class="add add2"
                 @click="goSetAsset()"
-                >{{ $t("asset.AssetSettings") }}</el-button
-              >
-            </el-form-item>
-          </el-form>
+                >{{ $t("asset.AssetSettings") }}</el-button>
+            </div>
+          </div>
+          </div>
           <!-- </div> -->
 
           <!-- 展示 -->
@@ -246,18 +154,19 @@
                 @change="importExcels"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 97%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -303,6 +212,7 @@
                 align="center"
                 show-overflow-tooltip
               ></el-table-column>
+
               <el-table-column
                 property="memo"
                 :label="$t('asset.Remark')"
@@ -315,8 +225,9 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -327,9 +238,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -339,25 +250,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="staffEdit(scope.row)"
-                          >{{ $t("asset.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("asset.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="staffDele(scope.row)"
-                          >{{ $t("asset.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("asset.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -367,29 +274,45 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
                     /></el-button>
                   </el-tooltip>
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('staffmanagement.trajectory')"
+                    placement="top"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="edits icon_button"
+                      style="margin-left: 0"
+                      @click="assetAction(scope.row)"
+                      ><img src="../../../static/trajectory2.png"
+                    /></el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
+            </div>
 
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -397,13 +320,15 @@
 
           <!-- 添加资产 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('asset.text1')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="560px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePath"
               list-type="picture-card"
               :file-list="fileListAdd"
@@ -421,9 +346,9 @@
               :on-change="handleChange"
               :on-remove="handleRemove"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("asset.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -437,19 +362,27 @@
                 <el-input v-model="addData.name" maxlength="32"></el-input>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetType2')" prop="">
-                <el-select
-                  v-model="addData.type"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in assetList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="addData.type"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in assetList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.assetTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetModel2')" prop="model">
                 <el-input v-model="addData.model" maxlength="32"></el-input>
@@ -472,19 +405,27 @@
                 </el-select>
               </el-form-item>
               <el-form-item :label="$t('asset.Department2')">
-                <el-select
-                  v-model="addData.depart"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="addData.depart"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.Tagnumber2')">
                 <el-select
@@ -514,7 +455,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -522,24 +463,30 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            v-model="dialogVisible"
+            :append-to-body="true"
+            align-center
+          >
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
           <!-- 编辑 -->
           <el-dialog
             :title="$t('asset.text3')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancel('editData')"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePathEdit"
               list-type="picture-card"
               :file-list="fileListEdit"
@@ -557,9 +504,9 @@
               :on-exceed="handleExceedEdit"
               :before-upload="beforeAvatarUploadEdit"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("asset.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -573,19 +520,27 @@
                 <el-input v-model="editData.name" disabled></el-input>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetType2')" prop="">
-                <el-select
-                  v-model="editData.type"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in assetList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="editData.type"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in assetList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.assetTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.AssetModel2')" prop="model">
                 <el-input v-model="editData.model" maxlength="32"></el-input>
@@ -608,19 +563,27 @@
                 </el-select>
               </el-form-item>
               <el-form-item :label="$t('asset.Department2')">
-                <el-select
-                  v-model="editData.depart"
-                  filterable
-                  :placeholder="$t('staff.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="field-with-tip">
+                  <el-select
+                    v-model="editData.depart"
+                    filterable
+                    :placeholder="$t('staff.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip class="item" effect="light" placement="top">
+                    <template #content>
+                      <div>{{ $t("asset.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question field-tip-icon" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('asset.Tagnumber2')">
                 <el-select
@@ -650,7 +613,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -658,18 +621,151 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
+          </el-dialog>
+
+          <!-- 行为分析 / 轨迹 -->
+          <el-dialog
+            :title="$t('staffmanagement.trajectory')"
+            v-model="actions"
+            width="60%"
+            :close-on-click-modal="false"
+            class="action device-dialog"
+            @close="closeAction"
+            top="6vh"
+          >
+            <el-dialog
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory"
+              width="80%"
+              :close-on-click-modal="false"
+              class="trajectory device-dialog"
+              append-to-body
+              @close="closetrajectoryAction"
+            >
+              <Trajectory ref="trajectory" @closePopup2d="closePopup" />
+            </el-dialog>
+            <el-dialog
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory3d"
+              width="80%"
+              :close-on-click-modal="false"
+              class="trajectory device-dialog"
+              append-to-body
+              @close="closetrajectoryAction3d"
+            >
+              <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
+            </el-dialog>
+            <el-form
+              class="demo-form-inline"
+              style="
+                display: flex;
+                white-space: nowrap;
+                margin-left: 1%;
+                width: 100%;
+              "
+              :model="actionData"
+            >
+              <el-form-item
+                :label="$t('asset.AssetName')"
+                class="action-asset-name"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 1%;
+                  width: 24%;
+                "
               >
+                <el-input v-model="actionData.username"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('asset.Tagnumber2')"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 2%;
+                  width: 26%;
+                "
+              >
+                <el-input v-model="actionData.maplabel"></el-input>
+              </el-form-item>
+              <el-form-item
+                :label="$t('staff.time')"
+                style="
+                  display: flex;
+                  margin-left: 1%;
+                  margin-right: 0;
+                  width: 40%;
+                "
+              >
+                <el-date-picker
+                  v-model="actionTime"
+                  type="datetimerange"
+                  :shortcuts="pickerOptions.shortcuts"
+                  :range-separator="$t('terminal.to')"
+                  :start-placeholder="$t('terminal.startdate')"
+                  :end-placeholder="$t('terminal.enddate')"
+                ></el-date-picker>
+              </el-form-item>
+              <el-form-item style="margin-left: 1%; width: 20%">
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="searchAction()"
+                  >{{ $t("staff.search") }}</el-button
+                >
+                <el-button
+                  type="primary"
+                  class="query"
+                  @click="showTrajectory()"
+                  >{{ $t("staff.Viewtrack") }}</el-button
+                >
+              </el-form-item>
+            </el-form>
+            <div class="actionDetails">
+              <Timeline v-for="item in actionTableData" :key="item.id">
+                <TimelineItem v-if="item.postype == 1">
+                  <p class="time">
+                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+                  </p>
+                  <p class="content">
+                    {{ $t("LocationIndoorHis.Building") }}{{ item.building }}
+                  </p>
+                  <p class="content">
+                    {{ $t("LocationIndoorHis.floor") }}{{ item.groundname }}
+                  </p>
+                  <p class="content">
+                    {{ $t("warning.area1") }}{{ item.tranche }}
+                  </p>
+                  <p class="content">
+                    {{ $t("tet.Residencetime")
+                    }}{{ formatSeconds(item.remaintime) }}
+                  </p>
+                </TimelineItem>
+                <TimelineItem v-if="item.postype == 2">
+                  <p class="time">
+                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+                  </p>
+                  <p class="content">
+                    {{ $t("warning.area1") }}{{ item.tranche }}
+                  </p>
+                  <p class="content">
+                    {{ $t("tet.Residencetime")
+                    }}{{ formatSeconds(item.remaintime) }}
+                  </p>
+                </TimelineItem>
+              </Timeline>
             </div>
           </el-dialog>
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('staff.text4')"
-            :visible.sync="removeStaff"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            v-model="removeStaff"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -718,7 +814,7 @@
                 align="center"
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeStaff = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -726,40 +822,25 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 设置资产 -->
           <el-dialog
             :title="$t('asset.text5')"
-            :visible.sync="addAssets"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="addAssets"
+            class="edit device-dialog"
+            width="480px"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
+            align-center
           >
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addAssetRow"
-                >{{ $t("staff.add") }}</el-button
-              >
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('staff.import')"
-              >
+            <div class="setting-list-body">
+              <div class="setting-list-toolbar">
+                <el-button type="primary" class="add" @click="addAssetRow">{{
+                  $t("staff.add")
+                }}</el-button>
+                <span class="setting-list-label">{{ $t("staff.import") }}</span>
                 <el-select
                   v-model="currentProjectid.projectid"
                   clearable
@@ -774,48 +855,43 @@
                     :value="item.projectid"
                   ></el-option>
                 </el-select>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in assetList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="float: left; width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  style="float: left; margin-left: 20px"
-                  @click="
-                    deleAssetRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  class="del"
-                  >{{ $t("staff.delete") }}</el-button
+              </div>
+              <div class="setting-list-rows">
+                <div
+                  class="setting-list-row"
+                  v-for="(item, index) in assetList"
+                  :key="item.id || 'asset-' + index"
                 >
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleAssetRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
+                    "
+                    >{{ $t("staff.delete") }}</el-button>
+                </div>
+              </div>
+            </div>
+            <template #footer><div class="dialog-footer">
               <el-button @click="addAssets = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addAssetRowTrue()">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -824,8 +900,10 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import Menu from "../../components/menu/Menu";
 import host from "../../host";
+import util from "../../common/util";
 import {
   delAsset,
   getBeaconid,
@@ -842,17 +920,54 @@ import {
   getAssetByEuis,
   getDevOtherList,
   importAsset,
+  getDevGpsAction,
+  getBuildGroundList,
 } from "../../axios/api";
 import Asset from "../../components/asset/asset.vue";
+import Trajectory from "../staff/trajectory.vue";
+import Trajectorys from "../staff/trajectory3d.vue";
 export default {
   components: {
     Menu,
     Asset,
+    Trajectory,
+    Trajectorys,
   },
   name: "AssetManagement",
   data() {
     return {
       i8n: this.$store.state.i18n,
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: this.$t("staffmanagement.Lasthour1"),
+            value() {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 1);
+              return [start, end];
+            },
+          },
+          {
+            text: this.$t("staffmanagement.Lasthour3"),
+            value() {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 3);
+              return [start, end];
+            },
+          },
+          {
+            text: this.$t("staffmanagement.Lasthour6"),
+            value() {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 6);
+              return [start, end];
+            },
+          },
+        ],
+      },
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -860,6 +975,18 @@ export default {
       intoProjectType: this.$store.state.intoProjectType,
       show: false, //用来判断搜索栏是否展开
       loading: false,
+      trajectory: false,
+      trajectory3d: false,
+      actions: false,
+      actionData: {
+        projectid: "",
+        maplabel: "",
+        username: "",
+      },
+      actionTableData: [],
+      actionTableDataArr: [],
+      actionTime: "",
+      isSearchAction: false,
       searchList: {
         name: "", //资产名称
         type: "", //资产类型
@@ -925,7 +1052,7 @@ export default {
           },
           {
             min: 1,
-            max: 10,
+            max: 32,
             message: this.$t("asset.Length"),
             trigger: "blur",
           },
@@ -949,8 +1076,8 @@ export default {
       DepartList: [],
       haveImage: false, //判断添加的资产有没有图片
       delImage: false, //判断资产是否要删除图片
-      ImagePath: host.host + "user/addAssetMapFile",
-      ImagePathEdit: host.host + "user/updateAssetMapFile",
+      ImagePath: host.host + "service/addAssetMapFile",
+      ImagePathEdit: host.host + "service/updateAssetMapFile",
       fileListAdd: [],
       fileListEdit: [],
       dialogImageUrl: "",
@@ -978,6 +1105,12 @@ export default {
       headlistdata: "",
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     // 导入
     importExcel() {
@@ -1004,7 +1137,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1225,8 +1357,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1948,9 +2079,19 @@ export default {
       this.$refs[editData].validate((valid) => {
         if (valid) {
           that.loading = true;
-          that.editData.flag = that.beaconidList.some(
-            (item) => item.beaconid === that.editData.beaconid
-          );
+          // 编辑前已是信标(flag=true)则保留，不再用可选列表对比（占用中的信标不在 beaconidList 里）
+          const alreadyBeacon =
+            that.editData.flag === true ||
+            that.editData.flag === "true" ||
+            that.editData.flag === 1 ||
+            that.editData.flag === "1";
+          if (!alreadyBeacon) {
+            that.editData.flag = that.beaconidList.some(
+              (item) => item.beaconid === that.editData.beaconid
+            );
+          } else {
+            that.editData.flag = true;
+          }
           if (that.haveImage) {
             that.userIdForPicEdit.id = that.editData.id;
             that.userIdForPicEdit.name = that.editData.name;
@@ -2019,6 +2160,10 @@ export default {
           this.$t("beacon.deletemsg31"),
         this.$t("beacon.prompt"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -2207,6 +2352,392 @@ export default {
         }
       });
     },
+    //行为分析 / 轨迹
+    assetAction(row) {
+      this.actionData.projectid = row.projectid;
+      this.actionData.maplabel = row.beaconid;
+      this.actionData.username = row.name;
+      if (row.beaconid == "" || row.beaconid == null) {
+        this.$message({
+          message: this.$t("asset.Pleasebinding"),
+          type: "warning",
+        });
+        return;
+      }
+      this.actions = true;
+    },
+    showTrajectory() {
+      this.isSearchAction = true;
+      this.actionTableData = [];
+      this.searchActions();
+    },
+    showTrajectorys() {
+      var that = this;
+      that.actionTableDataArr = [];
+      let newArr = [];
+      let list = JSON.parse(JSON.stringify(that.actionTableData));
+      let node = list[0];
+      list.forEach((item, i) => {
+        if (item.groundid === node.groundid) {
+          newArr.push(item);
+        } else {
+          that.actionTableDataArr.push(newArr);
+          node = item;
+          newArr = [];
+          newArr.push(item);
+        }
+        if (i == list.length - 1) {
+          that.actionTableDataArr.push(newArr);
+        }
+      });
+      if (that.actionTableDataArr.length > 0) {
+        let begintime, endtime;
+        if (that.actionTime == null || that.actionTime.length == 0) {
+          begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+          endtime = Date.parse(new Date()) / 1000;
+        } else {
+          let begingTime = that.actionTime[0];
+          let endTime = that.actionTime[1];
+
+          begingTime =
+            !begingTime || begingTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(begingTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          endTime =
+            !endTime || endTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(endTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          if (begingTime.length > 0 && endTime.length > 0) {
+            begingTime = Date.parse(new Date(begingTime)) / 1000;
+            endTime = Date.parse(new Date(endTime)) / 1000;
+          }
+          begintime = begingTime;
+          endtime = endTime;
+        }
+
+        this.isSearchAction = false;
+        if (that.actionTableDataArr[0][0].groundid) {
+          let data = {
+            groundid: that.actionTableDataArr[0][0].groundid,
+          };
+          getBuildGroundList(
+            data,
+            this.tenantkey_A,
+            this.tenantid_A,
+            this.userName
+          ).then((res) => {
+            if (res.code == 1001) {
+              if (res.data.list[0].maptype == 2) {
+                that.trajectory3d = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectorys.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    2
+                  );
+                });
+              } else {
+                that.trajectory = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectory.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    1
+                  );
+                });
+              }
+            }
+          });
+        } else {
+          that.trajectory = true;
+          that.$nextTick(() => {
+            that.$refs.trajectory.search(
+              that.actionTableDataArr,
+              begintime,
+              endtime,
+              1
+            );
+          });
+        }
+      }
+    },
+    closePopup() {
+      this.trajectory = false;
+    },
+    closePopup3d() {
+      this.trajectory3d = false;
+    },
+    datetimecut(UTCDateString) {
+      if (!UTCDateString) {
+        return "-";
+      }
+      function formatFunc(str) {
+        return str > 9 ? str : "0" + str;
+      }
+      var date2 = new Date(UTCDateString);
+      var year = date2.getFullYear();
+      var mon = formatFunc(date2.getMonth() + 1);
+      var day = formatFunc(date2.getDate());
+      var hour =
+        date2.getHours() < 10 ? "0" + date2.getHours() : date2.getHours();
+      var min = formatFunc(date2.getMinutes());
+      var sec = formatFunc(date2.getSeconds());
+      return year + "-" + mon + "-" + day + " " + hour + ":" + min + ":" + sec;
+    },
+    formatDatetime(row) {
+      if (row == null || row == 0) {
+        return "";
+      }
+      let date = new Date(parseInt(row) * 1000);
+      let date2 = date.toUTCString();
+      return this.datetimecut(date2);
+    },
+    formatSeconds(value) {
+      let result = parseInt(value);
+      let h =
+        Math.floor(result / 3600) < 10
+          ? "0" + Math.floor(result / 3600)
+          : Math.floor(result / 3600);
+      let m =
+        Math.floor((result / 60) % 60) < 10
+          ? "0" + Math.floor((result / 60) % 60)
+          : Math.floor((result / 60) % 60);
+      let s =
+        Math.floor(result % 60) < 10
+          ? "0" + Math.floor(result % 60)
+          : Math.floor(result % 60);
+      let res = "";
+      if (h !== "00") res += `${h}h`;
+      if (m !== "00") res += ` ${m}min`;
+      res += ` ${s}s`;
+      return res;
+    },
+    searchAction() {
+      var that = this;
+      let data = {
+        projectid: this.actionData.projectid,
+        deveui: this.actionData.maplabel,
+        username: this.actionData.username,
+        begintime: "",
+        endtime: "",
+        devtype: this.$store.state.intoProjectType == 1 ? 1 : 2,
+        timezone: this.$store.state.intoProjectTimezone,
+      };
+      if (this.actionTime) {
+        if (
+          this.actionTime[1].getTime() - this.actionTime[0].getTime() >
+          86400000
+        ) {
+          that.$message({
+            message: this.$t("staffmanagement.Thehours"),
+            type: "warning",
+          });
+          return;
+        }
+        let begingTime = that.actionTime[0];
+        let endTime = that.actionTime[1];
+
+        begingTime =
+          !begingTime || begingTime == ""
+            ? ""
+            : util.formatDate.format(
+                new Date(begingTime),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+        endTime =
+          !endTime || endTime == ""
+            ? ""
+            : util.formatDate.format(new Date(endTime), "yyyy-MM-dd hh:mm:ss");
+
+        if (begingTime.length > 0 && endTime.length > 0) {
+          begingTime = Date.parse(new Date(begingTime)) / 1000;
+          endTime = Date.parse(new Date(endTime)) / 1000;
+        }
+        data.begintime = begingTime;
+        data.endtime = endTime;
+      } else {
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+        data.endtime = Date.parse(new Date()) / 1000;
+      }
+      if (
+        this.actionData.maplabel == "" ||
+        this.actionData.maplabel == null ||
+        this.actionData.username == "" ||
+        this.actionData.username == null
+      ) {
+        this.$message({
+          message: this.$t("staffmanagement.cardtime"),
+          type: "warning",
+        });
+      }
+      const loading = this.$loading({
+        lock: true,
+        text: this.$t("tet.Loading"),
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+        target: document.querySelector(".action"),
+      });
+
+      getDevGpsAction(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          if (res.data.tranchelist.length == 0) {
+            that.$message({
+              message: that.$t("staffmanagement.Nodata"),
+              type: "warning",
+            });
+            that.actionTableData = [];
+            loading.close();
+            return;
+          } else {
+            that.actionTableData = res.data.tranchelist.reverse();
+          }
+          for (let i = 0; i < that.actionTableData.length; i++) {
+            that.actionTableData[i].gpstime = that.formatDatetime(
+              that.actionTableData[i].gpstime
+            );
+          }
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+        }
+        loading.close();
+      });
+    },
+    searchActions() {
+      var that = this;
+      let data = {
+        projectid: this.actionData.projectid,
+        deveui: this.actionData.maplabel,
+        username: this.actionData.username,
+        begintime: "",
+        endtime: "",
+        devtype: this.$store.state.intoProjectType == 1 ? 1 : 2,
+        timezone: this.$store.state.intoProjectTimezone,
+        postype: 1,
+      };
+      if (this.actionTime) {
+        if (
+          this.actionTime[1].getTime() - this.actionTime[0].getTime() >
+          86400000
+        ) {
+          that.$message({
+            message: this.$t("staffmanagement.Thehours"),
+            type: "warning",
+          });
+          return;
+        }
+        let begingTime = that.actionTime[0];
+        let endTime = that.actionTime[1];
+
+        begingTime =
+          !begingTime || begingTime == ""
+            ? ""
+            : util.formatDate.format(
+                new Date(begingTime),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+        endTime =
+          !endTime || endTime == ""
+            ? ""
+            : util.formatDate.format(new Date(endTime), "yyyy-MM-dd hh:mm:ss");
+
+        if (begingTime.length > 0 && endTime.length > 0) {
+          begingTime = Date.parse(new Date(begingTime)) / 1000;
+          endTime = Date.parse(new Date(endTime)) / 1000;
+        }
+        data.begintime = begingTime;
+        data.endtime = endTime;
+      } else {
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
+        data.endtime = Date.parse(new Date()) / 1000;
+      }
+      if (
+        this.actionData.maplabel == "" ||
+        this.actionData.maplabel == null ||
+        this.actionData.username == "" ||
+        this.actionData.username == null
+      ) {
+        this.$message({
+          message: this.$t("staffmanagement.cardtime"),
+          type: "warning",
+        });
+        return;
+      }
+      const loading = this.$loading({
+        lock: true,
+        text: this.$t("tet.Loading"),
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+        target: document.querySelector(".action"),
+      });
+
+      getDevGpsAction(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          if (res.data.tranchelist.length == 0) {
+            that.$message({
+              message: that.$t("staffmanagement.Nodata"),
+              type: "warning",
+            });
+            that.actionTableData = [];
+            loading.close();
+            return;
+          } else {
+            that.actionTableData = res.data.tranchelist.reverse();
+          }
+          for (let i = 0; i < that.actionTableData.length; i++) {
+            that.actionTableData[i].gpstime = that.formatDatetime(
+              that.actionTableData[i].gpstime
+            );
+          }
+          that.showTrajectorys();
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+        }
+        loading.close();
+      });
+    },
+    closeAction() {
+      this.actionTableData = [];
+    },
+    closetrajectoryAction() {
+      this.$nextTick(() => {
+        if (this.$refs.trajectory) {
+          this.$refs.trajectory.stop(true);
+          this.$refs.trajectory.closeTime();
+          this.$refs.trajectory.removeVectorLayer();
+        }
+      });
+    },
+    closetrajectoryAction3d() {
+      this.$nextTick(() => {
+        if (this.$refs.trajectorys) {
+          this.$refs.trajectorys.mapOut();
+        }
+      });
+    },
     //点击跳转到定位页面
     goLocation(row) {
       if (row.beaconid == "" || row.beaconid == null) {
@@ -2270,6 +2801,26 @@ export default {
 #articleImageFile {
   display: none;
 }
+.field-with-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.field-with-tip :deep(.el-select) {
+  flex: 1;
+  min-width: 0;
+}
+.field-tip-icon {
+  cursor: pointer;
+  color: #909399;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.field-tip-icon:hover {
+  color: #409eff;
+}
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);
@@ -2295,10 +2846,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .selects button {
@@ -2322,25 +2873,25 @@ export default {
   background-color: rgb(196, 27, 27);
   color: white;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 .el-dropdown-link {
@@ -2356,4 +2907,149 @@ export default {
 .el-form-item .el-button.add2 {
   margin-left: 8px !important;
 }
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.actionDetails {
+  max-height: 500px;
+  overflow: auto;
+  display: flex;
+  flex-wrap: wrap;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline) {
+  width: 23%;
+  margin-left: 2%;
+  margin-right: 0;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__wrapper),
+.actionDetails :deep(.el-timeline-item__content) {
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__content) p {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  text-align: left;
+}
+.action .el-dialog__body .el-form .el-form-item {
+  padding-right: 0px !important;
+}
+.action .demo-form-inline .el-form-item .el-form-item__content {
+  width: 100%;
+}
+.action .action-asset-name {
+  min-width: 220px;
+}
+.action .action-asset-name :deep(.el-input) {
+  width: 100%;
+}
+.trajectory :deep(.el-dialog) {
+  height: 85%;
+  margin-top: 2% !important;
+}
+.trajectory :deep(.el-dialog__header) {
+  height: 4%;
+}
+.trajectory :deep(.el-dialog__headerbtn) {
+  top: 1% !important;
+}
+.trajectory :deep(.el-dialog__body) {
+  height: 96%;
+  padding-top: 10px !important;
+}
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

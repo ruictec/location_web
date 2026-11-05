@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,21 +7,14 @@
       <el-container class="asi">
         <!-- <el-aside><Project /></el-aside> -->
         <el-main>
-          <div class="project_input">
+          <div class="project_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap"
             >
               <el-form-item
                 :label="$t('project.ProjectName')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  width: 15%;
-                  margin-right: 2%;
-                "
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.name"
                   :placeholder="$t('project.Pleaseproject')"
@@ -39,13 +32,7 @@
 
               <el-form-item
                 :label="$t('project.Locationtype')"
-                style="
-                  display: flex;
-                  margin-left: 0;
-                  width: 15%;
-                  margin-right: 2%;
-                "
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.type"
                   :placeholder="$t('project.Pleasetype')"
@@ -62,13 +49,7 @@
               </el-form-item>
               <el-form-item
                 :label="$t('project.Projecttype')"
-                style="
-                  display: flex;
-                  margin-left: 0;
-                  width: 15%;
-                  margin-right: 2%;
-                "
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.projectype"
                   :placeholder="$t('project.Pleaseitem')"
@@ -83,53 +64,44 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item style="margin-left: 0">
+              <el-form-item class="terminal-toolbar-item">
                 <el-button
                   type="primary"
                   class="query"
                   @click="searchProject()"
-                  >{{ $t("project.search") }}</el-button
-                >
+                  >{{ $t("project.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="clearProject()"
-                  >{{ $t("project.reset") }}</el-button
-                >
+                  >{{ $t("project.reset") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button
-                >
+                  >{{ $t("terminal.exportAll") }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="addProjects()"
                   v-if="contrForPrionum != 5"
-                  >{{ $t("project.additem") }}</el-button
-                >
+                  >{{ $t("project.additem") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
 
           <!-- 项目展示 -->
-          <div class="content_project">
+          <div class="content_project page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -149,9 +121,9 @@
               />
             </div>
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 96%; text-align: center; margin-left: 2%"
               max-height="300"
               border
               highlight-current-row
@@ -192,7 +164,7 @@
                 align="center"
                 min-width="120"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{
                     scope.row.type === 2 &&
                     scope.row.datatime !== "" &&
@@ -209,6 +181,14 @@
                 align="center"
               ></el-table-column>
               <el-table-column
+                property="functype"
+                :label="$t('project.functype')"
+                show-overflow-tooltip
+                align="center"
+                min-width="100"
+                :formatter="formatFunctype"
+              ></el-table-column>
+              <el-table-column
                 property="scheme"
                 :label="$t('terminal.Standard')"
                 show-overflow-tooltip
@@ -220,7 +200,7 @@
                 align="center"
                 min-width="130"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("project.Numberbuildings")
                   }}</span>
@@ -230,19 +210,18 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("project.tet") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="mapnum"
                 show-overflow-tooltip
                 align="center"
                 min-width="110"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("project.mapNumber")
                   }}</span>
@@ -252,19 +231,18 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("project.tet1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 :label="$t('floormanagement.EquipmentQuantity')"
                 show-overflow-tooltip
                 align="center"
                 min-width="100"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ (scope.row.devnum || 0) + (scope.row.othernum || 0) }}
                 </template>
               </el-table-column>
@@ -274,15 +252,13 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-button
+                <template #default="scope">
+                  <el-button text
                     v-if="scope.row.forward !== 3"
                     @click="showForwards(scope.$index)"
-                    type="text"
                     size="small"
                     style="width: 60%"
-                    >{{ $t("project.see") }}</el-button
-                  >
+                    >{{ $t("project.see") }}</el-button>
                   <p v-if="scope.row.forward === 3">
                     {{ $t("project.unconfigured") }}
                   </p>
@@ -293,15 +269,13 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-button
+                <template #default="scope">
+                  <el-button text
                     v-if="scope.row.net != 5"
                     @click="showNetInfo(scope.$index)"
-                    type="text"
                     size="small"
                     style="width: 60%"
-                    >{{ $t("inspection.Check") }}</el-button
-                  >
+                    >{{ $t("inspection.Check") }}</el-button>
                   <p v-if="scope.row.net == 5">{{ $t("project.other") }}</p>
                 </template>
               </el-table-column>
@@ -310,15 +284,13 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-button
+                <template #default="scope">
+                  <el-button text
                     v-if="scope.row.filename"
                     @click="showFBX(scope.$index)"
-                    type="text"
                     size="small"
                     style="width: 60%"
-                    >{{ $t("project.see") }}</el-button
-                  >
+                    >{{ $t("project.see") }}</el-button>
                   <p v-else>
                     {{ $t("project.unconfigured") }}
                   </p>
@@ -333,13 +305,15 @@
               ></el-table-column>
               <el-table-column
                 fixed="right"
+                class-name="operation"
                 :label="$t('project.operation')"
                 align="center"
                 min-width="120"
                 v-if="contrForPrionum != 5"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -350,8 +324,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -361,50 +336,42 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="projectEdit(scope.row)"
-                          >{{ $t("project.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("project.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="projectDele(scope.row)"
                           v-if="delprio == 1"
-                          >{{ $t("project.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("project.delete") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="importFbx(scope.$index)"
-                          >{{ $t("project.importFBX") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("project.importFBX") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="removeFbx(scope.$index)"
-                          >{{ $t("project.deleteFBX") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("project.deleteFBX") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -414,7 +381,7 @@
                   >
                     <el-button
                       type="primary"
-                      class="dels"
+                      class="icon_button"
                       @click="projectInto(scope.row)"
                       ><img src="../../../static/intoproject.png"
                     /></el-button>
@@ -424,13 +391,13 @@
             </el-table>
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
+                v-model:page-size="pageCount"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -463,11 +430,12 @@
 
           <!-- 显示mqtt相关信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.tet4')"
-            width="55%"
-            :visible.sync="showForward"
-            style="text-align: center"
+            width="860px"
+            v-model="showForward"
             @close="closeForward()"
+            top="8vh"
           >
             <el-form
               :model="forwardDatas"
@@ -517,17 +485,16 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.tet5") }}
                       <a
-                        :href="helpBase + '/guide/dataforward.html'"
+                        :href="assetBase + '/guide/dataforward.html'"
                         target="_blank"
-                        >{{ $t("project.tet6") }}</a
-                      >
+                        >{{ $t("project.tet6") }}</a>
                       。
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -552,11 +519,12 @@
 
           <!-- 显示网络服务器相关信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.text6')"
-            width="55%"
-            :visible.sync="showNet"
-            style="text-align: center"
+            width="860px"
+            v-model="showNet"
             @close="closeNet()"
+            top="8vh"
           >
             <el-form
               :model="netDatas"
@@ -603,11 +571,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text17") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -651,11 +619,12 @@
 
           <!-- 添加项目 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.tet7')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="600px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -676,32 +645,6 @@
                 ></el-input>
               </el-form-item>
 
-              <el-form-item
-                :label="$t('project.Offtime')"
-                prop="offtime"
-                style="margin-right: 2%"
-              >
-                <el-input v-model="addData.offtime"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("project.OfftimeTip") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
               <el-form-item
                 :label="$t('project.Affiliatedcompany1')"
                 prop="tenantid"
@@ -762,14 +705,14 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.tet9") }}
                     </p>
                     <p>
                       {{ $t("project.tet10") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -794,11 +737,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.DatatimeTip") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -814,6 +757,21 @@
                 >
                   <el-option
                     v-for="item in projectypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('project.functype1')" prop="">
+                <el-select
+                  v-model="addData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('project.functype2')"
+                >
+                  <el-option
+                    v-for="item in functypeList"
                     :key="item.index"
                     :label="item.value"
                     :value="item.index"
@@ -840,11 +798,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text15") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -869,9 +827,9 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("project.text7") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -906,7 +864,7 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text8") }}<br />
                       {{ $t("project.text9") }}<br />
@@ -915,7 +873,7 @@
                       {{ $t("project.text12") }}<br />
                       {{ $t("project.text13") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -942,11 +900,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text17") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -995,6 +953,33 @@
                 ></el-input>
               </el-form-item>
 
+              <el-form-item
+                :label="$t('project.Offtime')"
+                prop="offtime"
+                style="margin-right: 2%"
+              >
+                <el-input v-model="addData.offtime"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content><div>
+                    <p>
+                      {{ $t("project.OfftimeTip") }}
+                    </p>
+                  </div></template>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+
               <el-form-item :label="$t('ns.memo1')" style="margin-right: 2%">
                 <el-input
                   type="textarea"
@@ -1004,7 +989,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("project.cancel")
               }}</el-button>
@@ -1012,19 +997,18 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("project.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("project.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑项目 -->
           <el-dialog
             :title="$t('project.tet11')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="600px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -1040,31 +1024,20 @@
                   :placeholder="$t('project.tet8')"
                 ></el-input>
               </el-form-item>
-              <el-form-item
-                :label="$t('project.Offtime')"
-                prop="offtime"
-                style="margin-right: 2%"
-              >
-                <el-input v-model="editData.offtime"></el-input>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
+              <el-form-item :label="$t('project.functype1')" prop="">
+                <el-select
+                  v-model="editData.functype"
+                  clearable
+                  filterable
+                  :placeholder="$t('project.functype2')"
                 >
-                  <div slot="content">
-                    <p>
-                      {{ $t("project.OfftimeTip") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
+                  <el-option
+                    v-for="item in functypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
               </el-form-item>
               <el-form-item
                 :label="$t('project.Datatime')"
@@ -1087,11 +1060,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.DatatimeTip") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1132,9 +1105,9 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("project.text7") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1168,7 +1141,7 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text8") }}<br />
                       {{ $t("project.text9") }}<br />
@@ -1177,7 +1150,7 @@
                       {{ $t("project.text12") }}<br />
                       {{ $t("project.text13") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1205,11 +1178,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text17") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1268,11 +1241,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text16") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1308,11 +1281,38 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("project.text15") }}
                     </p>
-                  </div>
+                  </div></template>
+                  <i class="el-icon-question" />
+                </el-tooltip>
+              </el-form-item>
+
+              <el-form-item
+                :label="$t('project.Offtime')"
+                prop="offtime"
+                style="margin-right: 2%"
+              >
+                <el-input v-model="editData.offtime"></el-input>
+                <el-tooltip
+                  class="item"
+                  effect="light"
+                  placement="right-start"
+                  style="
+                    position: absolute;
+                    font-size: 130%;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    margin-left: 5px;
+                  "
+                >
+                  <template #content><div>
+                    <p>
+                      {{ $t("project.OfftimeTip") }}
+                    </p>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -1326,7 +1326,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("project.cancel")
               }}</el-button>
@@ -1334,22 +1334,22 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("project.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("project.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 显示FBX模型 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('project.text18')"
-            width="55%"
-            :visible.sync="showFBXDialog"
-            style="text-align: center"
+            width="80%"
+            v-model="showFBXDialog"
             @close="closeFBX()"
             :destroy-on-close="true"
-            @opened="initThree()"
+            @opened="onFbxDialogOpened"
+            top="5vh"
           >
-            <div id="userMap" ref="userMap"></div>
+            <div id="userMap" ref="userMap" class="fbx-viewer"></div>
           </el-dialog>
         </el-main>
       </el-container>
@@ -1358,11 +1358,12 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
 import host from "../../host";
-import { MQTT_BROKER_URL, HELP_BASE } from "../../config/index.js";
+import { MQTT_BROKER_URL } from "../../config/index.js";
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -1408,6 +1409,7 @@ import {
 } from "../../axios/api";
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
+import { markRaw } from "vue";
 export default {
   mixins: [mapStyleMixin],
   components: {
@@ -1421,7 +1423,6 @@ export default {
     return {
       i8n: this.$store.state.i18n,
       mqttBrokerUrl: MQTT_BROKER_URL,
-      helpBase: HELP_BASE,
       outdoorBaseLayers: [],
       projectName: "",
       groundNum: "",
@@ -1468,8 +1469,9 @@ export default {
         downtopic: "",
         scheme: "",
         url: "",
-        offtime: "",
+        offtime: 30,
         datatime: "",
+        functype: 0,
       },
 
       tenantidData: [],
@@ -1600,6 +1602,7 @@ export default {
         url: "",
         offtime: "",
         datatime: "",
+        functype: 0,
       },
 
       edit: false,
@@ -1664,6 +1667,16 @@ export default {
         { index: 10, value: this.$t("home.constructionsite") },
         { index: 11, value: this.$t("home.Tunnel") },
         { index: 12, value: this.$t("home.other") },
+      ],
+      functypeList: [
+        {
+          index: 0,
+          value: this.$t("project.functypeFormal"),
+        },
+        {
+          index: 1,
+          value: this.$t("project.functypeTest"),
+        },
       ],
 
       timezoneList: [
@@ -1737,19 +1750,35 @@ export default {
       headlistdata: "",
       showFBXDialog: false,
       FBXUrl: "",
-      scene: null, //场景
-      cameras: null, //照相机
-      renderer: null, //渲染器
-      textureLoader: null, // 纹理加载器
-      groupBox: null,
-      control: null, // 相机控件
-      publicPath: process.env.BASE_URL,
-      clearAnim: null,
+      fbxInitRetry: 0,
 
       selectProjectID: "",
     };
   },
+  created() {
+    // Three.js 对象不能放进 data()，否则 Vue 3 代理会破坏 matrix 读写
+    this.scene = null;
+    this.cameras = null;
+    this.renderer = null;
+    this.textureLoader = null;
+    this.groupBox = null;
+    this.control = null;
+    this.clearAnim = null;
+    this.fbxModel = null;
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
+    formatFunctype(row) {
+      if (row.functype === 1 || row.functype === "1") {
+        return this.$t("project.functypeTest");
+      }
+      return this.$t("project.functypeFormal");
+    },
     // 删除FBX模型
     removeFbx(index) {
       var that = this;
@@ -1789,7 +1818,7 @@ export default {
       formData.append("file", file);
       formData.append("projectid", this.selectProjectID);
       this.$axios
-        .post("v1/user/addProjectMapFile", formData)
+        .post("v1/service/addProjectMapFile", formData)
         .then((response) => {
           if (response.data.code == 1001) {
             that.$message({
@@ -1811,121 +1840,195 @@ export default {
           // 文件上传失败的处理逻辑
         });
     },
+    buildModelUrl(filename) {
+      if (!filename) {
+        return "";
+      }
+      const base = host.host.endsWith("/") ? host.host : `${host.host}/`;
+      return `${base}model/${encodeURIComponent(filename)}`;
+    },
     showFBX(index) {
-      this.FBXUrl = host.host + "model/" + this.tableData[index].filename;
+      this.FBXUrl = this.buildModelUrl(this.tableData[index].filename);
+      this.fbxInitRetry = 0;
       this.showFBXDialog = true;
     },
-    closeFBX() {
-      this.scene.traverse((v) => {
-        if (v.type === "Mesh") {
-          v.geometry.dispose();
-          v.material.dispose();
-        }
+    onFbxDialogOpened() {
+      this.$nextTick(() => {
+        this.initThree();
       });
-      cancelAnimationFrame(this.clearAnim); // 清除requestAnimationFrame
-      this.scene.clear();
-      this.scene = null; // 场景
-      this.cameras = null; // 照相机
-      this.renderer = null; // 渲染器
-      this.textureLoader = null; // 纹理加载器
+    },
+    disposeFbxViewer() {
+      if (this.clearAnim) {
+        cancelAnimationFrame(this.clearAnim);
+        this.clearAnim = null;
+      }
+      if (this.control) {
+        this.control.dispose();
+        this.control = null;
+      }
+      if (this.renderer) {
+        this.renderer.dispose();
+        if (
+          this.renderer.domElement &&
+          this.renderer.domElement.parentNode
+        ) {
+          this.renderer.domElement.parentNode.removeChild(
+            this.renderer.domElement
+          );
+        }
+        this.renderer = null;
+      }
+      if (this.scene) {
+        this.scene.traverse((v) => {
+          if (v.isMesh) {
+            v.geometry?.dispose();
+            if (Array.isArray(v.material)) {
+              v.material.forEach((material) => material?.dispose());
+            } else {
+              v.material?.dispose();
+            }
+          }
+        });
+        this.scene.clear();
+        this.scene = null;
+      }
+      this.cameras = null;
+      this.textureLoader = null;
       this.groupBox = null;
-      this.control = null; // 相机控件
-      this.publicPath = process.env.BASE_URL;
+      this.fbxModel = null;
+    },
+    closeFBX() {
+      this.disposeFbxViewer();
       this.showFBXDialog = false;
     },
     initThree() {
-      // 场景
-      this.scene = new THREE.Scene();
-      // 1.2 相机
-      this.cameras = new THREE.PerspectiveCamera(
+      const container = this.$refs.userMap;
+      if (!container) {
+        return;
+      }
+
+      const { width, height } = container.getBoundingClientRect();
+      if ((!width || !height) && this.fbxInitRetry < 10) {
+        this.fbxInitRetry += 1;
+        requestAnimationFrame(() => this.initThree());
+        return;
+      }
+
+      this.disposeFbxViewer();
+
+      this.scene = markRaw(new THREE.Scene());
+      this.cameras = markRaw(
+        new THREE.PerspectiveCamera(
         50,
-        window.innerWidth / window.innerHeight,
+        Math.max(width, 1) / Math.max(height, 1),
         0.1,
-        1000
+        10000
+        )
       );
-      // 设置摄像机位置
       this.cameras.position.set(30, 50, 70);
-      // 指向场景中心
       this.cameras.lookAt(this.scene.position);
-      // 1.3 渲染器
-      this.renderer = new THREE.WebGLRenderer({ antialias: true });
-      // 创建纹理加载器
-      this.textureLoader = new THREE.TextureLoader();
-      // 创建一个组合对象
-      // this.groupBox = new THREE.Group();
-      // 设置环境
+
+      this.renderer = markRaw(new THREE.WebGLRenderer({ antialias: true }));
+      this.textureLoader = markRaw(new THREE.TextureLoader());
       this.renderer.setClearColor(new THREE.Color("#f1f5f7"));
-      // 设置场景大小
-      this.renderer.setSize(
-        $("#userMap")[0].getBoundingClientRect().width,
-        $("#userMap")[0].getBoundingClientRect().height
-      );
-      // 渲染器开启阴影效果
+      this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+      this.renderer.setSize(Math.max(width, 1), Math.max(height, 1));
       this.renderer.shadowMap.enabled = true;
-      // 环境光
-      let ambient = new THREE.AmbientLight(0x1c1c1c);
+      if (THREE.SRGBColorSpace) {
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      } else if (THREE.sRGBEncoding) {
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+      }
+
+      container.appendChild(this.renderer.domElement);
+
+      const ambient = new THREE.AmbientLight(0xffffff, 0.8);
       this.scene.add(ambient);
-      // 点光源
-      let point = new THREE.PointLight(0xffffff);
-      point.position.set(1000, 1000, 1000); // 点光源位置
-      this.scene.add(point); // 点光源添加到场景中
+      const point = new THREE.PointLight(0xffffff, 1);
+      point.position.set(100, 200, 100);
+      this.scene.add(point);
+      const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+      directional.position.set(50, 100, 80);
+      this.scene.add(directional);
 
-      // 渲染div到canvas
-      $("#userMap")[0].appendChild(this.renderer.domElement);
-
-      //创建相机控件
-      this.control = new OrbitControls(this.cameras, this.renderer.domElement);
+      this.control = markRaw(
+        new OrbitControls(this.cameras, this.renderer.domElement)
+      );
       this.control.enableDamping = true;
-      // 动态阻尼系数 就是鼠标拖拽旋转灵敏度，阻尼越小越灵敏
-      // this.control.dampingFactor = 0.5;
-      // 是否可以缩放
       this.control.enableZoom = true;
-      // 是否自动旋转
       this.control.autoRotate = false;
-      // 设置相机距离原点的最近距离
-      this.control.minDistance = 20;
-      // 设置相机距离原点的最远距离
-      this.control.maxDistance = 1000;
-      // 是否开启右键拖拽
+      this.control.minDistance = 5;
+      this.control.maxDistance = 5000;
       this.control.enablePan = true;
-      // // 上下翻转的最大角度
-      // this.control.maxPolarAngle = 1.5;
-      // // 上下翻转的最小角度
-      // this.control.minPolarAngle = 0.0;
-      // 是否可以旋转
-      this.enableRotate = true;
-      this.loadFbxModel(); // 加载 FBX 模型
-      // 最后进行渲染
+
+      this.loadFbxModel();
       this.render();
     },
     render() {
-      let animate = () => {
-        if (this.control) {
-          //循环调用函数
-          this.clearAnim = requestAnimationFrame(animate);
-          //更新相机控件
-          this.control.update();
-          //渲染界面
-          this.renderer.render(this.scene, this.cameras);
-        } else {
+      const animate = () => {
+        if (!this.control || !this.renderer || !this.scene || !this.cameras) {
           return;
         }
+        this.clearAnim = requestAnimationFrame(animate);
+        this.control.update();
+        this.renderer.render(this.scene, this.cameras);
       };
       animate();
     },
-    //  加载 FBX 模型
+    fitFbxModel(object) {
+      if (!object || !this.cameras || !this.control) {
+        return;
+      }
+      const box = new THREE.Box3().setFromObject(object);
+      if (box.isEmpty()) {
+        return;
+      }
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      object.position.sub(center);
+
+      const maxDim = Math.max(size.x, size.y, size.z, 1);
+      const fitHeightDistance =
+        maxDim / (2 * Math.atan((Math.PI * this.cameras.fov) / 360));
+      const fitWidthDistance = fitHeightDistance / this.cameras.aspect;
+      const distance = Math.max(fitHeightDistance, fitWidthDistance) * 1.2;
+
+      this.cameras.position.set(distance, distance * 0.8, distance);
+      this.cameras.near = distance / 100;
+      this.cameras.far = distance * 100;
+      this.cameras.updateProjectionMatrix();
+      this.cameras.lookAt(0, 0, 0);
+      this.control.target.set(0, 0, 0);
+      this.control.update();
+    },
     loadFbxModel() {
-      var loader = new FBXLoader();
-      loader.load(this.FBXUrl, (object) => {
-        //加载路径fbx文件
-        // object.traverse((child) => {
-        //   if (child.isMesh) {
-        //     child.castShadow = true;
-        //     child.receiveShadow = true;
-        //   }
-        // });
-        this.scene.add(object); //模型
-      });
+      if (!this.scene || !this.FBXUrl) {
+        return;
+      }
+      const loader = new FBXLoader();
+      loader.setWithCredentials(true);
+      loader.load(
+        this.FBXUrl,
+        (object) => {
+          if (!this.scene) {
+            return;
+          }
+          this.fbxModel = markRaw(object);
+          this.scene.add(object);
+          this.fitFbxModel(object);
+        },
+        undefined,
+        (error) => {
+          console.error("FBX load failed:", this.FBXUrl, error);
+          this.$message({
+            message:
+              this.$store.state.i18n === "zh"
+                ? "FBX模型加载失败，请检查文件是否存在或稍后重试"
+                : "Failed to load FBX model",
+            type: "error",
+          });
+        }
+      );
     },
     // 导入
     importExcel() {
@@ -1952,7 +2055,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -2158,8 +2260,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -2467,8 +2568,7 @@ export default {
                 text: feature.values_.features[0].values_.building, // 添加文字描述
                 font: "12px font-size", // 设置字体大小
                 fill: new Fill({
-                  // 设置字体颜色
-                  color: "white",
+                  color: that.getMarkerTextColor(),
                 }),
                 offsetY: 10, // 设置文字偏移量
               }),
@@ -2674,6 +2774,7 @@ export default {
     searchProject() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getProjectList(
         this.searchList,
@@ -2694,12 +2795,12 @@ export default {
             type: "error",
           });
         }
-        this.searchList.count = 10;
       });
     },
 
     //重置搜索框
     clearProject() {
+      this.pageCount = 10;
       if (this.$router.query) {
         this.$router.push({ query: {} });
       }
@@ -2711,7 +2812,7 @@ export default {
         tenantid: "",
         superid: this.$store.state.userInfo.tenantid,
         page: 1,
-        count: this.pageCount,
+        count: 10,
         projectype: "",
       };
       this.currentPage1 = 1;
@@ -2735,8 +2836,9 @@ export default {
         downtopic: "",
         scheme: "",
         url: "",
-        offtime: "",
+        offtime: 30,
         datatime: "",
+        functype: 0,
       };
       this.selectScheme();
       this.showNS = false;
@@ -2878,6 +2980,7 @@ export default {
       this.editData.uptopic = row.uptopic;
       this.editData.scheme = row.scheme;
       this.editData.url = row.url;
+      this.editData.functype = row.functype == 1 ? 1 : 0;
       this.showEditDatatime = row.type === 2;
       this.editData.datatime =
         row.type === 2 && row.datatime !== "" && row.datatime != null
@@ -3004,6 +3107,10 @@ export default {
           this.$t("project.confirmdel3"),
         this.$t("project.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -3164,9 +3271,11 @@ export default {
 #articleFbxFile {
   display: none;
 }
-#userMap {
+#userMap,
+.fbx-viewer {
   width: 100%;
   height: 600px;
+  min-height: 400px;
 }
 .home {
   height: 100%;
@@ -3227,31 +3336,48 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
+
+.el-table :deep(.el-table__row td.operation .cell) {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: visible;
+  padding: 0 4px;
+}
+
+.el-table :deep(.el-table__row td.operation .cell > *) {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
 .query,
 .reset,
 .add {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -3300,4 +3426,227 @@ a {
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

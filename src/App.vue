@@ -3,7 +3,7 @@
     <router-view />
     <el-dialog
       :title="$t('tet.tet19')"
-      :visible.sync="editSos"
+      v-model="editSos"
       class="edit"
       width="30%"
       style="text-align: center"
@@ -14,7 +14,7 @@
         :rules="updateSos"
         label-width="100px"
         style="text-align: left"
-        @submit.native.prevent
+        @submit.prevent
       >
         <el-form-item :label="$t('usermanagement.password')" prop="userkey">
           <el-input
@@ -24,14 +24,14 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="">
+      <template #footer><div class="">
         <el-button @click="editSos = false">{{
           $t("territorymanagement.cancle")
         }}</el-button>
         <el-button type="primary" @click="editSosTrue('closeSosValue')">{{
           $t("territorymanagement.sure")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <div v-show="showlargr">
       <div class="changeLanguage" v-if="showFooter">
@@ -39,120 +39,202 @@
         <p class="moreInfo">
           <el-dropdown>
             <span class="el-dropdown-link">
-              {{ $t("login.language")
+              {{ i8n == "zh" ? $t("message.zh") : $t("message.en")
               }}<i class="el-icon-arrow-up el-icon--right"></i>
             </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="changeLanguagezh()">{{
+            <template #dropdown><el-dropdown-menu>
+              <el-dropdown-item @click="changeLanguagezh()">{{
                 $t("message.zh")
               }}</el-dropdown-item>
-              <el-dropdown-item @click.native="changeLanguageen()">{{
+              <el-dropdown-item @click="changeLanguageen()">{{
                 $t("message.en")
               }}</el-dropdown-item>
-            </el-dropdown-menu>
+            </el-dropdown-menu></template>
           </el-dropdown>
-          <span @click="showVer()" class="show_ver">V1.15</span>
+          <span @click="showVer()" class="show_ver">{{ currentVersion }}</span>
           <el-tooltip
             v-if="contrForPrionum == 5"
             class="item"
             effect="dark"
             :content="$t('navbar.Selectitem')"
-            placement="bottom"
-            :value="showTooltip"
+            placement="top"
+            trigger="hover"
+            :visible="showTooltip ? true : undefined"
+            popper-class="project-name-tip"
           >
             <span
               class="project_name"
-              @click="selectProject()"
+              @click.stop="selectProject"
               style="position: relative"
               >{{ $store.state.intoProjectName }}
             </span>
           </el-tooltip>
           <span v-if="i8n == 'zh'" class="xcx_name" @click="showImage()">
-            小程序</span
-          >
+            小程序</span>
         </p>
       </div>
     </div>
 
-    <el-dialog :title="$t('versions.title')" :visible.sync="showVersion">
-      <div class="version">
-        <el-timeline :reverse="reverse">
-          <el-timeline-item
-            v-for="(activity, index) in activities"
-            :key="index"
-            :timestamp="activity.timestamp"
-          >
-            <div
-              class="version_text"
-              v-for="(item, index) in activity.content"
-              :key="index"
-            >
-              <h2 v-if="index == 0" style="font-size: 130%">{{ item }}</h2>
-              <span v-if="index != 0">{{ item }}</span>
-            </div>
-          </el-timeline-item>
-        </el-timeline>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="" :visible.sync="showImages">
-      <img src="./assets/xcx.jpg" alt="" srcset="" />
-    </el-dialog>
-
-    <!-- 选择项目 -->
     <el-dialog
-      :title="$t('navbar.Selectitem')"
-      :visible.sync="selectProjects"
-      class="edit padreduce"
-      style="text-align: center"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
-      :modal-append-to-body="false"
-      :append-to-body="true"
-      width="40%"
+      :title="$t('versions.title')"
+      v-model="showVersion"
+      class="device-dialog version-dialog"
+      width="680px"
     >
-      <div class="project-wrapper">
-        <div
-          class="project-item"
-          v-for="(item, index) in projectTable"
-          :key="index"
-          @click="choseProject(item)"
-          :class="{
-            'active-item': $store.state.projectid === item.projectid,
-          }"
+      <div class="version-summary" v-if="versionList.length">
+        <div class="version-summary-main">
+          <span class="version-summary-label">{{ $t("versions.current") }}</span>
+          <span class="version-summary-num">{{ versionList[0].version }}</span>
+        </div>
+        <span class="version-summary-date"
+          >{{ $t("versions.releasedOn") }} {{ versionList[0].date }}</span
         >
-          <div class="item-header">
-            <div class="item-icon"></div>
-            {{ item.name }}
-            <div
-              v-if="$store.state.projectid === item.projectid"
-              class="isactive"
-            >
-              <i class="icon"></i>
+      </div>
+      <div class="version">
+        <div
+          v-for="(ver, index) in versionList"
+          :key="ver.version"
+          class="version-item"
+          :class="{ 'is-latest': index === 0 }"
+        >
+          <div class="version-axis"><i class="version-dot"></i></div>
+          <div class="version-card">
+            <div class="version-card-head">
+              <span class="version-tag">{{ ver.version }}</span>
+              <span v-if="index === 0" class="version-latest">{{
+                $t("versions.latest")
+              }}</span>
+              <span class="version-date">{{ ver.date }}</span>
             </div>
-          </div>
-          <div class="item-info">
-            <div class="key">
-              <span>{{ $t("navbar.number") }}</span>
-              <span>{{ $t("navbar.type") }}</span>
-              <span>{{ $t("navbar.remarks") }}</span>
-            </div>
-            <div class="value">
-              <span>{{ item.projectid }}</span>
-              <span>{{ i8n == "zh" ? item.typestr : item.entype }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="item.memo"
-                placement="bottom-end"
-              >
-                <span>{{ item.memo }}</span>
-              </el-tooltip>
-            </div>
+            <ul class="version-list">
+              <li v-for="(item, i) in ver.items" :key="i">
+                <span class="version-index">{{ i + 1 }}</span>
+                <span class="version-text">{{ item }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog title="" v-model="showImages">
+      <img src="./assets/xcx.jpg" alt="" srcset="" />
+    </el-dialog>
+
+    <!-- 选择项目：Teleport 自定义弹层（DOM/class 对齐 el-dialog，保证样式一致） -->
+    <Teleport to="body">
+      <div
+        v-if="selectProjects"
+        class="el-overlay app-project-select-mask project-select-mask"
+        @click.self="projectSelectClosable && closeProjectSelect()"
+      >
+        <div class="app-ps-center">
+          <div
+            class="project-select-dialog app-project-select-dialog"
+            role="dialog"
+            aria-modal="true"
+            @click.stop
+          >
+            <div class="el-dialog__header ps-dialog-header">
+              <div class="ps-modal-title">
+                <span>{{ $t("navbar.Selectitem") }}</span>
+                <el-tooltip
+                  effect="dark"
+                  placement="bottom"
+                  :show-after="200"
+                  :z-index="30000"
+                  popper-class="project-select-help-tip"
+                >
+                  <template #content>
+                    <div class="ps-help-tip">
+                      <p>{{ $t("project.tet9") }}</p>
+                      <p>{{ $t("project.tet10") }}</p>
+                      <a
+                        class="ps-help-tip-link"
+                        href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        @click.stop
+                      >{{ $t("navbar.learnMore") }}</a>
+                    </div>
+                  </template>
+                  <i class="el-icon-question ps-help-q" @click.stop />
+                </el-tooltip>
+              </div>
+              <button
+                v-if="projectSelectClosable"
+                type="button"
+                class="ps-close-btn"
+                aria-label="close"
+                @click="closeProjectSelect"
+              >
+                <span class="ps-close-icon">×</span>
+              </button>
+            </div>
+            <div class="el-dialog__body">
+              <div class="ps-grid-wrap">
+                <div class="ps-grid">
+                  <div
+                    class="ps-card"
+                    v-for="(item, index) in projectTable"
+                    :key="item.projectid || index"
+                    @click="choseProject(item)"
+                    :class="{
+                      'is-active': $store.state.projectid === item.projectid,
+                    }"
+                  >
+                    <div class="ps-card-header">
+                      <div class="ps-card-main">
+                        <span
+                          class="ps-card-icon"
+                          :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                          aria-hidden="true"
+                        >
+                          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                              fill="currentColor"
+                              opacity="0.22"
+                              d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                            />
+                            <path
+                              fill="currentColor"
+                              d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                            />
+                          </svg>
+                        </span>
+                        <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+                      </div>
+                      <span
+                        class="ps-tag"
+                        :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                      >{{
+                        Number(item.type) === 2
+                          ? i8n == "zh"
+                            ? "反向"
+                            : item.entype || "Reverse"
+                          : i8n == "zh"
+                            ? "正向"
+                            : item.entype || "Forward"
+                      }}</span>
+                    </div>
+                    <div class="ps-card-id">
+                      {{ $t("navbar.number") }}：{{ item.projectid }}
+                    </div>
+                    <div class="ps-card-desc" :title="item.memo || ''">
+                      {{ item.memo || "—" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
     <audio :src="audioSrc" controls="controls" loop hidden ref="audio"></audio>
   </div>
 </template>
@@ -173,6 +255,15 @@ import {
   getProjectFirstList,
   getWarningPopoutList,
 } from "./axios/api";
+import { jumpToWarningLocation } from "./utils/warningLocation";
+
+function stripVersionItem(raw) {
+  return String(raw)
+    .trim()
+    .replace(/^\d+\s*[.、]\s*/, "")
+    .replace(/[；;。.]+$/, "");
+}
+
 export default {
   name: "App",
 
@@ -180,6 +271,8 @@ export default {
     return {
       showTooltip: false,
       selectProjects: false,
+      // App 底部切换项目可关闭；必选场景由 Homeuser 控制
+      projectSelectClosable: true,
       projectTable: [],
       attenFlag: this.$store.state.functionParts.attenFlag,
       alarmConfig: this.$store.state.functionParts.alarmConfig,
@@ -379,6 +472,75 @@ export default {
           ],
           timestamp: this.$t("versions.timestamp16"),
         },
+        {
+          content: [
+            this.$t("versions.content99"),
+            this.$t("versions.content100"),
+            this.$t("versions.content101"),
+            this.$t("versions.content102"),
+            this.$t("versions.content103"),
+            this.$t("versions.content104"),
+            this.$t("versions.content105"),
+            this.$t("versions.content106"),
+            this.$t("versions.content107"),
+            this.$t("versions.content108"),
+            this.$t("versions.content109"),
+            this.$t("versions.content110"),
+            this.$t("versions.content111"),
+            this.$t("versions.content112"),
+            this.$t("versions.content113"),
+            this.$t("versions.content114"),
+            this.$t("versions.content115"),
+            this.$t("versions.content116"),
+            this.$t("versions.content117"),
+            this.$t("versions.content118"),
+          ],
+          timestamp: this.$t("versions.timestamp17"),
+        },
+        {
+          content: [
+            this.$t("versions.content119"),
+            this.$t("versions.content120"),
+            this.$t("versions.content121"),
+            this.$t("versions.content122"),
+            this.$t("versions.content123"),
+            this.$t("versions.content124"),
+            this.$t("versions.content125"),
+            this.$t("versions.content126"),
+          ],
+          timestamp: this.$t("versions.timestamp18"),
+        },
+        {
+          content: [
+            this.$t("versions.content127"),
+            this.$t("versions.content128"),
+            this.$t("versions.content129"),
+            this.$t("versions.content130"),
+            this.$t("versions.content131"),
+            this.$t("versions.content132"),
+            this.$t("versions.content133"),
+          ],
+          timestamp: this.$t("versions.timestamp19"),
+        },
+        {
+          content: [
+            this.$t("versions.content134"),
+            this.$t("versions.content135"),
+            this.$t("versions.content136"),
+            this.$t("versions.content137"),
+            this.$t("versions.content138"),
+            this.$t("versions.content139"),
+            this.$t("versions.content140"),
+            this.$t("versions.content141"),
+            this.$t("versions.content142"),
+            this.$t("versions.content143"),
+            this.$t("versions.content144"),
+            this.$t("versions.content145"),
+            this.$t("versions.content146"),
+            this.$t("versions.content147"),
+          ],
+          timestamp: this.$t("versions.timestamp20"),
+        },
       ],
       showVersion: false,
       showlargr: true,
@@ -457,13 +619,42 @@ export default {
     showWarningDialog() {
       return this.$store.state.showWarningDialog;
     },
+    // 版本信息：最新版本显示在最上方
+    versionActivities() {
+      return Array.isArray(this.activities)
+        ? this.activities.slice().reverse()
+        : [];
+    },
+    currentVersion() {
+      return this.versionList.length ? this.versionList[0].version : "";
+    },
+    versionList() {
+      return this.versionActivities.map((activity) => {
+        const [version, ...items] = activity.content || [];
+        return {
+          version,
+          date: activity.timestamp,
+          items: items.filter(Boolean).map(stripVersionItem),
+        };
+      });
+    },
   },
   watch: {
     projectNums(val, oldVal) {
       if (val > 1) {
         this.showTooltip = true;
+        if (this._projectTipTimer) clearTimeout(this._projectTipTimer);
+        // 底部强制提示易挡住点击，数秒后收起，之后改由悬停触发
+        this._projectTipTimer = setTimeout(() => {
+          this.showTooltip = false;
+          this._projectTipTimer = null;
+        }, 3500);
       } else {
         this.showTooltip = false;
+        if (this._projectTipTimer) {
+          clearTimeout(this._projectTipTimer);
+          this._projectTipTimer = null;
+        }
       }
     },
     timess(val, oldVal) {
@@ -500,9 +691,12 @@ export default {
       }
     },
     $route(to, from) {
-      to.path == "/largescreen"
+      to.path == "/largescreen" || to.path == "/taskdetail"
         ? (this.showlargr = false)
         : (this.showlargr = true);
+      if (from && from.path === "/largescreen") {
+        this.restoreViewport();
+      }
       // if (to.path === "/location/indoor/locationindoor") {
       //   let notification = document.getElementsByClassName("el-notification");
       //   if (notification.length > 0) {
@@ -598,19 +792,10 @@ export default {
         sessionStorage.clear();
       }
     },
-    showWarningDialog(val, oldVal) {
-      var notifications = document.getElementsByClassName("el-notification");
-      var arrs = Object.values(notifications);
-      if (val == false) {
-        arrs.forEach((item) => {
-          item.style.opacity = "0";
-          item.style.zIndex = "0";
-        });
-      } else {
-        arrs.forEach((item) => {
-          item.style.opacity = "1";
-          item.style.zIndex = "100";
-        });
+    showWarningDialog(val) {
+      this.applyWarningNotificationVisibility(val !== false);
+      if (val !== false) {
+        this.scheduleRepositionWarningNotifications();
       }
     },
     "$i18n.locale"() {
@@ -659,8 +844,8 @@ export default {
     //   this.show = this.router.path === "/largescreen"
     // })
     if (
-      this.$route.path === "/largescreen" &&
-      this.$store.state.userInfo.prionum == 5
+      this.$route.path === "/largescreen" ||
+      this.$route.path === "/taskdetail"
     ) {
       this.showlargr = false;
     } else {
@@ -687,32 +872,106 @@ export default {
       this.showFooter = true;
     }
     window.addEventListener("beforeunload", (e) => this.beforeunloadHandler(e));
+    window.addEventListener("popstate", function () {
+      history.forward();
+    }, false);
     this.bindAuthChannel();
-    document.title = i18n.t("title.title");
+    document.title = i18n.global.t("title.title");
     window.GoMap = this.GoMap;
     window.hideNotify = this.hideNotify;
     window.showNotify = this.showNotify;
+    this.$nextTick(() => {
+      this.applyWarningNotificationVisibility(
+        this.$store.state.showWarningDialog !== false
+      );
+    });
   },
   methods: {
+    applyWarningNotificationVisibility(visible) {
+      const notifications = document.getElementsByClassName("el-notification");
+      Array.from(notifications).forEach((item) => {
+        if (visible) {
+          item.classList.remove("warning-notification-hidden");
+          item.style.opacity = "1";
+          item.style.zIndex = "100";
+          item.style.pointerEvents = "auto";
+        } else {
+          item.classList.add("warning-notification-hidden");
+          item.style.opacity = "0";
+          item.style.zIndex = "-1";
+          item.style.pointerEvents = "none";
+        }
+      });
+    },
+    restoreViewport() {
+      const html = document.documentElement;
+      const body = document.body;
+      html.style.height = "100%";
+      body.style.height = "100%";
+      html.style.overflow = "";
+      body.style.overflow = "";
+      body.style.paddingRight = "0px";
+      body.classList.remove("el-popup-parent--hidden");
+      // 自定义选项目弹层打开时不要清掉
+      if (!this.selectProjects) {
+        document
+          .querySelectorAll(
+            "body > .el-overlay.project-select-mask, body > .el-overlay.app-project-select-mask"
+          )
+          .forEach((el) => el.remove());
+        document.querySelectorAll("body > .el-overlay").forEach((el) => {
+          if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
+            el.remove();
+          }
+        });
+      }
+      if (window.lib && window.lib.flexible && window.lib.flexible.refreshRem) {
+        window.lib.flexible.refreshRem();
+      }
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
+    },
+    closeProjectSelect() {
+      this.selectProjects = false;
+    },
     // 选择项目
     selectProject() {
       var that = this;
+      this.showTooltip = false;
+      const tenantkey =
+        this.tenantkey_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName || (this.$store.state.userInfo && this.$store.state.userInfo.username);
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.username
-      ).then((res) => {
-        if (res.code == 1001) {
-          that.projectTable = res.data;
-          that.$store.commit("changeProjectTable", this.projectTable);
-          if (that.projectTable.length > 1) {
-            that.i8n = that.$store.state.i18n;
-            that.selectProjects = true;
-          }
+      // 若 vuex 已有列表，先立刻打开，避免“接口成功但看不见弹窗”
+      const cached = Array.isArray(this.$store.state.projectTable)
+        ? this.$store.state.projectTable
+        : [];
+      if (cached.length > 1) {
+        this.projectTable = cached;
+        this.i8n = this.$store.state.i18n;
+        this.selectProjects = true;
+      }
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
+        if (res.code != 1001) return;
+        const raw = res.data;
+        const list = Array.isArray(raw)
+          ? raw
+          : raw && Array.isArray(raw.list)
+            ? raw.list
+            : [];
+        that.projectTable = list;
+        that.$store.commit("changeProjectTable", list);
+        if (list.length > 1) {
+          that.i8n = that.$store.state.i18n;
+          that.selectProjects = true;
+        } else {
+          that.selectProjects = false;
         }
       });
     },
@@ -738,9 +997,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -748,6 +1007,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data);
 
@@ -765,7 +1025,7 @@ export default {
       that.$store.commit("changeMapLati", row.lati);
       that.$store.commit("selectProjectType", row.type);
       that.$store.commit("selectProjectprojectType", row.projectype);
-      that.selectProjects = false;
+      that.closeProjectSelect();
       // 切换项目后，清除页面上上一个项目的所有告警
       let sosList = that.$store.state.sosList;
 
@@ -786,16 +1046,18 @@ export default {
       this.showVersion = true;
     },
     changeLanguagezh() {
-      const lang = (this.$i18n.locale = "zh");
+      const lang = "zh";
       this.$i18n.locale = lang;
       this.$store.state.i18n = lang;
-      document.title = i18n.t("title.title");
+      this.i8n = lang;
+      document.title = i18n.global.t("title.title");
     },
     changeLanguageen() {
-      const lang = (this.$i18n.locale = "en");
+      const lang = "en";
       this.$i18n.locale = lang;
       this.$store.state.i18n = lang;
-      document.title = i18n.t("title.title");
+      this.i8n = lang;
+      document.title = i18n.global.t("title.title");
     },
     beforeunloadHandler(e) {
       this.saveState();
@@ -808,11 +1070,17 @@ export default {
 
     //保存vuex里面的state到session storage中
     saveState() {
-      const tabId = sessionStorage.getItem("authTabId");
+      // 刷新后仍需保留的会话缓存
+      const keepKeys = ["authTabId", "locateTaskDetail"];
+      const kept = {};
+      keepKeys.forEach((key) => {
+        const value = sessionStorage.getItem(key);
+        if (value != null) kept[key] = value;
+      });
       sessionStorage.clear();
-      if (tabId) {
-        sessionStorage.setItem("authTabId", tabId);
-      }
+      Object.keys(kept).forEach((key) => {
+        sessionStorage.setItem(key, kept[key]);
+      });
       this.$store.state.addRoutes = [];
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       sessionStorage.setItem("hasActiveSession", "true");
@@ -878,7 +1146,6 @@ export default {
         superid: superid,
         projectid: intoProjectid,
         status: 1,
-        endtype: 8,
       };
       getWarningPopoutList(
         data,
@@ -1047,14 +1314,10 @@ export default {
                     that.sosList[j].name ==
                     data.list[i].deveui + data.list[i].type
                   ) {
+                    // 只走 Element Plus close，避免手动 remove 导致内部队列与 top 错乱
                     that.sosList[j].value.close();
                     that.clearSos(data.list[i].deveui + data.list[i].type);
-                    var boxEls = document.getElementsByClassName(
-                      data.list[i].deveui + data.list[i].type
-                    );
-                    for (let j = 0; j < boxEls.length; j++) {
-                      boxEls[j].remove();
-                    }
+                    break;
                   }
                 }
               }
@@ -1112,15 +1375,35 @@ export default {
       let warningContent;
       let sosAs = JSON.stringify(sosA);
       let sosAss = this.htmlspecialchars(sosAs);
+      // 聚集告警 deveui 存的是门限级别，内容区展示区域名
+      let warningContentValue = sosA.deveui;
       switch (sosA.type) {
         case 1:
           warningTitle = this.$t("warning.SOSalarm");
           warningContent = this.$t("terminal.deveui");
           break;
-        case 2:
-          warningTitle = this.$t("warning.Aggregatealarm");
+        case 2: {
+          const level = String(sosA.deveui == null ? "" : sosA.deveui).trim();
+          // 新数据 deveui 为 1/2/3…；旧数据可能是区域名，不加「级」
+          const isLevel = /^[1-9]\d*$/.test(level);
+          const n = Number(level);
+          let levelLabel = level;
+          if (isLevel && n >= 1 && n <= 10) {
+            const lang = this.$store.state.i18n;
+            levelLabel =
+              lang === "en"
+                ? ["", "Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ", "Ⅶ", "Ⅷ", "Ⅸ", "Ⅹ"][n]
+                : ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"][n];
+          }
+          warningTitle = isLevel
+            ? this.$t("warning.gatherLevelAlarm", { n: levelLabel })
+            : this.$t("warning.Aggregatealarm");
           warningContent = this.$t("warning.area1");
+          warningContentValue = isLevel
+            ? sosA.tranche || ""
+            : level || sosA.tranche || "";
           break;
+        }
         case 3:
           warningTitle = this.$t("warning.Passingalarm");
           warningContent = this.$t("terminal.deveui");
@@ -1145,6 +1428,26 @@ export default {
           warningTitle = this.$t("warning.Firealarm");
           warningContent = this.$t("terminal.deveui");
           break;
+        case 9:
+          warningTitle = this.$t("warning.CloseContact");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 10:
+          warningTitle = this.$t("warning.DoorOpenalarm");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 11:
+          warningTitle = this.$t("warning.LowBatteryAlarm");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 12:
+          warningTitle = this.$t("warning.HeartbeatAbnormal");
+          warningContent = this.$t("terminal.deveui");
+          break;
+        case 13:
+          warningTitle = this.$t("warning.TemperatureAbnormal");
+          warningContent = this.$t("terminal.deveui");
+          break;
         default:
           break;
       }
@@ -1157,6 +1460,12 @@ export default {
         showClose: false,
         dangerouslyUseHTMLString: true,
         offset: 44,
+        // 固定 zIndex，避免室外/室内 el-dialog 的 nextZIndex 触发 Notification 重算 top
+        zIndex: 5000,
+        onClose: () => {
+          // Element Plus 关闭动画/内部 offset 更新后再强制重排
+          that.scheduleRepositionWarningNotifications();
+        },
         message:
           `<div class="${sosA.deveuiIcon}box box"><div class= "sosheader ${
             sosA.deveuiIcon
@@ -1170,26 +1479,26 @@ export default {
           </p><p>${this.$t("warning.time")}
           ${sosA.time}
           </p><p>${warningContent}
-           ${sosA.deveui}
+           ${warningContentValue}
           </p></div><br/>
           <div class="sosfooter">
-          <button ${
-            sosA.type == 1 ? "" : 'class="hidefooter"'
-          } style="font-size: 12px;"   class="${sosA.deveuiIcon}30 el-button"
-          >${this.$t("warning.search")}</button>
-          <button ${
-            sosA.type == 1 ? "" : 'class="hidefooter"'
-          } style="font-size: 12px;" class="${sosA.deveuiIcon}20 el-button"
-          >${this.$t("myorder.close")}</button><button onclick="GoMap('${
-            sosA.deveui
-          }','${sosA.postype}','${sosA.devtype}',` +
+          ${
+            Number(sosA.type) === 1
+              ? `<button class="${sosA.deveuiIcon}30 el-button">${this.$t(
+                  "warning.search"
+                )}</button><button class="${
+                  sosA.deveuiIcon
+                }20 el-button">${this.$t("myorder.close")}</button>`
+              : ""
+          }<button onclick="GoMap('${sosA.deveui}','${sosA.postype}','${
+            sosA.devtype
+          }',` +
           sosAss +
-          `)" style="font-size: 12px;" class= "el-button el-button--primary
-          ${sosA.deveui}"
+          `)" class="el-button el-button--primary ${sosA.deveui}"
           >${this.$t("tet.Jumpmap")}</button></div></div>
-          <div class= "  mini ${
+          <div class="mini sos-minibox ${
             sosA.deveuiIcon
-          }minibox" style ="display:none"><div class="sosheader  ${
+          }minibox"><div class="sosheader  ${
             sosA.deveuiIcon
           }10"><i class="sosIcon"></i>${warningTitle}<i onclick="showNotify('${
             sosA.deveuiIcon
@@ -1231,53 +1540,101 @@ export default {
         notification[index].style.right = 10 + "px";
       }
       // }
-      var notifications = document.getElementsByClassName("el-notification");
-      var arrs = Object.values(notifications);
-      if (this.$store.state.showWarningDialog == false) {
-        arrs.forEach((item) => {
-          item.style.opacity = "0";
-          item.style.zIndex = "-1";
-        });
-      } else {
-        arrs.forEach((item) => {
-          item.style.opacity = "1";
-          item.style.zIndex = "100";
-        });
-      }
+      this.applyWarningNotificationVisibility(
+        this.$store.state.showWarningDialog !== false
+      );
+      // 新告警加入后按当前展开/折叠实际高度重排
+      this.scheduleRepositionWarningNotifications();
     },
     hideNotify(deveuiIcon) {
       var that = this;
       let box = document.getElementsByClassName(deveuiIcon + "box");
       let minibox = document.getElementsByClassName(deveuiIcon + "minibox");
-      let arr = document.getElementsByClassName("el-notification");
-      box[0].style.display = "none";
-      minibox[0].style.display = "block";
+      if (box[0]) box[0].style.display = "none";
+      if (minibox[0]) minibox[0].style.display = "block";
       that.$nextTick(() => {
-        that.setTop(arr);
+        that.scheduleRepositionWarningNotifications();
       });
     },
     showNotify(deveuiIcon) {
       var that = this;
       let box = document.getElementsByClassName(deveuiIcon + "box");
       let minibox = document.getElementsByClassName(deveuiIcon + "minibox");
-      let arr = document.getElementsByClassName("el-notification");
-      box[0].style.display = "block";
-      minibox[0].style.display = "none";
+      if (box[0]) box[0].style.display = "block";
+      if (minibox[0]) minibox[0].style.display = "none";
       that.$nextTick(() => {
-        that.setTop(arr);
+        that.scheduleRepositionWarningNotifications();
       });
     },
-    //重新计算sos框位置
+    // 与 Element Plus Notification 对齐：起始 44+16，间距 16
+    // 必须同步 props.offset，否则 EP close() 仍按旧高度减偏移，留下顶部/中间空位
     setTop(domArr) {
-      let top = [60];
+      const start = 60;
+      const gap = 16;
+      let top = start;
       for (let i = 0; i < domArr.length; i++) {
-        if (i > 0) {
-          top.push(domArr[i - 1].scrollHeight + top[i - 1] + 18);
-          domArr[i].style.top = top[i] + "px";
-        } else {
-          domArr[i].style.top = top[0] + "px";
+        const el = domArr[i];
+        const inst = el.__vueParentComponent;
+        if (inst && inst.props) {
+          inst.props.offset = top;
         }
+        el.style.setProperty("top", `${top}px`, "important");
+        top += (el.offsetHeight || 0) + gap;
       }
+    },
+    getVisibleWarningNotifications() {
+      return Array.from(document.getElementsByClassName("el-notification"))
+        .filter((el) => {
+          if (el.classList.contains("warning-notification-hidden")) return false;
+          // 正在离场动画的节点不要占位
+          if (
+            el.classList.contains("el-notification-fade-leave-active") ||
+            el.classList.contains("el-notification-fade-leave-to")
+          ) {
+            return false;
+          }
+          const inst = el.__vueParentComponent;
+          if (inst && inst.exposed && inst.exposed.visible && inst.exposed.visible.value === false) {
+            return false;
+          }
+          const style = window.getComputedStyle(el);
+          if (style.display === "none" || style.visibility === "hidden") {
+            return false;
+          }
+          if (Number(style.opacity) === 0) return false;
+          if (!el.offsetHeight) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          const offsetOf = (el) => {
+            const fromProp =
+              el.__vueParentComponent && el.__vueParentComponent.props
+                ? Number(el.__vueParentComponent.props.offset)
+                : NaN;
+            if (!Number.isNaN(fromProp)) return fromProp;
+            return Number.parseInt(el.style.top, 10) || el.offsetTop || 0;
+          };
+          return offsetOf(a) - offsetOf(b);
+        });
+    },
+    // 告警消除/新增/展开折叠后，按当前可见弹框实际高度紧凑排列
+    repositionWarningNotifications() {
+      const arr = this.getVisibleWarningNotifications();
+      if (arr.length > 0) {
+        this.setTop(arr);
+      }
+    },
+    scheduleRepositionWarningNotifications() {
+      if (this._warningReposTimers && this._warningReposTimers.length) {
+        this._warningReposTimers.forEach((t) => clearTimeout(t));
+      }
+      this._warningReposTimers = [];
+      const run = () => this.repositionWarningNotifications();
+      this.$nextTick(run);
+      // 多次回写：覆盖 EP close 改 offset、关闭动画结束、折叠高度变化
+      [0, 50, 120, 320, 520, 800].forEach((delay) => {
+        this._warningReposTimers.push(setTimeout(run, delay));
+      });
     },
     // 字符串双引号变成单引号
     htmlspecialchars(str) {
@@ -1290,72 +1647,8 @@ export default {
     },
     //点击弹出的信息框跳转到相应的定位页面
     GoMap(deveui, postype, devtype, info) {
-      var that = this;
-      that.$store.commit("changesosData", info);
-      if (postype == 1) {
-        if (devtype == 4) {
-          //车辆告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              tboxDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else if (devtype == 3) {
-          //资产告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              assetDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else {
-          //人告警
-          that.$router.push({
-            path: "/location/indoor/locationindoor",
-            query: {
-              deveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        }
-      } else if (postype == 2) {
-        if (devtype == 4) {
-          //车辆告警
-          that.$router.push({
-            path: "/location/outdoor/locationoutdoor",
-            query: {
-              tboxDeveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        } else {
-          //人告警
-          that.$router.push({
-            path: "/location/outdoor/locationoutdoor",
-            query: {
-              deveui: deveui,
-              sostype: true,
-              warning: true,
-            },
-          });
-        }
-      } else {
-        //聚集告警
-        that.$router.push({
-          path: "/location/indoor/locationindoor",
-          query: {
-            sostype: true,
-            warning: true,
-          },
-        });
-      }
+      // 无 postype 则无位置；有则先按告警 id 查点位再跳转（聚集可多人）
+      jumpToWarningLocation(this, info, { active: true });
     },
 
     // 发送远程搜索命令
@@ -1453,12 +1746,13 @@ export default {
           that.audios(that.warningAudioList[backSosAudio]);
         }
       }
+      // 关闭后重排（onClose 里也会排；这里再兜底一次，覆盖折叠态消除）
+      that.scheduleRepositionWarningNotifications();
       let data = {
         superid: that.superid,
         projectid: that.intoProjectid,
         status: 1,
         // type: 1,
-        endtype: 8,
       };
       getWarningPopoutList(
         data,
@@ -1486,7 +1780,7 @@ export default {
           superid: this.$store.state.userInfo.superid,
           projectid: this.$store.state.intoProjectid,
           status: 1,
-          endtype: 8,
+          endtype: 13,
         };
       }
       var that = this;
@@ -1528,7 +1822,15 @@ export default {
       return Y + M + D + h + m + s;
     },
   },
-  destroyed() {
+  unmounted() {
+    if (this._projectTipTimer) {
+      clearTimeout(this._projectTipTimer);
+      this._projectTipTimer = null;
+    }
+    if (this._warningReposTimers && this._warningReposTimers.length) {
+      this._warningReposTimers.forEach((t) => clearTimeout(t));
+      this._warningReposTimers = [];
+    }
     window.removeEventListener("beforeunload", (e) =>
       this.beforeunloadHandler(e)
     );
@@ -1558,15 +1860,209 @@ export default {
   border-left: 2px solid pink;
   padding-left: 10px;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
-.version_text {
+.project-name-tip {
+  pointer-events: none !important;
+}
+
+.el-dialog.device-dialog.version-dialog > .el-dialog__body {
+  padding: 0 !important;
+}
+
+.version-dialog .version-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(47, 123, 255, 0.08), rgba(34, 211, 238, 0.06));
+  border: 1px solid rgba(47, 123, 255, 0.12);
+  border-radius: 10px;
+}
+
+.version-dialog .version-summary-main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+}
+
+.version-dialog .version-summary-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.version-dialog .version-summary-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, #2f7bff, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.version-dialog .version-summary-date {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.version-dialog .version {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 16px 6px 4px 4px;
   text-align: left;
-  word-wrap: break-word;
 }
 
-.el-timeline-item__timestamp {
-  text-align: left !important;
+.version-dialog .version-item {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+}
+
+.version-dialog .version-axis {
+  position: relative;
+  flex: 0 0 18px;
+  margin: 0;
+}
+
+.version-dialog .version-axis::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: #e2e8f0;
+}
+
+.version-dialog .version-item:first-child .version-axis::before {
+  top: 14px;
+}
+
+.version-dialog .version-item:last-child .version-axis::before {
+  bottom: auto;
+  height: 14px;
+}
+
+.version-dialog .version-dot {
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #cbd5e1;
+  box-sizing: border-box;
+}
+
+.version-dialog .version-item.is-latest .version-dot {
+  width: 14px;
+  height: 14px;
+  top: 7px;
+  border: none;
+  background: linear-gradient(135deg, #2f7bff, #22d3ee);
+  box-shadow: 0 0 0 4px rgba(47, 123, 255, 0.16);
+}
+
+.version-dialog .version-card {
+  flex: 1;
+  min-width: 0;
+  margin: 0 0 14px;
+  padding: 12px 16px 12px;
+  background: #f8fafc;
+  border: 1px solid #edf1f7;
+  border-radius: 10px;
+}
+
+.version-dialog .version-item.is-latest .version-card {
+  background: #fff;
+  border-color: rgba(47, 123, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(47, 123, 255, 0.1);
+}
+
+.version-dialog .version-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.version-dialog .version-tag {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.version-dialog .version-latest {
+  margin: 0;
+  padding: 1px 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #fff;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+}
+
+.version-dialog .version-date {
+  margin: 0 0 0 auto;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.version-dialog .version-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.version-dialog .version-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 0;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.version-dialog .version-list li + li {
+  border-top: 1px dashed #e8edf4;
+}
+
+.version-dialog .version-index {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: #64748b;
+  background: #e9eef5;
+  border-radius: 50%;
+}
+
+.version-dialog .version-item.is-latest .version-index {
+  color: #2f7bff;
+  background: #e6efff;
+}
+
+.version-dialog .version-text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+  word-break: break-word;
 }
 
 * {
@@ -1579,6 +2075,7 @@ export default {
   position: fixed;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background: white;
   width: 100%;
   bottom: 0;
@@ -1586,6 +2083,15 @@ export default {
   border-top: 1px solid pink;
   height: 30px;
   line-height: 30px;
+  box-sizing: border-box;
+}
+
+.changeLanguage > p {
+  margin: 0;
+  height: 30px;
+  line-height: 30px;
+  display: flex;
+  align-items: center;
 }
 
 .changeLanguage p:nth-of-type(1) {
@@ -1596,9 +2102,37 @@ export default {
   margin-right: 20px;
 }
 
+.changeLanguage .moreInfo {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+}
+
+.changeLanguage .el-dropdown {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+}
+
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
+  vertical-align: middle;
+}
+
+.changeLanguage .show_ver,
+.changeLanguage .xcx_name,
+.changeLanguage .project_name {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  line-height: 30px;
 }
 
 .el-icon-arrow-down {
@@ -1623,6 +2157,13 @@ html,
 body,
 #app {
   height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* 预留滚动条槽位，避免弹框锁滚动时右上角图标左右跳动 */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -1666,6 +2207,12 @@ body {
   /* right: 3% !important; */
 }
 
+.el-notification.warning-notification-hidden {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
 .el-notification__group {
   width: 100%;
   margin: 0 !important;
@@ -1689,6 +2236,12 @@ body {
   margin: 14px;
   margin-left: 18px;
   margin-bottom: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sos-minibox {
+  display: none;
 }
 
 .sosfooter {
@@ -1699,12 +2252,16 @@ body {
   margin-right: 10px;
 }
 
+.sosfooter .el-button,
 .sosfooter button {
   padding: 10px 13px !important;
+  /* 用 px 走 pxtorem，随 4K 根字号放大；勿用内联 px（不会转 rem） */
+  font-size: 14px !important;
+  line-height: 1.2 !important;
 }
 
 .hidefooter {
-  display: none;
+  display: none !important;
 }
 
 .sosIcon {
@@ -1733,118 +2290,13 @@ body {
   background-color: #bed7f0 !important;
 }
 
-.el-dropdown-menu.el-popper.el-dropdown-menu--mini {
+.el-dropdown-menu.el-popper.el-dropdown-menu--mini,
+.el-dropdown-menu.el-popper.el-dropdown-menu--small {
   transform: translateX(-30px);
 }
 
-body .el-table th {
+body .el-table th,
+body .el-table th.el-table__cell {
   display: table-cell !important;
-}
-</style>
-<style lang="sss" scoped>
-/*项目选择 */
-.project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
-}
-.project-item {
-  margin: 0;
-  position: relative;
-  z-index: 1;
-  width: 11.2vw;
-  padding-bottom: 20px;
-  z-index: 0;
-  transition: all 0.3s;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0.5vw;
-  box-shadow: 3px 3px 4px -2px #d6d6d6;
-}
-
-.project-item:hover {
-  z-index: 2;
-  transform: scale(1.05);
-  -moz-box-shadow: 1px 5px 14px #cccccc;
-  -webkit-box-shadow: 1px 5px 14px #cccccc;
-  box-shadow: 1px 5px 14px #cccccc;
-}
-.item-header {
-  position: relative;
-  height: 40px;
-  background: #409eff;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-}
-.active-item .item-header {
-  background: #ff9b44;
-}
-.item-header .isactive {
-  width: 46px;
-  height: 46px;
-  position: absolute;
-  background: #ffca9c;
-  top: -23px;
-  right: -23px;
-  transform: rotate(45deg);
-}
-.item-header .isactive .icon {
-  position: absolute;
-  bottom: 0;
-  transform: rotate(-45deg);
-  width: 12px;
-  height: 12px;
-  background: #fff;
-  mask: url("./assets/pick.svg");
-  mask-size: contain;
-}
-.item-header .item-icon {
-  margin: 0;
-  margin-right: 10px;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  background-color: #fff;
-  mask: url("./assets/firm.svg");
-  mask-size: contain;
-  font-size: 18px;
-}
-.item-info {
-  display: flex;
-  margin-top: 14px;
-  justify-self: start;
-}
-.item-info .key {
-  display: flex;
-  flex-direction: column;
-  color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
-  white-space: nowrap;
-}
-.item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
-}
-.item-info .value {
-  display: flex;
-  flex-direction: column;
-  margin-left: 5px;
-}
-.item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
-  color: #2d2d2d;
-  text-align: left;
-}
-.version {
-  text-align: left;
-  height: 500px;
-  overflow: auto;
 }
 </style>

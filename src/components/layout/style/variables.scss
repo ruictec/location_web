@@ -8,16 +8,16 @@ $tiffany: #4AB7BD;
 $yellow:#FEC171;
 $panGreen: #30B08F;
 
-// sidebar
-$menuText:#8c97aa;
-$menuActiveText:#409EFF;
-$subMenuActiveText:#409EFF; // https://github.com/ElemeFE/element/issues/12951
+// sidebar —— 与首页/数据分析页的主色 #2F7BFF 对齐
+$menuText:#94a3b8;
+$menuActiveText:#2F7BFF;
+$subMenuActiveText:#2F7BFF;
 
-$menuBg:#252b3b;
-$menuHover:#3e455a;
+$menuBg:#1e2433;
+$menuHover:rgba(47, 123, 255, 0.14);
 
-$subMenuBg:#252b3b;
-$subMenuHover:#3e455a;
+$subMenuBg:#171c28;
+$subMenuHover:rgba(47, 123, 255, 0.14);
 
 $sideBarWidth: 220px;
 

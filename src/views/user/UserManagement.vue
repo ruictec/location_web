@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrioNum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrioNum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,18 +7,15 @@
       <el-container class="asi">
         <el-aside><Usermanagement /></el-aside>
         <el-main>
-          <div class="user_input">
-            <el-form class="demo-form-inline" :model="searchList">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
+            <el-form
+              class="demo-form-inline user-search-form terminal-filter-form"
+              :model="searchList"
+            >
               <el-form-item
                 :label="$t('usermanagement.company')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  float: left;
-                  white-space: nowrap;
-                "
                 v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.tenantid"
                   clearable
@@ -37,14 +34,8 @@
 
               <el-form-item
                 :label="$t('usermanagement.company')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  float: left;
-                  white-space: nowrap;
-                "
                 v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.tenantid"
                   clearable
@@ -62,14 +53,8 @@
               </el-form-item>
               <el-form-item
                 :label="$t('usermanagement.user')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  float: left;
-                  white-space: nowrap;
-                "
                 v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.username"
                   clearable
@@ -87,14 +72,8 @@
 
               <el-form-item
                 :label="$t('usermanagement.country')"
-                style="
-                  display: flex;
-                  margin-left: 2%;
-                  float: left;
-                  white-space: nowrap;
-                "
                 v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.country"
                   clearable
@@ -110,7 +89,7 @@
                 </el-select>
               </el-form-item>
 
-              <el-form-item style="margin-left: 2%; float: left">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button
                   type="primary"
                   class="query"
@@ -121,8 +100,7 @@
                     contrForPrioNum == 3 ||
                     contrForPrioNum == 4
                   "
-                  >{{ $t("usermanagement.search") }}</el-button
-                >
+                  >{{ $t("usermanagement.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
@@ -133,27 +111,25 @@
                     contrForPrioNum == 3 ||
                     contrForPrioNum == 4
                   "
-                  >{{ $t("usermanagement.reset") }}</el-button
-                >
+                  >{{ $t("usermanagement.reset") }}</el-button>
                 <el-button
                   type="primary"
                   class="add"
                   @click="addUsers()"
                   v-if="contrForPrioNum == 1"
-                  >{{ $t("usermanagement.Addsubadministrator") }}</el-button
-                >
+                  >{{ $t("usermanagement.Addsubadministrator") }}</el-button>
                 <el-popover v-if="contrForPrioNum == 3">
                   <div style="display: flex">
-                    <el-button size="mini" type="primary" @click="addUser()">{{
+                    <el-button size="small" type="primary" @click="addUser()">{{
                       $t("usermanagement.addUser")
                     }}</el-button>
-                    <el-button type="primary" size="mini" @click="addUsers()">{{
+                    <el-button type="primary" size="small" @click="addUsers()">{{
                       $t("usermanagement.Addsubadministrator")
                     }}</el-button>
                   </div>
-                  <el-button type="primary" class="del move" slot="reference">{{
+                  <template #reference><el-button type="primary" class="del move">{{
                     $t("usermanagement.add")
-                  }}</el-button>
+                  }}</el-button></template>
                 </el-popover>
                 <el-tooltip
                   class="item"
@@ -172,22 +148,22 @@
                     contrForPrioNum != 4
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.tlt") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <!-- 人员展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -224,7 +200,7 @@
                 show-overflow-tooltip
                 align="center"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ scope.row.usertel }}
                 </template>
               </el-table-column>
@@ -273,8 +249,9 @@
                 :label="$t('usermanagement.operate')"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -285,8 +262,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -296,36 +274,30 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userEdit(scope.row)"
                           class="edits"
-                          >{{ $t("usermanagement.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("usermanagement.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="userDele(scope.row)"
-                          >{{ $t("usermanagement.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("usermanagement.delete") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="handleLogin(scope.row)"
                           class="edits"
-                          >{{ $t("usermanagement.Login") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("usermanagement.Login") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -339,14 +311,13 @@
                           placement="top"
                         >
                           <el-button
-                            size="mini"
+                            size="small"
                             class="dels"
                             @click="resetUserkeys(scope.row)"
-                            >{{ $t("usermanagement.repassword") }}</el-button
-                          >
+                            >{{ $t("usermanagement.repassword") }}</el-button>
                         </el-tooltip>
                       </el-dropdown-item>
-                    </el-dropdown-menu>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -354,28 +325,28 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
           <!-- 添加子管理员模态框    -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.adduser')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="560px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -450,11 +421,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio12") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -505,16 +476,16 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio13") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -523,18 +494,18 @@
                 @click="addTrue('addData')"
                 :loading="loading"
               >
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 企业管理员添加用户    -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.adduser')"
-            width="30%"
-            :visible.sync="add_User"
-            style="text-align: center"
+            width="560px"
+            v-model="add_User"
             @close="addUserCancel('addData')"
+            top="5vh"
           >
             <el-form
               :model="addData"
@@ -616,11 +587,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio12") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -645,16 +616,16 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio13") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addUserCancel('addData')">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -663,19 +634,18 @@
                 @click="addUserTrue('addData')"
                 :loading="loading"
               >
-                {{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                {{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑模态框 -->
           <el-dialog
             :title="$t('usermanagement.edituser')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="560px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
@@ -749,11 +719,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio12") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -813,65 +783,54 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("usermanagement.prio13") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">
-                {{ $t("terminal.cancel") }}</el-button
-              >
+                {{ $t("terminal.cancel") }}</el-button>
               <el-button
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('usermanagement.deleteuser')"
-            :visible.sync="deleTpl"
-            style="text-align: center"
-            width="30%"
+            v-model="deleTpl"
+            width="480px"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  fontsize: 20px;
-                "
-              >
-                {{ $t("usermanagement.deleterules") }}
-                {{ deleUser }} ?
-              </p>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
+            <p class="dialog-confirm-text">
+              {{ $t("usermanagement.deleterules") }} <b>{{ deleUser }}</b> ?
+            </p>
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("terminal.confirm")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
 
           <!-- 重置密码 -->
           <el-dialog
             :title="$t('usermanagement.repwd')"
-            width="30%"
-            style="text-align: center"
-            :visible.sync="passwordTpl"
-            class="passward"
+            width="480px"
+            v-model="passwordTpl"
+            class="passward device-dialog"
+            align-center
           >
             <el-form
               :model="passwordData"
@@ -879,7 +838,6 @@
               :rules="addRules"
               class="demo-ruleForm"
               label-width="150px"
-              style="text-align: left; margin-left: 10px"
             >
               <el-form-item :label="$t('usermanagement.adminpwd')">
                 <el-input
@@ -903,7 +861,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(passwordTpl = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -911,9 +869,8 @@
                 type="primary"
                 @click="passwordTrue()"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -1168,6 +1125,12 @@ export default {
         passwordAgain: "",
       },
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     //分页
@@ -1751,6 +1714,10 @@ export default {
         that.$t("usermanagement.passwordrules"),
         that.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -1813,6 +1780,10 @@ export default {
         that.$t("terminal.tips"),
 
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -2031,10 +2002,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0px 0 !important;
 }
-.el-table >>> .el-table__row:hover td {
+.el-table :deep(.el-table__row:hover td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2042,26 +2013,271 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
+
+.user-search-form :deep(> .el-form-item) {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 !important;
+  float: none !important;
+  white-space: nowrap;
+}
+
+.user-search-form {
+  gap: 10px;
+  margin-left: 1%;
+}
+
+.user-search-form :deep(> .el-form-item .el-select) {
+  min-width: 140px;
+}
+
+.user-search-form :deep(> .el-form-item .el-form-item__label) {
+  padding-right: 6px;
+}
+
 .el-form-item .el-button {
-  margin-left: 4px !important;
+  margin-left: 0 !important;
 }
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

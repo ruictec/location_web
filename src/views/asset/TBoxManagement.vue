@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu ref="menu" />
     </div>
@@ -8,46 +8,27 @@
         <el-aside v-if="contrForPrionum != 5"><Asset /></el-aside>
 
         <el-main>
-          <el-form
-            class="demo-form-inline"
+                    <div class="terminal-filter-flow page-panel" :class="filterLangClass">
+<el-form
+            class="demo-form-inline terminal-filter-form"
             :model="searchList"
-            style="display: flex; white-space: nowrap; margin-left: 1%"
           >
             <el-form-item
               :label="$t('car.Numberplate')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input v-model="searchList.sn"></el-input>
             </el-form-item>
             <el-form-item
               :label="$t('car.Tagnumber')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input
-                style="width: 95%; float: left"
                 v-model="searchList.maplabel"
               >
               </el-input>
             </el-form-item>
             <el-form-item
               :label="$t('car.Department')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-select
                 v-model="searchList.depart"
                 filterable
@@ -63,38 +44,35 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item style="display: flex; margin-left: 1%; z-index: 1">
+            <el-form-item class="terminal-toolbar-item">
               <el-button type="primary" class="query" @click="searchTBox()">{{
                 $t("car.search")
               }}</el-button>
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("car.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="car-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("terminal.exportSelected")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
               <el-button type="primary" class="add" @click="addTBox()">{{
                 $t("car.Addvehicle")
-              }}</el-button
-              ><el-button type="danger" class="add" @click="removeTBoxs()">{{
+              }}</el-button><el-button type="danger" class="add" @click="removeTBoxs()">{{
                 $t("car.unbind")
               }}</el-button>
               <el-button type="primary" class="add add2" @click="goSetTBox()">{{
@@ -102,6 +80,7 @@
               }}</el-button>
             </el-form-item>
           </el-form>
+          </div>
           <!-- </div> -->
 
           <!-- 展示 -->
@@ -116,18 +95,19 @@
                 @change="importExcels"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 97%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -156,6 +136,18 @@
                 show-overflow-tooltip
               ></el-table-column>
               <el-table-column
+                property="driver"
+                :label="$t('car.driver')"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
+                property="tel"
+                :label="$t('car.tel')"
+                align="center"
+                show-overflow-tooltip
+              ></el-table-column>
+              <el-table-column
                 property="memo"
                 :label="$t('car.Remark3')"
                 align="center"
@@ -167,8 +159,9 @@
                 min-width="100"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -179,8 +172,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -190,25 +184,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="staffEdit(scope.row)"
-                          >{{ $t("car.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("car.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="TBoxDele(scope.row)"
-                          >{{ $t("car.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("car.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -218,7 +208,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       @click="goLocation(scope.row)"
                       ><img src="../../../static/location.png"
@@ -232,7 +222,7 @@
                   >
                     <el-button
                       type="primary"
-                      size="mini"
+                      size="small"
                       class="edits icon_button"
                       style="margin-left: 0"
                       @click="staffAction(scope.row)"
@@ -242,20 +232,21 @@
                 </template>
               </el-table-column>
             </el-table>
+            </div>
 
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -263,13 +254,15 @@
 
           <!-- 添加车辆 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('car.text1')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="560px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePath"
               list-type="picture-card"
               :file-list="fileListAdd"
@@ -287,9 +280,9 @@
               :on-change="handleChange"
               :on-remove="handleRemove"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("car.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -303,34 +296,58 @@
                 <el-input v-model="addData.sn"></el-input>
               </el-form-item>
               <el-form-item :label="$t('car.Vehicletype1')" prop="">
-                <el-select
-                  v-model="addData.type"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in tboxList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="addData.type"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in tboxList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.vehicleTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Department2')">
-                <el-select
-                  v-model="addData.depart"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="addData.depart"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Tagnumber')">
                 <el-select
@@ -348,6 +365,20 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item :label="$t('car.driverLabel')" prop="driver">
+                <el-input
+                  v-model="addData.driver"
+                  maxlength="64"
+                  :placeholder="$t('car.driverPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('car.telLabel')" prop="tel">
+                <el-input
+                  v-model="addData.tel"
+                  maxlength="20"
+                  :placeholder="$t('car.telPlaceholder')"
+                ></el-input>
+              </el-form-item>
 
               <el-form-item :label="$t('car.Remark1')">
                 <el-input
@@ -358,7 +389,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -366,23 +397,29 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            v-model="dialogVisible"
+            :append-to-body="true"
+            align-center
+          >
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
           <!-- 编辑 -->
           <el-dialog
             :title="$t('car.text3')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="560px"
+            top="6vh"
           >
             <el-upload
+              class="dialog-upload-indent"
               :action="ImagePathEdit"
               list-type="picture-card"
               :file-list="fileListEdit"
@@ -400,9 +437,9 @@
               :on-exceed="handleExceedEdit"
               :before-upload="beforeAvatarUploadEdit"
             >
-              <div slot="tip" class="el-upload__tip">
+              <template #tip><div class="el-upload__tip">
                 {{ $t("car.text2") }}
-              </div>
+              </div></template>
               <i class="el-icon-plus"></i>
             </el-upload>
             <el-form
@@ -416,35 +453,59 @@
                 <el-input v-model="editData.sn" disabled></el-input>
               </el-form-item>
               <el-form-item :label="$t('car.Vehicletype1')" prop="">
-                <el-select
-                  v-model="editData.type"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in tboxList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="editData.type"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in tboxList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.vehicleTypeTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
 
               <el-form-item :label="$t('car.Department2')">
-                <el-select
-                  v-model="editData.depart"
-                  filterable
-                  :placeholder="$t('car.text')"
-                >
-                  <el-option
-                    v-for="item in DepartList"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.name"
+                <div class="depart-field-with-tip">
+                  <el-select
+                    v-model="editData.depart"
+                    filterable
+                    :placeholder="$t('car.text')"
                   >
-                  </el-option>
-                </el-select>
+                    <el-option
+                      v-for="item in DepartList"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.name"
+                    >
+                    </el-option>
+                  </el-select>
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="top"
+                  >
+                    <template #content>
+                      <div>{{ $t("car.departTip") }}</div>
+                    </template>
+                    <i class="el-icon-question form-label-tip" />
+                  </el-tooltip>
+                </div>
               </el-form-item>
               <el-form-item :label="$t('car.Tagnumber')">
                 <el-select
@@ -462,6 +523,20 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item :label="$t('car.driverLabel')" prop="driver">
+                <el-input
+                  v-model="editData.driver"
+                  maxlength="64"
+                  :placeholder="$t('car.driverPlaceholder')"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('car.telLabel')" prop="tel">
+                <el-input
+                  v-model="editData.tel"
+                  maxlength="20"
+                  :placeholder="$t('car.telPlaceholder')"
+                ></el-input>
+              </el-form-item>
               <el-form-item :label="$t('car.Remark1')">
                 <el-input
                   type="textarea"
@@ -471,7 +546,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(edit = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -479,18 +554,17 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('car.text4')"
-            :visible.sync="removeTBox"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            v-model="removeTBox"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -523,7 +597,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeTBox = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -531,40 +605,25 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 设置车辆类型 -->
           <el-dialog
             :title="$t('car.text5')"
-            :visible.sync="addAssets"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="addAssets"
+            class="edit device-dialog"
+            width="480px"
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
+            align-center
           >
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addTBoxRow"
-                >{{ $t("car.add") }}</el-button
-              >
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 75%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('car.import')"
-              >
+            <div class="setting-list-body">
+              <div class="setting-list-toolbar">
+                <el-button type="primary" class="add" @click="addTBoxRow">{{
+                  $t("car.add")
+                }}</el-button>
+                <span class="setting-list-label">{{ $t("car.import") }}</span>
                 <el-select
                   v-model="currentProjectid.projectid"
                   clearable
@@ -577,77 +636,72 @@
                     :key="item.projectid"
                     :label="item.name"
                     :value="item.projectid"
-                  ></el-option> </el-select
-                ><el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="font-size: 130%"
+                  ></el-option>
+                </el-select>
+              </div>
+              <div class="setting-list-rows">
+                <div
+                  class="setting-list-row"
+                  v-for="(item, index) in tboxList"
+                  :key="item.id || 'tbox-' + index"
                 >
-                  <div slot="content">
-                    <p>
-                      {{ $t("car.title6") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in tboxList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="float: left; width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  style="float: left; margin-left: 20px"
-                  @click="
-                    deleTBoxRow(index, item.id, item.name, item.tenantid, item.projectid)
-                  "
-                  class="del"
-                  >{{ $t("car.delete") }}</el-button
-                >
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleTBoxRow(index, item.id, item.name, item.tenantid, item.projectid)
+                    "
+                    >{{ $t("car.delete") }}</el-button>
+                </div>
+              </div>
+            </div>
+            <template #footer><div class="dialog-footer">
               <el-button @click="addAssets = false">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="addTBoxRowTrue()">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
           <!-- 行为分析 -->
           <el-dialog
-            :visible.sync="actions"
+            :title="$t('staffmanagement.trajectory')"
+            v-model="actions"
             width="60%"
-            style="text-align: center"
             :close-on-click-modal="false"
-            class="action"
+            class="action device-dialog"
             @close="closeAction"
+            top="6vh"
           >
             <el-dialog
-              :visible.sync="trajectory"
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction"
             >
               <!-- <location ref="locations" /> -->
-              <Trajectory ref="trajectory" @closePopup="closePopup" />
+              <Trajectory ref="trajectory" @closePopup2d="closePopup" />
+            </el-dialog>
+            <el-dialog
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory3d"
+              width="80%"
+              :close-on-click-modal="false"
+              class="trajectory device-dialog"
+              append-to-body
+              @close="closetrajectoryAction3d"
+            >
+              <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
             </el-dialog>
             <el-form
               class="demo-form-inline"
@@ -693,7 +747,7 @@
                 <el-date-picker
                   v-model="actionTime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('car.to')"
                   :start-placeholder="$t('car.starttime')"
                   :end-placeholder="$t('car.endtime')"
@@ -704,14 +758,12 @@
                   type="primary"
                   class="query"
                   @click="searchAction()"
-                  >{{ $t("car.search") }}</el-button
-                >
+                  >{{ $t("car.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="showTrajectory()"
-                  >{{ $t("car.Viewtrack") }}</el-button
-                >
+                  >{{ $t("car.Viewtrack") }}</el-button>
               </el-form-item>
             </el-form>
             <div class="actionDetails">
@@ -759,6 +811,7 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import Menu from "../../components/menu/Menu";
 import host from "../../host";
 import util from "../../common/util";
@@ -778,16 +831,19 @@ import {
   getMemberList,
   getProjectListByTenantid,
   getDevGpsAction,
+  getBuildGroundList,
   importTbox,
 } from "../../axios/api";
 import Asset from "../../components/asset/asset.vue";
 
 import Trajectory from "../staff/trajectory.vue";
+import Trajectorys from "../staff/trajectory3d.vue";
 export default {
   components: {
     Menu,
     Asset,
     Trajectory,
+    Trajectorys,
   },
   name: "AssetManagement",
   data() {
@@ -800,6 +856,17 @@ export default {
         callback(new Error(this.$t("tet.tet5")));
       }
     };
+    var telValid = (rule, value, callback) => {
+      if (!value) {
+        callback();
+        return;
+      }
+      if (/^1[3|4|5|7|8][0-9]\d{8}$/.test(value)) {
+        callback();
+      } else {
+        callback(new Error(this.$t("companymanagement.clienttelrule3")));
+      }
+    };
     return {
       i8n: this.$store.state.i18n,
       //时间选择限制
@@ -807,29 +874,29 @@ export default {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -879,6 +946,8 @@ export default {
         maplabel: "", //
         memo: "", //
         depart: "",
+        driver: "",
+        tel: "",
       },
       ProjectTye: "",
       edit: false,
@@ -892,6 +961,8 @@ export default {
         memo: "", //
         filename: "",
         depart: "",
+        driver: "",
+        tel: "",
       },
       editRules: {
         // sn: [{ required: true, validator: carPhoneValid, trigger: blur }],
@@ -902,6 +973,7 @@ export default {
             trigger: blur,
           },
         ],
+        tel: [{ validator: telValid, trigger: "blur" }],
       },
       deleId: "",
       deleTenantid: "",
@@ -916,8 +988,8 @@ export default {
       DepartList: [],
       haveImage: false, //判断添加的资产有没有图片
       delImage: false, //判断资产是否要删除图片
-      ImagePath: host.host + "user/addTboxMapFile",
-      ImagePathEdit: host.host + "user/updateTboxMapFile",
+      ImagePath: host.host + "service/addTboxMapFile",
+      ImagePathEdit: host.host + "service/updateTboxMapFile",
       fileListAdd: [],
       fileListEdit: [],
       dialogImageUrl: "",
@@ -941,6 +1013,7 @@ export default {
         projectid: "",
       },
       trajectory: false,
+      trajectory3d: false,
       addAssets: false,
       tboxList: [],
       actions: false,
@@ -955,6 +1028,12 @@ export default {
       isSearchAction: false,
       headlistdata: "",
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     // 导入
@@ -982,7 +1061,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1112,8 +1190,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1175,20 +1252,15 @@ export default {
     },
     showTrajectory() {
       this.isSearchAction = true;
+      this.actionTableData = [];
+      this.searchAction();
+    },
+    showTrajectorys() {
       var that = this;
-      if (this.actionTableData.length === 0) {
-        // this.$message({
-        //   message: "请先查询行为数据",
-        //   type: "warning",
-        // });
-        that.searchAction();
-        return;
-      }
-
       // 将行为轨迹数据根据楼层分为不同的数组
-      this.actionTableDataArr = [];
+      that.actionTableDataArr = [];
       let newArr = [];
-      let list = JSON.parse(JSON.stringify(this.actionTableData));
+      let list = JSON.parse(JSON.stringify(that.actionTableData));
       let node = list[0];
       list.forEach((item, i) => {
         if (item.groundid === node.groundid) {
@@ -1203,34 +1275,95 @@ export default {
           that.actionTableDataArr.push(newArr);
         }
       });
-
       if (that.actionTableDataArr.length > 0) {
         let begintime, endtime;
-        if (this.actionTime == null || this.actionTime.length == 0) {
-          let timee = new Date();
-          timee.setHours(0, 0, 0, 0);
-          begintime = timee.getTime() / 1000;
+        if (that.actionTime == null || that.actionTime.length == 0) {
+          begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
           endtime = Date.parse(new Date()) / 1000;
         } else {
-          begintime = Date.parse(that.actionTime[0]) / 1000;
-          endtime = Date.parse(that.actionTime[1]) / 1000;
+          let begingTime = that.actionTime[0];
+          let endTime = that.actionTime[1];
+
+          begingTime =
+            !begingTime || begingTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(begingTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          endTime =
+            !endTime || endTime == ""
+              ? ""
+              : util.formatDate.format(
+                  new Date(endTime),
+                  "yyyy-MM-dd hh:mm:ss"
+                );
+          if (begingTime.length > 0 && endTime.length > 0) {
+            begingTime = Date.parse(new Date(begingTime)) / 1000;
+            endTime = Date.parse(new Date(endTime)) / 1000;
+          }
+          begintime = begingTime;
+          endtime = endTime;
         }
-        this.trajectory = true;
+
         this.isSearchAction = false;
-        this.$nextTick(() => {
-          this.$refs.trajectory.search(
-            that.actionTableDataArr,
-            begintime,
-            endtime,
-            4
-          );
-        });
+        if (that.actionTableDataArr[0][0].groundid) {
+          let data = {
+            groundid: that.actionTableDataArr[0][0].groundid,
+          };
+          getBuildGroundList(
+            data,
+            this.tenantkey_A,
+            this.tenantid_A,
+            this.userName
+          ).then((res) => {
+            if (res.code == 1001) {
+              if (res.data.list[0].maptype == 2) {
+                that.trajectory3d = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectorys.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    4
+                  );
+                });
+              } else {
+                that.trajectory = true;
+                that.$nextTick(() => {
+                  that.$refs.trajectory.search(
+                    that.actionTableDataArr,
+                    begintime,
+                    endtime,
+                    4
+                  );
+                });
+              }
+            }
+          });
+        } else {
+          that.trajectory = true;
+          that.$nextTick(() => {
+            that.$refs.trajectory.search(
+              that.actionTableDataArr,
+              begintime,
+              endtime,
+              4
+            );
+          });
+        }
       }
     },
 
     // 当子区域设置有误时，关闭轨迹弹框
     closePopup(data) {
       this.trajectory = false;
+    },
+    closePopup3d(data) {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
+      this.trajectory3d = false;
     },
     //行为分析
     staffAction(row) {
@@ -1258,6 +1391,7 @@ export default {
         endtime: "",
         devtype: 4,
         timezone: this.$store.state.intoProjectTimezone,
+        postype: 1,
       };
       if (this.actionTime) {
         // 判断是否为24小时间隔
@@ -1293,9 +1427,7 @@ export default {
         data.begintime = begingTime;
         data.endtime = endTime;
       } else {
-        let timee = new Date();
-        timee.setHours(0, 0, 0, 0);
-        data.begintime = timee.getTime() / 1000;
+        data.begintime = (Date.parse(new Date()) - 1 * 60 * 60 * 1000) / 1000;
         data.endtime = Date.parse(new Date()) / 1000;
       }
       if (
@@ -1344,7 +1476,7 @@ export default {
             // );
           }
           if (this.isSearchAction == true) {
-            that.showTrajectory();
+            that.showTrajectorys();
           }
         } else {
           that.$message({
@@ -1362,7 +1494,14 @@ export default {
     closetrajectoryAction() {
       this.$nextTick(() => {
         this.$refs.trajectory.stop(true);
+        this.$refs.trajectory.closeTime();
+        this.$refs.trajectory.removeVectorLayer();
       });
+    },
+    closetrajectoryAction3d() {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
     },
 
     //时间转换
@@ -1567,10 +1706,17 @@ export default {
         return;
       }
       let data = {
-        branchs: this.tboxList.filter(item => !item.id).map(({id,...item})=>item),
+        branchs: this.tboxList
+          .filter((item) => !item.id)
+          .map(({ id, ...item }) => item),
         tenantid: this.tenantid_A,
         projectid: this.$store.state.projectid,
       };
+      // 没有新增车辆类型时直接关闭弹框，不调用接口（与员工管理角色弹框一致）
+      if (data.branchs.length == 0) {
+        that.addAssets = false;
+        return;
+      }
       data.branchs = JSON.stringify(data.branchs);
       addTboxType(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
         (res) => {
@@ -1857,6 +2003,8 @@ export default {
         maplabel: "", //
         memo: "", //
         depart: "",
+        driver: "",
+        tel: "",
       };
 
       Promise.all([
@@ -1886,6 +2034,8 @@ export default {
             that.userIdForPic.maplabel = that.addData.maplabel;
             that.userIdForPic.memo = that.addData.memo;
             that.userIdForPic.depart = that.addData.depart;
+            that.userIdForPic.driver = that.addData.driver;
+            that.userIdForPic.tel = that.addData.tel;
             that.$refs.upload.submit();
           } else {
             addTbox(
@@ -1943,6 +2093,8 @@ export default {
       this.editData.memo = row.memo;
       this.editData.filename = row.filename;
       this.editData.depart = row.depart;
+      this.editData.driver = row.driver || "";
+      this.editData.tel = row.tel || "";
       Promise.all([
         this.getMemberLists(),
         this.getDevDeveuis(this.$store.state.projectid),
@@ -1965,6 +2117,8 @@ export default {
             that.userIdForPicEdit.memo = that.editData.memo;
             that.userIdForPicEdit.maplabel = that.editData.maplabel;
             that.userIdForPicEdit.depart = that.editData.depart;
+            that.userIdForPicEdit.driver = that.editData.driver;
+            that.userIdForPicEdit.tel = that.editData.tel;
             that.$refs.upload.submit();
           } else {
             if (that.delImage) {
@@ -2020,6 +2174,10 @@ export default {
           this.$t("terminal.carmsg2"),
         this.$t("terminal.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -2318,6 +2476,31 @@ export default {
 #articleImageFile {
   display: none;
 }
+.form-label-with-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.depart-field-with-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.depart-field-with-tip :deep(.el-select) {
+  flex: 1;
+  min-width: 0;
+}
+.form-label-tip {
+  cursor: pointer;
+  color: #909399;
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.form-label-tip:hover {
+  color: #409eff;
+}
 .home {
   height: 100%;
   margin-right: calc(102% - 100vw);
@@ -2348,10 +2531,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -2376,28 +2559,28 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 
@@ -2416,15 +2599,26 @@ export default {
 }
 
 .actionDetails {
-  /* height: 50px; */
   max-height: 500px;
   overflow: auto;
   display: flex;
   flex-wrap: wrap;
+  text-align: left;
 }
-.actionDetails >>> .ivu-timeline {
+.actionDetails :deep(.el-timeline) {
   width: 23%;
   margin-left: 2%;
+  margin-right: 0;
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__wrapper),
+.actionDetails :deep(.el-timeline-item__content) {
+  text-align: left;
+}
+.actionDetails :deep(.el-timeline-item__content) p {
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
   text-align: left;
 }
 .action .el-dialog__body .el-form .el-form-item {
@@ -2434,18 +2628,241 @@ export default {
 .action .demo-form-inline .el-form-item .el-form-item__content {
   width: 100%;
 }
-.trajectory >>> .el-dialog {
+.trajectory :deep(.el-dialog) {
   height: 85%;
   margin-top: 2% !important;
 }
-.trajectory >>> .el-dialog__header {
+.trajectory :deep(.el-dialog__header) {
   height: 4%;
 }
-.trajectory >>> .el-dialog__headerbtn {
+.trajectory :deep(.el-dialog__headerbtn) {
   top: 1% !important;
 }
-.trajectory >>> .el-dialog__body {
+.trajectory :deep(.el-dialog__body) {
   height: 96%;
   padding-top: 10px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

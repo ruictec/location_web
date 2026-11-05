@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrioNum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrioNum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,16 +7,14 @@
       <el-container class="asi">
         <el-aside><Usermanagement /></el-aside>
         <el-main>
-          <div class="user_input">
+          <div class="user_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
-              class="demo-form-inline"
+              class="demo-form-inline terminal-filter-form"
               :model="searchList"
-              style="display: flex; white-space: nowrap"
             >
               <el-form-item
                 :label="$t('companymanagement.company')"
-                style="display: flex; margin-left: 5%"
-              >
+               class="terminal-filter-item">
                 <el-select
                   v-model="searchList.tenantid"
                   clearable
@@ -32,7 +30,7 @@
                 </el-select>
               </el-form-item>
 
-              <el-form-item style="margin-left: 20px">
+              <el-form-item class="terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("companymanagement.search")
                 }}</el-button>
@@ -42,31 +40,25 @@
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button
-                >
+                  >{{ $t("terminal.import") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button
-                >
+                  >{{ $t("terminal.export") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
-                  style="margin-left: 0%"
                   @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button
-                >
+                  >{{ $t("terminal.exportAll") }}</el-button>
                 <el-button type="primary" class="add" @click="addUsers()">{{
                   $t("companymanagement.addclient")
                 }}</el-button>
               </el-form-item>
             </el-form>
           </div>
-          <div class="content_user">
+          <div class="content_user page-panel table-panel">
             <div class="exportContent" style="display: flex">
               <input
                 id="articleImageFile"
@@ -79,9 +71,9 @@
             </div>
             <!-- 展示 -->
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -142,7 +134,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("companymanagement.Setlogo")
                   }}</span>
@@ -152,14 +144,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("companymanagement.tet") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="accpriostr"
                 :label="$t('usermanagement.Accessrights')"
@@ -167,22 +158,20 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">
-                    {{ $t("usermanagement.Accessrights") }}</span
-                  >
+                    {{ $t("usermanagement.Accessrights") }}</span>
                   <el-tooltip
                     class="item"
                     effect="light"
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("companymanagement.tet1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="mapriostr"
                 :label="$t('myorderde.projectmanagement')"
@@ -190,7 +179,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("myorderde.projectmanagement")
                   }}</span>
@@ -200,12 +189,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("companymanagement.tet2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="createtime"
                 :label="$t('companymanagement.createtime')"
@@ -234,8 +222,9 @@
                 min-width="80"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -246,8 +235,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -257,25 +247,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           @click="userEdit(scope.row)"
                           class="edits"
-                          >{{ $t("companymanagement.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("companymanagement.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels1"
                           @click="userDele(scope.row)"
-                          >{{ $t("companymanagement.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("companymanagement.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
@@ -283,35 +269,35 @@
 
             <!--分页效果-->
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
           <!-- 添加模态框  :headers="setHeader"  -->
           <el-dialog
+            class="device-dialog"
             :title="$t('companymanagement.addclientinfor')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="860px"
+            v-model="add"
             @close="addCancel('addData')"
+            top="5vh"
           >
             <el-form
+              class="dialog-form-2col"
               :model="addData"
-              label-width="160px"
+              label-width="140px"
               :rules="addRules"
               ref="addData"
-              style="text-align: left"
             >
               <el-form-item
                 :label="$t('companymanagement.clientname')"
@@ -355,9 +341,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("companymanagement.tet3") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -383,11 +369,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet4") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -443,11 +429,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -478,11 +464,11 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -509,7 +495,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("companymanagement.cancel")
               }}</el-button>
@@ -517,27 +503,25 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("companymanagement.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("companymanagement.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 编辑模态框 -->
           <el-dialog
             :title="$t('companymanagement.edituser')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="860px"
             @close="editCancel('editData')"
+            top="5vh"
           >
             <el-form
               :model="editData"
               ref="editData"
               :rules="editRules"
-              class="demo-ruleForm"
-              label-width="160px"
-              style="text-align: left; margin-left: 10px"
+              class="demo-ruleForm dialog-form-2col"
+              label-width="140px"
             >
               <el-form-item :label="$t('companymanagement.clientname')">
                 <el-input
@@ -596,11 +580,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet6") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -625,11 +609,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet91") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -653,11 +637,11 @@
                   placement="right-start"
                   style="font-size: 130%"
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("companymanagement.tet8") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -679,7 +663,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("companymanagement.cancel")
               }}</el-button>
@@ -687,37 +671,29 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("companymanagement.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("companymanagement.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
+            width="480px"
+            class="device-dialog"
             :title="$t('companymanagement.deleteclient')"
-            :visible.sync="deleTpl"
-            style="text-align: center"
+            v-model="deleTpl"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  fontsize: 20px;
-                "
-              >
-                {{ $t("companymanagement.deleteclientrules") }}{{ deleUser }}?
-              </p>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
+            <p class="dialog-confirm-text">
+              {{ $t("companymanagement.deleteclientrules") }}<b>{{ deleUser }}</b>?
+            </p>
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("companymanagement.cancel")
               }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("companymanagement.confirm")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -726,6 +702,7 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import Menu from "../../components/menu/Menu";
 import basecard from "../../components/card/base-card";
 import Usermanagement from "../../components/user/user";
@@ -925,6 +902,12 @@ export default {
       exportData: "",
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     // 导入
     importExcel() {
@@ -951,7 +934,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1156,8 +1138,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1318,6 +1299,7 @@ export default {
     searchInfo() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getCustomerByTenantid(
         this.searchList,
@@ -1334,12 +1316,12 @@ export default {
             type: "success",
           });
         }
-        this.searchList.count = 20;
       });
     },
 
     //重置搜索输入
     clearBtn() {
+      this.pageCount = 20;
       this.searchList = {
         tenantid: "",
         superid: this.$store.state.userInfo.tenantid,
@@ -1497,6 +1479,10 @@ export default {
         this.$t("usermanagement.passwordrules"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -1726,14 +1712,14 @@ export default {
   display: -webkit-box !important;
 }
 
-.editInput >>> textarea {
+.editInput :deep(textarea) {
   min-height: 88px !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -1741,19 +1727,19 @@ export default {
 .add {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -1763,4 +1749,227 @@ export default {
 .icon_button {
   padding: 2px 16px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

@@ -2,20 +2,17 @@
   <div class="main_box">
     <el-container class="asi">
       <el-main>
-        <el-row
-          :gutter="25"
-          class="panel-group"
-          style="margin-left: -4px; maring-right: -4px"
-        >
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+        <div class="home-grid" ref="homeGrid">
+        <div class="home-cards panel-group">
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--1">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card1") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="max_num_buildName">
                       {{ max_num_buildName }}
                     </h4>
                   </div>
@@ -29,26 +26,24 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i> {{ $t("homepage.livedata") }} </span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.people") }}{{ max_num_buildNum }}</span
-                  >
-                  <span style="float: right"
+                    ><i class="mdi mdi-menu-up"></i> {{ $t("homepage.livedata") }} </span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.people") }}{{ max_num_buildNum }}</span>
+                  <span class="card-panel-rank"
                     ><a @click="ranking(1)">{{ $t("homepage.Buildingranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+          </div>
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--2">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card2") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="max_num_groundName">
                       {{ max_num_groundName }}
                     </h4>
                   </div>
@@ -62,26 +57,24 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.people") }}{{ max_num_groundNum }}</span
-                  >
-                  <span style="float: right"
+                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.people") }}{{ max_num_groundNum }}</span>
+                  <span class="card-panel-rank"
                     ><a @click="ranking(2)">{{ $t("homepage.Floorranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
-          <el-col :xs="8" :sm="8" :lg="5" class="card-panel-col">
-            <div class="card-panel">
+          </div>
+          <div class="card-panel-col">
+            <div class="card-panel card-panel--3">
               <div class="card-body">
                 <div class="media">
                   <div class="overflow-hidden media-body">
                     <p class="mb-2 text-truncate font-size-14">
                       {{ $t("homepage.card3") }}
                     </p>
-                    <h4 class="mb-0" style="color: #676767">
+                    <h4 class="mb-0 home-card-value" :title="memberMaxStepName">
                       {{ memberMaxStepName }}
                     </h4>
                   </div>
@@ -96,51 +89,33 @@
               <div class="py-3 card-body border-top">
                 <div class="text-truncate">
                   <span class="badge badge-soft-success font-size-11"
-                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span
-                  ><span class="ml-2 text-muted"
-                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span
-                  ><span style="float: right"
+                    ><i class="mdi mdi-menu-up"></i>{{ $t("homepage.livedata") }}</span><span class="ml-2 text-muted"
+                    >{{ $t("homepage.step") }}{{ memberMaxStepNum }}</span><span class="card-panel-rank"
                     ><a @click="ranking(3)">{{ $t("homepage.Stepranking") }}</a>
                   </span>
                 </div>
               </div>
             </div>
-          </el-col>
+          </div>
+        </div>
 
-          <el-col
-            :xs="12"
-            :sm="12"
-            :lg="8"
-            class="card-panel-col"
-            style="position: relative; z-index: 100"
-          >
-            <el-card style="height: 46vh; width: 108%; position: absolute">
-              <div
-                slot="header"
+          <div class="home-device">
+            <el-card class="home-device-card">
+              <template #header><div
+               
                 class="clearfix"
                 style="text-align: left; font-weight: 600"
               >
                 <span style="cursor: pointer" @click="$router.push('/device/terminal')">{{
                   $t("homepage.equipmentstatus")
                 }}</span>
-              </div>
-              <div id="main" style="height: 40vh; width: 100%"></div>
+              </div></template>
+              <div id="main" class="home-device-chart"></div>
             </el-card>
 
-            <div
-              class="count"
-              ref="count"
-              id="count"
-              style="
-                height: 15vh;
-                width: 108%;
-                position: absolute;
-                top: 47.5vh;
-                box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
-              "
-            >
+            <div class="count norem" ref="count" id="count">
               <div
-                class="count-item"
+                class="count-item count-item--total"
                 @click="
                   $router.push({
                     path: '/device/terminal',
@@ -149,7 +124,6 @@
                 style="cursor: pointer"
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="
                     devTypeNum.dev_online +
@@ -160,13 +134,13 @@
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Totaldevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Totaldevice") }}
                 </p>
               </div>
 
               <div
-                class="count-item"
+                class="count-item count-item--online"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -176,18 +150,17 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_online || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.onlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.onlinedevice") }}
                 </p>
               </div>
               <div
-                class="count-item"
+                class="count-item count-item--offline"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -197,20 +170,19 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_offline || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Offlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Offlinedevice") }}
                 </p>
               </div>
 
               <div
-                class="count-item"
+                class="count-item count-item--unknown"
                 style="cursor: pointer"
                 @click="
                   $router.push({
@@ -220,23 +192,21 @@
                 "
               >
                 <count-to
-                  style="font-size: 30px; font-weight: bold"
                   :start-val="0"
                   :end-val="devTypeNum.dev_unknown || 0"
                   :duration="1800"
                   class="card-panel-num"
                 />
 
-                <p class="mb-0" style="font-size: 14px; font-weight: 600">
-                  {{ $t("homepage.Neveronlinedevice") }}
+                <p class="mb-0 count-label">
+                  <i class="count-dot"></i>{{ $t("homepage.Neveronlinedevice") }}
                 </p>
               </div>
             </div>
-          </el-col>
-        </el-row>
-        <el-row :gutter="25" style="margin-left: -4px; maring-right: -4px">
-          <el-col :xs="24" :sm="24" :lg="15">
-            <div class="maps" style="position: relative">
+          </div>
+
+          <div class="home-map">
+            <div class="maps">
               <MapLayerSwitcher
                 :map="map"
                 bottom="10px"
@@ -251,103 +221,72 @@
                 @mouseup="stopDrag"
               ></div>
 
-              <div class="tips">
-                <div class="tips1">
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorpeople") }}
-                    <div class="color">
-                      {{ member_indoor_num }}
-                    </div>
+              <div class="tips" :class="{ 'is-en': $store.state.i18n !== 'zh' }">
+                <div class="tips1 map-stat-card">
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-member"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorpeople") }}</span>
+                    <b class="map-stat-num">{{ member_indoor_num }}</b>
                   </div>
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorassets") }}
-                    <div class="color">
-                      {{ asset_indoor_num }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-asset"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorassets") }}</span>
+                    <b class="map-stat-num">{{ asset_indoor_num }}</b>
                   </div>
-                  <div class="item" style="font-size: 12px">
-                    {{ $t("homepage.Indoorvehicle") }}
-                    <div class="color">
-                      {{ tbox_indoor_num }}
-                    </div>
+                  <div class="map-stat-row">
+                    <i class="map-stat-dot is-tbox"></i>
+                    <span class="map-stat-label">{{ $t("homepage.Indoorvehicle") }}</span>
+                    <b class="map-stat-num">{{ tbox_indoor_num }}</b>
                   </div>
                 </div>
                 <el-tooltip
-                  class="item"
                   effect="dark"
                   :content="$t('homepage.ClickToOutdoor')"
                   placement="left"
                 >
-                  <div class="tips2">
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorpeople") }}
-                      <div class="color">
-                        {{ member_outdoor_num }}
-                      </div>
+                  <div
+                    class="tips2 map-stat-card is-link"
+                    @click="$router.push({ path: '/location/outdoor/locationoutdoor' })"
+                  >
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-member"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorpeople") }}</span>
+                      <b class="map-stat-num">{{ member_outdoor_num }}</b>
                     </div>
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorassets") }}
-                      <div class="color">
-                        {{ asset_outdoor_num }}
-                      </div>
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-asset"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorassets") }}</span>
+                      <b class="map-stat-num">{{ asset_outdoor_num }}</b>
                     </div>
-                    <div
-                      class="item"
-                      style="font-size: 12px"
-                      @click="
-                        $router.push({
-                          path: '/location/outdoor/locationoutdoor',
-                        })
-                      "
-                    >
-                      {{ $t("homepage.Outdoorvehicle") }}
-                      <div class="color">
-                        {{ tbox_outdoor_num }}
-                      </div>
+                    <div class="map-stat-row">
+                      <i class="map-stat-dot is-tbox"></i>
+                      <span class="map-stat-label">{{ $t("homepage.Outdoorvehicle") }}</span>
+                      <b class="map-stat-num">{{ tbox_outdoor_num }}</b>
                     </div>
                   </div>
                 </el-tooltip>
               </div>
             </div>
-          </el-col>
-        </el-row>
-        <el-row
-          :gutter="25"
-          class="panel-group"
-          style="margin-left: -4px; maring-right: -4px"
-        >
-          <el-col :xs="26" :sm="26" :lg="7" style="height: 40vh">
+          </div>
+
+          <div class="home-bottom">
+          <div class="home-bottom-item">
             <el-card class="box-card soscard" style="width: 100%; height: 100%">
-              <div
-                slot="header"
+              <template #header><div
+               
                 class="clearfix"
                 style="text-align: left; font-weight: 600"
               >
                 <span style="cursor: pointer" @click="$router.push('/warning/index')">
                   {{ $t("homepage.AlertType") }}
                 </span>
-              </div>
+              </div></template>
               <div id="projectType" style="width: 100%">
                 <el-table
                   :key="tableKey"
                   :data="warnNumList"
-                  border
+                  height="100%"
+                  scrollbar-always-on
                   fit
                   class="table sostable"
                   @cell-click="handdle"
@@ -369,11 +308,11 @@
                     show-overflow-tooltip
                     min-width="55"
                   >
-                    <template slot-scope="scope">
-                      <span v-if="scope.row.warn_status1_num == 0">{{
+                    <template #default="scope">
+                      <span v-if="scope.row.warn_status1_num == 0" class="warn-num--zero">{{
                         scope.row.warn_status1_num
                       }}</span>
-                      <span v-else style="border-bottom: 1px solid">{{
+                      <span v-else class="warn-num warn-num--open">{{
                         scope.row.warn_status1_num
                       }}</span>
                     </template>
@@ -385,11 +324,11 @@
                     show-overflow-tooltip
                     min-width="50"
                   >
-                    <template slot-scope="scope">
-                      <span v-if="scope.row.warn_status2_num == 0">{{
+                    <template #default="scope">
+                      <span v-if="scope.row.warn_status2_num == 0" class="warn-num--zero">{{
                         scope.row.warn_status2_num
                       }}</span>
-                      <span v-else style="border-bottom: 1px solid">{{
+                      <span v-else class="warn-num warn-num--closed">{{
                         scope.row.warn_status2_num
                       }}</span>
                     </template>
@@ -399,7 +338,7 @@
                     min-width="50"
                     align="center"
                   >
-                    <template slot-scope="scope">
+                    <template #default="scope">
                       <el-tooltip
                         class="item"
                         effect="dark"
@@ -408,9 +347,11 @@
                       >
                         <el-button
                           type="primary"
-                          size="mini"
+                          size="small"
+                          plain
+                          round
                           class="editss"
-                          @click.native.stop="getWarnWeekNumLists(scope.$index)"
+                          @click.stop="getWarnWeekNumLists(scope.$index)"
                         >
                           {{ $t("homepage.census") }}
                         </el-button>
@@ -420,140 +361,218 @@
                 </el-table>
               </div>
             </el-card>
-          </el-col>
-          <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="attenFlag">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
-                <span
-                  style="cursor: pointer"
-                  @click="attendance ? $router.push('/staff/checkwork') : ''"
-                >
-                  {{ $t("homepage.Attendancestatistics") }}</span
-                >
-              </div>
-              <div class="member">
-                <div class="add">
-                  <span>{{ $t("homepage.Today") }}</span>
-                  <span>{{ $t("homepage.Attendanceattendance") }} </span>
-                  <span style="font-size: 18px; font-weight: 600; margin-right: 10px">
-                    {{ attendance ? memberNum.member_attendance_num || 0 : 0 }}
+          </div>
+          <div class="home-bottom-item" v-show="attenFlag">
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title">
+                  <span
+                    style="cursor: pointer"
+                    @click="attendance ? $router.push('/staff/checkwork') : ''"
+                  >
+                    {{ $t("homepage.Attendancestatistics") }}
                   </span>
-                  <span>{{ $t("homepage.Unattendedattendance") }} </span
-                  ><span style="font-size: 18px; font-weight: 600; margin-right: 10px">
-                    {{
+                </div>
+              </template>
+              <div class="member">
+                <div class="add atten-summary">
+                  <span class="atten-today">{{ $t("homepage.Today") }}</span>
+                  <span class="atten-chip atten-chip--yes">
+                    <i></i>{{ $t("homepage.Attendanceattendance") }}
+                    <b>{{ attendance ? memberNum.member_attendance_num || 0 : 0 }}</b>
+                  </span>
+                  <span class="atten-chip atten-chip--no">
+                    <i></i>{{ $t("homepage.Unattendedattendance") }}
+                    <b>{{
                       attendance
                         ? memberNum.member_sum_num - memberNum.member_attendance_num || 0
                         : 0
-                    }}</span
-                  >
+                    }}</b>
+                  </span>
                 </div>
                 <div id="main6" style="height: 100%; width: 100%"></div>
               </div>
             </el-card>
-          </el-col>
+          </div>
 
-          <el-col :xs="22" :sm="22" :lg="8" style="height: 40vh" v-show="!attenFlag">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
-                <span style="cursor: pointer" @click="$router.push('/device/beacon')">
-                  {{ $t("home.BeaconStatus") }}</span
-                >
-              </div>
+          <div class="home-bottom-item" v-show="!attenFlag">
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title">
+                  <span style="cursor: pointer" @click="$router.push('/device/beacon')">
+                    {{ $t("home.BeaconStatus") }}
+                  </span>
+                </div>
+              </template>
               <div class="member">
-                <div id="main7" style="height: 100%; width: 100%"></div>
+                <div id="main7" class="home-chart home-chart-fill"></div>
               </div>
             </el-card>
-          </el-col>
+          </div>
 
-          <el-col :xs="24" :sm="24" :lg="9" style="height: 40vh">
-            <el-card class="box-card2" style="width: 100%; height: 100%">
-              <div slot="header" style="text-align: left; font-weight: 600">
-                <el-breadcrumb>
-                  <el-breadcrumb-item
-                    :to="employee ? { path: '/staff/staffmanagement' } : ''"
-                    >{{ $t("homepage.personnel") }}</el-breadcrumb-item
-                  >
-                  <el-breadcrumb-item
-                    :to="asset ? { path: '/staff/assetManagement' } : ''"
-                    >{{ $t("homepage.assets") }}</el-breadcrumb-item
-                  >
-                  <el-breadcrumb-item
-                    class="breadcrumb"
-                    :to="tbox ? { path: '/staff/tboxManagement' } : ''"
-                  >
-                    {{ $t("homepage.vehicle") }}
-                  </el-breadcrumb-item>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="margin-left: 5px"
-                  >
-                    <div slot="content">
-                      <p>{{ $t("homepage.content1") }}</p>
-                    </div>
-                    <i class="el-icon-question" />
+          <div class="home-bottom-item">
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title home-card-title-polar">
+                  <el-breadcrumb separator="/">
+                    <el-breadcrumb-item
+                      :to="employee ? { path: '/staff/staffmanagement' } : ''"
+                      >{{ $t("homepage.personnel") }}</el-breadcrumb-item>
+                    <el-breadcrumb-item
+                      :to="asset ? { path: '/staff/assetManagement' } : ''"
+                      >{{ $t("homepage.assets") }}</el-breadcrumb-item>
+                    <el-breadcrumb-item
+                      :to="tbox ? { path: '/staff/tboxManagement' } : ''"
+                    >
+                      {{ $t("homepage.vehicle") }}
+                    </el-breadcrumb-item>
+                  </el-breadcrumb>
+                  <el-tooltip class="item" effect="light" placement="right-start">
+                    <template #content>
+                      <div>
+                        <p>{{ $t("homepage.content1") }}</p>
+                      </div>
+                    </template>
+                    <i class="el-icon-question home-card-help" />
                   </el-tooltip>
-                </el-breadcrumb>
-              </div>
-              <div id="main0" style="height: 100%; width: 100%; padding-top: 18px">
-                <el-carousel :interval="4000" type="card" height="90%" :autoplay="true">
-                  <el-carousel-item v-for="item in 3" :key="item">
-                    <div
-                      :id="'main' + item"
-                      style="height: 90%; width: 100%; opacity: 0.9"
-                    ></div>
-                    <p>{{ $t("homepage.Total") }}{{ $data[`memberNum${item}`] }}</p>
+                </div>
+              </template>
+              <!-- 恢复 Vue2 的 card 走马灯结构，保证三环并排预览 -->
+              <div id="main0" class="home-chart-carousel">
+                <el-carousel
+                  :interval="4000"
+                  type="card"
+                  height="100%"
+                  :autoplay="true"
+                  indicator-position="outside"
+                  @change="onPolarCarouselChange"
+                >
+                  <el-carousel-item
+                    v-for="item in 3"
+                    :key="'polar-' + item"
+                    :class="['polar-tile', 'polar-tile--' + item]"
+                  >
+                    <div class="polar-gauge">
+                      <span class="polar-orbit"></span>
+                      <div :id="'main' + item" class="home-chart-polar"></div>
+                    </div>
+                    <div class="polar-stats">
+                      <span
+                        class="polar-stat polar-stat--online"
+                        @click="goPolarList(item, true, $event)"
+                      >
+                        <i></i>{{ $t("homepage.online") }}
+                        <b>{{ polarStats[item - 1].online }}</b>
+                      </span>
+                      <span
+                        class="polar-stat polar-stat--offline"
+                        @click="goPolarList(item, false, $event)"
+                      >
+                        <i></i>{{ $t("homepage.offline") }}
+                        <b>{{ polarStats[item - 1].offline }}</b>
+                      </span>
+                      <span class="polar-stat polar-stat--total">
+                        {{ $t("homepage.Total") }}<b>{{ polarStats[item - 1].total }}</b>
+                      </span>
+                    </div>
                   </el-carousel-item>
                 </el-carousel>
               </div>
             </el-card>
-          </el-col>
-        </el-row>
+          </div>
+          </div>
+        </div>
       </el-main>
     </el-container>
-    <!-- 选择项目 -->
+    <!-- 选择项目（权限5登录后必选，不可关闭） -->
     <el-dialog
-      :title="$t('navbar.Selectitem')"
-      v-if="pro"
-      :visible.sync="pro"
-      :close-on-press-escape="false"
+      v-model="pro"
+      class="project-select-dialog"
+      modal-class="project-select-mask"
       :show-close="false"
+      :close-on-press-escape="false"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
-      width="40%"
-      style="text-align: center"
-      class="select"
+      :append-to-body="true"
+      :destroy-on-close="true"
+      width="760px"
+      align-center
+      @closed="cleanupProjectSelectOverlay"
     >
-      <div class="project-wrapper">
-        <div
-          class="project-item"
-          v-for="(item, index) in projectTable"
-          :key="index"
-          :class="index % 2 == 0 ? 'odditem' : ''"
-          @click="choseProject(item)"
-        >
-          <div class="item-header">
-            <div class="item-icon"></div>
-            {{ item.name }}
-          </div>
-          <div class="item-info">
-            <div class="key">
-              <span>{{ $t("navbar.number") }}</span>
-              <span>{{ $t("navbar.type") }}</span>
-              <span>{{ $t("navbar.remarks") }}</span>
+      <template #header>
+        <div class="ps-modal-title">
+          <span>{{ $t("navbar.Selectitem") }}</span>
+          <el-tooltip effect="dark" placement="bottom" :show-after="200" :z-index="30000" popper-class="project-select-help-tip">
+            <template #content>
+              <div class="ps-help-tip">
+                <p>{{ $t("project.tet9") }}</p>
+                <p>{{ $t("project.tet10") }}</p>
+                <a
+                  class="ps-help-tip-link"
+                  href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                >{{ $t("navbar.learnMore") }}</a>
+              </div>
+            </template>
+            <i class="el-icon-question ps-help-q" @click.stop />
+          </el-tooltip>
+        </div>
+      </template>
+      <div class="ps-grid-wrap">
+        <div class="ps-grid">
+          <div
+            class="ps-card"
+            v-for="(item, index) in projectTable"
+            :key="item.projectid || index"
+            @click="choseProject(item)"
+            :class="{
+              'is-active': $store.state.projectid === item.projectid,
+            }"
+          >
+            <div class="ps-card-header">
+              <div class="ps-card-main">
+                <span
+                  class="ps-card-icon"
+                  :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill="currentColor"
+                      opacity="0.22"
+                      d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                    />
+                  </svg>
+                </span>
+                <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+              </div>
+              <span
+                class="ps-tag"
+                :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+              >{{
+                Number(item.type) === 2
+                  ? i8n == "zh"
+                    ? "反向"
+                    : item.entype || "Reverse"
+                  : i8n == "zh"
+                    ? "正向"
+                    : item.entype || "Forward"
+              }}</span>
             </div>
-            <div class="value">
-              <span>{{ item.projectid }}</span>
-
-              <span>{{ i8n == "zh" ? item.typestr : item.entype }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="item.memo"
-                placement="bottom-end"
-                ><span>{{ item.memo }}</span></el-tooltip
-              >
+            <div class="ps-card-id">
+              {{ $t("navbar.number") }}：{{ item.projectid }}
+            </div>
+            <div class="ps-card-desc" :title="item.memo || ''">
+              {{ item.memo || "—" }}
             </div>
           </div>
         </div>
@@ -561,16 +580,48 @@
     </el-dialog>
 
     <el-dialog
-      :title="$t('Breadcrumb.AlarmStatistics')"
-      :visible.sync="warningWeek"
+      v-model="warningWeek"
+      width="760px"
+      class="warn-week-dialog"
       @close="closeWarningWeek()"
     >
+      <template #header>
+        <div class="ww-header">
+          <span class="ww-header-icon"><i class="el-icon-data-analysis"></i></span>
+          <div class="ww-header-text">
+            <p class="ww-title">{{ $t("Breadcrumb.AlarmStatistics") }}</p>
+            <p class="ww-subtitle">
+              <span class="ww-type">{{ warnWeekStat.name }}</span>
+              <span class="ww-range">{{ $t("homepage.last7days") }}</span>
+            </p>
+          </div>
+        </div>
+      </template>
+      <div class="ww-summary">
+        <div class="ww-stat ww-stat--open">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.Notlifted") }}</span>
+          <b>{{ warnWeekStat.open }}</b>
+        </div>
+        <div class="ww-stat ww-stat--closed">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.Lifted") }}</span>
+          <b>{{ warnWeekStat.closed }}</b>
+        </div>
+        <div class="ww-stat ww-stat--total">
+          <span class="ww-stat-label"><i></i>{{ $t("homepage.sum") }}</span>
+          <b>{{ warnWeekStat.open + warnWeekStat.closed }}</b>
+        </div>
+      </div>
       <div id="warningweekdatas"></div>
     </el-dialog>
 
     <!-- 排行 -->
-    <el-dialog :visible.sync="rankings" width="30%" class="dialog_box">
-      <div slot="title" :class="showTitleTips == true ? 'dialog-title' : ''">
+    <el-dialog
+      v-model="rankings"
+      width="560px"
+      class="dialog_box device-dialog"
+      align-center
+    >
+      <template #header><div :class="showTitleTips == true ? 'dialog-title' : ''">
         <p class="title-text">{{ rankingName }}</p>
         <el-tooltip
           class="title-tips"
@@ -578,18 +629,18 @@
           placement="right-start"
           v-if="showTitleTips"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("homepage.stepTips") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
-      </div>
-      <el-table :data="rankingData" border>
-        <el-table-column :label="$t('homepage.No')" width="60" align="center">
-          <template slot-scope="scope">
-            <img :src="scope.row.picurl" alt="" srcset="" />
+      </div></template>
+      <el-table :data="rankingData" class="device-table ranking-table" max-height="480">
+        <el-table-column :label="$t('homepage.No')" width="80" align="center">
+          <template #default="scope">
+            <img class="ranking-medal" :src="scope.row.picurl" alt="" />
           </template>
         </el-table-column>
         <el-table-column
@@ -650,7 +701,7 @@
 import host from "../../host";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
-import CountTo from "vue-count-to";
+import { CountTo } from "vue3-count-to";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
@@ -665,6 +716,7 @@ import {
   getDevGpsOne,
   getFenceManageAndPointList,
 } from "../../axios/api";
+import i18n from "../../i18n/i18n";
 
 //地图
 import "ol/ol.css";
@@ -680,7 +732,7 @@ import OlStyleStyle from "ol/style/Style";
 import OlStyleIcon from "ol/style/Icon";
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
-import * as echarts from "echarts";
+import echarts from "../../utils/echartsLegacy";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom"; //鼠标双击放大
 import "echarts/theme/macarons.js";
 import { fromLonLat } from "ol/proj";
@@ -694,7 +746,15 @@ import Feature from "ol/Feature";
 import ScaleLine from "ol/control/ScaleLine"; //比例尺控件
 import MapLayerSwitcher from "../../components/map/MapLayerSwitcher";
 import mapStyleMixin from "../../mixins/mapStyleMixin";
-import { rankIconUrl } from "../../utils/worktypeIcon";
+import { markRaw } from "vue";
+import { CHART_TONES, chartGradient } from "../../utils/homeChartTheme";
+
+// 与样式中 .polar-tile--1/2/3 的 --polar-* 变量保持一致
+const POLAR_THEMES = {
+  1: { c1: "#2F7BFF", c2: "#22D3EE", rgb: "47,123,255" },
+  2: { c1: "#8B5CF6", c2: "#EC4899", rgb: "139,92,246" },
+  3: { c1: "#059669", c2: "#34D399", rgb: "5,150,105" },
+};
 
 export default {
   mixins: [mapStyleMixin],
@@ -707,12 +767,6 @@ export default {
   name: "Home",
   data() {
     return {
-      scene: null, //场景
-      cameras: null, //照相机
-      renderer: null, //渲染器
-      textureLoader: null, // 纹理加载器
-      groupBox: null,
-      control: null, // 相机控件
       publicPath: process.env.BASE_URL,
       clearAnim: null,
 
@@ -748,9 +802,6 @@ export default {
       max_num_buildName: "",
       max_num_buildNum: "",
       memberNum: {},
-      memberNum1: 0,
-      memberNum2: 0,
-      memberNum3: 0,
       member_indoor_num: 0,
       member_outdoor_num: 0,
       tbox_indoor_num: 0,
@@ -759,6 +810,7 @@ export default {
       asset_outdoor_num: 0,
       warningWeek: false,
       myChartWarning: "",
+      warnWeekStat: { name: "", open: 0, closed: 0 },
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -790,6 +842,8 @@ export default {
       myChart1: "",
       myChart2: "",
       myChartBeacon: null,
+      polarActive: 1,
+      polarTimer: null,
       myChart3: "",
       myChart4: "",
       myChart5: "",
@@ -821,32 +875,349 @@ export default {
       fences:[]
     };
   },
+  created() {
+    this.scene = null;
+    this.cameras = null;
+    this.renderer = null;
+    this.textureLoader = null;
+    this.groupBox = null;
+    this.control = null;
+  },
 
   methods: {
+    getChartDom(id) {
+      const root = this.$el;
+      if (!root) {
+        return document.getElementById(id);
+      }
+      const list = Array.from(root.querySelectorAll("#" + id));
+      if (!list.length) {
+        return document.getElementById(id);
+      }
+      // Element Plus card 走马灯会克隆节点，只绑原始项，避免图表画在克隆上后消失
+      const scored = list
+        .filter((el) => el.isConnected)
+        .map((el) => {
+          const wrap = el.closest(".el-carousel-item");
+          const isClone = !!(wrap && wrap.classList.contains("is-clone"));
+          const active = !!(wrap && wrap.classList.contains("is-active"));
+          const area = (el.clientWidth || 1) * (el.clientHeight || 1);
+          return { el, isClone, active, area };
+        })
+        .sort((a, b) => {
+          if (a.isClone !== b.isClone) return a.isClone ? 1 : -1;
+          if (a.active !== b.active) return a.active ? -1 : 1;
+          return b.area - a.area;
+        });
+      return (scored[0] && scored[0].el) || list[0];
+    },
+    disposeChart(key) {
+      if (this[key] && this[key].dispose && !this[key].isDisposed?.()) {
+        try {
+          this[key].dispose();
+        } catch (e) {}
+      }
+      this[key] = null;
+    },
+    measureChartBox(el, fallbackH) {
+      if (!el) {
+        return { width: 360, height: fallbackH || 220 };
+      }
+      // 抵消全局 * { margin: 0 auto } 把容器挤成内容宽
+      el.style.marginLeft = "0";
+      el.style.marginRight = "0";
+      el.style.margin = "0";
+      el.style.width = "100%";
+
+      // 尺寸只按容器算，不读图表自身上次写入的像素高度，否则卡片变矮时图表缩不回去
+      if (el.id === "main7") {
+        const member = el.closest(".member");
+        const cardBody = el.closest(".el-card__body");
+        let bodyContentH = 0;
+        if (cardBody) {
+          const cs = getComputedStyle(cardBody);
+          bodyContentH =
+            cardBody.clientHeight -
+            (parseFloat(cs.paddingTop) || 0) -
+            (parseFloat(cs.paddingBottom) || 0);
+        }
+        const targetH =
+          Math.max((member && member.clientHeight) || 0, bodyContentH) ||
+          fallbackH ||
+          160;
+        el.style.height = targetH + "px";
+        el.style.minHeight = "0";
+        el.style.flex = "1 1 auto";
+        return {
+          width: Math.max((member && member.clientWidth) || el.clientWidth || 0, 160),
+          height: targetH,
+        };
+      }
+
+      // .polar-gauge 的高度已由 flex 扣除下方统计行
+      const parent = el.closest(".polar-gauge") || el.parentElement;
+      const parentH = (parent && parent.clientHeight) || 0;
+      const width = Math.max((parent && parent.clientWidth) || el.clientWidth || 0, 120);
+      const height = parentH > 40 ? parentH : fallbackH || 120;
+      el.style.height = height + "px";
+      el.style.minHeight = "0";
+      return { width, height };
+    },
+    ensureChart(id, key, theme) {
+      const el = this.getChartDom(id);
+      if (!el) {
+        return null;
+      }
+      this.disposeChart(key);
+      const exist = echarts.getInstanceByDom && echarts.getInstanceByDom(el);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      const size = this.measureChartBox(el, id === "main7" ? 160 : 120);
+      const instance = echarts.init(el, theme, {
+        width: size.width,
+        height: size.height,
+        renderer: "canvas",
+      });
+      this[key] = instance ? markRaw(instance) : null;
+      return this[key];
+    },
+    onPolarCarouselChange() {
+      this.scheduleHomeChartsResize();
+    },
+    whenChartDomReady(id, run, tries) {
+      const max = tries == null ? 30 : tries;
+      const el = this.getChartDom(id);
+      if (el) {
+        this.measureChartBox(el, id === "main7" ? 160 : 120);
+        if (el.clientWidth > 0 && el.clientHeight > 0) {
+          run(el);
+          return;
+        }
+      }
+      if (max <= 0) {
+        if (el) run(el);
+        return;
+      }
+      setTimeout(() => {
+        if (!this.$el || (this.$route && this.$route.path === "/largescreen")) {
+          return;
+        }
+        this.whenChartDomReady(id, run, max - 1);
+      }, 50);
+    },
+    buildPolarRingOption(percent, title, onlineName, onlineNum, themeIndex) {
+      let P = Number(percent);
+      if (isNaN(P)) P = 0;
+      const theme = POLAR_THEMES[themeIndex] || POLAR_THEMES[1];
+      const alpha = (a) => `rgba(${theme.rgb},${a})`;
+      const digits = Number.isInteger(P) ? 0 : 2;
+      const ring = {
+        type: "gauge",
+        startAngle: 90,
+        endAngle: -270,
+        min: 0,
+        max: 100,
+        center: ["50%", "50%"],
+        pointer: { show: false },
+        anchor: { show: false },
+        axisLabel: { show: false },
+        title: { show: false },
+      };
+      return {
+        backgroundColor: "transparent",
+        tooltip: {
+          formatter: () => onlineName + "：" + onlineNum,
+        },
+        series: [
+          {
+            ...ring,
+            radius: "92%",
+            silent: true,
+            splitNumber: 12,
+            axisLine: { show: false },
+            progress: { show: false },
+            splitLine: {
+              distance: 0,
+              length: 5,
+              lineStyle: { color: alpha(0.75), width: 2 },
+            },
+            axisTick: {
+              distance: 0,
+              length: 3,
+              splitNumber: 4,
+              lineStyle: { color: alpha(0.28), width: 1 },
+            },
+            detail: { show: false },
+            data: [],
+          },
+          {
+            ...ring,
+            name: onlineName,
+            radius: "74%",
+            animationDuration: 1600,
+            animationEasingUpdate: "cubicOut",
+            axisLine: {
+              roundCap: true,
+              lineStyle: { width: 11, color: [[1, alpha(0.12)]] },
+            },
+            progress: {
+              // 值为 0 时圆头会在顶部画出一个点
+              show: P > 0,
+              roundCap: true,
+              width: 11,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 1, [
+                  { offset: 0, color: theme.c1 },
+                  { offset: 1, color: theme.c2 },
+                ]),
+                shadowColor: alpha(0.55),
+                shadowBlur: 10,
+              },
+            },
+            splitLine: { show: false },
+            axisTick: { show: false },
+            detail: {
+              valueAnimation: true,
+              offsetCenter: [0, 0],
+              lineHeight: 18,
+              formatter: (v) => `{v|${Number(v).toFixed(digits)}}{u|%}\n{t|${title}}`,
+              rich: {
+                v: { fontSize: 20, fontWeight: 700, color: theme.c1, fontFamily: "DIN Alternate, Arial" },
+                u: { fontSize: 12, fontWeight: 600, color: theme.c1, padding: [0, 0, 4, 2] },
+                t: { fontSize: 11, color: "#8a94a6", padding: [4, 0, 0, 0] },
+              },
+            },
+            emphasis: { disabled: true },
+            data: [{ name: onlineName, value: P }],
+          },
+        ],
+      };
+    },
+    goPolarList(item, online, event) {
+      // card 走马灯里点非当前卡片是切换卡片，不跳转
+      const tile = event && event.currentTarget && event.currentTarget.closest(".el-carousel__item");
+      if (tile && !tile.classList.contains("is-active")) return;
+      const target = {
+        1: { enabled: this.employee, mutation: "changeStaffEuis", list: "member_online_dev_list", path: "/staff/staffmanagement" },
+        2: { enabled: this.asset, mutation: "changeAssetEuis", list: "asset_online_dev_list", path: "/staff/assetManagement" },
+        3: { enabled: this.tbox, mutation: "changeTBoxEuis", list: "tbox_online_dev_list", path: "/staff/tboxManagement" },
+      }[item];
+      if (!target || !target.enabled) return;
+      this.$store.commit(target.mutation, this.memberNum[target.list]);
+      this.$router.push({
+        path: target.path,
+        query: {
+          timeStamp: new Date(new Date().setHours(0, 0, 0, 0)) / 1000,
+          euis: true,
+          flag: online,
+        },
+      });
+    },
+    scheduleHomeChartsResize() {
+      const run = () => {
+        // 这几张图 init 时传了固定宽高，resize() 不带参数不会跟随容器，需显式传尺寸
+        [
+          ["main7", "myChartBeacon", 160],
+          ["main1", "myChart3", 120],
+          ["main2", "myChart4", 120],
+          ["main3", "myChart5", 120],
+        ].forEach(([id, key, fallbackH]) => {
+          const el = this.getChartDom(id);
+          const chart = this[key];
+          if (el && chart && !chart.isDisposed?.()) {
+            const size = this.measureChartBox(el, fallbackH);
+            try {
+              chart.resize({ width: size.width, height: size.height });
+            } catch (e) {}
+          }
+        });
+        [this.myChart1, this.myChart2].forEach((chart) => {
+          if (chart && chart.resize && !chart.isDisposed?.()) {
+            try {
+              chart.resize();
+            } catch (e) {}
+          }
+        });
+      };
+      this.$nextTick(run);
+      clearTimeout(this._chartResizeTimer1);
+      clearTimeout(this._chartResizeTimer2);
+      this._chartResizeTimer1 = setTimeout(run, 80);
+      this._chartResizeTimer2 = setTimeout(run, 320);
+    },
+    renderBeaconAndDeviceCharts(beaconBatTimeNum) {
+      try {
+        this.myEcharts1();
+      } catch (e) {
+        console.warn(e);
+      }
+      const paintBeacon = () => {
+        try {
+          this.beaconData = beaconBatTimeNum || {
+            beacon_low_3day: 0,
+            beacon_more_3day: 0,
+            beacon_time_unknown: 0,
+            bat_60_100: 0,
+            bat_20_60: 0,
+            bat_0_20: 0,
+          };
+          this.myEchartsBeacon();
+          this.scheduleHomeChartsResize();
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      // 立即画一次，再等布局稳定后重画，避免从大屏返回时容器尚未撑开
+      paintBeacon();
+      this.whenChartDomReady("main7", paintBeacon);
+      setTimeout(paintBeacon, 300);
+    },
+    renderPolarCharts() {
+      const paint = () => {
+        try {
+          this.myEcharts3();
+          this.myEcharts4();
+          this.myEcharts5();
+          this.scheduleHomeChartsResize();
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      paint();
+      this.$nextTick(paint);
+      setTimeout(paint, 300);
+    },
     initThree() {
       // 场景
-      this.scene = new THREE.Scene();
+      this.scene = markRaw(new THREE.Scene());
       // 1.2 相机
-      this.cameras = new THREE.PerspectiveCamera(
+      this.cameras = markRaw(
+        new THREE.PerspectiveCamera(
         50,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
+        )
       );
       // 设置摄像机位置
       this.cameras.position.set(30, 50, 70);
       // 指向场景中心
       this.cameras.lookAt(this.scene.position);
       // 1.3 渲染器
-      this.renderer = new THREE.WebGLRenderer({
+      this.renderer = markRaw(
+        new THREE.WebGLRenderer({
         antialias: true,
         // alpha: true,
-      });
+        })
+      );
 
       this.renderer.outputEncoding = THREE.sRGBEncoding;
 
       // 创建纹理加载器
-      this.textureLoader = new THREE.TextureLoader();
+      this.textureLoader = markRaw(new THREE.TextureLoader());
       // 创建一个组合对象
       // this.groupBox = new THREE.Group();
       // let axes = new THREE.AxesHelper(100);
@@ -872,7 +1243,9 @@ export default {
       $("#userMap")[0].appendChild(this.renderer.domElement);
 
       //创建相机控件
-      this.control = new OrbitControls(this.cameras, this.renderer.domElement);
+      this.control = markRaw(
+        new OrbitControls(this.cameras, this.renderer.domElement)
+      );
       this.control.enableDamping = true;
       // 动态阻尼系数 就是鼠标拖拽旋转灵敏度，阻尼越小越灵敏
       // this.control.dampingFactor = 0.5;
@@ -918,7 +1291,7 @@ export default {
     loadFbxModel() {
       var loader = new FBXLoader();
       loader.load(host.host + "model/" + this.intoProjectFBXUrl, (object) => {
-        this.scene.add(object); //模型
+        this.scene.add(markRaw(object)); //模型
       });
     },
     startDrag(event) {
@@ -1027,7 +1400,7 @@ export default {
                   res.data.gpstime == 0
                 ) {
                   that.$message({
-                    message: that.$t("LocationIndoor.tet3"),
+                    message: i18n.global.t("LocationIndoor.tet3"),
                     type: "warning",
                   });
                 } else {
@@ -1056,7 +1429,7 @@ export default {
       var that = this;
       switch (type) {
         case 1:
-          that.rankingName = this.$t("homepage.Buildingranking1");
+          that.rankingName = i18n.global.t("homepage.Buildingranking1");
           that.rankingData = that.max_num_build;
           that.rankingBuild = true;
           that.rankingGround = false;
@@ -1065,7 +1438,7 @@ export default {
           that.showTitleTips = false;
           break;
         case 2:
-          that.rankingName = this.$t("homepage.Floorranking1");
+          that.rankingName = i18n.global.t("homepage.Floorranking1");
           that.rankingData = that.max_num_ground;
           that.rankingBuild = false;
           that.rankingGround = true;
@@ -1074,7 +1447,7 @@ export default {
           that.showTitleTips = false;
           break;
         case 3:
-          that.rankingName = this.$t("homepage.Stepranking1");
+          that.rankingName = i18n.global.t("homepage.Stepranking1");
           that.rankingData = that.memberMaxStep;
           that.rankingBuild = false;
           that.rankingGround = false;
@@ -1088,16 +1461,21 @@ export default {
       for (let i = 0; i < that.rankingData.length; i++) {
         switch (i) {
           case 0:
-            that.rankingData[i].picurl = rankIconUrl("1.png");
+            // 说明：示例图片地址改为从环境变量读取基础地址
+            that.rankingData[i].picurl =
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/1.png";
             break;
           case 1:
-            that.rankingData[i].picurl = rankIconUrl("2.png");
+            that.rankingData[i].picurl =
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/2.png";
             break;
           case 2:
-            that.rankingData[i].picurl = rankIconUrl("3.png");
+            that.rankingData[i].picurl =
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/3.png";
             break;
           default:
-            that.rankingData[i].picurl = rankIconUrl("badge.svg");
+            that.rankingData[i].picurl =
+              process.env.VUE_APP_ASSET_BASE + "/image/rank/badge.svg";
             break;
         }
       }
@@ -1122,7 +1500,7 @@ export default {
         that.warnNumList[index].warn_status2_num == 0
       ) {
         that.$message({
-          message: that.$t("homepage.noData"),
+          message: i18n.global.t("homepage.noData"),
           type: "error",
         });
         return;
@@ -1140,29 +1518,38 @@ export default {
         timezone: this.timezone,
       };
       switch (this.warnNumList[index].typestr) {
-        case this.$t("homepage.SOSalert"):
+        case i18n.global.t("homepage.SOSalert"):
           data.type = 1;
           break;
-        case this.$t("homepage.gatherwarn"):
+        case i18n.global.t("homepage.gatherwarn"):
           data.type = 2;
           break;
-        case this.$t("homepage.crosswarn"):
+        case i18n.global.t("homepage.crosswarn"):
           data.type = 3;
           break;
-        case this.$t("homepage.strandedwarn"):
+        case i18n.global.t("homepage.strandedwarn"):
           data.type = 4;
           break;
-        case this.$t("homepage.Unusuallystill"):
+        case i18n.global.t("homepage.Unusuallystill"):
           data.type = 5;
           break;
-        case this.$t("warning.Tilt"):
+        case i18n.global.t("warning.Tilt"):
           data.type = 6;
           break;
-        case this.$t("warning.Dumpalarm"):
+        case i18n.global.t("warning.Dumpalarm"):
           data.type = 7;
           break;
-        case this.$t("warning.Firealarm"):
+        case i18n.global.t("warning.Firealarm"):
           data.type = 8;
+          break;
+        case i18n.global.t("warning.LowBatteryAlarm"):
+          data.type = 11;
+          break;
+        case i18n.global.t("warning.HeartbeatAbnormal"):
+          data.type = 12;
+          break;
+        case i18n.global.t("warning.TemperatureAbnormal"):
+          data.type = 13;
           break;
         default:
           break;
@@ -1172,7 +1559,7 @@ export default {
           if (res.code == 1001) {
             if (res.data.length == 0) {
               that.$message({
-                message: that.$t("buildingmanagement.nodata"),
+                message: i18n.global.t("buildingmanagement.nodata"),
                 type: "warning",
               });
               return;
@@ -1212,71 +1599,109 @@ export default {
     },
     // 绘制一周内每天的告警信息柱状图
     echartsWarningWeek(warningName, warningDate, warningData1, warningData2) {
-      var that = this;
-      var chartDom = document.getElementById("warningweekdatas");
-      this.myChartWarning = echarts.init(chartDom);
-      var option;
-      option = {
-        title: {
-          text: warningName,
+      const chartDom = document.getElementById("warningweekdatas");
+      if (!chartDom) return;
+      this.disposeChart("myChartWarning");
+      const exist = echarts.getInstanceByDom(chartDom);
+      if (exist) exist.dispose();
+      this.myChartWarning = markRaw(echarts.init(chartDom));
+
+      const num = (v) => Number(v) || 0;
+      const dates = [...warningDate].reverse();
+      const closed = [...warningData2].reverse().map(num);
+      const open = [...warningData1].reverse().map(num);
+      this.warnWeekStat = {
+        name: warningName,
+        open: open.reduce((a, b) => a + b, 0),
+        closed: closed.reduce((a, b) => a + b, 0),
+      };
+
+      const barSeries = (name, data, tone) => ({
+        name,
+        type: "bar",
+        barMaxWidth: 18,
+        barGap: "30%",
+        itemStyle: {
+          borderRadius: [6, 6, 2, 2],
+          color: chartGradient(tone, 0, 0, 0, 1),
+          shadowBlur: 8,
+          shadowColor: `rgba(${tone.rgb},0.35)`,
+          shadowOffsetY: 2,
         },
+        label: {
+          show: true,
+          position: "top",
+          distance: 4,
+          fontSize: 11,
+          fontWeight: 700,
+          color: tone.c1,
+          formatter: (p) => (p.value ? p.value : ""),
+        },
+        emphasis: { itemStyle: { shadowBlur: 14 } },
+        animationDelay: (idx) => idx * 60,
+        data,
+      });
+
+      const option = {
         tooltip: {
           trigger: "axis",
           axisPointer: {
             type: "shadow",
+            shadowStyle: { color: "rgba(47,123,255,0.06)" },
           },
+          backgroundColor: "rgba(255,255,255,0.96)",
+          borderColor: "#e2e8f0",
+          textStyle: { color: "#334155", fontSize: 12 },
+          extraCssText: "box-shadow: 0 6px 20px rgba(15,23,42,0.12); border-radius: 8px;",
         },
-        color: ["#52ca52", "#d72a14"],
-        legend: {},
-        grid: {
-          left: "3%",
-          right: "4%",
-          bottom: "3%",
-          containLabel: true,
+        legend: {
+          top: 0,
+          right: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
-
+        grid: { left: 4, right: 8, top: 36, bottom: 4, containLabel: true },
         xAxis: {
           type: "category",
-          data: warningDate.reverse(),
+          data: dates,
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          axisLabel: { color: "#64748b", fontSize: 12 },
         },
         yAxis: {
           type: "value",
           minInterval: 1,
-          boundaryGap: [0, 0.01],
+          axisLabel: { color: "#94a3b8", fontSize: 11 },
+          splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
         },
         series: [
-          {
-            message: this.$t("homepage.Lifted"),
-            type: "bar",
-            data: warningData2.reverse(),
-          },
-          {
-            message: this.$t("homepage.Notlifted"),
-            type: "bar",
-            data: warningData1.reverse(),
-          },
+          barSeries(i18n.global.t("homepage.Notlifted"), open, CHART_TONES.red),
+          barSeries(i18n.global.t("homepage.Lifted"), closed, CHART_TONES.blue),
         ],
       };
 
-      option && this.myChartWarning.setOption(option);
+      this.myChartWarning.setOption(option, true);
     },
     closeWarningWeek() {
-      echarts.init(document.getElementById("warningweekdatas")).dispose(); //销毁
+      this.disposeChart("myChartWarning");
     },
     // 跳转到告警信息页面
     handdle(row, column, cell, event) {
       let statustype, type;
-      if (column.label == this.$t("homepage.Lifted")) {
+      if (column.label == i18n.global.t("homepage.Lifted")) {
         if (row.warn_status2_num == 0) return;
         statustype = 2;
-      } else if (column.label == this.$t("homepage.Notlifted")) {
+      } else if (column.label == i18n.global.t("homepage.Notlifted")) {
         if (row.warn_status1_num == 0) return;
         statustype = 1;
       } else {
         return;
       }
       switch (row.typestr) {
-        case this.$t("homepage.SOSalert"):
+        case i18n.global.t("homepage.SOSalert"):
           type = 1;
           this.$router.push({
             path: "/warning/index",
@@ -1286,7 +1711,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.gatherwarn"):
+        case i18n.global.t("homepage.gatherwarn"):
           type = 2;
           this.$router.push({
             path: "/warning/index",
@@ -1296,7 +1721,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.crosswarn"):
+        case i18n.global.t("homepage.crosswarn"):
           type = 3;
           this.$router.push({
             path: "/warning/index",
@@ -1306,7 +1731,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.strandedwarn"):
+        case i18n.global.t("homepage.strandedwarn"):
           type = 4;
           this.$router.push({
             path: "/warning/index",
@@ -1316,7 +1741,7 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.Unusuallystill"):
+        case i18n.global.t("homepage.Unusuallystill"):
           type = 5;
           this.$router.push({
             path: "/warning/index",
@@ -1326,7 +1751,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Tilt"):
+        case i18n.global.t("warning.Tilt"):
           type = 6;
           this.$router.push({
             path: "/warning/index",
@@ -1336,7 +1761,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Dumpalarm"):
+        case i18n.global.t("warning.Dumpalarm"):
           type = 7;
           this.$router.push({
             path: "/warning/index",
@@ -1346,7 +1771,7 @@ export default {
             },
           });
           break;
-        case this.$t("warning.Firealarm"):
+        case i18n.global.t("warning.Firealarm"):
           type = 8;
           this.$router.push({
             path: "/warning/index",
@@ -1356,8 +1781,38 @@ export default {
             },
           });
           break;
-        case this.$t("homepage.closecontact"):
+        case i18n.global.t("homepage.closecontact"):
           type = 9;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
+        case i18n.global.t("warning.LowBatteryAlarm"):
+          type = 11;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
+        case i18n.global.t("warning.HeartbeatAbnormal"):
+          type = 12;
+          this.$router.push({
+            path: "/warning/index",
+            query: {
+              warningtype: type,
+              statustype: statustype,
+            },
+          });
+          break;
+        case i18n.global.t("warning.TemperatureAbnormal"):
+          type = 13;
           this.$router.push({
             path: "/warning/index",
             query: {
@@ -1372,6 +1827,9 @@ export default {
     choseProject(row) {
       var that = this;
       this.pro = false;
+      this.$nextTick(() => {
+        setTimeout(() => that.cleanupProjectSelectOverlay(), 50);
+      });
       that.attenFlag = row.projectConfig.attenFlag;
       that.alarmConfig = row.projectConfig.alarmConfig;
       that.tboxConfig = row.projectConfig.tboxConfig;
@@ -1392,9 +1850,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -1402,6 +1860,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data1);
 
@@ -1425,17 +1884,27 @@ export default {
       this.$store.commit("selectProjectprojectType", row.projectype);
       that.intoProjectid = row.projectid;
       that.intoProjectFBXUrl = row.filename;
-      that.intoProjectType = row.projectype;
+      that.intoProjectType = row.type;
       this.timezone = row.timezone;
       this.zoom = row.zoom;
       this.longi = row.longi;
       this.lati = row.lati;
+      const lang = (
+        this.$store.state.i18n ||
+        (i18n.global && i18n.global.locale) ||
+        ""
+      )
+        .toString()
+        .toLowerCase();
+      if (lang.indexOf("zh") === 0) {
+        this.$router.push("/largescreen").catch(() => {});
+      }
       //获取告警信息
       let data = {
         superid: this.$store.state.userInfo.superid,
         projectid: row.projectid,
         status: 1,
-        endtype: 8,
+        endtype: 13,
       };
       var that = this;
       getWarningNum(data, this.tenantkey_A, this.tenantid_A, this.userName).then(
@@ -1443,43 +1912,45 @@ export default {
           if (res.code == 1001) {
             that.$store.commit("setWarningNum", res.data.size);
             let sosNums = that.$store.state.sosNums;
+            const audio = that.$refs.audio;
             if (sosNums == 0 || sosNums == "") {
               if (res.data.warning) {
                 if (res.data.warning.id != that.$store.state.warningInfo.id) {
-                  that.$refs.audio.pause();
+                  if (audio) {
+                    audio.pause();
+                  }
                   clearInterval(that.audioTimer);
                   that.audioTimer = null;
                   that.$store.commit("setWarningInfo", res.data.warning);
-                  that.$refs.audio.src =
-                    "../../../static/video/" + res.data.warning.voice + ".mp3";
-                  that.$refs.audio.currentTime = 0; //从头开始播放
-                  that.$refs.audio.play(); //播放
+                  if (audio) {
+                    audio.src =
+                      "../../../static/video/" + res.data.warning.voice + ".mp3";
+                    audio.currentTime = 0;
+                    audio.play();
+                  }
                   if (res.data.warning.vtime > 0) {
                     setTimeout(() => {
-                      that.$refs.audio.pause();
+                      audio && audio.pause();
                     }, res.data.warning.vtime * 1000);
                     if (res.data.warning.vcycle > 0) {
                       that.audioTimer = setInterval(() => {
-                        that.$refs.audio.play(); //播放
+                        audio && audio.play();
                         setTimeout(() => {
-                          that.$refs.audio.pause();
+                          audio && audio.pause();
                         }, res.data.warning.vtime * 1000);
                       }, res.data.warning.vcycle * 1000);
                     }
                   } else {
-                    that.$refs.audio.pause();
+                    audio && audio.pause();
                     clearInterval(that.audioTimer);
                     that.audioTimer = null;
                   }
                 }
               }
             } else {
-              that.$refs.audio.pause();
+              audio && audio.pause();
               clearInterval(that.audioTimer);
               that.audioTimer = null;
-            }
-            if (that.$store.state.i18n == "zh") {
-              that.$router.push("/largescreen").catch((err) => {});
             }
           }
         }
@@ -1582,11 +2053,10 @@ export default {
                         color: "rgba(256,256,256,1)",
                       }),
                       fill: new Fill({
-                        // 设置字体颜色
-                        color:
-                          e.values_.devnum == 0 && e.values_.assetnum == 0
-                            ? "white"
-                            : "red",
+                        color: that.getBuildingLabelColor(
+                          e.values_.devnum,
+                          e.values_.assetnum
+                        ),
                       }),
                       offsetY: 10, // 设置文字偏移量
                     }),
@@ -1607,10 +2077,22 @@ export default {
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(data, this.tenantkey_A, this.tenantid_A, this.username).then(
-        (res) => {
+      const tenantkey =
+        this.tenantkey_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.username);
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
           if (res.code == 1001) {
             this.projectTable = res.data;
+            this.$store.commit(
+              "changeProjectTable",
+              Array.isArray(res.data) ? res.data : []
+            );
             if (this.projectTable.length === 1) {
               this.choseProject(this.projectTable[0]);
             }
@@ -1621,8 +2103,30 @@ export default {
               }, 200);
             }
           }
+      });
+    },
+    // 关闭选项目弹窗后清理残留遮罩，避免挡住右下角点击
+    cleanupProjectSelectOverlay() {
+      if (this.pro) return;
+      const html = document.documentElement;
+      const body = document.body;
+      body.classList.remove("el-popup-parent--hidden");
+      body.style.overflow = "";
+      body.style.paddingRight = "0px";
+      html.style.overflow = "";
+      document
+        .querySelectorAll("body > .el-overlay.project-select-mask")
+        .forEach((el) => {
+          // 若 App/Navbar 正在展示选项目弹窗，不要误删
+          const dialog = el.querySelector(".project-select-dialog");
+          if (dialog && dialog.getAttribute("aria-hidden") === "false") return;
+          el.remove();
+        });
+      document.querySelectorAll("body > .el-overlay").forEach((el) => {
+        if (!el.querySelector(".el-dialog, .el-message-box, .el-drawer")) {
+          el.remove();
         }
-      );
+      });
     },
 
     //初始化用户首页地图
@@ -1655,11 +2159,22 @@ export default {
         });
       }
       setTimeout(() => {
-        that.map = new Map({
-          target: "userMap",
-          layers: that.seeLayer,
-          view: that.view,
-        });
+        const origGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (type, options) {
+          if (type === "2d") {
+            options = Object.assign({}, options || {}, { willReadFrequently: true });
+          }
+          return origGetContext.call(this, type, options);
+        };
+        try {
+          that.map = new Map({
+            target: "userMap",
+            layers: that.seeLayer,
+            view: that.view,
+          });
+        } finally {
+          HTMLCanvasElement.prototype.getContext = origGetContext;
+        }
 
         this.map.addControl(new ScaleLine()); //缩放比例控件
         if (this.mapInfos.length > 0) {
@@ -1714,7 +2229,7 @@ export default {
         numberFeature.setStyle(
           new Style({
             text: new Text({
-              text: String(fenceData.num) + this.$t("warning.people"),
+              text: String(fenceData.num) + i18n.global.t("warning.people"),
               font: "24px Calibri,sans-serif",
               fill: new Fill({ color: "black" }),
               stroke: new Stroke({
@@ -1742,7 +2257,7 @@ export default {
       numberFeature
         .getStyle()
         .getText()
-        .setText(String(newNumber) + this.$t("warning.people"));
+        .setText(String(newNumber) + i18n.global.t("warning.people"));
 
       this.vectorSource.changed(); // 通知源更新
     },
@@ -1850,13 +2365,13 @@ export default {
             styleCache[size] = style;
           } else {
             let devnum = feature.values_.features[0].values_.devnum
-              ? feature.values_.features[0].values_.devnum + that.$t("homepage.P")
+              ? feature.values_.features[0].values_.devnum + i18n.global.t("homepage.P")
               : "";
             let assetnum = feature.values_.features[0].values_.assetnum
-              ? feature.values_.features[0].values_.assetnum + that.$t("homepage.A")
+              ? feature.values_.features[0].values_.assetnum + i18n.global.t("homepage.A")
               : "";
             let tboxnum = feature.values_.features[0].values_.tboxnum
-              ? feature.values_.features[0].values_.tboxnum + that.$t("homepage.C")
+              ? feature.values_.features[0].values_.tboxnum + i18n.global.t("homepage.C")
               : "";
             let text;
             if (devnum == "" && assetnum == "" && tboxnum == "") {
@@ -1886,14 +2401,11 @@ export default {
                 text: text,
                 font: "12px font-size", // 设置字体大小
                 fill: new Fill({
-                  // 设置字体颜色
-                  color:
-                    feature.values_.features[0].values_.devnum == 0 &&
-                    feature.values_.features[0].values_.assetnum == 0 &&
-                    (feature.values_.features[0].values_.tboxnum == 0 ||
-                      feature.values_.features[0].values_.tboxnum == null)
-                      ? "white"
-                      : "red",
+                  color: that.getBuildingLabelColor(
+                    feature.values_.features[0].values_.devnum,
+                    feature.values_.features[0].values_.assetnum,
+                    feature.values_.features[0].values_.tboxnum
+                  ),
                   backgroundColor: "white",
                 }),
 
@@ -1908,701 +2420,192 @@ export default {
       map.addLayer(this.layerVetor);
     },
 
-    myEcharts3() {
-      var that = this;
-      var chartDom = document.getElementById("main1");
-      this.myChart3 = echarts.init(chartDom);
-      var option;
-      this.memberNum.member_online_num = this.employee
-        ? this.memberNum.member_online_num
-        : 0;
-      this.memberNum.member_sum_num = this.employee ? this.memberNum.member_sum_num : 0;
-      let P = (
-        (this.memberNum.member_online_num / this.memberNum.member_sum_num) *
-        100
-      ).toFixed(2);
-
-      if (isNaN(P)) {
+    renderPolarRing(item) {
+      const cfg = {
+        1: { key: "myChart3", enabled: this.employee, online: "member_online_num", sum: "member_sum_num", t: ["home.tet1", "home.tet2"] },
+        2: { key: "myChart4", enabled: this.asset, online: "asset_online_num", sum: "asset_sum_num", t: ["home.tet4", "home.tet5"] },
+        3: { key: "myChart5", enabled: this.tbox, online: "tbox_online_num", sum: "tbox_sum_num", t: ["home.tet7", "home.tet8"] },
+      }[item];
+      const chart = this.ensureChart("main" + item, cfg.key);
+      if (!chart) return;
+      const n = this.memberNum;
+      n[cfg.online] = cfg.enabled ? n[cfg.online] : 0;
+      n[cfg.sum] = cfg.enabled ? n[cfg.sum] : 0;
+      let P = ((n[cfg.online] / n[cfg.sum]) * 100).toFixed(2);
+      if (isNaN(P) || !isFinite(P)) {
         P = "0";
       }
-      var getfpkszb = [P];
-      var offLineNum = this.memberNum.member_sum_num - this.memberNum.member_online_num;
-
-      option = {
-        backgroundColor: "#ffffff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet1"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet2")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet2") +
-                "：" +
-                that.memberNum.member_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet3") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-            data: [
-              {
-                name: this.$t("home.tet2"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF", // 0% 处的颜色
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            data: [
-              {
-                name: this.$t("home.tet3"),
-                value: 100,
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart3.setOption(option);
-      //点击事件
-      this.myChart3.on("click", function (params) {
-        if (!that.employee) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet2")) {
-          that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
-          that.$router.push({
-            path: "/staff/staffmanagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == that.$t("home.tet3")) {
-          that.$store.commit("changeStaffEuis", that.memberNum.member_online_dev_list);
-          that.$router.push({
-            path: "/staff/staffmanagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
+      const onlineName = i18n.global.t(cfg.t[1]);
+      const option = this.buildPolarRingOption(P, i18n.global.t(cfg.t[0]), onlineName, n[cfg.online], item);
+      try {
+        chart.clear();
+        chart.setOption(option, true);
+        chart.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      chart.off("click");
+      chart.on("click", (params) => {
+        if (params.name == onlineName) {
+          this.goPolarList(item, true, { currentTarget: chart.getDom() });
         }
       });
+    },
+    myEcharts3() {
+      this.renderPolarRing(1);
     },
     myEcharts4() {
-      var that = this;
-      var chartDom = document.getElementById("main2");
-      this.myChart4 = echarts.init(chartDom);
-      var option;
-      this.memberNum.asset_online_num = this.asset ? this.memberNum.asset_online_num : 0;
-      this.memberNum.asset_sum_num = this.asset ? this.memberNum.asset_sum_num : 0;
-      let P = (
-        (this.memberNum.asset_online_num / this.memberNum.asset_sum_num) *
-        100
-      ).toFixed(2);
-      if (isNaN(P)) {
-        P = "0";
-      }
-      var getfpkszb = [P];
-      var offLineNum = this.asset ? this.memberNum.asset_offline_num : 0;
-
-      option = {
-        backgroundColor: "#fff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet4"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet5")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet5") +
-                "：" +
-                that.memberNum.asset_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet6") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-
-            data: [
-              {
-                name: this.$t("home.tet5"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF",
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            color: "#111111",
-            data: [
-              {
-                value: 100,
-                name: this.$t("home.tet6"),
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart4.setOption(option);
-      //点击事件
-      this.myChart4.on("click", function (params) {
-        if (!that.asset) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet5")) {
-          that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
-          that.$router.push({
-            path: "/staff/assetManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == that.$t("home.tet6")) {
-          that.$store.commit("changeAssetEuis", that.memberNum.asset_online_dev_list);
-          that.$router.push({
-            path: "/staff/assetManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
-        }
-      });
+      this.renderPolarRing(2);
     },
     myEcharts5() {
-      var that = this;
-      var chartDom = document.getElementById("main3");
-      this.myChart5 = echarts.init(chartDom);
-      var option;
-      this.memberNum.tbox_online_num = this.tbox ? this.memberNum.tbox_online_num : 0;
-      this.memberNum.tbox_sum_num = this.tbox ? this.memberNum.tbox_sum_num : 0;
-      let P = (
-        (this.memberNum.tbox_online_num / this.memberNum.tbox_sum_num) *
-        100
-      ).toFixed(2);
-      if (isNaN(P)) {
-        P = "0";
-      }
-      var getfpkszb = [P];
-      var offLineNum = this.tbox ? this.memberNum.tbox_offline_num : 0;
-
-      option = {
-        backgroundColor: "#fff",
-
-        title: {
-          text: getfpkszb + "%",
-          textStyle: {
-            color: "#559BF4",
-            fontSize: 25,
-          },
-
-          subtext: this.$t("home.tet7"),
-          subtextStyle: {
-            color: "#B1B1B1",
-            fontSize: 15,
-          },
-          itemGap: 20,
-          left: "center",
-          top: "43%",
-        },
-        tooltip: {
-          formatter: function (params) {
-            if (params.name == that.$t("home.tet8")) {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet8") +
-                "：" +
-                that.memberNum.tbox_online_num +
-                "</span>"
-              );
-            } else {
-              return (
-                '<span style="color: #fff;">' +
-                that.$t("home.tet9") +
-                "：" +
-                offLineNum +
-                "</span>"
-              );
-            }
-          },
-        },
-
-        angleAxis: {
-          max: 100, //
-          clockwise: false, // 逆时针
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-
-        radiusAxis: {
-          type: "category",
-          // 隐藏刻度线
-          axisLine: {
-            show: false,
-          },
-          axisTick: {
-            show: false,
-          },
-          axisLabel: {
-            show: false,
-          },
-          splitLine: {
-            show: false,
-          },
-        },
-        polar: {
-          center: ["50%", "50%"],
-          radius: "140%", //图形大小
-        },
-        series: [
-          {
-            type: "bar",
-
-            data: [
-              {
-                name: this.$t("home.tet8"),
-                value: P,
-                itemStyle: {
-                  normal: {
-                    color: {
-                      // 完成的圆环的颜色
-                      colorStops: [
-                        {
-                          offset: 0,
-                          color: "#518FEF", // 0% 处的颜色
-                        },
-                        {
-                          offset: 1,
-                          color: "#5CBEFF", // 100% 处的颜色
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            ],
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["49%", "52%"],
-            z: 2,
-          },
-          {
-            // 灰色环
-            type: "bar",
-            color: "#111111",
-            data: [
-              {
-                value: 100,
-                name: this.$t("home.tet9"),
-                itemStyle: {
-                  color: "rgba(220,220,220, 1)",
-                },
-              },
-            ],
-
-            coordinateSystem: "polar",
-            roundCap: true,
-            barWidth: 25,
-            barGap: "-100%", // 两环重叠
-            radius: ["48%", "53%"],
-            z: 1,
-          },
-        ],
-      };
-      option && this.myChart5.setOption(option);
-      //点击事件
-      this.myChart5.on("click", function (params) {
-        if (!that.tbox) {
-          return;
-        }
-        const timeStamp = new Date(new Date().setHours(0, 0, 0, 0)) / 1000;
-        if (params.name == that.$t("home.tet8")) {
-          that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
-          that.$router.push({
-            path: "/staff/tboxManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: true,
-            },
-          });
-        } else if (params.name == that.$t("home.tet9")) {
-          that.$store.commit("changeTBoxEuis", that.memberNum.tbox_online_dev_list);
-          that.$router.push({
-            path: "/staff/tboxManagement",
-            query: {
-              timeStamp: timeStamp,
-              euis: true,
-              flag: false,
-            },
-          });
-        }
-      });
+      this.renderPolarRing(3);
     },
     //用户视角
     myEcharts1() {
       var that = this;
       //初始化echarts实例
       var chartDom = document.getElementById("main");
-      this.myChart1 = echarts.init(chartDom, "macarons");
-      var option;
-      let bgColor = "#fff";
-      let title = "总量";
-
-      let echartData = [
-        {
-          name: this.$t("home.tet10"),
-          value: this.devBatTimeNum.bat_0_20,
-          itemStyle: {
-            color: "#d72a14",
-          },
-        },
-        {
-          itemStyle: {
-            color: "#E1D95B",
-          },
-          name: this.$t("home.tet11"),
-          value: this.devBatTimeNum.bat_20_60,
-        },
-        {
-          itemStyle: {
-            color: "#52ca52",
-          },
-          name: this.$t("home.tet12"),
-          value: this.devBatTimeNum.bat_60_100,
-        },
+      if (this.myChart1 && this.myChart1.dispose && !this.myChart1.isDisposed?.()) {
+        try {
+          this.myChart1.dispose();
+        } catch (e) {}
+        this.myChart1 = null;
+      }
+      const exist = chartDom && echarts.getInstanceByDom && echarts.getInstanceByDom(chartDom);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      const instance = echarts.init(chartDom, "macarons");
+      this.myChart1 = instance ? markRaw(instance) : null;
+      if (!this.myChart1) return;
+      const bat = this.devBatTimeNum || {};
+      const dev = this.devTypeNum || {};
+      const num = (v) => Number(v) || 0;
+      const batData = [
+        { name: i18n.global.t("home.tet10"), value: num(bat.bat_0_20), tone: CHART_TONES.red },
+        { name: i18n.global.t("home.tet11"), value: num(bat.bat_20_60), tone: CHART_TONES.yellow },
+        { name: i18n.global.t("home.tet12"), value: num(bat.bat_60_100), tone: CHART_TONES.green },
       ];
-      let echartData2 = [
-        {
-          name: this.$t("home.Unused"),
-          value: this.devTypeNum.inuse_no,
-        },
-        {
-          name: this.$t("home.Used"),
-          value: this.devTypeNum.inuse_yes,
-        },
+      const useData = [
+        { name: i18n.global.t("home.Used"), value: num(dev.inuse_yes), tone: CHART_TONES.blue },
+        { name: i18n.global.t("home.Unused"), value: num(dev.inuse_no), tone: CHART_TONES.gray },
       ];
-      let total = echartData.reduce((a, b) => {
-        return a + b.value * 1;
-      }, 0);
+      const useTotal = useData[0].value + useData[1].value;
+      const usedRate = useTotal ? (useData[0].value / useTotal) * 100 : 0;
+      const rateDigits = Number.isInteger(usedRate) ? 0 : 1;
+      const center = ["50%", "47%"];
+      const toPieItem = (d) => ({
+        name: d.name,
+        value: d.value,
+        itemStyle: {
+          color: chartGradient(d.tone, 0, 0, 1, 1),
+          shadowBlur: 8,
+          shadowColor: `rgba(${d.tone.rgb},0.45)`,
+        },
+        label: { rich: { v: { color: d.tone.c1 } } },
+      });
 
-      option = {
-        backgroundColor: bgColor,
+      const option = {
+        backgroundColor: "transparent",
         tooltip: {
           trigger: "item",
           formatter: "{b}: {c} ({d}%)",
         },
         legend: {
-          type: "scroll",
-          icon: "rect",
-
-          bottom: "0",
-
-          textStyle: {
-            rich: {
-              name: {
-                fontSize: 12,
-              },
-              value: {
-                fontSize: 16,
-                padding: [0, 5, 0, 15],
-              },
-              unit: {
-                fontSize: 12,
-              },
-            },
-          },
+          bottom: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          data: useData.map((d) => d.name),
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
         series: [
-          //第一环
           {
-            type: "pie",
-            selectedMode: "single",
-            radius: ["20%", "35%"],
-            center: ["50%", "50%"],
-            itemStyle: {
-              normal: {
-                borderColor: bgColor,
-                borderWidth: 2,
-              },
-            },
-            label: {
-              normal: {
-                position: "inner",
-              },
-            },
-            labelLine: {
-              normal: {
-                show: false,
-              },
-            },
-
-            data: echartData2,
+            type: "gauge",
+            silent: true,
+            center,
+            radius: "57%",
+            startAngle: 90,
+            endAngle: -270,
+            splitNumber: 12,
+            pointer: { show: false },
+            progress: { show: false },
+            axisLine: { show: false },
+            axisLabel: { show: false },
+            detail: { show: false },
+            splitLine: { distance: 0, length: 3, lineStyle: { color: "rgba(100,116,139,0.55)", width: 2 } },
+            axisTick: { distance: 0, length: 2, splitNumber: 5, lineStyle: { color: "rgba(148,163,184,0.45)", width: 1 } },
+            data: [],
           },
-
           {
             type: "pie",
-            radius: ["45%", "60%"],
-            center: ["50%", "50%"],
-            data: echartData,
-            hoverAnimation: true,
+            silent: true,
+            center,
+            radius: [0, "40%"],
+            animationDuration: 1600,
             itemStyle: {
-              normal: {
-                borderColor: bgColor,
-                borderWidth: 2,
-              },
-            },
-            labelLine: {
-              normal: {
-                length: 20,
-                length2: 120,
-                lineStyle: {
-                  color: "#e6e6e6",
-                },
-              },
+              color: new echarts.graphic.RadialGradient(0.5, 0.5, 0.5, [
+                { offset: 0, color: `rgba(${CHART_TONES.blue.rgb},0.14)` },
+                { offset: 1, color: `rgba(${CHART_TONES.blue.rgb},0)` },
+              ]),
             },
             label: {
-              normal: {
-                formatter: (params) => {
-                  return "{icon|●}{name|" + params.name + "}{value|" + params.value + "}";
-                },
-                padding: [0, -100, 25, -100],
-                rich: {
-                  icon: {
-                    fontSize: 16,
-                  },
-                  name: {
-                    fontSize: 14,
-                    padding: [0, 10, 0, 4],
-                    color: "#666666",
-                  },
-                  value: {
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    color: "#333333",
-                  },
-                },
+              show: true,
+              position: "center",
+              lineHeight: 18,
+              formatter: () =>
+                `{v|${usedRate.toFixed(rateDigits)}}{u|%}\n{t|${i18n.global.t("home.Used")}}`,
+              rich: {
+                v: { fontSize: 22, fontWeight: 700, color: CHART_TONES.blue.c1, fontFamily: "DIN Alternate, Arial" },
+                u: { fontSize: 12, fontWeight: 600, color: CHART_TONES.blue.c1, padding: [0, 0, 5, 2] },
+                t: { fontSize: 11, color: "#8a94a6", padding: [4, 0, 0, 0] },
               },
             },
+            labelLine: { show: false },
+            data: [{ value: 1 }],
+          },
+          {
+            type: "pie",
+            center,
+            radius: ["42%", "50%"],
+            padAngle: useData.filter((d) => d.value > 0).length > 1 ? 3 : 0,
+            itemStyle: { borderRadius: 4 },
+            label: { show: false },
+            labelLine: { show: false },
+            emphasis: { scaleSize: 4 },
+            data: useData.map(toPieItem),
+          },
+          {
+            type: "pie",
+            center,
+            radius: ["62%", "74%"],
+            padAngle: batData.filter((d) => d.value > 0).length > 1 ? 3 : 0,
+            minAngle: 4,
+            itemStyle: { borderRadius: 6 },
+            emphasis: { scaleSize: 5 },
+            animationType: "scale",
+            animationEasing: "elasticOut",
+            labelLine: {
+              length: 8,
+              length2: 10,
+              smooth: true,
+              lineStyle: { color: "#cbd5e1" },
+            },
+            label: {
+              alignTo: "edge",
+              edgeDistance: 6,
+              minMargin: 4,
+              lineHeight: 16,
+              formatter: "{n|{b}}\n{v|{c}}",
+              rich: {
+                n: { fontSize: 11, color: "#64748b" },
+                v: { fontSize: 15, fontWeight: 700, fontFamily: "DIN Alternate, Arial" },
+              },
+            },
+            data: batData.filter((d) => d.value > 0).map(toPieItem),
           },
         ],
       };
@@ -2610,31 +2613,31 @@ export default {
       option && this.myChart1.setOption(option);
       this.myChart1.on("click", function (param) {
         switch (param.name) {
-          case that.$t("home.Used"):
+          case i18n.global.t("home.Used"):
             that.$router.push({
               path: "/device/terminal",
               query: { inuse: 1 },
             });
             break;
-          case that.$t("home.Unused"):
+          case i18n.global.t("home.Unused"):
             that.$router.push({
               path: "/device/terminal",
               query: { inuse: 2 },
             });
             break;
-          case that.$t("home.tet10"):
+          case i18n.global.t("home.tet10"):
             that.$router.push({
               path: "/device/terminal",
               query: { endbat: 20 },
             });
             break;
-          case that.$t("home.tet11"):
+          case i18n.global.t("home.tet11"):
             that.$router.push({
               path: "/device/terminal",
               query: { beginbat: 20, endbat: 60 },
             });
             break;
-          case that.$t("home.tet12"):
+          case i18n.global.t("home.tet12"):
             that.$router.push({
               path: "/device/terminal",
               query: { beginbat: 60 },
@@ -2653,6 +2656,9 @@ export default {
       //初始化echarts实例
       var chartDom = document.getElementById("main6");
       this.myChart2 = echarts.init(chartDom, "macarons");
+      if (!this.myChart2) return;
+      this.myChart2 = markRaw(this.myChart2);
+      if (!this.myChart2) return;
       var option;
       var category = [];
       var barData1 = [];
@@ -2687,91 +2693,60 @@ export default {
           },
         },
         legend: {
-          data: [this.$t("checkwork.Attendance"), this.$t("checkwork.Noattendance")],
-          bottom: "0",
-          textStyle: {
-            color: "#666",
-          },
+          data: [i18n.global.t("checkwork.Attendance"), i18n.global.t("checkwork.Noattendance")],
+          bottom: 0,
+          icon: "circle",
+          itemWidth: 8,
+          itemHeight: 8,
+          itemGap: 16,
+          textStyle: { color: "#64748b", fontSize: 12 },
         },
+        grid: { left: 4, right: 8, top: 16, bottom: 26, containLabel: true },
         xAxis: {
           type: "category",
           data: category,
-          axisTick: {
-            alignWithLabel: true,
-          },
-
-          splitLine: {
-            show: false,
-          },
-          axisLabel: {
-            fontsize: 2,
-            align: "center",
-            color: "#666",
-          },
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          splitLine: { show: false },
+          axisLabel: { color: "#64748b", fontSize: 11 },
         },
         yAxis: [
           {
             type: "value",
             minInterval: 1,
-            splitLine: {
-              show: true,
-              lineStyle: {
-                color: "#666",
-              },
-            },
-            axisLine: {
-              show: false,
-            },
+            splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
+            axisLine: { show: false },
             axisLabel: {
-              formatter: function (data) {
-                if (data < 0) return -data;
-                else return data;
-              },
-              fontWeight: 10,
-              fontsize: 5,
-              color: "#666",
+              formatter: (data) => Math.abs(data),
+              color: "#94a3b8",
+              fontSize: 11,
             },
           },
         ],
         series: [
           {
             cursor: "default",
-            name: this.$t("checkwork.Attendance"),
+            name: i18n.global.t("checkwork.Attendance"),
             type: "bar",
             stack: "总量",
-            barWidth: 14,
+            barWidth: 12,
             itemStyle: {
-              normal: {
-                barBorderRadius: 25,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#4aa3ff" },
-                  { offset: 1, color: "#5664d2" },
-                ]),
-              },
+              borderRadius: [6, 6, 0, 0],
+              color: chartGradient(CHART_TONES.blue, 0, 0, 0, 1),
+              shadowBlur: 6,
+              shadowColor: `rgba(${CHART_TONES.blue.rgb},0.35)`,
             },
             data: barData2,
           },
           {
             cursor: "default",
-            name: this.$t("checkwork.Noattendance"),
+            name: i18n.global.t("checkwork.Noattendance"),
             type: "bar",
             stack: "总量",
-            barWidth: 14,
+            barWidth: 12,
             itemStyle: {
-              normal: {
-                barBorderRadius: 25,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#74788d" },
-                  { offset: 1, color: "#ccc" },
-                ]),
-              },
-            },
-            label: {
-              show: false,
-              formatter: (value) => {
-                // 值都是负数的 所以需要取反一下
-                return -value.data;
-              },
+              borderRadius: [0, 0, 6, 6],
+              color: chartGradient(CHART_TONES.gray, 0, 1, 0, 0),
             },
             data: barData1,
           },
@@ -2787,114 +2762,141 @@ export default {
         this.myChart2 = null;
       }
       var that = this;
-      //初始化echarts实例
-      var chartDom = document.getElementById("main7");
-      this.myChartBeacon = echarts.init(chartDom);
-      let beacon_data =
-        that.beaconData == null
-          ? ""
-          : [
-              {
-                name: this.$t("home.Scanneddays"),
-                value: that.beaconData.beacon_low_3day,
-              },
-              {
-                name: this.$t("home.scannedwithin"),
-                value: that.beaconData.beacon_more_3day,
-              },
-              {
-                name: this.$t("home.Neverscanned"),
-                value: that.beaconData.beacon_time_unknown,
-              },
-              {
-                name: ">60%",
-                value: that.beaconData.bat_60_100,
-              },
-              {
-                name: ">20%",
-                value: that.beaconData.bat_20_60,
-              },
-              {
-                name: "<20%",
-                value: that.beaconData.bat_0_20,
-              },
-            ];
+      this.myChartBeacon = this.ensureChart("main7", "myChartBeacon");
+      if (!this.myChartBeacon) return;
+      const raw = that.beaconData && typeof that.beaconData === "object" ? that.beaconData : {};
+      let beacon_data = [
+        {
+          name: i18n.global.t("home.Scanneddays"),
+          value: raw.beacon_low_3day,
+        },
+        {
+          name: i18n.global.t("home.scannedwithin"),
+          value: raw.beacon_more_3day,
+        },
+        {
+          name: i18n.global.t("home.Neverscanned"),
+          value: raw.beacon_time_unknown,
+        },
+        {
+          name: ">60%",
+          value: raw.bat_60_100,
+        },
+        {
+          name: ">20%",
+          value: raw.bat_20_60,
+        },
+        {
+          name: "<20%",
+          value: raw.bat_0_20,
+        },
+      ];
       for (let i = beacon_data.length - 1; i > -1; i--) {
-        if (beacon_data[i].value == undefined) {
+        if (beacon_data[i].value == undefined || beacon_data[i].value === "") {
           beacon_data[i].value = 0;
         }
       }
-      let dev_beacon_xAx = [];
-      let dev_beacon_yAy = [];
-      for (let i = 0; i < beacon_data.length; i++) {
-        dev_beacon_xAx.push(beacon_data[i].name);
-        dev_beacon_yAy.push(beacon_data[i].value);
-      }
-      var option;
-      option = {
-        aria: {
-          enabled: true,
-          decal: {
-            show: true,
-          },
+      const beaconTones = [
+        CHART_TONES.green,
+        CHART_TONES.yellow,
+        CHART_TONES.red,
+        CHART_TONES.green,
+        CHART_TONES.yellow,
+        CHART_TONES.red,
+      ];
+      const option = {
+        tooltip: {
+          trigger: "item",
+          formatter: (p) => p.marker + p.name + "：" + p.value,
         },
-        tooltip: {},
+        grid: {
+          left: 4,
+          right: 8,
+          top: 22,
+          bottom: 2,
+          containLabel: true,
+        },
         xAxis: {
-          data: dev_beacon_xAx,
+          type: "category",
+          data: beacon_data.map((d) => d.name),
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          axisTick: { show: false },
           axisLabel: {
             interval: 0,
-            rotate: 30,
-          },
-          axisTick: {
-            alignWithLabel: true,
+            color: "#64748b",
+            fontSize: 11,
+            lineHeight: 13,
+            width: 56,
+            overflow: "break",
           },
         },
         yAxis: {
           type: "value",
-        },
-        legend: {
-          show: true,
+          minInterval: 1,
+          axisLabel: { color: "#94a3b8", fontSize: 11 },
+          splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
         },
         series: [
           {
             type: "bar",
-            itemStyle: {
-              normal: {
-                color: function (params) {
-                  var colorList = [
-                    ["#52ca52"],
-                    ["#E1D95B"],
-                    ["#d72a14"],
-                    ["#52ca52"],
-                    ["#E1D95B"],
-                    ["#d72a14"],
-                  ];
-                  return colorList[params.dataIndex];
-                },
-              },
+            barWidth: "38%",
+            showBackground: true,
+            backgroundStyle: {
+              color: "rgba(148,163,184,0.12)",
+              borderRadius: [8, 8, 3, 3],
             },
-            barCategoryGap: "60%",
-            data: dev_beacon_yAy,
+            label: {
+              show: true,
+              position: "top",
+              distance: 4,
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: "DIN Alternate, Arial",
+            },
+            emphasis: {
+              itemStyle: { shadowBlur: 14 },
+            },
+            animationDuration: 1000,
+            animationEasing: "cubicOut",
+            animationDelay: (idx) => idx * 90,
+            data: beacon_data.map((d, i) => ({
+              value: d.value,
+              itemStyle: {
+                borderRadius: [8, 8, 3, 3],
+                color: chartGradient(beaconTones[i], 0, 0, 0, 1),
+                shadowBlur: 8,
+                shadowColor: `rgba(${beaconTones[i].rgb},0.4)`,
+                shadowOffsetY: 2,
+              },
+              label: { color: beaconTones[i].c1 },
+            })),
           },
         ],
       };
 
-      option && that.myChartBeacon.setOption(option);
+      try {
+        that.myChartBeacon.clear();
+        that.myChartBeacon.setOption(option, true);
+        that.myChartBeacon.resize();
+      } catch (e) {
+        console.warn(e);
+      }
+      that.myChartBeacon.off("click");
       that.myChartBeacon.on("click", function (param) {
         switch (param.name) {
-          case that.$t("home.Scanneddays"):
+          case i18n.global.t("home.Scanneddays"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 1 },
             });
             break;
-          case that.$t("home.scannedwithin"):
+          case i18n.global.t("home.scannedwithin"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 2 },
             });
             break;
-          case that.$t("home.Neverscanned"):
+          case i18n.global.t("home.Neverscanned"):
             that.$router.push({
               path: "/device/beacon",
               query: { devtimes: 3 },
@@ -2951,17 +2953,12 @@ export default {
           if (res.data.devBatTimeNum) {
             that.devBatTimeNum = res.data.devBatTimeNum;
           }
-          that.myEcharts1();
-          if (res.data.beaconBatTimeNum) {
-            that.beaconData = res.data.beaconBatTimeNum;
-            that.myEchartsBeacon();
-          } else {
-            that.beaconData = "";
-            if (that.myChartBeacon) {
-              that.myChartBeacon.dispose();
-              that.myChartBeacon = null;
+          that.$nextTick(() => {
+            if (!that.$el || that.$route.path === "/largescreen") {
+              return;
             }
-          }
+            that.renderBeaconAndDeviceCharts(res.data.beaconBatTimeNum);
+          });
         }
       });
       //本地时区 console.log(0 - new Date().getTimezoneOffset() / 60);
@@ -2989,7 +2986,7 @@ export default {
             that.max_num_buildName = that.max_num_build[0].building;
             that.max_num_buildNum = that.max_num_build[0].num;
           } else {
-            that.max_num_buildName = this.$t("tet.nodata");
+            that.max_num_buildName = i18n.global.t("tet.nodata");
             that.max_num_buildNum = "";
           }
           that.max_num_ground = res.data.max_num_ground;
@@ -2998,7 +2995,7 @@ export default {
               that.max_num_ground[0].building + "/" + that.max_num_ground[0].groundname;
             that.max_num_groundNum = that.max_num_ground[0].num;
           } else {
-            that.max_num_groundName = this.$t("tet.nodata");
+            that.max_num_groundName = i18n.global.t("tet.nodata");
             that.max_num_groundNum = "";
           }
 
@@ -3008,7 +3005,7 @@ export default {
             that.memberMaxStepName = that.memberMaxStep[0].username;
             that.memberMaxStepNum = that.memberMaxStep[0].steps;
           } else {
-            that.memberMaxStepName = this.$t("tet.nodata");
+            that.memberMaxStepName = i18n.global.t("tet.nodata");
             that.memberMaxStepNum = "";
           }
 
@@ -3021,51 +3018,69 @@ export default {
           that.warnNumList = [
             {
               type: 1,
-              typestr: this.$t("homepage.SOSalert"),
+              typestr: i18n.global.t("homepage.SOSalert"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.gatherwarn"),
+              typestr: i18n.global.t("homepage.gatherwarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.crosswarn"),
+              typestr: i18n.global.t("homepage.crosswarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.strandedwarn"),
+              typestr: i18n.global.t("homepage.strandedwarn"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("homepage.Unusuallystill"),
+              typestr: i18n.global.t("homepage.Unusuallystill"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
             {
               type: 1,
-              typestr: this.$t("warning.Tilt"),
-              warn_status1_num: 0,
-              warn_status2_num: 0,
-            },
-
-            {
-              type: 1,
-              typestr: this.$t("warning.Dumpalarm"),
+              typestr: i18n.global.t("warning.Tilt"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
 
             {
               type: 1,
-              typestr: this.$t("warning.Firealarm"),
+              typestr: i18n.global.t("warning.Dumpalarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.Firealarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.LowBatteryAlarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.HeartbeatAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: i18n.global.t("warning.TemperatureAbnormal"),
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
@@ -3084,21 +3099,20 @@ export default {
 
           if (that.contrForPrionum == 5) {
             that.memberNum = res.data;
-            that.memberNum1 = that.employee ? res.data.member_sum_num : 0;
-            that.memberNum2 = that.asset ? res.data.asset_sum_num : 0;
-            that.memberNum3 = that.tbox ? res.data.tbox_sum_num : 0;
-            that.myEcharts5();
-
-            that.myEcharts3();
-            that.myEcharts4();
-            if (that.attendanceNum.length > 0) {
-              that.myEcharts2();
-            } else {
-              if (that.myChart2) {
+            that.$nextTick(() => {
+              that.renderPolarCharts();
+              if (that.attendanceNum.length > 0) {
+                try {
+                  that.myEcharts2();
+                } catch (e) {
+                  console.warn(e);
+                }
+              } else if (that.myChart2) {
                 that.myChart2.dispose();
                 that.myChart2 = null;
               }
-            }
+              that.scheduleHomeChartsResize();
+            });
           }
         }
       });
@@ -3226,52 +3240,70 @@ export default {
       });
     },
     updateSize() {
-      this.map.updateSize();
+      if (this.map && this.map.updateSize) {
+        this.map.updateSize();
+      }
+    },
+    bootstrapHomePage() {
+      let that = this;
+      if (this.$store.state.longis && this.$store.state.latis) {
+        this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
+      } else {
+        if (that.$store.state.i18n == "zh") {
+          that.mapCenter = [118, 32];
+        } else {
+          that.mapCenter = [0.1, 51.3];
+        }
+      }
+      this.outdoorBaseLayers = createOutdoorBaseLayers(
+        this.$store.state.i18n == "zh"
+      );
+      clearInterval(this.timer);
+      this.timer = null;
+      clearInterval(this.timerMap);
+      this.timerMap = null;
+      if (
+        this.$store.state.userInfo.prionum == 5 &&
+        !this.$store.state.projectid
+      ) {
+        this.getProjectFirstLists();
+      } else if (
+        this.$store.state.userInfo.prionum == 5 &&
+        this.$store.state.projectid
+      ) {
+        this.getFristPages(this.$store.state.projectid);
+        this.getBuildingByProjectids(this.$store.state.projectid);
+        this.timer = setInterval(() => {
+          that.getFristPages(that.$store.state.projectid);
+        }, 30000);
+        this.timerMap = setInterval(() => {
+          that.getBuildingByProjectids2(this.$store.state.projectid);
+        }, 30000);
+      }
+      this.$nextTick(() => {
+        window.dispatchEvent(new Event("resize"));
+        if (this.map && this.map.updateSize) {
+          this.map.updateSize();
+        }
+        this.scheduleHomeChartsResize();
+      });
     },
   },
 
   mounted() {
-    let that = this;
-    if (this.$store.state.longis && this.$store.state.latis) {
-      this.mapCenter = [this.$store.state.longis, this.$store.state.latis];
-    } else {
-      if (that.$store.state.i18n == "zh") {
-        that.mapCenter = [118, 32];
-      } else {
-        that.mapCenter = [0.1, 51.3];
-      }
-    }
-    this.outdoorBaseLayers = createOutdoorBaseLayers(
-      this.$store.state.i18n == "zh"
-    );
-    var count = document.getElementById("count");
-
-    if (
-      document.fullscreen ||
-      document.mozFullScreen ||
-      document.webkitIsFullScreen ||
-      document.msFullscreenElement ||
-      window.fullScreen
-    ) {
-      count.style.height = 12.5 + "vh";
-    } else {
-      count.style.height = 15 + "vh";
-    }
-    if (this.$store.state.userInfo.prionum == 5 && this.$store.state.projectid == "") {
-      this.getProjectFirstLists();
-    } else if (
-      this.$store.state.userInfo.prionum == 5 &&
-      this.$store.state.projectid != ""
-    ) {
-      this.getFristPages(this.$store.state.projectid);
-      this.getBuildingByProjectids(this.$store.state.projectid);
-      this.timer = setInterval(() => {
-        that.getFristPages(that.$store.state.projectid);
-      }, 30000);
-
-      this.timerMap = setInterval(() => {
-        that.getBuildingByProjectids2(this.$store.state.projectid);
-      }, 30000);
+    this.bootstrapHomePage();
+    // 首页高度随窗口按比例分配，容器尺寸一变就要重绘地图和图表
+    if (window.ResizeObserver && this.$refs.homeGrid) {
+      this._homeResizeObserver = new ResizeObserver(() => {
+        clearTimeout(this._homeResizeTimer);
+        this._homeResizeTimer = setTimeout(() => {
+          if (this.map && this.map.updateSize) {
+            this.map.updateSize();
+          }
+          this.scheduleHomeChartsResize();
+        }, 100);
+      });
+      this._homeResizeObserver.observe(this.$refs.homeGrid);
     }
   },
   computed: {
@@ -3291,6 +3323,23 @@ export default {
     latis() {
       return this.$store.state.latis;
     },
+    polarStats() {
+      const n = this.memberNum || {};
+      const num = (v) => Number(v) || 0;
+      const stat = (enabled, online, total, offline) =>
+        enabled
+          ? {
+              online: num(online),
+              offline: offline == null ? Math.max(num(total) - num(online), 0) : num(offline),
+              total: num(total),
+            }
+          : { online: 0, offline: 0, total: 0 };
+      return [
+        stat(this.employee, n.member_online_num, n.member_sum_num),
+        stat(this.asset, n.asset_online_num, n.asset_sum_num, n.asset_offline_num),
+        stat(this.tbox, n.tbox_online_num, n.tbox_sum_num, n.tbox_offline_num),
+      ];
+    },
   },
   watch: {
     isFullscreen(val, oldVal) {
@@ -3305,19 +3354,6 @@ export default {
         that.myChart5.resize();
         if (that.myChartBeacon) {
           that.myChartBeacon.resize();
-        }
-        var count = document.getElementById("count");
-        //全屏样式修改
-        if (
-          document.fullscreen ||
-          document.mozFullScreen ||
-          document.webkitIsFullScreen ||
-          document.msFullscreenElement ||
-          window.fullScreen
-        ) {
-          count.style.height = 12.5 + "vh";
-        } else {
-          count.style.height = 15 + "vh";
         }
       }
     },
@@ -3364,7 +3400,16 @@ export default {
     },
   },
 
-  destroyed() {
+  unmounted() {
+    if (this._homeResizeObserver) {
+      this._homeResizeObserver.disconnect();
+      this._homeResizeObserver = null;
+    }
+    clearTimeout(this._homeResizeTimer);
+    clearTimeout(this._chartResizeTimer1);
+    clearTimeout(this._chartResizeTimer2);
+    clearInterval(this.polarTimer);
+    this.polarTimer = null;
     if (this.myChart1) {
       this.myChart1.dispose();
     }
@@ -3463,9 +3508,12 @@ h6 {
   cursor: pointer;
 }
 
-#beaconPower,
-#projectType {
+#beaconPower {
   height: 300px;
+}
+
+#projectType {
+  height: 100%;
 }
 
 #projectType >>> .el-table th {
@@ -3532,49 +3580,37 @@ a {
   margin-left: 0;
   position: relative;
   box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
-  height: 44vh;
+  height: 100%;
   background-color: #fff;
 }
 .maps .tips {
   position: absolute;
-  right: 20px;
+  right: 10px;
   top: 10px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 0;
 }
-.maps .tips1 {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px 10px 4px 10px;
-  border-radius: 4px;
+/* 地图右上角统计卡片：整体固定宽度，文字完整显示，与数值间距固定，数值列按 3 位数预留 */
+.maps .tips .map-stat-card {
+  width: 132px;
+  grid-template-columns: 8px max-content 28px;
+  column-gap: 8px;
+  box-sizing: border-box;
+}
+.maps .tips.is-en .map-stat-card {
+  width: 180px;
+}
+.maps .tips .map-stat-label {
   white-space: nowrap;
 }
-.maps .tips2 {
-  width: 100%;
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  background-color: rgba(134, 153, 175, 0.7);
-  padding: 4px 10px 4px 10px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-.maps .tips1 .item,
-.maps .tips2 .item {
-  display: flex;
-  align-items: center;
-  font-size: 10px;
-  color: #fff;
-  margin-left: 0;
-}
-.maps .tips2 .item {
-  cursor: pointer;
-}
-.maps .tips1 .item .color,
-.maps .tips2 .item .color {
-  margin-left: 6px;
+.maps .tips .map-stat-num {
+  width: 28px;
+  padding-left: 0;
+  box-sizing: border-box;
 }
 .userEcharts {
   width: 33%;
@@ -3596,16 +3632,15 @@ a {
 
 /*项目选择 */
 .project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5vw;
 }
 .project-item {
-  margin: 0;
   position: relative;
   z-index: 1;
-  width: 11.2vw;
+  width: 100%;
+  box-sizing: border-box;
   padding-bottom: 20px;
   z-index: 0;
   transition: all 0s;
@@ -3613,7 +3648,8 @@ a {
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  margin: 0.5vw;
+  margin: 0;
+  text-align: left;
   box-shadow: 3px 3px 4px -2px #d6d6d6;
 }
 
@@ -3668,29 +3704,36 @@ a {
 }
 .item-info {
   display: flex;
-  margin-top: 14px;
-  justify-self: start;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 14px 0 0;
+  text-align: left;
 }
 .item-info .key {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 0 10px;
   white-space: nowrap;
+  text-align: left;
 }
 .item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
+  text-align: left;
 }
 .item-info .value {
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
+  align-items: flex-start;
+  margin: 0 0 0 5px;
+  min-width: 0;
+  text-align: left;
 }
 .item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
+  margin: 4px 0 0;
   color: #2d2d2d;
   text-align: left;
 }
@@ -3806,20 +3849,132 @@ a {
 .main_box {
   height: 100%;
   width: 100%;
+  margin: 0 !important;
 }
 .asi {
   width: 100%;
   height: 100%;
+  margin: 0 !important;
 }
 
 main.el-main {
-  padding: 0;
-  padding-top: 0px !important;
-  padding-left: 15px !important;
-  padding-bottom: 30px !important;
+  margin: 0 !important;
+  /* 底部让出 App.vue 中 position: fixed 的 .changeLanguage 页脚（高 30px） */
+  padding: 12px 12px 42px 15px !important;
+  box-sizing: border-box;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-width: none;
+}
+
+// 首页一屏布局：指标卡按内容高度，地图行与统计行按比例分剩余高度；
+// 内容区低于 min-height 时才出现滚动，避免过矮屏幕把图表挤坏
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 15fr) minmax(0, 9fr);
+  grid-template-rows: auto minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-areas:
+    "cards device"
+    "map device"
+    "bottom bottom";
+  gap: 12px;
+  height: 100%;
+  min-height: 560px;
+  box-sizing: border-box;
+}
+
+// 抵消 App.vue 全局 * { margin: 0 auto }，否则网格项会收缩成内容宽度
+.home-grid > *,
+.home-cards > *,
+.home-bottom > *,
+.home-device > * {
+  margin: 0 !important;
+  min-width: 0;
+}
+
+.home-cards {
+  grid-area: cards;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 0;
+
+  .card-panel-col {
+    margin-bottom: 0;
+  }
+
+  .card-panel {
+    height: 100%;
+  }
+}
+
+.home-card-value {
+  color: #676767;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-device {
+  grid-area: device;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.home-device-card {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.home-device-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.home-device .count {
+  flex: 0 0 auto;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
+}
+
+.home-map {
+  grid-area: map;
+  min-height: 0;
+}
+
+.home-bottom {
+  grid-area: bottom;
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 8fr) minmax(0, 9fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.home-bottom-item {
+  min-height: 0;
+  height: 100%;
+}
+
+// 窄屏不再强求一屏：改为单列纵向排布，允许滚动。
+// 高度用 vh：px 会被 pxtorem 按窗口宽度缩小，窄屏下各块会过矮
+@media (max-width: 1100px) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 60vh 50vh auto;
+    grid-template-areas:
+      "cards"
+      "device"
+      "map"
+      "bottom";
+    height: auto;
+  }
+
+  .home-bottom {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 45vh;
+  }
 }
 .el-main::-webkit-scrollbar {
   display: none;
@@ -3892,7 +4047,7 @@ main.el-main {
   text-align: center;
   white-space: nowrap;
   vertical-align: baseline;
-  border-radius: 0.25rem;
+  border-radius: 4px;
   -webkit-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
@@ -3919,7 +4074,7 @@ h4.mb-0 {
   background-color: #fff;
   background-clip: border-box;
   border: 1px solid #dfe2e6;
-  border-radius: 0.5rem;
+  border-radius: 8px;
 }
 .card-group-row__card {
   flex: 1 0 0;
@@ -3964,28 +4119,152 @@ h4.mb-0 {
   max-width: 100%;
 }
 
->>> .el-card__body {
+:deep(.el-card__body) {
   height: calc(100% - 50px);
   padding-top: 0;
 }
 
->>> .el-card__header {
+:deep(.el-card__header) {
   padding-top: 8px;
   padding-bottom: 8px;
+  text-align: left !important;
+}
+.home-stat-card {
+  text-align: left !important;
+}
+.home-stat-card :deep(.el-card__header),
+.home-stat-card :deep(.el-card__body),
+.home-stat-card :deep(.member),
+.home-stat-card :deep(.home-chart-carousel),
+.home-stat-card :deep(.el-carousel),
+.home-stat-card :deep(.el-carousel__container),
+.home-stat-card :deep(.el-carousel__item),
+.home-stat-card :deep(.home-chart),
+.home-stat-card :deep(.home-chart-polar),
+.home-stat-card :deep(.polar-stats),
+.home-stat-card :deep(.el-breadcrumb),
+.home-stat-card :deep(.home-card-title) {
+  /* 覆盖 App.vue 全局 * { margin: 0 auto }，否则标题居中、内容被挤成窄条 */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.home-stat-card :deep(.el-card__header) {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center;
+  text-align: left !important;
+}
+.home-stat-card :deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: calc(100% - 50px) !important;
+  padding: 8px 12px 12px !important;
+  box-sizing: border-box;
+  width: 100% !important;
+}
+.home-card-title {
+  width: 100%;
+  text-align: left !important;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.home-card-title-polar {
+  gap: 6px;
+}
+.home-card-title > span {
+  margin: 0 !important;
+}
+.home-card-title :deep(.el-breadcrumb) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  font-weight: 600;
+}
+.home-card-title :deep(.el-breadcrumb__item) {
+  float: none;
+}
+.home-card-help {
+  margin-left: 4px !important;
+  cursor: help;
 }
 .count {
-  padding: 22px;
+  position: relative;
+  padding: 18px 8px;
   background-color: #fff;
   border-radius: 5px;
   display: flex;
+  overflow: hidden;
+}
+.count::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2f7bff, #22d3ee 35%, #34d399 65%, #8b5cf6);
 }
 .count-item {
-  border-right: 1px #ccc solid;
+  --count-color: #2f7bff;
+  position: relative;
   width: 25%;
+  padding: 4px 0;
+  border-radius: 8px;
+  transition: background-color 0.25s, transform 0.25s;
 }
-
-.count .count-item:last-child {
-  border-right: 0;
+.count-item + .count-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(203, 213, 225, 0), #cbd5e1, rgba(203, 213, 225, 0));
+}
+.count-item:hover {
+  background-color: rgba(148, 163, 184, 0.08);
+  transform: translateY(-2px);
+}
+.count-item--online {
+  --count-color: #10b981;
+}
+.count-item--offline {
+  --count-color: #f59e0b;
+}
+.count-item--unknown {
+  --count-color: #94a3b8;
+}
+/* .norem：字号保持原内联样式的固定 px，不随 pxtorem 缩小 */
+.count.norem .count-item :deep(.card-panel-num) {
+  display: block;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--count-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
+  text-shadow: 0 2px 10px color-mix(in srgb, var(--count-color) 30%, transparent);
+}
+.count.norem .count-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+.count-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--count-color);
+  box-shadow: 0 0 6px var(--count-color);
+  margin: 0 !important;
 }
 .el-container {
   color: #515a6e;
@@ -3997,15 +4276,210 @@ h4.mb-0 {
 .member {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 100% !important;
+  flex: 1;
+  min-height: 0;
   height: 100%;
-  align-items: center;
+  align-items: stretch;
 }
 .member .add {
   margin-top: 12px;
+  flex: 0 0 auto;
 }
 #main6 {
-  margin-top: -9%;
+  margin-top: 4px !important;
+  flex: 1;
+  min-height: 0;
+}
+.home-chart,
+.home-chart-polar {
+  width: 100% !important;
+}
+.home-chart-fill {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: 100% !important;
+}
+.home-chart-carousel {
+  flex: 1;
+  min-height: 0;
+  width: 100% !important;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.home-chart-carousel :deep(.el-carousel) {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+}
+.home-chart-carousel :deep(.el-carousel__container) {
+  height: calc(100% - 24px) !important;
+}
+.home-chart-carousel :deep(.el-carousel__item) {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 6px 8px;
+  box-sizing: border-box;
+}
+.polar-tile--1 {
+  --polar-c1: #2f7bff;
+  --polar-c2: #22d3ee;
+  --polar-rgb: 47, 123, 255;
+}
+.polar-tile--2 {
+  --polar-c1: #8b5cf6;
+  --polar-c2: #ec4899;
+  --polar-rgb: 139, 92, 246;
+}
+.polar-tile--3 {
+  --polar-c1: #059669;
+  --polar-c2: #34d399;
+  --polar-rgb: 5, 150, 105;
+}
+.home-chart-carousel :deep(.el-carousel__item.polar-tile) {
+  border-radius: 12px;
+  border: 1px solid rgba(var(--polar-rgb), 0.18);
+  background: radial-gradient(
+      120% 80% at 50% 0%,
+      rgba(var(--polar-rgb), 0.1) 0%,
+      rgba(var(--polar-rgb), 0) 60%
+    ),
+    linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  transition: box-shadow 0.3s, border-color 0.3s, transform 0.4s ease-in-out;
+}
+.home-chart-carousel :deep(.el-carousel__item.polar-tile.is-active) {
+  border-color: rgba(var(--polar-rgb), 0.4);
+  box-shadow: 0 6px 20px rgba(var(--polar-rgb), 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+.polar-gauge {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  margin: 0 !important;
+  /* 让光环用 cqmin 按图表短边取尺寸，与 ECharts 按 min(宽,高) 算半径一致 */
+  container-type: size;
+}
+.polar-gauge::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70cqmin;
+  height: 70cqmin;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(var(--polar-rgb), 0.14) 0%,
+    rgba(var(--polar-rgb), 0) 70%
+  );
+  pointer-events: none;
+}
+.polar-orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 97cqmin;
+  height: 97cqmin;
+  margin: 0 !important;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    rgba(var(--polar-rgb), 0) 0deg,
+    rgba(var(--polar-rgb), 0) 220deg,
+    var(--polar-c2) 340deg,
+    var(--polar-c1) 360deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  opacity: 0.25;
+  pointer-events: none;
+}
+.home-chart-carousel :deep(.el-carousel__item.is-active) .polar-orbit {
+  opacity: 0.9;
+  animation: polar-orbit-spin 3.6s linear infinite;
+}
+@keyframes polar-orbit-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-chart-carousel :deep(.el-carousel__item.is-active) .polar-orbit {
+    animation: none;
+  }
+}
+.home-chart-polar {
+  position: relative;
+  z-index: 1;
+  width: 100% !important;
+  min-height: 0 !important;
+}
+.polar-stats {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 26px;
+  margin: 0 !important;
+  font-size: 12px;
+  color: #8a94a6;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.polar-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 !important;
+  line-height: 1;
+}
+.polar-stat b {
+  font-size: 14px;
+  font-weight: 700;
+  color: #303a4b;
+  font-family: "DIN Alternate", Arial, sans-serif;
+}
+.polar-stat i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 2px 0 0 !important;
+}
+.polar-stat--online,
+.polar-stat--offline {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.polar-stat--online i {
+  background: var(--polar-c1);
+  box-shadow: 0 0 6px var(--polar-c1);
+}
+.polar-stat--online b {
+  color: var(--polar-c1);
+}
+.polar-stat--offline i {
+  background: #c0c6d0;
+}
+.polar-stat--online:hover,
+.polar-stat--offline:hover {
+  color: var(--polar-c1);
+}
+.box-card2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100% !important;
 }
 
 // ======================================================================================
@@ -4038,16 +4512,16 @@ h4.mb-0 {
   flex-wrap: wrap;
 }
 [dir] .pb-4 {
-  padding-bottom: 1rem !important;
+  padding-bottom: 16px !important;
 }
 
 [dir="ltr"] .px-8 {
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
 }
 
 [dir] .mt-2 {
-  margin-top: 0.5rem !important;
+  margin-top: 8px !important;
 }
 
 .justify-between {
@@ -4090,7 +4564,117 @@ h4.mb-0 {
 
 #warningweekdatas {
   width: 100%;
-  height: 500px;
+  height: 340px;
+}
+.ww-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+.ww-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  margin: 0 !important;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+}
+.ww-header-text {
+  margin: 0 !important;
+  min-width: 0;
+}
+.ww-title {
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.3;
+}
+.ww-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0 !important;
+  font-size: 12px;
+  color: #8a94a6;
+}
+.ww-type {
+  margin: 0 !important;
+  padding: 1px 8px;
+  border-radius: 10px;
+  color: #dc2626;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.1);
+}
+.ww-range {
+  margin: 0 !important;
+}
+.ww-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px !important;
+}
+.ww-stat {
+  --ww-color: #2f7bff;
+  --ww-rgb: 47, 123, 255;
+  position: relative;
+  margin: 0 !important;
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-align: left;
+  overflow: hidden;
+  border: 1px solid rgba(var(--ww-rgb), 0.16);
+  background: linear-gradient(135deg, rgba(var(--ww-rgb), 0.1), rgba(var(--ww-rgb), 0.02));
+}
+.ww-stat::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(var(--ww-rgb), 0.08);
+}
+.ww-stat--open {
+  --ww-color: #dc2626;
+  --ww-rgb: 239, 68, 68;
+}
+.ww-stat--total {
+  --ww-color: #475569;
+  --ww-rgb: 100, 116, 139;
+}
+.ww-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  font-size: 12px;
+  color: #64748b;
+}
+.ww-stat-label i {
+  width: 6px;
+  height: 6px;
+  margin: 0 !important;
+  border-radius: 50%;
+  background: var(--ww-color);
+  box-shadow: 0 0 6px var(--ww-color);
+}
+.ww-stat b {
+  display: block;
+  margin-top: 4px;
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--ww-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
 }
 .el-carousel {
   height: 100%;
@@ -4100,31 +4684,319 @@ h4.mb-0 {
 .el-carousel__indicator--horizontal {
   padding: 0 !important;
 }
-.soscard >>> .el-card__body {
+.soscard :deep(.el-card__body) {
   padding: 0px !important;
 }
-.sostable >>> .cell {
+.sostable :deep(.cell) {
   text-overflow: clip !important;
 }
-.sostable >>> .el-table__row td {
+.sostable :deep(.el-table__row td) {
   padding: 2px !important;
-}
-.dialog_box >>> .el-dialog__header {
-  display: flex;
-  justify-content: center;
 }
 .dialog-title {
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 .title-text {
-  font-size: 18px;
-  line-height: 24px;
-  margin-right: 0;
+  margin: 0 !important;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: #0f172a;
 }
 .title-tips {
-  font-size: 130%;
-  line-height: 24px;
-  margin-left: 5px;
+  margin: 0 0 0 6px !important;
+  font-size: 15px;
+  color: #94a3b8;
+  cursor: help;
+}
+.ranking-table .ranking-medal {
+  display: block;
+  width: 26px;
+  height: 26px;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+// ===================== 首页卡片统一视觉 =====================
+.home-grid .el-card,
+.home-grid .count,
+.home-cards .card-panel {
+  border: 1px solid #eef1f6;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.home-grid .el-card:hover,
+.home-grid .count:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.09) !important;
+}
+.home-grid :deep(.el-card__header) {
+  position: relative;
+  padding-left: 26px;
+  border-bottom-color: #f1f4f8;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+}
+.home-grid :deep(.el-card__header)::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, #22d3ee, #2f7bff);
+  box-shadow: 0 0 6px rgba(47, 123, 255, 0.45);
+}
+
+// 顶部三张指标卡
+.home-cards .card-panel {
+  --panel-c1: #2f7bff;
+  --panel-c2: #22d3ee;
+  --panel-rgb: 47, 123, 255;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(
+      90% 120% at 100% 0%,
+      rgba(var(--panel-rgb), 0.1) 0%,
+      rgba(var(--panel-rgb), 0) 55%
+    ),
+    #fff;
+}
+.home-cards .card-panel > .card-body {
+  width: 100%;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+.home-cards .card-panel .media-body {
+  margin: 0 !important;
+}
+.home-cards .card-panel--2 {
+  --panel-c1: #8b5cf6;
+  --panel-c2: #ec4899;
+  --panel-rgb: 139, 92, 246;
+}
+.home-cards .card-panel--3 {
+  --panel-c1: #059669;
+  --panel-c2: #34d399;
+  --panel-rgb: 16, 185, 129;
+}
+.home-cards .card-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(var(--panel-rgb), 0.16) !important;
+}
+.home-cards .card-panel .media-body p {
+  color: #8a94a6;
+}
+.home-cards .card-panel .home-card-value {
+  color: #1f2937;
+  font-weight: 700;
+}
+.home-cards .card-panel .card-panel-icon-wrapper,
+.home-cards .card-panel:hover .card-panel-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--panel-c2), var(--panel-c1));
+  box-shadow: 0 6px 14px rgba(var(--panel-rgb), 0.35);
+}
+.home-cards .card-panel:hover .card-panel-icon-wrapper {
+  transform: scale(1.06) rotate(-4deg);
+}
+.home-cards .card-panel .card-panel-icon {
+  font-size: 32px;
+  color: #fff;
+}
+.home-cards .card-panel .icon,
+.home-cards .card-panel:hover .icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 !important;
+  background-color: #fff;
+}
+.home-cards .card-panel .border-top {
+  margin-top: auto;
+  border-top-color: rgba(var(--panel-rgb), 0.1) !important;
+}
+.home-cards .badge-soft-success {
+  position: relative;
+  padding-left: 14px;
+}
+.home-cards .badge-soft-success::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: #1cbb8c;
+  animation: home-live-pulse 1.6s ease-out infinite;
+}
+@keyframes home-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(28, 187, 140, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 6px rgba(28, 187, 140, 0);
+  }
+}
+.card-panel-rank {
+  float: right;
+}
+.card-panel-rank a {
+  color: var(--panel-c1);
+  font-weight: 600;
+  cursor: pointer;
+}
+.card-panel-rank a::after {
+  content: " ›";
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.card-panel-rank a:hover::after {
+  transform: translateX(3px);
+}
+
+// 告警类型表格
+.sostable {
+  --el-table-border-color: #f1f4f8;
+  --el-table-header-bg-color: #f6f8fb;
+  --el-table-row-hover-bg-color: #f3f7ff;
+}
+.sostable :deep(th.el-table__cell) {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 12px;
+}
+.sostable :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+.warn-num {
+  display: inline-block;
+  min-width: 22px;
+  padding: 0 7px;
+  border-radius: 10px;
+  line-height: 18px;
+  font-weight: 700;
+  font-family: "DIN Alternate", Arial, sans-serif;
+  transition: transform 0.2s;
+}
+.warn-num--open {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2) inset;
+}
+.warn-num--closed {
+  color: #2f7bff;
+  background: rgba(47, 123, 255, 0.1);
+}
+.warn-num--zero {
+  color: #b6bfcc;
+}
+.sostable :deep(.cell-point) {
+  cursor: pointer;
+}
+.sostable :deep(.cell-point:hover) .warn-num {
+  transform: scale(1.12);
+}
+.sostable .editss {
+  height: 22px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+// 考勤统计
+.atten-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px !important;
+  font-size: 12px;
+  color: #64748b;
+}
+.atten-today {
+  margin: 0 !important;
+  font-weight: 600;
+}
+.atten-chip {
+  --chip-color: #2f7bff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(47, 123, 255, 0.08);
+}
+.atten-chip--no {
+  --chip-color: #64748b;
+  background: rgba(148, 163, 184, 0.14);
+}
+.atten-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 !important;
+  background: var(--chip-color);
+}
+.atten-chip b {
+  font-size: 16px;
+  color: var(--chip-color);
+  font-family: "DIN Alternate", Arial, sans-serif;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-cards .badge-soft-success::before {
+    animation: none;
+  }
+}
+</style>
+
+<style lang="scss">
+/* 非 scoped：确保压过 #app { text-align:center } 与 * { margin:0 auto } */
+.home-stat-card .el-card__header,
+.home-stat-card .home-card-title {
+  text-align: left !important;
+}
+.home-stat-card .el-card__body,
+.home-stat-card .member,
+.home-stat-card #main7,
+.home-stat-card #main0,
+.home-stat-card .el-carousel {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 告警统计弹框：el-dialog 被 teleport 到 body，scoped 样式作用不到外框 */
+.el-dialog.warn-week-dialog {
+  max-width: 92vw;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 0;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+}
+.el-dialog.warn-week-dialog .el-dialog__header {
+  margin: 0;
+  padding: 18px 48px 16px 20px;
+  border-bottom: 1px solid #f1f4f8;
+  background: radial-gradient(120% 140% at 0% 0%, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0) 60%),
+    #fff;
+}
+.el-dialog.warn-week-dialog .el-dialog__headerbtn {
+  top: 14px;
+  right: 12px;
+}
+.el-dialog.warn-week-dialog .el-dialog__body {
+  padding: 18px 20px 20px;
 }
 </style>

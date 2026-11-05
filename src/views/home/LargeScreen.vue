@@ -7,7 +7,18 @@
       </div>
       <div class="return" @click="brk">返回</div>
     </div>
-    <div id="mapback"></div>
+    <div id="mapback" ref="mapback"></div>
+    <!-- 地形底图转成与标准图一致的深蓝色调：先去色，再按亮度反向映射到深蓝色板（亮处变深） -->
+    <svg class="map-tone-defs" aria-hidden="true">
+      <filter id="lsMapToneTer" color-interpolation-filters="sRGB">
+        <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncR type="table" tableValues="0.12 0.04 0 0 0" />
+          <feFuncG type="table" tableValues="0.4 0.22 0.12 0.07 0.04" />
+          <feFuncB type="table" tableValues="0.58 0.4 0.28 0.2 0.12" />
+        </feComponentTransfer>
+      </filter>
+    </svg>
     <div class="frameBox">
       <div class="bottom">
         <div class="frame1">
@@ -22,12 +33,13 @@
               </p>
               <div class="ultitle">
                 <el-table
+                  class="screen-floor-table"
                   :data="tableData"
                   row-key="rowKey"
                   default-expand-all
                   :fit="true"
                   :tree-props="{ children: 'children' }"
-                  style="width: 100%; background: transparent"
+                  style="width: 100%"
                   :cell-style="tableCellStyle"
                   :header-cell-style="tableHeaderStyle"
                 >
@@ -235,6 +247,7 @@ import {
   getFristPageUserMapUtil,
   getBuildingByProjectid,getFenceManageAndPointList
 } from "../../axios/api";
+import { markRaw } from "vue";
 //地图
 import "ol/ol.css";
 import { Map, View } from "ol";
@@ -248,7 +261,7 @@ import OlStyleStyle from "ol/style/Style";
 import OlStyleIcon from "ol/style/Icon";
 import Text from "ol/style/Text";
 import Fill from "ol/style/Fill";
-import * as echarts from "echarts";
+import echarts from "../../utils/echartsLegacy";
 import DoubleClickZoom from "ol/interaction/DoubleClickZoom"; //鼠标双击放大
 import DragPan from "ol/interaction/DragPan";
 import MouseWheelZoom from "ol/interaction/MouseWheelZoom";
@@ -354,8 +367,9 @@ export default {
   },
   mounted() {
     this.getTime();
-    this.outdoorBaseLayers = createOutdoorBaseLayers(
-      this.$store.state.i18n == "zh"
+    // OpenLayers 对象不能放进 Vue 响应式代理，否则图层渲染会异常
+    this.outdoorBaseLayers = markRaw(
+      createOutdoorBaseLayers(this.$store.state.i18n == "zh")
     );
 
     this.$nextTick(() => {
@@ -371,21 +385,35 @@ export default {
     this.btnClick(); //刚进页面进入大屏
 
     this.escape();
-    window.onresize = () => {
-      //控制Echarts的缩放渲染
-      return (() => {
-        this.screenWidth = document.body.clientWidth;
-      })();
+    this._onResize = () => {
+      this.screenWidth = document.body.clientWidth;
+      this.scheduleMapResize();
     };
+    window.addEventListener("resize", this._onResize);
     let ulscrollsArray = Array.from(document.querySelectorAll(".ultitle"));
     if (ulscrollsArray.length > 7) {
       ulscrollsArray.style.overflowY = "none";
     }
   },
   
-  beforeDestroy() {
+  beforeUnmount() {
+    this._unmounted = true;
+    if (this.map) {
+      this.map.setTarget(null);
+      this.map = null;
+    }
     clearInterval(this.timers);
     this.timers = null;
+    clearInterval(this.timerMap);
+    this.timerMap = null;
+    if (this._onFullscreenChange) {
+      window.removeEventListener("fullscreenchange", this._onFullscreenChange);
+      this._onFullscreenChange = null;
+    }
+    if (this._onResize) {
+      window.removeEventListener("resize", this._onResize);
+      this._onResize = null;
+    }
   },
   methods: {
     //获取楼栋信息
@@ -400,6 +428,7 @@ export default {
         this.tenantid_A,
         this.userName
       ).then((res) => {
+        if (that._unmounted) return;
         if (res.code == 1001) {
           that.mapInfos = res.data;
           if (that.map) {
@@ -440,16 +469,46 @@ export default {
       this.current = `${year}-${month}-${date}`;
     },
     brk() {
-      //返回到首页
-      this.$router.push("/dashboard");
+      if (this._leavingLargeScreen) return;
+      this._leavingLargeScreen = true;
+      if (this._onFullscreenChange) {
+        window.removeEventListener("fullscreenchange", this._onFullscreenChange);
+        this._onFullscreenChange = null;
+      }
+      if (this._onResize) {
+        window.removeEventListener("resize", this._onResize);
+        this._onResize = null;
+      }
+      const goHome = () => {
+        this.$router.push({ name: "HomeUser" }).catch(() => {
+          this.$router.push("/dashboard").catch(() => {});
+        });
+      };
+      const fs =
+        document.fullscreenElement || document.webkitFullscreenElement;
+      if (fs && document.exitFullscreen) {
+        document.exitFullscreen().then(goHome).catch(goHome);
+      } else if (fs && document.webkitExitFullscreen) {
+        try {
+          document.webkitExitFullscreen();
+        } catch (e) {}
+        this.$nextTick(goHome);
+      } else {
+        goHome();
+      }
       this.$store.state.largeScreen
         ? this.$store.commit("changeWarningDialog", true)
         : this.$store.commit("changeWarningDialog", false);
     },
     updateMap(map, info) {
       var that = this;
-      let LayerArrays = map.getLayers().getArray();
-      for (let i = 1; i < LayerArrays.length; i++) {
+      // 底图（天地图为底图+注记两层）、围栏层没有楼栋要素，只处理楼栋标注层
+      let LayerArrays = map.getLayers().getArray().filter((layer) => {
+        const source = layer.getSource && layer.getSource();
+        const features = source && source.getFeatures && source.getFeatures();
+        return features && features[0] && features[0].values_.building != null;
+      });
+      for (let i = 0; i < LayerArrays.length; i++) {
         info.forEach((item) => {
           if (
             item.building ==
@@ -514,27 +573,32 @@ export default {
     initUserMap() {
       var that = this;
 
-      that.vectorSource = new VectorSource();
-      this.seeLayer = [
+      that.vectorSource = markRaw(new VectorSource());
+      this.seeLayer = markRaw([
         ...that.outdoorBaseLayers,
         new VectorLayer({
           source: that.vectorSource,
         }),
-      ];
+      ]);
       if (that.mapInfos.length > 0) {
-        that.view = new View({
-          center: fromLonLat([that.longi, that.lati]),
-          zoom: that.$store.state.mapZoom,
-        });
+        that.view = markRaw(
+          new View({
+            center: fromLonLat([that.longi, that.lati]),
+            zoom: that.$store.state.mapZoom,
+          })
+        );
       } else {
-        that.view = new View({
-          center: fromLonLat(that.mapCenter),
-          zoom: 14,
-        });
+        that.view = markRaw(
+          new View({
+            center: fromLonLat(that.mapCenter),
+            zoom: 14,
+          })
+        );
       }
       setTimeout(() => {
-        that.map = new Map({
-          target: "mapback",
+        if (that._unmounted || that.map || !that.$refs.mapback) return;
+        that.map = markRaw(new Map({
+          target: that.$refs.mapback,
           layers: that.seeLayer,
           view: that.view,
           controls: defaultControls({
@@ -542,7 +606,8 @@ export default {
             rotate: false,
             attribution: false,
           }).extend([]),
-        });
+        }));
+        that.scheduleMapResize();
         that.map.getInteractions().forEach(function (interaction) {
           if (interaction instanceof DragPan) {
             interaction.setActive(false); // 禁止鼠标拖动
@@ -1208,77 +1273,134 @@ export default {
       ColumnEcharts3.setOption(ColumnOption3);
       ColumnEcharts3.resize();
     },
-    // 设备状态
+    // 设备状态：按 Vue2 大屏截图还原（环形扇区+引导线，不是 ECharts5 胶囊玫瑰图）
     setPie() {
-      var pieEcharts = this.$echarts.init(
-        document.getElementById("pieEcharts")
-      );
+      var pieEl = document.getElementById("pieEcharts");
+      if (!pieEl) return;
+      var exist = this.$echarts.getInstanceByDom(pieEl);
+      if (exist) {
+        try {
+          exist.dispose();
+        } catch (e) {}
+      }
+      var pieEcharts = this.$echarts.init(pieEl);
+      if (!pieEcharts) return;
 
+      var batLow = Number(this.devBatTimeNum && this.devBatTimeNum.bat_0_20) || 0;
+      var batMid = Number(this.devBatTimeNum && this.devBatTimeNum.bat_20_60) || 0;
+      var batHigh = Number(this.devBatTimeNum && this.devBatTimeNum.bat_60_100) || 0;
+      var inUse = Number(this.devTypeNum && this.devTypeNum.inuse_yes) || 0;
+      var notUse = Number(this.devTypeNum && this.devTypeNum.inuse_no) || 0;
+
+      // 与 Vue2 截图一致：外层按数值占角度的圆环（不要 roseType，ECharts5 的 rose+大圆角会变成分散胶囊）
       var pieEchartsOption = {
         legend: {
-          bottom: "16%",
-          itemWidth: 8, // 设置图例标记的宽度
-          itemHeight: 10, // 设置图例标记的高度
+          bottom: "18%",
+          left: "center",
+          itemWidth: 8,
+          itemHeight: 10,
+          itemGap: 14,
           textStyle: {
-            color: "white", // 字体颜色
+            color: "#ffffff",
+            fontSize: 12,
           },
+          data: ["电量<20%", "电量>20%", "电量>60%", "已使用", "未使用"],
         },
         series: [
           {
             name: "外层",
             type: "pie",
-            radius: ["30%", "60%"],
-            center: ["center", "40%"],
-            // roseType: "area",
-            roseType: "radius",
-
+            radius: ["34%", "60%"],
+            center: ["50%", "40%"],
+            avoidLabelOverlap: true,
+            label: {
+              show: true,
+              color: "#ffffff",
+              fontSize: 12,
+              formatter: "{b}",
+            },
+            labelLine: {
+              show: true,
+              length: 12,
+              length2: 8,
+              lineStyle: {
+                color: "rgba(255,255,255,0.55)",
+              },
+            },
             itemStyle: {
-              borderRadius: 100,
+              borderColor: "rgb(5, 22, 45)",
+              borderWidth: 3,
+            },
+            emphasis: {
+              scale: false,
             },
             data: [
               {
-                value: Number(this.devBatTimeNum.bat_0_20),
+                value: batLow,
                 name: "电量<20%",
                 itemStyle: { color: "#d72a14" },
+                label: { color: "#d72a14" },
+                labelLine: { lineStyle: { color: "#d72a14" } },
               },
               {
-                value: Number(this.devBatTimeNum.bat_20_60),
+                value: batMid,
                 name: "电量>20%",
                 itemStyle: { color: "#E1D95B" },
+                label: { color: "#E1D95B" },
+                labelLine: { lineStyle: { color: "#E1D95B" } },
               },
-
               {
-                value: Number(this.devBatTimeNum.bat_60_100),
+                value: batHigh,
                 name: "电量>60%",
                 itemStyle: { color: "#52ca52" },
+                label: { color: "#52ca52" },
+                labelLine: { lineStyle: { color: "#52ca52" } },
               },
             ],
           },
           {
             name: "内层",
             type: "pie",
-            radius: "40",
-            center: ["center", "40%"],
+            // 实心圆心，盖住外环空洞；接近 Vue2 的黄色中心
+            radius: "30%",
+            center: ["50%", "40%"],
+            z: 3,
+            label: {
+              show: true,
+              position: "inside",
+              formatter: "{b}",
+              fontSize: 12,
+              color: "#1b1b1b",
+            },
+            labelLine: { show: false },
             itemStyle: {
-              borderRadius: 100,
+              borderColor: "rgb(5, 22, 45)",
+              borderWidth: 2,
+            },
+            emphasis: {
+              scale: false,
             },
             data: [
               {
-                value: Number(this.devTypeNum.inuse_yes),
+                value: inUse,
                 name: "已使用",
-                itemStyle: { color: "yellow" },
+                itemStyle: { color: "#f0d24b" },
               },
               {
-                value: Number(this.devTypeNum.inuse_no),
+                value: notUse,
                 name: "未使用",
-                itemStyle: { color: "orange" },
+                itemStyle: { color: "#ff9b2f" },
               },
             ],
           },
         ],
       };
-      pieEcharts.setOption(pieEchartsOption);
-      pieEcharts.resize();
+      try {
+        pieEcharts.setOption(pieEchartsOption, true);
+        pieEcharts.resize();
+      } catch (e) {
+        console.warn(e);
+      }
     },
     // 信标状态
     setCylinder() {
@@ -1828,6 +1950,24 @@ export default {
               warn_status1_num: 0,
               warn_status2_num: 0,
             },
+            {
+              type: 1,
+              typestr: this.$t("warning.LowBatteryAlarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: this.$t("warning.HeartbeatAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              type: 1,
+              typestr: this.$t("warning.TemperatureAbnormal"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
           ];
           if (res.data.warnNumList && res.data.warnNumList.length > 0) {
             that.alarmData.forEach((item) => {
@@ -1997,26 +2137,25 @@ export default {
         false
       );
     },
-    escape() {
-      var that = this;
-      window.addEventListener("fullscreenchange", () => {
-        if (screenfull.isFullscreen == false) {
-          that.brk();
-        }
+    // OpenLayers 6 只在窗口 resize 时重算尺寸；进全屏（尤其 Mac 的全屏动画）期间容器尺寸会变化多次，补几次重算
+    scheduleMapResize() {
+      [0, 300, 800, 1500].forEach((ms) => {
+        setTimeout(() => {
+          if (!this._unmounted && this.map) {
+            this.map.updateSize();
+          }
+        }, ms);
       });
-      // document.addEventListener("keyup", function (event) {
-      //   console.log(event.key);
-      //   if (event.key == "Escape") {
-      //     event.preventDefault();
-      //     console.log("按下了Esc键");
-      //     that.brk();
-      //   }
-      // });
     },
-    // 销毁定时器
-    destroyed() {
-      clearInterval(this.timerMap);
-      this.timerMap = null;
+    escape() {
+      this._onFullscreenChange = () => {
+        if (screenfull.isFullscreen == false) {
+          this.brk();
+        } else {
+          this.scheduleMapResize();
+        }
+      };
+      window.addEventListener("fullscreenchange", this._onFullscreenChange);
     },
   },
 };
@@ -2078,9 +2217,27 @@ $border: 1px solid red;
   }
 }
 
-.LargeScreen >>> .baseLayerClass {
+// 标准矢量图 / OSM：反色成深蓝科技风
+.LargeScreen :deep(.baseLayerClass) {
   filter: grayscale(50%) sepia(45%) invert(100%) saturate(350%)
     hue-rotate(-46deg);
+}
+
+// 卫星是实景，反色会变成"底片"，只压暗以突出面板和文字
+.LargeScreen :deep(.baseLayerClass.baseLayer-img) {
+  filter: brightness(0.55) contrast(1.1) saturate(0.8);
+}
+
+// 地形用 SVG 双色调滤镜，整体色调与标准图一致
+.LargeScreen :deep(.baseLayerClass.baseLayer-ter) {
+  filter: url(#lsMapToneTer);
+}
+
+.map-tone-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .LargeScreen {
@@ -2207,62 +2364,75 @@ $border: 1px solid red;
                 background: rgb(56, 151, 234);
               }
 
-              .el-table >>> .has-gutter tr th {
-                background-color: #05162d;
-                color: white;
-                font-weight: bolder;
-                border: 0px;
-              }
-
-              .el-table >>> .has-gutter tr th .cell {
-                font-size: 18px;
-              }
-              .el-table >>> body .el-table th {
-                display: none !important;
-              }
-              .el-table,
-              .el-table >>> .el-table__header-wrapper,
-              .el-table >>> .el-table__body-wrapper,
-              .el-table >>> .el-table__body,
-              .el-table >>> tr {
-                background: transparent !important;
+              /* 大屏深色表格：覆盖 Element Plus 浅色默认与兼容层 */
+              :deep(.el-table) {
                 width: 100% !important;
-              }
-
-              .el-table >>> .el-table__header-wrapper,
-              .el-table >>> .el-table__body-wrapper {
-                overflow-x: hidden !important;
-              }
-
-              .el-table >>> .el-table__header,
-              .el-table >>> .el-table__body {
-                width: 100% !important;
-              }
-
-              .el-table >>> td {
-                border: none;
-              }
-
-              & >>> .el-table .cell {
-                color: #f1f1f1;
-              }
-
-              .el-table >>> .el-table__body tr > td,
-              .el-table >>> .el-table__body tr:hover > td,
-              .el-table >>> .el-table__body tr.hover-row > td,
-              .el-table >>> .el-table__body tr.current-row > td,
-              .el-table >>> .el-table__row,
-              .el-table >>> .el-table__row:hover,
-              .el-table >>> .el-table__row:hover td {
                 background: transparent !important;
+                color: #f1f1f1 !important;
+                --el-table-bg-color: transparent;
+                --el-table-tr-bg-color: transparent;
+                --el-table-header-bg-color: transparent;
+                --el-table-row-hover-bg-color: rgba(0, 187, 255, 0.12);
+                --el-table-border-color: transparent;
+                --el-table-text-color: #f1f1f1;
+                --el-table-header-text-color: #ffffff;
+                --el-fill-color-blank: transparent;
+              }
+
+              :deep(.el-table__inner-wrapper),
+              :deep(.el-table__header-wrapper),
+              :deep(.el-table__body-wrapper),
+              :deep(.el-table__body),
+              :deep(.el-table__header),
+              :deep(.el-table tr),
+              :deep(.el-table th.el-table__cell),
+              :deep(.el-table td.el-table__cell) {
+                background: transparent !important;
+                background-color: transparent !important;
+                border-color: transparent !important;
                 color: #f1f1f1 !important;
               }
 
-              .el-table >>> .el-table__expand-icon {
+              :deep(.el-table__header-wrapper),
+              :deep(.el-table__body-wrapper) {
+                overflow-x: hidden !important;
+                width: 100% !important;
+              }
+
+              :deep(.el-table__header),
+              :deep(.el-table__body) {
+                width: 100% !important;
+              }
+
+              :deep(.el-table th.el-table__cell) {
+                font-weight: bolder;
+                font-size: 18px;
+              }
+
+              :deep(.el-table th.el-table__cell .cell),
+              :deep(.el-table td.el-table__cell .cell) {
+                color: #f1f1f1 !important;
+              }
+
+              :deep(.el-table__body tr:hover > td.el-table__cell),
+              :deep(.el-table__body tr.hover-row > td.el-table__cell),
+              :deep(.el-table__body tr.current-row > td.el-table__cell) {
+                background: rgba(0, 187, 255, 0.12) !important;
+                color: #f1f1f1 !important;
+              }
+
+              :deep(.el-table__inner-wrapper::before),
+              :deep(.el-table::before),
+              :deep(.el-table__border-left-patch) {
+                background-color: transparent !important;
+                display: none !important;
+              }
+
+              :deep(.el-table__expand-icon) {
                 color: #8ec8ff;
               }
 
-              .el-table >>> .el-table__placeholder {
+              :deep(.el-table__placeholder) {
                 width: 16px;
               }
             }
@@ -2301,6 +2471,7 @@ $border: 1px solid red;
                 line-height: 20px;
                 font-size: 10px;
                 margin: 0;
+                text-align: left;
               }
 
               .num {
@@ -2336,6 +2507,24 @@ $border: 1px solid red;
               .num_box img {
                 width: 20px;
                 height: 20px;
+              }
+
+              /* 统计行固定布局：图标靠左、文字左对齐且各行起始一致、数值右对齐 */
+              .num_box {
+                justify-content: flex-start;
+                padding: 0 6px;
+                gap: 8px;
+
+                p:not(.num) {
+                  flex: 1;
+                  min-width: 0;
+                }
+
+                .num {
+                  flex: 0 0 auto;
+                  min-width: 16px;
+                  text-align: right;
+                }
               }
             }
 

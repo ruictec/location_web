@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu />
     </div>
@@ -8,14 +8,10 @@
         <el-aside v-if="contrForPrionum != 5"><Project /></el-aside>
         <el-main>
           <div
-            class="project_input"
-            style="display: flex; justify-content: space-between"
+            class="project_input floor-search-bar"
+            v-if="contrForPrionum == 3 || contrForPrionum == 4"
           >
-            <el-breadcrumb
-              separator="/"
-              style="margin-left: 0"
-              v-if="contrForPrionum == 3 || contrForPrionum == 4"
-            >
+            <el-breadcrumb separator="/">
               <el-breadcrumb-item :to="{ path: '/projectmanagement' }">{{
                 $t("index.projectmanagement")
               }}</el-breadcrumb-item>
@@ -24,14 +20,78 @@
                 $t("Breadcrumb.Floormanagement")
               }}</el-breadcrumb-item>
             </el-breadcrumb>
+            <div class="floor-search-row terminal-filter-flow page-panel" :class="filterLangClass">
+              <el-form :model="searchList" class="demo-form-inline floor-search-form terminal-filter-form">
+                <el-form-item :label="$t('floormanagement.Building')" class="terminal-filter-item">
+                  <el-select
+                    v-model="searchList.buildid"
+                    clearable
+                    filterable
+                    @change="selectGround"
+                    :placeholder="$t('floormanagement.text')"
+                  >
+                    <el-option
+                      v-for="item in buildingList"
+                      :key="item.id"
+                      :label="item.building"
+                      :value="item.id"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('floormanagement.floor1')" class="terminal-filter-item">
+                  <el-select
+                    v-model="searchList.ground"
+                    clearable
+                    filterable
+                    :placeholder="$t('floormanagement.text')"
+                  >
+                    <el-option
+                      v-for="item in groundList"
+                      :key="item.id"
+                      :label="item.ground"
+                      :value="item.ground"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('floormanagement.Floornumber')" class="terminal-filter-item">
+                  <el-input v-model="searchList.groundid"></el-input>
+                </el-form-item>
+                <el-form-item class="search-actions terminal-toolbar-item">
+                  <el-button type="primary" class="query" @click="searchInfo()">{{
+                    $t("floormanagement.search")
+                  }}</el-button>
+                  <el-button type="primary" class="reset" @click="clearBtn()">{{
+                    $t("floormanagement.reset")
+                  }}</el-button>
+                  <el-button type="primary" class="reset" @click="importExcel()">{{
+                    $t("terminal.import")
+                  }}</el-button>
+                  <el-button type="primary" class="reset" @click="exportExcel()">{{
+                    $t("terminal.export")
+                  }}</el-button>
+                  <el-button type="primary" class="reset" @click="exportExcelAll()">{{
+                    $t("terminal.exportAll")
+                  }}</el-button>
+                  <el-button type="primary" class="add" @click="addBuildings()">{{
+                    $t("floormanagement.Add")
+                  }}</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+          </div>
+          <div
+            class="terminal-filter-flow page-panel"
+            :class="filterLangClass"
+            v-else
+          >
             <el-form
               :model="searchList"
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap; margin-left: 2%"
+              class="demo-form-inline terminal-filter-form"
             >
               <el-form-item
                 :label="$t('floormanagement.Building')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.buildid"
@@ -50,7 +110,7 @@
               </el-form-item>
               <el-form-item
                 :label="$t('floormanagement.floor1')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-select
                   v-model="searchList.ground"
@@ -69,38 +129,26 @@
               </el-form-item>
               <el-form-item
                 :label="$t('floormanagement.Floornumber')"
-                style="display: flex; margin-right: 2%"
+                class="terminal-filter-item"
               >
                 <el-input v-model="searchList.groundid"></el-input>
               </el-form-item>
-              <el-form-item style="display: flex">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button type="primary" class="query" @click="searchInfo()">{{
                   $t("floormanagement.search")
                 }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("floormanagement.reset")
                 }}</el-button>
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="importExcel()"
-                  >{{ $t("terminal.import") }}</el-button
-                >
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="exportExcel()"
-                  >{{ $t("terminal.export") }}</el-button
-                >
-                <el-button
-                  type="primary"
-                  class="reset"
-                  style="margin-left: 0%"
-                  @click="exportExcelAll()"
-                  >{{ $t("terminal.exportAll") }}</el-button
-                >
+                <el-button type="primary" class="reset" @click="importExcel()">{{
+                  $t("terminal.import")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="exportExcel()">{{
+                  $t("terminal.export")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="exportExcelAll()">{{
+                  $t("terminal.exportAll")
+                }}</el-button>
                 <el-button type="primary" class="add" @click="addBuildings()">{{
                   $t("floormanagement.Add")
                 }}</el-button>
@@ -144,17 +192,18 @@
                 @change="importExcels"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
               @selection-change="handleSelectionChange"
             >
@@ -175,7 +224,7 @@
                 min-width="77"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.floor")
                   }}</span>
@@ -185,12 +234,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.text1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="name"
                 :label="$t('floormanagement.floorName')"
@@ -203,7 +251,7 @@
                 show-overflow-tooltip
                 min-width="77"
                 align="center"
-                ><template slot="header" slot-scope="scope">
+                ><template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.floornumber")
                   }}</span>
@@ -213,12 +261,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.text2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
 
               <el-table-column
                 property="mapname"
@@ -227,7 +274,7 @@
                 min-width="77"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.mapname")
                   }}</span>
@@ -237,12 +284,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.text3") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <!-- 正向项目 -->
               <el-table-column
                 property="nums"
@@ -252,7 +298,7 @@
                 align="center"
                 v-if="intoProjectType == 1"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.EquipmentQuantity")
                   }}</span>
@@ -262,14 +308,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("floormanagement.text4") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="bclocknum"
                 :label="$t('floormanagement.Numberofpunchpoints')"
@@ -277,7 +322,7 @@
                 min-width="80"
                 align="center"
                 v-if="intoProjectType == 1"
-                ><template slot="header" slot-scope="scope">
+                ><template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.Numberofpunchpoints")
                   }}</span>
@@ -287,12 +332,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.text5") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <!-- 反向项目 -->
               <el-table-column
                 property="gwnum"
@@ -302,7 +346,7 @@
                 align="center"
                 v-if="intoProjectType == 2"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.EquipmentQuantity")
                   }}</span>
@@ -312,14 +356,13 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("floormanagement.text4") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="gwclocknum"
                 :label="$t('floormanagement.Numberofpunchpoints')"
@@ -327,7 +370,7 @@
                 min-width="80"
                 align="center"
                 v-if="intoProjectType == 2"
-                ><template slot="header" slot-scope="scope">
+                ><template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("floormanagement.Numberofpunchpoints")
                   }}</span>
@@ -337,12 +380,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.text5") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
-                  </el-tooltip> </template
-              ></el-table-column>
+                  </el-tooltip> </template></el-table-column>
               <el-table-column
                 property="memo"
                 :label="$t('floormanagement.Remark')"
@@ -352,12 +394,14 @@
               ></el-table-column>
               <el-table-column
                 fixed="right"
+                class-name="operation"
                 :label="$t('floormanagement.operate')"
                 min-width="150"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -368,8 +412,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -379,24 +424,20 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="projectEdit(scope.row)"
-                          >{{ $t("floormanagement.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("floormanagement.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="delss"
                           @click="projectDele(scope.row)"
-                          >{{ $t("floormanagement.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("floormanagement.delete") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -404,12 +445,10 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="sendDevOtherAlarmMores('yes', scope.$index)"
-                          >{{ $t("otherDev.triggerAlarm") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("otherDev.triggerAlarm") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -417,13 +456,11 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="sendDevOtherAlarmMores('no', scope.$index)"
-                          >{{ $t("otherDev.cancelAlarm") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("otherDev.cancelAlarm") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -441,7 +478,8 @@
                     /></el-button>
                   </el-tooltip>
 
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -455,8 +493,9 @@
                         <i class="el-icon-download download"></i>
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -467,12 +506,10 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="exportExcelArea(scope.$index)"
-                          >{{ $t("terminal.exportArea") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.exportArea") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -480,12 +517,10 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="exportExcelPoint(scope.$index)"
-                          >{{ $t("floormanagement.Point") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("floormanagement.Point") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -493,16 +528,15 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="exportExcelNear(scope.$index)"
-                          >{{ $t("floormanagement.Near") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("floormanagement.Near") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
 
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -516,8 +550,9 @@
                         <i class="el-icon-upload2 upload"></i>
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -528,12 +563,10 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="importExcelArea()"
-                          >{{ $t("terminal.importArea") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("terminal.importArea") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -541,12 +574,10 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="importExcelPoint()"
-                          >{{ $t("floormanagement.Point") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("floormanagement.Point") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
@@ -554,26 +585,21 @@
                         "
                       >
                         <el-button
-                          size="mini"
+                          size="small"
                           class="editss"
                           @click="importExcelNear()"
-                          >{{ $t("floormanagement.Near") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("floormanagement.Near") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                 </template>
               </el-table-column>
             </el-table>
             <!--分页效果-->
-            <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
-            >
+            <div class="block device-pagination">
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -581,14 +607,16 @@
               >
               </el-pagination>
             </div>
+            </div>
           </div>
           <!-- 添加建筑信息 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('floormanagement.text7')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="520px"
+            v-model="add"
             @close="addCancel('addData')"
+            align-center
           >
             <el-form
               :model="addData"
@@ -633,7 +661,7 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>
                       {{ $t("floormanagement.tet") }}<br />
                       {{ $t("floormanagement.tet1") }}<br />
@@ -641,7 +669,7 @@
                       {{ $t("floormanagement.tet3") }}<br />
                       {{ $t("floormanagement.tet4") }}
                     </p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -672,9 +700,9 @@
                     margin-left: 5px;
                   "
                 >
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("floormanagement.tet5") }}<br /></p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
               </el-form-item>
@@ -687,7 +715,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -695,17 +723,16 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 编辑建筑 -->
           <el-dialog
             :title="$t('floormanagement.text11')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="editData"
@@ -757,7 +784,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(edit = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -765,17 +792,16 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 删除 -->
           <el-dialog
             :title="$t('floormanagement.text12')"
-            :visible.sync="deletes"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="deletes"
+            class="edit device-dialog"
+            width="520px"
+            align-center
           >
             <el-form
               :model="deleteData"
@@ -820,7 +846,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deletes = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -828,9 +854,8 @@
                 type="primary"
                 @click="delTrue('deleteData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <Arrange2dMap
@@ -850,6 +875,7 @@
 </template>
 
 <script>
+import * as XLSX from "xlsx";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
@@ -981,6 +1007,12 @@ export default {
       );
     },
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     // 导入
     importExcelNear() {
@@ -1017,7 +1049,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1085,7 +1116,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1152,7 +1182,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1219,7 +1248,6 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1539,8 +1567,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1751,8 +1778,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1811,8 +1837,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -1871,8 +1896,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         //表头
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
@@ -2133,6 +2157,10 @@ export default {
           : this.$t("otherDev.cancelAlarmtrue"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -2221,17 +2249,16 @@ export default {
     //布置
     arrangeMap(index, scope) {
       var that = this;
-      // this.dobuleClick = true;
       if (this.tableData[index].maptype == 1) {
         that.arrange2d = true;
-        setTimeout(() => {
-          that.$refs.arrange2dmap.arrangeMaps(this.tableData[index], scope);
-        }, 1);
+        that.$nextTick(() => {
+          that.$refs.arrange2dmap?.arrangeMaps(this.tableData[index], scope);
+        });
       } else if (this.tableData[index].maptype == 2) {
         that.arrange3d = true;
-        setTimeout(() => {
-          that.$refs.arrange3dmap.arrangeMaps(this.tableData[index], scope);
-        }, 1);
+        that.$nextTick(() => {
+          that.$refs.arrange3dmap?.arrangeMaps(this.tableData[index], scope);
+        });
       }
     },
     getMsgFormSon2d(data) {
@@ -2378,6 +2405,7 @@ export default {
 }
 .home {
   height: 100%;
+  overflow-x: hidden;
 }
 .menu_header {
   position: relative;
@@ -2386,6 +2414,59 @@ export default {
   position: absolute;
   top: 70px;
   width: 99%;
+  overflow-x: hidden;
+}
+.el-main {
+  overflow-x: hidden;
+}
+.floor-search-bar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  overflow: hidden;
+}
+.floor-search-bar :deep(.el-breadcrumb) {
+  margin: 0 0 10px 2px !important;
+  align-self: flex-start;
+}
+.floor-search-row {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 12px 0 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  overflow: hidden;
+}
+.floor-search-row .floor-search-form,
+.floor-search-row :deep(.demo-form-inline) {
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.floor-search-row :deep(.el-form-item) {
+  margin: 0 !important;
+  margin-bottom: 8px !important;
+}
+.floor-search-row :deep(.el-form-item .el-form-item__content) {
+  gap: 8px;
+}
+.floor-search-row :deep(.el-form-item .el-select),
+.floor-search-row :deep(.el-form-item .el-input) {
+  min-width: 110px;
+}
+.floor-search-row :deep(.el-form-item .el-form-item__content .el-select__wrapper) {
+  min-width: 110px;
+}
+.floor-search-row :deep(.search-actions) {
+  margin-left: 8px !important;
 }
 .el-aside {
   margin-top: 50px;
@@ -2400,7 +2481,7 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .selects button {
@@ -2420,18 +2501,18 @@ export default {
   background-color: rgb(196, 27, 27);
   color: white;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
@@ -2440,30 +2521,248 @@ li {
   list-style: none;
   margin-top: 5px;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 a {
   text-decoration: none;
 }
 .el-form-item .el-button {
-  margin-left: 4px !important;
+  margin-left: 0 !important;
+}
+.floor-search-row .el-form-item .el-button + .el-button {
+  margin-left: 0 !important;
 }
 .demo-form-inline {
   margin-right: 0;
 }
-.icon_button {
-  padding: 2px 16px !important;
+.content_project {
+  overflow-x: hidden;
 }
-.icon-control {
-  margin-top: 0px !important;
-  padding: 5px 16px 1px !important;
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
 }
-.download,
-.upload {
-  font-size: 24px !important;
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
 }
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

@@ -5,23 +5,21 @@
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
-        background-color="#252b3b"
-        text-color="#8c97aa"
         :unique-opened="false"
-        active-text-color="#458bff"
         :collapse-transition="false"
         mode="vertical"
         :router="true"
-        style="text-align: left"
+        class="sidebar-menu"
+        style="text-align: left; --el-menu-bg-color: #1e2433; --el-menu-text-color: #94a3b8; --el-menu-active-color: #2f7bff; --el-menu-hover-bg-color: rgba(47,123,255,0.14);"
       >
         <el-menu-item index="/dashboard">
           <i class="icon home"></i>
-          <span style="font-weight: 600">{{ $t("list.homepage") }}</span>
+          <span class="menu-label">{{ $t("list.homepage") }}</span>
         </el-menu-item>
-        <el-submenu ref="subMenu" index="/device" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/device">
+          <template #title>
             <i class="icon terminal"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.devicemanagement")
             }}</span>
           </template>
@@ -34,18 +32,21 @@
           }}</el-menu-item>
           <el-menu-item
             index="/device/security"
-            v-if="assetgw || aoagw || smoke || alertor || blesensor || camera"
-            >{{ $t("list.Securitymanagement") }}</el-menu-item
-          >
+            v-if="aoagw || smoke || alertor || blesensor || camera"
+            >{{ $t("list.Securitymanagement") }}</el-menu-item>
           <el-menu-item index="/device/gateway">{{
             $t("list.Basestationmanagement")
           }}</el-menu-item>
-        </el-submenu>
+          <el-menu-item
+            index="/device/audiorecording"
+            v-if="audio"
+            >{{ $t("list.Audiorecording") }}</el-menu-item>
+        </el-sub-menu>
 
-        <el-submenu ref="subMenu" index="/warning" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/warning">
+          <template #title>
             <i class="icon sos"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.alarmmanagement")
             }}</span>
           </template>
@@ -55,36 +56,34 @@
           <el-menu-item index="/warning/index">
             <span>{{ $t("list.Alarminformation") }}</span>
             <el-badge
+              v-if="Number(warningNum) > 0"
               :value="warningNum"
+              :hidden="Number(warningNum) <= 0"
               class="warningbox"
-              v-show="warningNum > 0"
             >
-            </el-badge
-          ></el-menu-item>
+            </el-badge></el-menu-item>
           <el-menu-item index="/warning/warningconfigper" v-if="alarmConfig">{{
             $t("list.Personwarning")
           }}</el-menu-item>
 
           <el-menu-item
             index="/warning/warningconfigasset"
-            v-show="intoProjectType == 2 && asset"
-            >{{ $t("list.Assetwarning") }}</el-menu-item
-          >
+            v-if="intoProjectType == 2 && asset"
+            >{{ $t("list.Assetwarning") }}</el-menu-item>
 
           <el-menu-item
             index="/warning/warningconfigtbox"
-            v-show="intoProjectType == 1 && tboxConfig"
-            >{{ $t("list.Vehiclewarning") }}</el-menu-item
-          >
+            v-if="intoProjectType == 1 && tboxConfig"
+            >{{ $t("list.Vehiclewarning") }}</el-menu-item>
           <el-menu-item index="/warning/warningconfig">{{
             $t("list.Alarmconfiguration")
           }}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
 
-        <el-submenu ref="subMenu" index="/staff" popper-append-to-body>
-          <template slot="title">
+        <el-sub-menu ref="subMenu" index="/staff">
+          <template #title>
             <i class="icon staff"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.Personnelmanagement")
             }}</span>
           </template>
@@ -97,20 +96,23 @@
           }}</el-menu-item>
           <el-menu-item
             index="/staff/tboxManagement"
-            v-show="intoProjectType == 1 && tbox"
-            >{{ $t("list.Vehiclemanagement") }}</el-menu-item
-          >
+            v-if="intoProjectType == 1 && tbox"
+            >{{ $t("list.Vehiclemanagement") }}</el-menu-item>
           <el-menu-item index="/staff/checkwork" v-if="attendance">{{
             $t("list.Attendancemanagement")
           }}</el-menu-item>
           <el-menu-item index="/staff/inspection" v-if="task">{{
             $t("list.Patrolmanagement")
           }}</el-menu-item>
-        </el-submenu>
-        <el-submenu ref="subMenu" index="/location" popper-append-to-body>
-          <template slot="title">
+          <el-menu-item
+            index="/staff/taskmanagement"
+            v-if="locateManage"
+            >{{ $t("list.Taskmanagement") }}</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu ref="subMenu" index="/location">
+          <template #title>
             <i class="icon location"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.Locationmanagement")
             }}</span>
           </template>
@@ -121,43 +123,42 @@
           <el-menu-item
             index="/location/buildingmanagement"
             v-if="maprio == 1"
-            >{{ $t("list.Buildingmanagement") }}</el-menu-item
-          >
+            >{{ $t("list.Buildingmanagement") }}</el-menu-item>
           <el-menu-item index="/location/floormanagement" v-if="maprio == 1">{{
             $t("list.Floormanagement")
           }}</el-menu-item>
           <el-menu-item index="/location/buildingdetails">{{
             $t("list.Floordetails")
           }}</el-menu-item>
-          <el-submenu index="outdoor" class="el-submenu2" v-if="outDoor">
-            <template slot="title">{{
-              $t("list.Outdoorpositioning")
-            }}</template>
-            <el-menu-item index="/location/outdoor/locationoutdoor">{{
-              $t("list.Locationquery")
-            }}</el-menu-item>
-            <el-menu-item index="/location/outdoor/historical">{{
-              $t("list.Historicaltrack")
-            }}</el-menu-item>
-          </el-submenu>
-          <el-submenu index="indoor" class="el-submenu2" v-if="inDoor">
-            <template slot="title">{{ $t("list.Indoorpositioning") }}</template>
-            <el-menu-item index="/location/indoor/locationindoor">{{
-              $t("list.Locationquery")
-            }}</el-menu-item>
-            <!-- <el-menu-item index="/location/indoor/historicaltrack">
-              {{ $t("list.Historicaltrack") }}
-            </el-menu-item> -->
-            <el-menu-item index="/location/indoor/historical">
-              {{ $t("list.Dataanalysis") }}
-            </el-menu-item>
-          </el-submenu>
+          <el-menu-item index="/location/historytrajectory">{{
+            $t("list.Historicaltrack")
+          }}</el-menu-item>
+          <!-- 室外定位：扁平为一级菜单（原「室外定位 > 定位查询」） -->
+          <el-menu-item
+            index="/location/outdoor/locationoutdoor"
+            v-if="outDoor"
+            >{{ $t("list.Outdoorpositioning") }}</el-menu-item>
+          <!-- 室外定位-历史轨迹：暂时下线，统一走「历史轨迹」页
+          <el-menu-item index="/location/outdoor/historical">{{
+            $t("list.Historicaltrack")
+          }}</el-menu-item>
+          -->
+          <!-- 室内定位：扁平为一级菜单（原「室内定位 > 定位查询」） -->
+          <el-menu-item
+            index="/location/indoor/locationindoor"
+            v-if="inDoor"
+            >{{ $t("list.Indoorpositioning") }}</el-menu-item>
+          <!-- 数据分析：从「室内定位」下提升为定位管理一级菜单 -->
+          <el-menu-item
+            index="/location/indoor/historical"
+            v-if="inDoor"
+            >{{ $t("list.Dataanalysis") }}</el-menu-item>
           <!-- <el-menu-item index="indoor3d">indoor3d</el-menu-item> -->
-        </el-submenu>
-        <el-submenu ref="subMenu" index="/user" popper-append-to-body>
-          <template slot="title">
+        </el-sub-menu>
+        <el-sub-menu ref="subMenu" index="/user">
+          <template #title>
             <i class="icon user"></i>
-            <span style="font-weight: 600">{{
+            <span class="menu-label">{{
               $t("list.systemmanagement")
             }}</span>
           </template>
@@ -168,7 +169,7 @@
           <el-menu-item index="/user/myorder">{{
             $t("list.Myworkorder")
           }}</el-menu-item>
-        </el-submenu>
+        </el-sub-menu>
       </el-menu>
     </el-scrollbar>
   </div>
@@ -184,7 +185,7 @@ export default {
     return {
       devgw: this.$store.state.functionParts.devgw,
       scanbeacon: this.$store.state.functionParts.scanbeacon,
-      assetgw: this.$store.state.functionParts.assetgw,
+      audio: this.$store.state.functionParts.audio,
       aoagw: this.$store.state.functionParts.aoagw,
       smoke: this.$store.state.functionParts.smoke,
       alertor: this.$store.state.functionParts.alertor,
@@ -197,6 +198,7 @@ export default {
       tbox: this.$store.state.functionParts.tbox,
       attendance: this.$store.state.functionParts.attendance,
       task: this.$store.state.functionParts.task,
+      locateManage: this.$store.state.functionParts.locateManage,
       inDoor: this.$store.state.functionParts.inDoor,
       outDoor: this.$store.state.functionParts.outDoor,
       maprio: this.$store.state.userInfo.maprio,
@@ -221,6 +223,9 @@ export default {
       if (meta.activeMenu) {
         return meta.activeMenu;
       }
+      if (path === "/dashboard" || path === "/dashboard/index") {
+        return "/dashboard";
+      }
       return path;
     },
     isCollapse() {
@@ -242,10 +247,12 @@ export default {
       this.tbox = val.tbox;
       this.attendance = val.attendance;
       this.task = val.task;
+      this.locateManage = val.locateManage;
       this.inDoor = val.inDoor;
       this.outDoor = val.outDoor;
-
-      this.assetgw = val.assetgw;
+      this.devgw = val.devgw;
+      this.scanbeacon = val.scanbeacon;
+      this.audio = val.audio;
       this.aoagw = val.aoagw;
       this.smoke = val.smoke;
       this.alertor = val.alertor;
@@ -259,31 +266,47 @@ export default {
 @import "../../style/variables.scss";
 @import "../../style/sidebar.scss";
 
+.menu-label {
+  margin: 0 !important;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 @media screen and (max-width: 1400px) {
-  >>> .el-submenu .el-submenu__title {
-    padding-left: 20px !important ;
+  :deep(.el-sub-menu .el-sub-menu__title) {
+    padding-left: 20px !important;
   }
 }
 
+.sidebar-menu :deep(.el-menu-item),
+.sidebar-menu :deep(.el-sub-menu__title) {
+  height: 46px;
+  line-height: 46px;
+  margin: 4px 10px !important;
+  border-radius: 10px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
 .el-menu-item {
-  padding-left: 20px !important;
-  padding-right: 20px !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
 }
-.el-submenu .el-menu-item {
+.el-sub-menu .el-menu-item {
+  padding-left: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+  margin: 2px 10px !important;
+  border-radius: 8px;
+}
+.el-submenu2 :deep(.el-sub-menu__title) {
   padding-left: 46px !important;
 }
-.el-submenu2 >>> .el-submenu__title {
-  padding-left: 46px !important;
-}
-.el-menu--popup-right-start .el-submenu2 >>> .el-submenu__title {
+.el-menu--popup-right-start .el-submenu2 :deep(.el-sub-menu__title) {
   padding-left: 20px !important;
 }
 .el-submenu2 .el-menu-item {
   padding-left: 60px !important;
 }
-// .el-submenu >>> .el-menu--popup-right-start{
-//   margin-left: 0 !important;
-// }
 .el-menu--popup-right-start .el-submenu2 .el-menu-item {
   padding-left: 20px !important;
 }
@@ -291,63 +314,81 @@ export default {
   .el-menu--popup-right-start
   .el-submenu2
   .el-menu-item.is-active {
-  padding-left: 20px !important ;
-}
-.el-menu-item.is-active {
-  border-left: 4px #458bff solid;
-  padding-left: 16px !important;
-  background-color: $menuHover !important;
-  transition: all 0.2s;
+  padding-left: 20px !important;
 }
 
-.el-submenu .el-menu-item.is-active {
-  border-left: 4px #458bff solid;
-  padding-left: 42px !important;
-  background-color: $menuHover !important;
-  transition: all 0.2s;
+.el-menu-item.is-active {
+  position: relative;
+  color: #fff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
+}
+.el-sub-menu .el-menu-item.is-active {
+  padding-left: 40px !important;
+  color: #fff !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
 }
 .el-submenu2 .el-menu-item.is-active {
-  border-left: 4px #458bff solid;
   padding-left: 56px !important;
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
+  box-shadow: inset 3px 0 0 #2f7bff;
+}
+.el-menu-item:hover {
   background-color: $menuHover !important;
-  transition: all 0.2s;
+  color: #e2e8f0 !important;
 }
-.el-menu-item {
-  &:hover {
-    // you can use $subMenuHover
-    background-color: $menuHover !important;
-  }
-}
->>> .el-submenu .el-submenu__title:hover {
+:deep(.el-sub-menu .el-sub-menu__title:hover) {
   background-color: $menuHover !important;
+  color: #e2e8f0 !important;
 }
->>> .is-active > .el-submenu__title {
+:deep(.is-active > .el-sub-menu__title) {
   color: $subMenuActiveText !important;
 }
->>> .el-submenu.is-active .el-submenu__title .icon {
+:deep(.el-sub-menu.is-active .el-sub-menu__title .icon) {
   background-color: $subMenuActiveText;
 }
-#app .sidebar-container .el-submenu .el-menu-item.is-active {
-  background-color: $menuHover !important;
+#app .sidebar-container .el-sub-menu .el-menu-item.is-active {
+  background: linear-gradient(
+    90deg,
+    rgba(47, 123, 255, 0.28),
+    rgba(34, 211, 238, 0.08)
+  ) !important;
 }
->>> .el-menu-item,
-.el-submenu {
+:deep(.el-menu-item),
+.el-sub-menu {
   text-align: left !important;
 }
->>> .el-scrollbar__wrap {
+:deep(.el-sub-menu__icon-arrow) {
+  color: #64748b;
+  right: 14px;
+}
+:deep(.el-scrollbar__wrap) {
   overflow-x: hidden;
 }
->>> .el-scrollbar__wrap ::-webkit-scrollbar {
+:deep(.el-scrollbar__wrap ::-webkit-scrollbar) {
   display: none !important;
 }
 .icon {
   width: 18px;
   height: 18px;
   display: inline-block;
-  margin-right: 8px;
-  margin-left: 5px;
-  background-color: #9c9c9c;
-  transition: all 0.2s;
+  margin: 0 10px 0 0 !important;
+  flex-shrink: 0;
+  background-color: #7c8ba1;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .icon.home {
   mask: url("../../../../assets/home.svg");
@@ -374,15 +415,28 @@ export default {
   mask: url("../../../../assets/location.svg");
   mask-size: contain;
 }
-.is-active > .icon {
-  background-color: #458bff;
+.is-active > .icon,
+.el-menu-item:hover > .icon,
+:deep(.el-sub-menu__title:hover .icon) {
+  background-color: #2f7bff;
 }
 .el-badge.warningbox {
-  margin-left: 60px;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  height: auto !important;
+  line-height: 1 !important;
 }
->>> sup {
-  transform: translateY(5px);
+.el-badge.warningbox :deep(.el-badge__content),
+.el-badge.warningbox :deep(sup) {
+  transform: none !important;
+  position: static !important;
   border: 0;
+  top: auto !important;
+  vertical-align: middle;
+  background: linear-gradient(135deg, #f87171, #dc2626);
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
 }
 .el-scrollbar {
   padding-bottom: 30px !important;

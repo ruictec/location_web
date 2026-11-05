@@ -3,7 +3,14 @@
     <div class="content">
       <el-container>
         <el-main>
-          <el-dialog :visible.sync="vedio" @close="closeVedio('video')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio"
+            @close="closeVedio('video')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video">
               <source
                 v-if="i8n == 'zh'"
@@ -17,22 +24,22 @@
               />
             </video>
           </el-dialog>
-          <el-dialog :visible.sync="vedio2" @close="closeVedio('video2')">
+          <el-dialog
+            width="60%"
+            class="device-dialog"
+            :title="$t('floormanagement.Watchdemo')"
+            v-model="vedio2"
+            @close="closeVedio('video2')"
+            align-center
+          >
             <video width="100%" controls autoplay id="video2">
               <source src="../../../static/3D~1.mp4" type="video/mp4" />
             </video>
           </el-dialog>
           <!-- 布置3D -->
-          <el-dialog
-            :visible.sync="arrange3D"
-            :close-on-click-modal="false"
-            class="arrangeDialog3D"
-            :show-close="false"
-            :fullscreen="true"
-            width="100%"
-            @close="closeMap3D()"
-          >
-            <div>
+          <Teleport to="body">
+          <div v-if="arrange3D" class="arrange-3d-page">
+            <div class="arrange-dialog-inner">
               <div class="searchArrange">
                 <el-form
                   class="demo-form-inline"
@@ -42,14 +49,13 @@
                     type="primary"
                     @click="arrangcancel3D()"
                     style="width: 90px; height: 30px; text-align: left"
-                    size="mini"
-                    icon="el-icon-arrow-left"
-                    >{{ $t("login.return") }}</el-button
-                  >
+                    size="small"
+                   
+                    ><i class="el-icon-arrow-left"></i>{{ $t("login.return") }}</el-button>
 
                   <el-form-item
                     :label="$t('floormanagement.device')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchDeveui"
@@ -58,7 +64,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.Devicealias')"
-                    style="display: flex; margin-left: 2%; margin-right: 0%"
+                    style="display: flex"
                   >
                     <el-input
                       v-model="searchAlias"
@@ -67,7 +73,7 @@
                   </el-form-item>
                   <el-form-item
                     :label="$t('floormanagement.status')"
-                    style="display: flex; margin-left: 2%; margin-right: 2%"
+                    style="display: flex"
                   >
                     <el-select
                       v-model="searchInuse"
@@ -87,20 +93,17 @@
                       type="primary"
                       @click="searchArranges()"
                       class="query"
-                      >{{ $t("floormanagement.search") }}</el-button
-                    >
+                      >{{ $t("floormanagement.search") }}</el-button>
                     <el-button
                       type="primary"
                       @click="clearArranges()"
                       class="reset"
-                      >{{ $t("floormanagement.reset") }}</el-button
-                    >
+                      >{{ $t("floormanagement.reset") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
                       @click="editTranche('position')"
-                      >{{ $t("floormanagement.Positioningarea") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Positioningarea") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -112,8 +115,7 @@
                         intoProjectType == 1
                       "
                       @click="setSub3D()"
-                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Addconnectionpoint") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -125,28 +127,24 @@
                         intoProjectType == 1
                       "
                       @click="closeSub3D()"
-                      >{{ $t("floormanagement.Endsetting") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Endsetting") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines3D()"
                       class="query"
                       v-if="!isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.showConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.showConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="showLines3D()"
                       class="query"
                       v-if="isShowLines && intoProjectType == 1"
-                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button
-                    >
+                      >{{ $t("floormanagement.hideConnectPoint") }}</el-button>
                     <el-button
                       type="primary"
                       @click="removeGroundDevs()"
                       class="query"
-                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button
-                    >
+                      >{{ $t("floormanagement.RemoveGroundDev") }}</el-button>
                     <el-button
                       type="primary"
                       class="reset"
@@ -158,8 +156,7 @@
                         intoProjectType == 1
                       "
                       @click="setAdj3D()"
-                      >{{ $t("floormanagement.Setadjacency") }}</el-button
-                    >
+                      >{{ $t("floormanagement.Setadjacency") }}</el-button>
                     <el-tooltip
                       class="item"
                       effect="light"
@@ -172,7 +169,7 @@
                         margin-left: 5px;
                       "
                     >
-                      <div slot="content">
+                      <template #content><div>
                         <p>
                           {{ $t("floormanagement.title") }}<br />
                           {{ $t("floormanagement.title1") }}<br />
@@ -180,56 +177,58 @@
                           {{ $t("floormanagement.title3") }}<br />
                           {{ $t("floormanagement.title4") }}
                         </p>
-                      </div>
+                      </div></template>
                       <i class="el-icon-question" />
                     </el-tooltip>
                   </el-form-item>
                 </el-form>
               </div>
-              <div style="width: 100%; display: flex; margin-top: 2%">
+              <div class="arrange-map-row">
                 <div class="mapContent" ref="mapContent">
-                  <div style="width: 100%; height: 100%">
-                    <div id="fengMap" ref="fengMap">
-                      <p class="show_video">
-                        {{ $t("floormanagement.arrangement1") }}
-                        <a href="javascript:;" @click="vedio2 = true">
-                          {{ $t("floormanagement.Watchdemo") }}
-                        </a>
-                      </p>
-                    </div>
+                  <div class="arrange-map-wrap">
+                    <div id="fengMap" ref="fengMap" class="feng-map-container"></div>
+                    <p class="arrange-map-tip show_video">
+                      {{ $t("floormanagement.arrangement1") }}
+                      <a href="javascript:;" @click="vedio2 = true">
+                        {{ $t("floormanagement.Watchdemo") }}
+                      </a>
+                    </p>
 
                     <!-- 修改图标显示的文字 -->
                     <div class="changShowButton" v-if="showOptions">
                       <el-dropdown @command="showOptionsTrue">
+                        <span class="el-dropdown-link">
                         <el-button type="primary">
                           {{ showOptionName
                           }}<i class="el-icon-arrow-up el-icon--right"></i>
                         </el-button>
-                        <el-dropdown-menu slot="dropdown">
+                        </span>
+<template #dropdown><el-dropdown-menu>
                           <el-dropdown-item
                             command="1"
                             v-if="intoProjectType == 1"
-                            >{{ $t("change.showAliases") }}</el-dropdown-item
-                          >
+                            >{{ $t("change.showAliases") }}</el-dropdown-item>
                           <el-dropdown-item
                             command="2"
                             v-if="intoProjectType == 1"
-                            >{{ $t("change.showMajor16") }}</el-dropdown-item
-                          >
+                            >{{ $t("change.showMajor16") }}</el-dropdown-item>
                           <el-dropdown-item
                             command="3"
                             v-if="intoProjectType == 1"
-                            >{{ $t("change.showMajor10") }}</el-dropdown-item
-                          >
+                            >{{ $t("change.showMajor10") }}</el-dropdown-item>
                           <el-dropdown-item command="4">{{
                             $t("change.showPosition")
                           }}</el-dropdown-item>
-                        </el-dropdown-menu>
+                        </el-dropdown-menu></template>
                       </el-dropdown>
                     </div>
                   </div>
                 </div>
-                <div class="tableContent" ref="tableContent">
+                <div
+                  class="tableContent"
+                  ref="tableContent"
+                  :class="{ 'is-expanded': showTable }"
+                >
                   <div class="show_table">
                     <svg
                       :class="{ 'is-active': !showTable }"
@@ -247,93 +246,54 @@
                     <el-menu
                       class="chose_table"
                       :default-active="activeMenu"
-                      :collapse="isCollapse"
+                      :collapse="false"
                     >
                       <el-menu-item index="0" @click="menuClick('0', 1)">
+                        <i class="icon beacon"></i>
                         <span>{{ $t("otherDev.beacon") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.beacon')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon beacon"></i>
-                        </el-tooltip>
+                      </el-menu-item>
+
+                      <el-menu-item
+                        index="1"
+                        v-if="aoagw"
+                        @click="menuClick('1', 1)"
+                      >
+                        <i class="icon aoagw"></i>
+                        <span>{{ $t("otherDev.aoaGateway") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="2"
-                        v-if="aoagw"
-                        @click="menuClick('1', 1)"
+                        v-if="smoke"
+                        @click="menuClick('2', 1)"
                       >
-                        <span>{{ $t("otherDev.aoaGateway") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.aoaGateway')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon aoagw"></i>
-                        </el-tooltip>
+                        <i class="icon smoke"></i>
+                        <span>{{ $t("otherDev.smokeSensor") }}</span>
                       </el-menu-item>
 
                       <el-menu-item
                         index="3"
-                        v-if="smoke"
-                        @click="menuClick('2', 1)"
-                      >
-                        <span>{{ $t("otherDev.smokeSensor") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.smokeSensor')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon smoke"></i>
-                        </el-tooltip>
-                      </el-menu-item>
-
-                      <el-menu-item
-                        index="4"
                         v-if="alertor"
                         @click="menuClick('3', 1)"
                       >
+                        <i class="icon alarm"></i>
                         <span>{{ $t("otherDev.burglarAlarm") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.burglarAlarm')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon alarm"></i>
-                        </el-tooltip>
                       </el-menu-item>
 
                       <el-menu-item
-                        index="6"
+                        index="5"
                         v-if="camera"
                         @click="menuClick('5', 1)"
                       >
+                        <i class="icon camera"></i>
                         <span>{{ $t("otherDev.camera") }}</span>
-                        <el-tooltip
-                          class="item"
-                          effect="dark"
-                          :content="$t('otherDev.camera')"
-                          placement="right"
-                          :disabled="!isCollapse"
-                        >
-                          <i class="icon camera"></i>
-                        </el-tooltip>
                       </el-menu-item>
                     </el-menu>
                   </div>
                   <div class="table_data" v-if="showTable">
                     <el-table
                       ref="multipleTable"
+                      :key="'arrange3d-' + activeMenu + '-' + intoProjectType"
                       :data="arrangeData"
                       highlight-current-row
                       @current-change="selectArrange"
@@ -349,7 +309,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -359,7 +318,6 @@
                         min-width="60"
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -368,7 +326,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu == '0' && intoProjectType == 2"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -377,7 +334,6 @@
                         show-overflow-tooltip
                         align="center"
                         v-if="activeMenu != '0'"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -386,7 +342,6 @@
                         show-overflow-tooltip
                         align="center"
                         min-width="78"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="typestr"
@@ -395,7 +350,6 @@
                         align="center"
                         min-width="78"
                         v-if="intoProjectType == 1"
-                        :key="Math.random()"
                       ></el-table-column>
                       <el-table-column
                         property="inusestr"
@@ -403,7 +357,6 @@
                         show-overflow-tooltip
                         align="center"
                         min-width="78"
-                        :key="Math.random()"
                       ></el-table-column>
 
                       <el-table-column
@@ -428,18 +381,16 @@
             </div>
             <!-- 编辑3D地图上的设备信息 -->
             <el-dialog
-              width="30%"
+              width="480px"
               :title="$t('floormanagement.Editdeviceinformation')"
-              :visible.sync="editFeatures3D"
+              v-model="editFeatures3D"
               :modal="false"
-              class="showHeadr"
-              style="text-align: center"
+              class="showHeadr device-dialog"
             >
               <el-form
                 :model="editFeatureData"
                 label-width="100px"
                 ref="editFeatureData"
-                style="text-align: center"
               >
                 <el-form-item :label="$t('floormanagement.device')">
                   <el-input
@@ -451,146 +402,131 @@
                   <el-input v-model="editFeatureData.alias"></el-input>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="editFeatureCancel3D()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="editFeaturesTrue3D()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
 
             <!-- 设置3D地图上的扫描区域 -->
             <el-dialog
-              width="30%"
-              :visible.sync="setAnglimit3D"
+              width="760px"
+              v-model="setAnglimit3D"
               :modal="false"
-              class="showHeadr setAreas"
-              style="text-align: center"
+              class="showHeadr setAreas device-dialog"
               @close="setAreas3DCancel"
             >
-              <span slot="title"
+              <template #header><span class="el-dialog__title"
                 >{{ $t("floormanagement.Setscanarea") }}
                 <el-tooltip class="item" effect="light" placement="right-start">
-                  <div slot="content">
+                  <template #content><div>
                     <p>{{ $t("floormanagement.scannedarea") }}</p>
-                  </div>
+                  </div></template>
                   <i class="el-icon-question" />
                 </el-tooltip>
-              </span>
+              </span></template>
               <el-radio-group v-model="radio">
                 <el-radio :label="2"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl1"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="1"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl2"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="8"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl4"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="4"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl8"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="6"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl9"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="3"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl3"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="9"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl6"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="12"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl12"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
 
                 <el-radio :label="14"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl13"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="13"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl14"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="7"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl11"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="11"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl7"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
                 <el-radio :label="15"
                   ><el-image
                     style="width: 100px; height: 100px"
                     :src="setAreasUrl15"
-                    fit="fit"
-                  ></el-image
-                ></el-radio>
+                    fit="contain"
+                  ></el-image></el-radio>
               </el-radio-group>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="setAreas3DCancel()">{{
                   $t("change.cancle")
                 }}</el-button>
                 <el-button type="primary" @click="setAreas3DTrue()">{{
                   $t("change.sure")
                 }}</el-button>
-              </div>
+              </div></template>
             </el-dialog>
 
             <!-- 3D地图设置区域 -->
             <el-dialog
               :title="$t('floormanagement.Setarea')"
-              :visible.sync="trancheShow3D"
-              class="edit showHeadr"
-              width="30%"
-              style="text-align: center"
+              v-model="trancheShow3D"
+              class="edit showHeadr device-dialog"
+              width="520px"
               :modal="false"
             >
               <el-form
@@ -623,7 +559,7 @@
                   </el-select>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="updateTrancheCancel3D()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -631,9 +567,8 @@
                   type="primary"
                   @click="updateTrancheTrue3D()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
 
             <!-- 3D 地图设置相邻信标 -->
@@ -641,10 +576,9 @@
               :title="
                 $t('tet.setup') + adjoinBeaconAlias + $t('tet.Adjacentbeacon')
               "
-              :visible.sync="adjoinBeaconShow3D"
-              class="edit showHeadr setAdjoinBeacon"
-              width="30%"
-              style="text-align: center; margin-right: 2%"
+              v-model="adjoinBeaconShow3D"
+              class="edit showHeadr setAdjoinBeacon device-dialog"
+              width="560px"
               :modal="false"
               @close="closeAdjoinBeacon3D"
               @open="openAdjoinBeacon3D"
@@ -685,14 +619,14 @@
                       margin-left: 5px;
                     "
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("floormanagement.title5") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </el-form-item>
               </el-form>
-              <div slot="footer" class="dialog-footer">
+              <template #footer><div class="dialog-footer">
                 <el-button @click="closeAdjoinBeacon3D()">{{
                   $t("change.cancle")
                 }}</el-button>
@@ -700,145 +634,139 @@
                   type="primary"
                   @click="setAdjoinBeaconTrue3D()"
                   :loading="loading"
-                  >{{ $t("change.sure") }}</el-button
-                >
-              </div>
+                  >{{ $t("change.sure") }}</el-button>
+              </div></template>
             </el-dialog>
-          </el-dialog>
-          <!-- 设置定位区域 -->
-          <el-dialog
-            :title="$t('floormanagement.Regionalmanagement')"
-            :visible.sync="addTranchePosition"
-            class="edit"
-            width="40%"
-            style="text-align: center"
-            :close-on-click-modal="false"
-            :close-on-press-escape="false"
-            :modal-append-to-body="false"
-            :append-to-body="true"
-            @close="addTrancheRowCancelPosition"
-          >
-            <div slot="title" class="dialog-title">
-              <span class="title-text"
-                >{{ $t("floormanagement.Regionalmanagement") }}
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style=""
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("floormanagement.title6") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
-                </el-tooltip>
-              </span>
-            </div>
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addTrancheRowPosition"
-                >{{ $t("floormanagement.add") }}</el-button
-              >
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('floormanagement.Import')"
-              >
-                <el-select
-                  v-model="currentProjectid.groundid"
-                  clearable
-                  filterable
-                  @change="importTranchePosition"
-                  :placeholder="$t('floormanagement.Importbuilding')"
-                >
-                  <el-option
-                    v-for="item in projectList()"
-                    :key="item.id"
-                    :label="item.ground"
-                    :value="item.id"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="0px"
-              v-for="(item, index) in positionTrancheList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline addTranche"
+            <!-- 显示距离：必须放在 3D 全屏层内，否则会被挡住 -->
+            <el-dialog
+              width="420px"
+              class="showHeadr device-dialog"
+              v-model="showDistance"
+              :modal="false"
             >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <p>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    style="margin-left: 20px"
-                    class="del"
-                    @click="deleTrancheRowPosition(index, item.name, item.id)"
-                    >{{ $t("floormanagement.delete") }}</el-button
+              <p>{{ $t("floormanagement.Xaxis") }}{{ distanceData.x }}cm</p>
+              <p>{{ $t("floormanagement.Yaxis") }}{{ distanceData.y }}cm</p>
+            </el-dialog>
+            <!-- 设置定位区域：必须放在 3D 全屏层内，否则会被挡住 -->
+            <el-dialog
+              v-model="addTranchePosition"
+              class="edit device-dialog"
+              width="640px"
+              :close-on-click-modal="false"
+              :close-on-press-escape="false"
+              @close="addTrancheRowCancelPosition"
+            >
+              <template #header><div class="dialog-title">
+                <span class="title-text el-dialog__title"
+                  >{{ $t("floormanagement.Regionalmanagement") }}
+                  <el-tooltip
+                    class="item"
+                    effect="light"
+                    placement="right-start"
+                    style=""
                   >
-                </p>
-                <p class="tranchSwitch">
-                  <span>{{ $t("floormanagement.Regionalshake") }}</span>
-                  <i-switch
-                    size="large"
-                    :value="item.fremove"
-                    v-model="item.fremove"
+                    <template #content><div>
+                      <p>
+                        {{ $t("floormanagement.title6") }}
+                      </p>
+                    </div></template>
+                    <i class="el-icon-question" />
+                  </el-tooltip>
+                </span>
+              </div></template>
+              <el-radio-group size="small">
+                <el-button
+                  type="primary"
+                  class="add"
+                  style="float: left"
+                  @click="addTrancheRowPosition"
+                  >{{ $t("floormanagement.add") }}</el-button>
+              </el-radio-group>
+              <el-form style="text-align: center">
+                <el-form-item
+                  style="
+                    width: 60%;
+                    margin-left: 16%;
+                    text-align: left;
+                    margin-top: 14px;
+                  "
+                  :label="$t('floormanagement.Import')"
+                >
+                  <el-select
+                    v-model="currentProjectid.groundid"
+                    clearable
+                    filterable
+                    @change="importTranchePosition"
+                    :placeholder="$t('floormanagement.Importbuilding')"
                   >
-                    <span slot="open">{{ $t("floormanagement.open") }}</span>
-                    <span slot="close">{{ $t("floormanagement.close") }}</span>
-                  </i-switch>
-                </p>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addTrancheRowCancelPosition()">{{
-                $t("change.cancle")
-              }}</el-button>
-              <el-button type="primary" @click="addTrancheRowTruePosition()">{{
-                $t("change.sure")
-              }}</el-button>
-            </div>
-          </el-dialog>
-
-          <!-- 显示距离 -->
-          <el-dialog
-            width="30%"
-            class="showHeadr"
-            :visible.sync="showDistance"
-            :modal="false"
-            style="text-align: center"
-          >
-            <p>{{ $t("floormanagement.Xaxis") }}{{ distanceData.x }}cm</p>
-            <p>{{ $t("floormanagement.Yaxis") }}{{ distanceData.y }}cm</p>
-          </el-dialog>
+                    <el-option
+                      v-for="item in projectList()"
+                      :key="item.id"
+                      :label="item.ground"
+                      :value="item.id"
+                    ></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-form>
+              <el-form
+                label-width="0px"
+                v-for="(item, index) in positionTrancheList"
+                :key="item.id"
+                style="margin-top: 20px"
+                class="demo-form-inline addTranche"
+              >
+                <el-form-item>
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    style="width: 70%"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <p>
+                    <el-button
+                      type="primary"
+                      size="small"
+                      style="margin-left: 20px"
+                      class="del"
+                      @click="deleTrancheRowPosition(index, item.name, item.id)"
+                      >{{ $t("floormanagement.delete") }}</el-button>
+                  </p>
+                  <p class="tranchSwitch">
+                    <span>{{ $t("floormanagement.Regionalshake") }}</span>
+                    <i-switch
+                      size="large"
+                      :value="item.fremove"
+                      v-model="item.fremove"
+                    >
+                      <template #active>{{ $t("floormanagement.open") }}</template>
+                      <template #inactive>{{ $t("floormanagement.close") }}</template>
+                    </i-switch>
+                  </p>
+                </el-form-item>
+              </el-form>
+              <template #footer><div class="dialog-footer" style="margin-top: -10px">
+                <el-button @click="addTrancheRowCancelPosition()">{{
+                  $t("change.cancle")
+                }}</el-button>
+                <el-button type="primary" @click="addTrancheRowTruePosition()">{{
+                  $t("change.sure")
+                }}</el-button>
+              </div></template>
+            </el-dialog>
+          </div>
+          </Teleport>
         </el-main>
       </el-container>
     </div>
   </div>
 </template>
 <script>
+import { markRaw } from "vue";
 import fengmap from "fengmap/build/fengmap.map.min";
 import "fengmap/build/fengmap.plugin.ui.min";
 import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
+import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import basecard from "../../components/card/base-card";
 import Menu from "../../components/menu/Menu";
 import Project from "../../components/project/project";
@@ -876,6 +804,30 @@ import {
   getFenceManageAndPointListByPage,
 } from "../../axios/api";
 
+function patchFengmapRenderNode(marker) {
+  if (!marker || marker.__patchedRenderNode || typeof marker.getRenderNode !== "function") {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
+
 export default {
   components: {
     Menu,
@@ -890,7 +842,6 @@ export default {
       alertor: this.$store.state.functionParts.alertor,
       blesensor: this.$store.state.functionParts.blesensor,
       camera: this.$store.state.functionParts.camera,
-      isCollapse: false,
       activeMenu: "0",
       i8n: this.$store.state.i18n,
       vedio: false,
@@ -932,6 +883,7 @@ export default {
       groundListCopy: [], //用于3D地图的时候，点击布置时设定新的对应关系
       newGround: "", //用于3D地图的时候新的对应关系里的新的楼层对应的
       arrange3D: false,
+      pendingMap3DInit: null,
       cancelTranched: false,
       // 布置相关
       searchArrangeList: {
@@ -1025,6 +977,7 @@ export default {
       subFlag: false,
       //3D 地图相关
       map3d: null,
+      _map3DInitStarted: false,
       lastGroupid: "",
       changeGroup: true,
       fmapId: "",
@@ -1093,6 +1046,24 @@ export default {
         this.$data.showOptionName,
         this.$options.data.call(this).showOptionName
       );
+    },
+    arrange3D(val) {
+      if (!val) {
+        clearTimeout(this._arrange3DOpenTimer);
+        this.closeMap3D();
+        return;
+      }
+      if (!this.pendingMap3DInit) {
+        return;
+      }
+      this._map3DInitStarted = false;
+      this.$nextTick(() => {
+        this._arrange3DOpenTimer = setTimeout(() => {
+          if (this.pendingMap3DInit) {
+            this.handleArrange3DDialogOpened();
+          }
+        }, 50);
+      });
     },
   },
   methods: {
@@ -1180,6 +1151,10 @@ export default {
     removeGroundDevs() {
       var that = this;
       this.$confirm(this.$t("floormanagement.RemoveGroundDevText"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
@@ -1212,21 +1187,66 @@ export default {
     },
     // 显示/隐藏图表
     setTable() {
-      var that = this;
-      that.showTable = !that.showTable;
-      if (that.showTable) {
-        that.$refs.mapContent.style.width = "70%";
-        that.$refs.tableContent.style.width = "30%";
-        if (that.arrange3D) {
-          that.$refs.fengMap.style.width = "70%";
-        }
-      } else {
-        that.$refs.mapContent.style.width = "100%";
-        that.$refs.tableContent.style.width = "0%";
-        if (that.arrange3D) {
-          that.$refs.fengMap.style.width = "90%";
-        }
+      this.showTable = !this.showTable;
+      if (this.arrange3D) {
+        this.scheduleFengMapResize();
       }
+    },
+    resizeFengMap() {
+      const container = this.$refs.fengMap;
+      const map = this.map3d;
+      if (!container || !map) {
+        return;
+      }
+      const width = Math.floor(container.clientWidth);
+      const height = Math.floor(container.clientHeight);
+      if (width < 10 || height < 10) {
+        return;
+      }
+      if (
+        width === this._fengMapLastWidth &&
+        height === this._fengMapLastHeight
+      ) {
+        return;
+      }
+      this._fengMapLastWidth = width;
+      this._fengMapLastHeight = height;
+      // FengMAP 的 resize 必须传入宽高；无参调用会把 WebGL 画布设成无效尺寸，表现为黑屏且 Logo 消失
+      if (typeof map.resize === "function") {
+        map.resize(width, height);
+      }
+      if (typeof map.enableUpdateRender === "function") {
+        map.enableUpdateRender();
+      }
+    },
+    scheduleFengMapResize() {
+      this.$nextTick(() => {
+        [0, 120, 360].forEach((delay) => {
+          setTimeout(() => {
+            this.resizeFengMap();
+          }, delay);
+        });
+      });
+    },
+    observeFengMapResize() {
+      this.unobserveFengMapResize();
+      const target = this.$refs.mapContent || this.$refs.fengMap;
+      if (!target || typeof ResizeObserver === "undefined") {
+        return;
+      }
+      this._fengMapResizeObserver = new ResizeObserver(() => {
+        clearTimeout(this._fengMapResizeTimer);
+        this._fengMapResizeTimer = setTimeout(() => {
+          this.resizeFengMap();
+        }, 80);
+      });
+      this._fengMapResizeObserver.observe(target);
+    },
+    unobserveFengMapResize() {
+      clearTimeout(this._fengMapResizeTimer);
+      this._fengMapResizeTimer = null;
+      this._fengMapResizeObserver?.disconnect();
+      this._fengMapResizeObserver = null;
     },
     // 选择表格数据
     menuClick(index, page) {
@@ -1388,7 +1408,7 @@ export default {
             }
           });
           arr.forEach((item, index) => {
-            var segment = new fengmap.FMSegment();
+            var segment = keepFengmapRaw(new fengmap.FMSegment());
             segment.points = [
               {
                 x: item[0].nodeX,
@@ -1404,12 +1424,12 @@ export default {
             /* 使用 level 参数定义要在哪个楼层上绘制线覆盖物 */
             segment.level = that.lastGroupid;
             /* 构造线 Marker */
-            that.lineMarker = new fengmap.FMLineMarker({
+            that.lineMarker = keepFengmapRaw(new fengmap.FMLineMarker({
               segments: [segment],
               width: 2,
               color: "#ccc",
               type: fengmap.FMLineType.FULL,
-            });
+            }));
             that.lineMarker.pointid = item[0].pointid;
             that.lineMarker.addTo(that.map3d);
             that.lineMarkerList.push(that.lineMarker);
@@ -1424,23 +1444,47 @@ export default {
       };
       var that = this;
       that.lastGroupid = group;
-      var mapOpation = {
-        container: document.getElementById("fengMap"),
-        level: group,
-        visibleLevels: [group],
-        focusAlpha: 0.1,
+      if (!appname || !mapkey || !that.fmapId || !that.themeId) {
+        that.$message({
+          message: that.$t("floormanagement.Unboundmap"),
+          type: "warning",
+        });
+        return;
+      }
+      const container = this.$refs.fengMap;
+      if (!container || container.clientWidth < 10 || container.clientHeight < 10) {
+        return;
+      }
+      if (that.map3d) {
+        that.map3d.dispose();
+        that.map3d = null;
+      }
+      that._map3DInitStarted = true;
+      const level = Number(group) || 1;
+      var mapOpation = applyFengmapLocalLoad({
+        container: container,
+        level: level,
+        visibleLevels: [level],
         appName: appname,
         key: mapkey,
-        defaultControlsPose: 0, //角度值
-        viewMode: fengmap.FMViewMode.MODE_2D, //设置地图2d显示
+        viewMode: fengmap.FMViewMode.MODE_2D,
         mapID: that.fmapId,
         themeID: that.themeId,
         zoomRange: [1, 29],
-        // mapURL: "/data/",
-        // themeURL: "/data/theme/",
-      };
-      this.map3d = new fengmap.FMMap(mapOpation);
-      this.map3d.on("loaded", function () {
+      });
+      that.map3d = markRaw(new fengmap.FMMap(mapOpation));
+      that.map3d.on("loaded", function () {
+        try {
+          const level = that.map3d.getLevel();
+          const floor = that.map3d.getFloor(level);
+          if (floor && floor.getBound) {
+            that.map3d.setFitView(floor.getBound());
+          }
+        } catch (e) {
+          // ignore fit view errors
+        }
+        that.observeFengMapResize();
+        that.scheduleFengMapResize();
         if (that.$store.state.intoProjectType == 1) {
           that.getArrangeBeaconPos3D(projectid, that.lastGroupid);
         } else if (that.$store.state.intoProjectType == 2) {
@@ -1448,9 +1492,12 @@ export default {
         }
         that.loadIndoorFences();
       });
-      //鼠标左右键点击事件
-      this.map3d.on("click", function (event) {
-        if (event.targets[0].type == "64" || event.targets[0].type == "8") {
+        //鼠标左右键点击事件
+        that.map3d.on("click", function (event) {
+          if (!event.targets || !event.targets.length) {
+            return;
+          }
+          if (event.targets[0].type == "64" || event.targets[0].type == "8") {
           that.setNewMarker = false;
           if (event.mouseEvent.button == 0) {
             //左键点击
@@ -1772,7 +1819,7 @@ export default {
           default:
             break;
         }
-        that.layer = new fengmap.FMCompositeMarker({
+        that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
           layout: {
             style: "timage-btext",
             align: "center",
@@ -1803,7 +1850,7 @@ export default {
             url: src,
             size: [100, 100],
           },
-        });
+        }));
       } else {
         if (this.$store.state.intoProjectType == 1) {
           //正向项目
@@ -1826,7 +1873,7 @@ export default {
             nearbeacons: "",
           };
           if (mapinfo.type == 2) {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -1857,10 +1904,10 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else if (mapinfo.type == 1 && mapinfo.clockin == 1) {
             // 打卡点用另一种图标表示
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -1892,9 +1939,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -1925,7 +1972,7 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         } else if (this.$store.state.intoProjectType == 2) {
           alias = mapinfo.alias;
@@ -1950,7 +1997,7 @@ export default {
           };
           if (mapinfo.clockin == 1) {
             // 打卡点用另一种图标表示
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -1981,9 +2028,9 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           } else {
-            that.layer = new fengmap.FMCompositeMarker({
+            that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
               layout: {
                 style: "timage-btext",
                 align: "center",
@@ -2014,7 +2061,7 @@ export default {
                 baseon: "image",
                 anchor: fengmap.FMMarkerAnchor.CENTER,
               },
-            });
+            }));
           }
         }
       }
@@ -2068,7 +2115,7 @@ export default {
           default:
             break;
         }
-        that.layer = new fengmap.FMCompositeMarker({
+        that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
           layout: {
             style: "timage-btext",
             align: "center",
@@ -2099,10 +2146,10 @@ export default {
             baseon: "image",
             anchor: fengmap.FMMarkerAnchor.CENTER,
           },
-        });
+        }));
       } else {
         if (mapinfo.type == 2) {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2133,9 +2180,9 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         } else {
-          that.layer = new fengmap.FMCompositeMarker({
+          that.layer = keepFengmapRaw(new fengmap.FMCompositeMarker({
             layout: {
               style: "timage-btext",
               align: "center",
@@ -2166,7 +2213,7 @@ export default {
               baseon: "image",
               anchor: fengmap.FMMarkerAnchor.CENTER,
             },
-          });
+          }));
         }
       }
       //图标添加自定义属性(绑定值)
@@ -2266,7 +2313,7 @@ export default {
     addMarkerPoint(model, mapinfo) {
       var that = this;
       var coord = model.mapCoord.coord3;
-      that.layer = new fengmap.FMImageMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMImageMarker({
         x: coord.x,
         y: coord.y,
         height: 10,
@@ -2275,7 +2322,7 @@ export default {
         //设置图片显示尺寸
         size: 32,
         collision: false,
-      });
+      }));
 
       //图标添加自定义属性(绑定值)
       that.layer.selfAttr = mapinfo;
@@ -2315,7 +2362,7 @@ export default {
     addMarkerPoints(model, mapinfo) {
       var that = this;
       var coord = model.mapCoord.coord3;
-      that.layer = new fengmap.FMImageMarker({
+      that.layer = keepFengmapRaw(new fengmap.FMImageMarker({
         x: coord.x,
         y: coord.y,
         height: 1,
@@ -2323,7 +2370,7 @@ export default {
         url: "../../../static/near.png",
         //设置图片显示尺寸
         size: 32,
-      });
+      }));
 
       //图标添加自定义属性(绑定值)
       that.layer.selfAttr = mapinfo;
@@ -2518,6 +2565,10 @@ export default {
           that.$t("floormanagement.adjacencyrelationship"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -2572,6 +2623,10 @@ export default {
           that.$t("floormanagement.Aredelete"),
           that.$t("Building.tips"),
           {
+            customClass: "device-message-box",
+            confirmButtonClass: "device-message-confirm",
+            cancelButtonClass: "device-message-cancel",
+            roundButton: false,
             confirmButtonText: that.$t("terminal.confirm"),
             cancelButtonText: that.$t("terminal.cancel"),
             type: "warning",
@@ -2607,6 +2662,41 @@ export default {
           });
         });
     },
+    // 生成 3D 右键菜单 DOM 字符串及 DomMarker 所需宽高（样式见 user-page-panel.css .map-ctx-*）
+    buildCtxMenu3D(title, items) {
+      const esc = (v) =>
+        String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c]);
+      const visible = items.filter((item) => item.show !== false);
+      const normal = visible.filter((item) => !item.danger);
+      const danger = visible.filter((item) => item.danger);
+      const hasDivider = normal.length > 0 && danger.length > 0;
+      const row = (item) =>
+        `<li><button type="button" class="map-ctx-item${
+          item.danger ? " is-danger" : ""
+        }" onclick="${item.fn}">${esc(item.label)}</button></li>`;
+      const html = `<div style="height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start">
+        <div class="map-ctx-menu">
+          <div class="map-ctx-head">
+            <span class="map-ctx-title" title="${esc(title)}">${esc(title)}</span>
+            <a href="javascript:;" id="polygonMenu-closer" class="ol-popup-closer map-ctx-close" onclick="closeWindow3D();return false;">×</a>
+          </div>
+          <ul class="map-ctx-list">${normal.map(row).join("")}${
+        hasDivider ? '<li class="map-ctx-divider"></li>' : ""
+      }${danger.map(row).join("")}</ul>
+        </div>
+        </div>`;
+      return {
+        html,
+        width: 176,
+        height: 56 + visible.length * 32 + (hasDivider ? 9 : 0),
+      };
+    },
     // 3D 地图鼠标右键
     addPopInfoWindowRight(marker, ground) {
       var that = this;
@@ -2626,108 +2716,47 @@ export default {
             }
           });
         }
+        const attr = marker.selfAttr;
+        const beaconMenu = that.buildCtxMenu3D(attr.alias || attr.deveui, [
+          { fn: "edit3D()", label: that.$t("tet.edit") },
+          { fn: "setAreas3D()", label: that.$t("floormanagement.Scanningarea"), show: !attr.devtype },
+          { fn: "setArea3D()", label: that.$t("floormanagement.Setarea") },
+          {
+            fn: "setAdjoinBeacon3D()",
+            label: that.$t("tet.Adjacentbeacon"),
+            show: attr.tranche != "" && projectType == 1 && !attr.devtype,
+          },
+          {
+            fn: "setClock3D()",
+            label: that.$t("floormanagement.Setascheckin"),
+            show: attr.clockin == 2 && attr.type == 1 && !attr.devtype,
+          },
+          {
+            fn: "removeClock3D()",
+            label: that.$t("floormanagement.Cancelclockout"),
+            show: attr.clockin == 1 && attr.type == 1 && !attr.devtype,
+          },
+          { fn: "reset3D()", label: that.$t("tet.Rearrange") },
+          { fn: "calculatingDistance()", label: that.$t("floormanagement.CalculateDistance") },
+          {
+            fn: "cancelNearList3D()",
+            label: that.$t("floormanagement.Deleteadjacency"),
+            show: that.clearBeaconList == true && !attr.devtype,
+            danger: true,
+          },
+          { fn: "del3D()", label: that.$t("tet.delete"), danger: true },
+        ]);
         //添加绑定marker信息窗
         var ctlOpt = {
           x: marker.selfAttr.x,
           y: marker.selfAttr.y,
           anchor: fengmap.FMMarkerAnchor.LEFT_BOTTOM,
-          //设置弹框的宽度
-          domWidth: marker.selfAttr.devtype
-            ? 120
-            : that.clearBeaconList == true
-            ? 130
-            : 120,
-          //设置弹框的高度px
-          domHeight: marker.selfAttr.devtype
-            ? 160
-            : that.clearBeaconList == true
-            ? 280
-            : 240,
+          domWidth: beaconMenu.width,
+          domHeight: beaconMenu.height,
           collision: false,
-          //设置弹框的内容，文本或html页面元素
-          content: ` <div style='text-align:left;background: #f1f5f7' calss="threecontent" >
-          <ul id="popup-content">
-            <li style="margin-top:5px;text-align:right">
-              <a style="margin-right:5px" href="#" id="polygonMenu-closer" class="ol-popup-closer" onclick="closeWindow3D()">
-                 <img src="../../../static/close.jpg"  width="11" height="11"/>
-              </a>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="del3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "tet.delete"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="edit3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.edit"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.devtype ? 'class="hiddenclock"' : ""
-            }>
-              <button onclick="setAreas3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Scanningarea"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="setArea3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Setarea"
-              )}</button>
-            </li>
-              <li style="margin-top:3px;padding-bottom:3px" ${
-                marker.selfAttr.tranche != "" &&
-                projectType == 1 &&
-                !marker.selfAttr.devtype
-                  ? ""
-                  : 'class="hiddenclock"'
-              }>
-              <button onclick="setAdjoinBeacon3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.Adjacentbeacon"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.clockin == 2 && marker.selfAttr.type == 1 &&
-              !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="setClock3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Setascheckin"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              marker.selfAttr.clockin == 1 && marker.selfAttr.type == 1 &&
-              !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="removeClock3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.Cancelclockout"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              that.clearBeaconList == true && !marker.selfAttr.devtype
-                ? ""
-                : 'class="hiddenclock"'
-            }>
-              <button onclick="cancelNearList3D()" class="el-button  el-button--mini BUTTON DELETE " >${that.$t(
-                "floormanagement.Deleteadjacency"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="reset3D()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "tet.Rearrange"
-              )}</button>
-            </li>
-              <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="calculatingDistance()" class="el-button  el-button--mini BUTTON" >${that.$t(
-                "floormanagement.CalculateDistance"
-              )}</button>
-            </li>
-          </ul>
-          </div>`,
+          content: beaconMenu.html,
         };
-        that.popMarker = new fengmap.FMDomMarker(ctlOpt);
+        that.popMarker = keepFengmapRaw(new fengmap.FMDomMarker(ctlOpt));
         that.popMarker.selfAttr = marker.selfAttr;
         var level = that.map3d.getLevel();
         var floor = that.map3d.getFloor(level);
@@ -2745,41 +2774,26 @@ export default {
             }
           }
         });
+        const polygonMenu = that.buildCtxMenu3D(that.$t("floormanagement.Near"), [
+          {
+            fn: "cancelNearList3D()",
+            label: that.$t("floormanagement.Deleteadjacency"),
+            show: that.clearBeaconList == true,
+            danger: true,
+          },
+          { fn: "delPolygon3D()", label: that.$t("tet.delete"), danger: true },
+        ]);
         //添加绑定marker信息窗
         var ctlOpt = {
           x: marker.selfAttr.x,
           y: marker.selfAttr.y,
           anchor: fengmap.FMMarkerAnchor.LEFT_BOTTOM,
-          //设置弹框的宽度
-          domWidth: that.clearBeaconList == true ? 120 : 80,
-          //设置弹框的高度px
-          domHeight: that.clearBeaconList == true ? 100 : 60,
+          domWidth: polygonMenu.width,
+          domHeight: polygonMenu.height,
           collision: false,
-          //设置弹框的内容，文本或html页面元素
-          content: ` <div style='text-align:left;background: #f1f5f7' calss="threecontent" >
-          <ul id="popup-content">
-            <li style="margin-top:5px;text-align:right">
-              <a style="margin-right:5px" href="#" id="polygonMenu-closer" class="ol-popup-closer" onclick="closeWindow3D()">
-                 <img src="../../../static/close.jpg"  width="11" height="11"/>
-              </a>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="delPolygon3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "tet.delete"
-              )}</button>
-            </li>
-            <li style="margin-top:3px;padding-bottom:3px" ${
-              that.clearBeaconList == true ? "" : 'class="hiddenclock"'
-            }>
-              <button onclick="cancelNearList3D()" class="el-button  el-button--mini BUTTON DELETE" >${that.$t(
-                "floormanagement.Deleteadjacency"
-              )}</button>
-            </li>
-           
-          </ul>
-          </div>`,
+          content: polygonMenu.html,
         };
-        that.popMarker = new fengmap.FMDomMarker(ctlOpt);
+        that.popMarker = keepFengmapRaw(new fengmap.FMDomMarker(ctlOpt));
         that.popMarker.selfAttr = marker.selfAttr;
         var level = that.map3d.getLevel();
         var floor = that.map3d.getFloor(level);
@@ -2830,13 +2844,13 @@ export default {
       window.reset3D = function () {
         that.resetIcon = true;
         that.setNewMarker = true;
-        that.resetIconInfo = marker;
+        that.resetIconInfo = keepFengmapRaw(marker);
         that.popMarker.remove();
         that.popMarkerTip = false;
       };
       window.resetPoint3D = function () {
         that.resetIcon = true;
-        that.resetIconInfo = marker;
+        that.resetIconInfo = keepFengmapRaw(marker);
         that.popMarker.remove();
         that.popMarkerTip = false;
       };
@@ -2856,6 +2870,10 @@ export default {
       }
       that
         .$confirm(that.$t("floormanagement.Aredelete"), that.$t("change.tip"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3003,7 +3021,7 @@ export default {
       this.editFeatureData.x = marker.selfAttr.x;
       this.editFeatureData.y = marker.selfAttr.y;
       this.editFeatureData.devtype = marker.selfAttr.devtype;
-      this.editFeatureInfo3D = marker;
+      this.editFeatureInfo3D = keepFengmapRaw(marker);
       // this.editFeatureInfo3DText = foundT;
       this.editFeatures3D = true;
     },
@@ -3380,6 +3398,10 @@ export default {
         that.$t("floormanagement.releasezone"),
         that.$t("change.tip"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3391,7 +3413,7 @@ export default {
         let foundT = LayerArraysT.find(function (item) {
           return item.selfAttr.deveui == marker.selfAttr.deveui;
         });
-        that.editFeatureInfo3DText = foundT;
+        that.editFeatureInfo3DText = keepFengmapRaw(foundT);
         if (marker.selfAttr.devtype) {
           let data = {
             deveui: marker.selfAttr.deveui,
@@ -3553,8 +3575,8 @@ export default {
     // 3D设置相邻信标
     setAdjoinBeacon3D(marker, popMarker, ground) {
       var that = this;
-      this.adjoinBeaconInfo = marker;
-      this.adjoinBeaconPopMarker = popMarker;
+      this.adjoinBeaconInfo = keepFengmapRaw(marker);
+      this.adjoinBeaconPopMarker = keepFengmapRaw(popMarker);
 
       let data = {
         deveui: marker.selfAttr.deveui,
@@ -3693,6 +3715,10 @@ export default {
       var that = this;
       that
         .$confirm(that.$t("floormanagement.tippp"), that.$t("change.tip"), {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: that.$t("terminal.confirm"),
           cancelButtonText: that.$t("terminal.cancel"),
           type: "warning",
@@ -3760,6 +3786,10 @@ export default {
     removeClock3D(marker, popMarker) {
       var that = this;
       this.$confirm(that.$t("floormanagement.tippp2"), that.$t("change.tip"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: that.$t("terminal.confirm"),
         cancelButtonText: that.$t("terminal.cancel"),
         type: "warning",
@@ -3836,8 +3866,12 @@ export default {
     closeMap3D() {
       this.clearIndoorFences3d();
       this.fenceManageList = [];
-      this.map3d.dispose();
-      this.map3d = null;
+      this._map3DInitStarted = false;
+      this.unobserveFengMapResize();
+      if (this.map3d) {
+        this.map3d.dispose();
+        this.map3d = null;
+      }
     },
     //获取页面所有的图标
     getAllFeatures3D(groupID) {
@@ -3873,6 +3907,11 @@ export default {
     },
 
     //3D地图布置页面点击返回
+    normalizeFenceOpacity(value) {
+      const num = Number(value);
+      if (!Number.isFinite(num) || num <= 0 || num > 1) return 1;
+      return num;
+    },
     escapeFenceName(name) {
       return String(name || "")
         .replace(/&/g, "&amp;")
@@ -3975,7 +4014,7 @@ export default {
           var polygonMarker = new fengmap.FMPolygonMarker({
             points: polygonPoints,
             color: fence.colour || "#FF0000",
-            alpha: 0.3,
+            alpha: that.normalizeFenceOpacity(fence.opacity),
             lineWidth: 2,
             lineColor: fence.colour || "#FF0000",
           });
@@ -4053,9 +4092,14 @@ export default {
                 that.$t("floormanagement.tippp6"),
                 that.$t("Building.tips"),
                 {
+                  customClass: "device-message-box",
+                  confirmButtonClass: "device-message-confirm",
+                  cancelButtonClass: "device-message-cancel",
+                  roundButton: false,
                   confirmButtonText: that.$t("terminal.confirm"),
                   cancelButtonText: that.$t("terminal.cancel"),
                   type: "warning",
+                  customClass: "msgbox-text-left",
                 }
               )
               .then(() => {
@@ -4332,7 +4376,7 @@ export default {
       this.popMarker.remove();
       this.popMarkerTip = false;
       this.popMarkerTip = false;
-      this.areaInfo = marker;
+      this.areaInfo = keepFengmapRaw(marker);
       this.setAreaDeveui = marker.selfAttr.deveui;
       this.radio = marker.selfAttr.anglimit;
       this.oldRadio = marker.selfAttr.anglimit;
@@ -4415,7 +4459,7 @@ export default {
           alias: that.searchAlias,
           inuse: that.searchInuse,
           devtype: that.activeMenu,
-          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantkey_A,
+          tenantid: that.contrForPrionum == 5 ? that.superId : that.tenantid_A,
           page: 1,
           count: 20,
           projectid: that.intoProjectid,
@@ -4694,28 +4738,32 @@ export default {
               that.newGround = that.groundListCopy.find(function (item) {
                 return item.ground == info.ground;
               });
+              if (!that.newGround) {
+                that.$message({
+                  message: that.$t("floormanagement.Unboundmap"),
+                  type: "warning",
+                });
+                that.dobuleClick = false;
+                return;
+              }
+              const matchedFloor =
+                res.data.find((item) => item.ground == info.ground) ||
+                res.data[0];
+              that.pendingMap3DInit = {
+                group: that.newGround.newground,
+                projectid: info.projectid,
+                appname: matchedFloor.appname || info.appname,
+                mapkey: matchedFloor.mapkey || info.mapkey,
+              };
               that.arrange3D = true; //3d布置
               that.showTable = false;
-              that.fmapId = info.filename;
-              that.themeId = info.filetype;
+              that.fmapId = matchedFloor.filename || info.filename;
+              that.themeId = matchedFloor.filetype || info.filetype;
               if (that.$store.state.intoProjectType == 2) {
-                //反向项目
-                //获取设备位置信息,默认获取未布置的设备，不需要楼层编号groundid，放在表格里
                 that.getGatewayPos(info.projectid, 1);
-                //获取设备位置信息，在地图上显示，获取已布置的设备,需要楼层编号
               } else if (that.$store.state.intoProjectType == 1) {
-                //正向项目
-                //获取设备位置信息,默认获取未布置的设备，不需要楼层编号groundid，放在表格里
                 that.getBeaconPos(info.projectid, 1);
               }
-              setTimeout(() => {
-                that.onmap(
-                  that.newGround.newground,
-                  info.projectid,
-                  info.appname,
-                  info.mapkey
-                );
-              }, 1);
             } else {
               that.$message({
                 message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
@@ -4726,6 +4774,38 @@ export default {
         );
       }
       this.searchInuse = 2;
+    },
+    handleArrange3DDialogOpened() {
+      if (!this.pendingMap3DInit || this.map3d) {
+        return;
+      }
+      clearTimeout(this._arrange3DOpenTimer);
+      this.initMap3DWhenReady(this.pendingMap3DInit);
+    },
+    initMap3DWhenReady(pending, retries = 0) {
+      if (this.map3d) {
+        return;
+      }
+      this.$nextTick(() => {
+        const container = this.$refs.fengMap;
+        if (
+          !container ||
+          container.clientWidth < 10 ||
+          container.clientHeight < 10
+        ) {
+          if (retries < 40) {
+            setTimeout(() => this.initMap3DWhenReady(pending, retries + 1), 50);
+          }
+          return;
+        }
+        this.pendingMap3DInit = null;
+        this.onmap(
+          pending.group,
+          pending.projectid,
+          pending.appname,
+          pending.mapkey
+        );
+      });
     },
 
     //反向项目默认获取未布置的设备,列表显示
@@ -4794,6 +4874,9 @@ export default {
       }
     },
   },
+  beforeUnmount() {
+    this.closeMap3D();
+  },
 };
 </script>
 
@@ -4807,7 +4890,7 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 5px 0 !important;
 }
 .query,
@@ -4816,86 +4899,237 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
 .mapContent {
-  width: 100%;
+  width: auto;
   height: 100%;
+  margin: 0 !important;
   margin-right: 0;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
 }
 
-#fengMap {
-  width: 90%;
-  height: 78%;
+.searchArrange {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  width: 100%;
+  padding: 8px 12px 4px;
+  box-sizing: border-box;
+}
+
+.arrange-map-row {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
   display: flex;
+  align-items: stretch;
+  margin: 0 !important;
+  text-align: left;
+}
+
+.arrange-map-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  position: relative;
+  margin: 0 !important;
+  flex: 1;
+}
+
+.arrange-map-tip.show_video {
   position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 12;
+  margin: 0 !important;
+  text-align: center;
+}
+
+.feng-map-container,
+#fengMap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: calc(100% - 28px);
+  display: block;
+  z-index: 11;
+  margin: 0 !important;
+  overflow: hidden;
+}
+.feng-map-container canvas,
+#fengMap canvas {
+  display: block;
+  margin: 0;
 }
 .tableContent {
-  width: 0%;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  max-width: 148px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-self: flex-start;
   margin-right: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 5;
+  background: rgba(241, 245, 247, 0.96);
+  box-sizing: border-box;
+  border-left: 1px solid #e4e7ed;
+  padding: 4px 0 8px;
+}
+.tableContent.is-expanded {
+  flex: 0 0 32%;
+  width: 32%;
+  min-width: 320px;
+  max-width: 38%;
+  align-self: stretch;
+  overflow: hidden;
+  background: #f1f5f7;
+  padding: 0;
 }
 .show_table {
-  margin-right: 0%;
-  z-index: 999;
-  text-align: right;
+  flex: 0 0 148px;
+  width: 148px;
+  min-width: 148px;
+  margin-right: 0;
+  z-index: 1;
+  text-align: left;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.hamburger {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: block;
+  margin: 6px 0 8px 12px;
+  flex: 0 0 auto;
+}
+.table_data {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
 }
 .chose_table {
-  text-align: right;
-  background-color: #f1f5f7 !important;
+  text-align: left !important;
+  background-color: transparent !important;
   border: 0 !important;
-}
-.chose_table >>> .el-menu-item {
+  width: 100% !important;
+  min-height: 0 !important;
   padding: 0 !important;
+  --el-menu-base-level-padding: 12px;
+  --el-menu-level-padding: 0px;
+}
+.tableContent.is-expanded .chose_table {
+  background-color: #f1f5f7 !important;
+}
+.chose_table :deep(.el-menu-item) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  padding: 0 12px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
   margin: 0 !important;
-  height: 20px;
-  line-height: 20px;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item .icon) {
+  flex: 0 0 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 0 8px 0 0 !important;
+}
+.chose_table :deep(.el-menu-item > span),
+.chose_table :deep(.el-menu-item span) {
+  flex: 0 1 auto !important;
+  display: block !important;
+  width: auto !important;
+  max-width: calc(100% - 26px);
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 18px;
+  color: #606266;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+}
+.chose_table :deep(.el-menu-item.is-active) {
+  background: transparent !important;
+}
+.chose_table :deep(.el-menu-item.is-active .icon) {
+  background-color: #458bff;
+}
+.chose_table :deep(.el-menu-item.is-active span) {
+  color: #458bff;
+  font-weight: 500;
 }
 .icon {
   width: 18px;
   height: 18px;
+  flex: 0 0 18px;
   display: inline-block;
   background-color: #9c9c9c;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 .icon.beacon {
-  mask: url("../../assets/beacon.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/beacon.svg");
+  -webkit-mask-image: url("../../assets/beacon.svg");
 }
 .icon.smoke {
-  mask: url("../../assets/smoke.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/smoke.svg");
+  -webkit-mask-image: url("../../assets/smoke.svg");
 }
 .icon.aoagw {
-  mask: url("../../assets/aoagw.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/aoagw.svg");
+  -webkit-mask-image: url("../../assets/aoagw.svg");
 }
 .icon.alarm {
-  mask: url("../../assets/alarm.svg");
-  mask-size: contain;
+  mask-image: url("../../assets/alarm.svg");
+  -webkit-mask-image: url("../../assets/alarm.svg");
 }
 .icon.camera {
-  mask: url("../../assets/camera.svg");
-  mask-size: contain;
-}
-.table_data {
-  margin-left: 0;
+  mask-image: url("../../assets/camera.svg");
+  -webkit-mask-image: url("../../assets/camera.svg");
 }
 
 #leftmenu_container {
@@ -4927,10 +5161,10 @@ li {
   list-style: none;
   margin-top: 5px;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 
@@ -4964,33 +5198,76 @@ li {
 a {
   text-decoration: none;
 }
-.backProject >>> .el-page-header__left {
+.backProject :deep(.el-page-header__left) {
   height: 24px !important;
   white-space: nowrap !important;
 }
-.backProject >>> .el-page-header__content {
+.backProject :deep(.el-page-header__content) {
   text-align: left !important;
 }
-.arrangeDialog3D {
-  text-align: center;
-  background-color: #f1f5f7 !important;
+.arrange-3d-page {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: #f1f5f7;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.arrange-dialog-inner {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box;
 }
 
-.arrangeDialog3D >>> .el-dialog {
+.arrangeDialog3D :deep(.el-dialog) {
   background-color: #f1f5f7 !important;
+  display: flex;
+  flex-direction: column;
+  height: 100vh !important;
+  margin: 0 !important;
+  max-height: 100vh;
 }
 
-.arrangeDialog3D >>> .el-dialog__header {
+.arrangeDialog3D :deep(.el-dialog__body) {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  padding: 10px 16px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.arrange-dialog-inner {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+}
+
+.arrangeDialog3D :deep(.el-dialog__header) {
   display: none !important;
 }
-.showHeadr >>> .el-dialog__header {
+.showHeadr :deep(.el-dialog__header) {
   display: block !important;
 }
-.setAreas >>> .el-radio-group {
+.setAreas :deep(.el-radio-group) {
   display: flex !important;
   flex-wrap: wrap;
 }
-.setAreas >>> .el-radio {
+.setAreas :deep(.el-radio) {
   width: 20%;
   margin-left: 2%;
   margin-right: 0;
@@ -5002,24 +5279,18 @@ a {
 .demo-form-inline {
   margin-right: 0;
 }
-#fengMap >>> .hiddenclock {
+.hiddenclock {
   display: none;
 }
-#fengMap >>> .show_video {
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-}
 
-.threecontent >>> li {
+.threecontent :deep(li) {
   margin-top: 5px;
 }
 
-.setAdjoinBeacon >>> .el-dialog {
+.setAdjoinBeacon :deep(.el-dialog) {
   margin-right: 2%;
 }
-.addTranche >>> .el-form-item__content {
+.addTranche :deep(.el-form-item__content) {
   display: flex;
 }
 .tranchSwitch {
@@ -5027,7 +5298,7 @@ a {
   line-height: 34px;
   height: 34px;
 }
-.tranchSwitch >>> .ivu-switch {
+.tranchSwitch :deep(.ivu-switch) {
   height: 22px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -5045,22 +5316,25 @@ a {
 .changShowButton {
   position: absolute;
   bottom: 4%;
+  z-index: 12;
+}
+.arrange-3d-page {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: #f1f5f7;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
 }
 </style>
 <style>
-.BUTTON {
-  background: #f1f5f7 !important;
-  width: 100%;
-  text-align: left;
-  border: none;
-  color: black;
-}
-.BUTTON:hover {
-  background: skyblue !important;
-  color: white;
-}
-.DELETE:hover {
-  background-color: rgb(196, 27, 27) !important;
-  color: white;
+.arrange-3d-page {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: #f1f5f7;
+  display: flex;
+  flex-direction: column;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : 'device-page'" style="height: 100%">
     <div class="menu_header" v-if="contrForPrionum != 5">
       <Menu ref="menu" />
     </div>
@@ -7,22 +7,15 @@
       <el-container :class="contrForPrionum == 5 ? 'user' : 'asi'">
         <el-aside v-if="contrForPrionum != 5"><Asset /></el-aside>
         <el-main>
-          <el-form
-            class="demo-form-inline"
-            :model="searchList"
-            style="display: flex; white-space: nowrap"
-          >
+          <div class="terminal-filter-flow staff-filter-flow page-panel" :class="filterLangClass">
+            <el-form
+              class="demo-form-inline terminal-filter-form"
+              :model="searchList"
+            >
             <el-form-item
               :label="$t('staff.name')"
-              style="
-                display: flex;
-                width: 12%;
-                margin-left: 2%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-select
-                style="width: 95%; float: left"
                 v-model="searchList.username"
                 clearable
                 filterable
@@ -39,15 +32,8 @@
 
             <el-form-item
               :label="$t('staff.gender')"
-              style="
-                display: flex;
-                width: 10%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-select
-                style="width: 95%; float: left"
                 v-model="searchList.sex"
                 clearable
                 filterable
@@ -63,28 +49,15 @@
             </el-form-item>
             <el-form-item
               :label="$t('staff.WorkersCard')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input
-                style="width: 95%; float: left"
                 v-model="searchList.maplabel"
               >
               </el-input>
             </el-form-item>
             <el-form-item
               :label="$t('staff.Department')"
-              style="
-                display: flex;
-                width: 12%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-select
                 v-model="searchList.depart"
                 filterable
@@ -101,100 +74,60 @@
             </el-form-item>
             <el-form-item
               :label="$t('staff.Jobnumber')"
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 1%;
-                margin-right: 0;
-              "
-            >
+             class="terminal-filter-item">
               <el-input
-                style="width: 95%; float: left"
                 v-model="searchList.cardno"
               >
               </el-input>
             </el-form-item>
 
-            <el-form-item style="display: flex; margin-left: 0; z-index: 1">
+            <el-form-item class="terminal-toolbar-item">
               <el-button type="primary" class="query" @click="searchStaff()">{{
                 $t("staff.search")
               }}</el-button>
               <el-button type="primary" class="reset" @click="clearBtn()">{{
                 $t("staff.reset")
               }}</el-button>
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcel()"
-                >{{ $t("terminal.import") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcel()"
-                >{{ $t("terminal.export") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelAll()"
-                >{{ $t("terminal.exportAll") }}</el-button
-              >
               <el-button type="primary" class="add" @click="addStaff()">{{
                 $t("staff.Addemployees")
               }}</el-button>
+              <el-button type="danger" class="add" @click="removeStaffs()">{{
+                $t("staff.unbind")
+              }}</el-button>
+              <el-button type="primary" class="add" @click="goSetDepart()">{{
+                $t("staff.DepartmentSettings")
+              }}</el-button>
+              <el-button type="primary" class="add" @click="goSetWorktype()">{{
+                $t("staff.Tradesettings")
+              }}</el-button>
+              <el-dropdown trigger="click">
+                <el-button type="primary">
+                  {{ $t("terminal.importExport") }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="staff-action-menu">
+                    <el-dropdown-item @click="importExcel()">{{
+                      $t("terminal.import")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcel()">{{
+                      $t("staff.exportStaff")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelAll()">{{
+                      $t("terminal.exportAll")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item divided @click="importExcelWorktype()">{{
+                      $t("staff.importWorktype")
+                    }}</el-dropdown-item>
+                    <el-dropdown-item @click="exportExcelWorkType()">{{
+                      $t("staff.exportWorktype")
+                    }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </el-form-item>
           </el-form>
-
-          <el-form
-            class="demo-form-inline"
-            style="display: flex; white-space: nowrap"
-          >
-            <el-form-item
-              style="
-                display: flex;
-                width: 15%;
-                margin-left: 2%;
-                margin-right: 0;
-              "
-            >
-              <el-button
-                type="danger"
-                class="add move"
-                @click="removeStaffs()"
-                >{{ $t("staff.unbind") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="add move"
-                @click="goSetDepart()"
-                >{{ $t("staff.DepartmentSettings") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="add move"
-                @click="goSetWorktype()"
-                >{{ $t("staff.Tradesettings") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="importExcelWorktype()"
-                >{{ $t("staff.importWorktype") }}</el-button
-              >
-              <el-button
-                type="primary"
-                class="reset"
-                style="margin-left: 0%"
-                @click="exportExcelWorkType()"
-                >{{ $t("staff.exportWorktype") }}</el-button
-              >
-            </el-form-item>
-          </el-form>
+          </div>
 
           <!-- 展示 -->
           <div class="content_staff">
@@ -216,18 +149,19 @@
                 @change="importExcelWorktypes"
               />
             </div>
-            <el-table
+            <div class="page-panel table-panel">
+            <el-table class="device-table"
               ref="multipleTable"
               :data="tableData"
               @selection-change="handleSelectionChange"
               style="
-                width: 98%;
+                width: 100%;
                 text-align: center;
-                margin-left: 2%;
+                
                 z-index: 1;
               "
               max-height="660"
-              border
+              :border="contrForPrionum != 5"
               highlight-current-row
             >
               <el-table-column type="selection" width="55"> </el-table-column>
@@ -244,7 +178,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ ages(scope.row.birthday) }}
                 </template>
               </el-table-column>
@@ -295,7 +229,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   {{ scope.row.steps ? scope.row.steps : "/" }}
                 </template>
               </el-table-column>
@@ -320,8 +254,9 @@
                 min-width="160"
                 align="center"
               >
-                <template slot-scope="scope">
-                  <el-dropdown size="mini" type="primary" trigger="click">
+                <template #default="scope">
+                  <el-dropdown size="small" type="primary" trigger="click">
+                    <span class="el-dropdown-link">
                     <el-tooltip
                       class="item"
                       effect="dark"
@@ -332,8 +267,9 @@
                         <img src="../../../static/control.png" />
                       </el-button>
                     </el-tooltip>
-                    <el-dropdown-menu
-                      slot="dropdown"
+                    </span>
+<template #dropdown><el-dropdown-menu
+                     
                       style="background-color: rgb(219, 222, 231)"
                       class="selects"
                     >
@@ -343,25 +279,21 @@
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="edits"
                           @click="staffEdit(scope.row)"
-                          >{{ $t("staff.edit") }}</el-button
-                        ></el-dropdown-item
-                      >
+                          >{{ $t("staff.edit") }}</el-button></el-dropdown-item>
                       <el-dropdown-item
                         style="
                           margin-top: 4%;
                           background-color: rgb(219, 222, 231);
                         "
                         ><el-button
-                          size="mini"
+                          size="small"
                           class="dels"
                           @click="staffDele(scope.row)"
-                          >{{ $t("staff.delete") }}</el-button
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
+                          >{{ $t("staff.delete") }}</el-button></el-dropdown-item>
+                    </el-dropdown-menu></template>
                   </el-dropdown>
                   <el-tooltip
                     class="item"
@@ -391,23 +323,41 @@
                       ><img src="../../../static/trajectory2.png"
                     /></el-button>
                   </el-tooltip>
+
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('staff.health')"
+                    placement="top-start"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="edits icon_button"
+                      style="margin-left: 0"
+                      @click="openHealthDialog(scope.row)"
+                    >
+                      <el-icon :size="16"><FirstAidKit /></el-icon>
+                    </el-button>
+                  </el-tooltip>
                 </template>
               </el-table-column>
             </el-table>
+            </div>
 
             <!-- 分页 -->
             <div
-              class="block"
+              class="block device-pagination"
               style="text-align: center; width: 100%; margin-top: 1%"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
@@ -415,41 +365,46 @@
 
           <!-- 添加员工 -->
           <el-dialog
+            class="device-dialog"
             :title="$t('staff.text1')"
-            width="30%"
-            :visible.sync="add"
-            style="text-align: center"
+            width="480px"
+            v-model="add"
+            align-center
             @close="addCancel('addData')"
           >
-            <el-upload
-              :action="ImagePath"
-              list-type="picture-card"
-              :file-list="fileListAdd"
-              :on-preview="handlePictureCardPreview"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPic"
-              :on-success="picSuccess"
-              :on-error="picError"
-              :headers="myHeader"
-              :auto-upload="false"
-              :on-exceed="handleExceed"
-              :before-upload="beforeAvatarUpload"
-              :on-change="handleChange"
-              :on-remove="handleRemove"
-            >
-              <div slot="tip" class="el-upload__tip">
-                {{ $t("staff.text2") }}
-              </div>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+            <div class="staff-avatar-upload">
+              <el-upload
+                :action="ImagePath"
+                list-type="picture-card"
+                :file-list="fileListAdd"
+                :on-preview="handlePictureCardPreview"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPic"
+                :on-success="picSuccess"
+                :on-error="picError"
+                :headers="myHeader"
+                :auto-upload="false"
+                :on-exceed="handleExceed"
+                :before-upload="beforeAvatarUpload"
+                :on-change="handleChange"
+                :on-remove="handleRemove"
+              >
+                <template #tip
+                  ><div class="el-upload__tip">
+                    {{ $t("staff.text2") }}
+                  </div></template
+                >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
+              class="staff-member-form"
               :model="addData"
               label-width="120px"
               ref="addData"
               :rules="editRules"
-              style="text-align: left; margin-top: 2%"
             >
               <el-form-item :label="$t('staff.name1')" prop="username">
                 <el-input v-model="addData.username" maxlength="32"></el-input>
@@ -462,7 +417,7 @@
                   v-model="addData.birthday"
                   type="date"
                   :placeholder="$t('staff.birthdayPlaceholder')"
-                  value-format="yyyy-MM-dd"
+                  value-format="YYYY-MM-DD"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -568,7 +523,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="addCancel('addData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -576,53 +531,56 @@
                 type="primary"
                 @click="addTrue('addData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 地图预览 -->
-          <el-dialog :visible.sync="dialogVisible" :append-to-body="true">
+          <el-dialog class="device-dialog" v-model="dialogVisible" :append-to-body="true" align-center width="480px">
             <img width="100%" :src="dialogImageUrl" alt />
           </el-dialog>
 
           <!-- 编辑 -->
           <el-dialog
             :title="$t('staff.text3')"
-            :visible.sync="edit"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="edit"
+            class="edit device-dialog"
+            width="480px"
+            align-center
             @close="editCancel('editData')"
           >
-            <el-upload
-              :action="ImagePathEdit"
-              list-type="picture-card"
-              :file-list="fileListEdit"
-              :on-preview="handlePictureCardPreviewEdit"
-              accept=".png, .jpg, .jpeg"
-              :limit="1"
-              ref="upload"
-              :data="userIdForPicEdit"
-              :on-success="picSuccessEdit"
-              :on-error="picErrorEdit"
-              :headers="myHeaderEdit"
-              :auto-upload="false"
-              :on-change="handleChange"
-              :on-remove="handleRemove"
-              :on-exceed="handleExceedEdit"
-              :before-upload="beforeAvatarUploadEdit"
-            >
-              <div slot="tip" class="el-upload__tip">
-                {{ $t("staff.text2") }}
-              </div>
-              <i class="el-icon-plus"></i>
-            </el-upload>
+            <div class="staff-avatar-upload">
+              <el-upload
+                :action="ImagePathEdit"
+                list-type="picture-card"
+                :file-list="fileListEdit"
+                :on-preview="handlePictureCardPreviewEdit"
+                accept=".png, .jpg, .jpeg"
+                :limit="1"
+                ref="upload"
+                :data="userIdForPicEdit"
+                :on-success="picSuccessEdit"
+                :on-error="picErrorEdit"
+                :headers="myHeaderEdit"
+                :auto-upload="false"
+                :on-change="handleChange"
+                :on-remove="handleRemove"
+                :on-exceed="handleExceedEdit"
+                :before-upload="beforeAvatarUploadEdit"
+              >
+                <template #tip
+                  ><div class="el-upload__tip">
+                    {{ $t("staff.text2") }}
+                  </div></template
+                >
+                <i class="el-icon-plus"></i>
+              </el-upload>
+            </div>
             <el-form
+              class="staff-member-form"
               :model="editData"
               ref="editData"
               label-width="120px"
               :rules="editRules"
-              style="text-align: left; margin-top: 2%"
             >
               <el-form-item :label="$t('staff.name1')" prop="username">
                 <el-input v-model="editData.username" disabled></el-input>
@@ -635,7 +593,7 @@
                   v-model="editData.birthday"
                   type="date"
                   :placeholder="$t('staff.birthdayPlaceholder')"
-                  value-format="yyyy-MM-dd"
+                  value-format="YYYY-MM-DD"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -739,7 +697,7 @@
                 ></el-input>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="editCancel('editData')">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -747,26 +705,26 @@
                 type="primary"
                 @click="editTrue('editData')"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
 
           <!-- 行为分析 -->
           <el-dialog
-            :visible.sync="actions"
+            :title="$t('staffmanagement.trajectory')"
+            v-model="actions"
             width="60%"
-            style="text-align: center"
             :close-on-click-modal="false"
-            class="action"
+            class="action device-dialog"
             @close="closeAction"
+            top="6vh"
           >
             <el-dialog
-              :visible.sync="trajectory"
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction"
             >
@@ -774,156 +732,179 @@
               <Trajectory ref="trajectory" @closePopup2d="closePopup" />
             </el-dialog>
             <el-dialog
-              :visible.sync="trajectory3d"
+              :title="$t('staff.Viewtrack')"
+              v-model="trajectory3d"
               width="80%"
-              style="text-align: center"
               :close-on-click-modal="false"
-              class="trajectory"
+              class="trajectory device-dialog"
               append-to-body
               @close="closetrajectoryAction3d"
             >
               <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
             </el-dialog>
             <el-form
-              class="demo-form-inline"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                width: 100%;
-              "
+              class="demo-form-inline action-filter-form"
               :model="actionData"
             >
               <el-form-item
+                class="action-filter-item action-filter-name"
                 :label="$t('staff.name1')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 1%;
-                  width: 16%;
-                "
               >
                 <el-input v-model="actionData.username"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-maplabel"
                 :label="$t('staff.Workcardnumber1')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 2%;
-                  width: 30%;
-                "
               >
                 <el-input v-model="actionData.maplabel"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-time"
                 :label="$t('staff.time')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  width: 40%;
-                "
               >
                 <el-date-picker
                   v-model="actionTime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('terminal.to')"
                   :start-placeholder="$t('terminal.startdate')"
                   :end-placeholder="$t('terminal.enddate')"
                 ></el-date-picker>
               </el-form-item>
-              <el-form-item style="margin-left: 1%; width: 20%">
+              <el-form-item class="action-filter-item action-filter-actions">
                 <el-button
                   type="primary"
                   class="query"
                   @click="searchAction()"
-                  >{{ $t("staff.search") }}</el-button
-                >
+                  >{{ $t("staff.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="query"
                   @click="showTrajectory()"
-                  >{{ $t("staff.Viewtrack") }}</el-button
-                >
+                  >{{ $t("staff.Viewtrack") }}</el-button>
               </el-form-item>
             </el-form>
             <div class="actionDetails">
-              <Timeline v-for="item in actionTableData" :key="item.id">
-                <!-- 室内 -->
-                <TimelineItem v-if="item.postype == 1">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+              <div v-if="actionTableData.length" class="action-record-grid">
+                <div
+                  v-for="item in actionTableData"
+                  :key="item.id"
+                  class="action-record"
+                  :class="item.postype == 1 ? 'is-indoor' : 'is-outdoor'"
+                >
+                  <div class="action-record-head">
+                    <span class="action-record-time">{{ item.gpstime }}</span>
+                    <span class="action-record-tag">{{
+                      item.postype == 1
+                        ? [item.building, item.groundname]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : $t("warning.outdoor")
+                    }}</span>
+                  </div>
+                  <p class="action-record-line">
+                    <span>{{ $t("warning.area1") }}</span>{{ item.tranche }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.Building") }}{{ item.building }}
+                  <p class="action-record-line">
+                    <span>{{ $t("tet.Residencetime") }}</span
+                    >{{ formatSeconds(item.remaintime) }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.floor") }}{{ item.groundname }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
+                </div>
+              </div>
+              <div v-else class="action-record-empty">
+                {{ $t("homepage.noData") }}
+              </div>
+            </div>
+          </el-dialog>
 
-                <!-- 室外 -->
-                <TimelineItem v-if="item.postype == 2">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
-              </Timeline>
+          <!-- 设备健康记录查询：内容较高，不用 align-center，避免整框被垂直居中显得偏下 -->
+          <el-dialog
+            :title="$t('staff.healthTitle')"
+            v-model="healthDialog"
+            width="70%"
+            top="6vh"
+            class="health-dialog device-dialog"
+            @opened="onHealthDialogOpened"
+            @closed="disposeHealthCharts"
+          >
+            <div class="health-query-bar">
+              <span class="health-query-label">{{
+                $t("staff.healthTime")
+              }}</span>
+              <el-date-picker
+                v-model="healthTimeRange"
+                type="datetimerange"
+                class="health-date-picker"
+                format="YYYY-MM-DD HH:mm"
+                style="width: 320px; max-width: 320px"
+                :shortcuts="pickerOptions.shortcuts"
+                :range-separator="$t('beacon.to')"
+                :start-placeholder="$t('beacon.starttime')"
+                :end-placeholder="$t('beacon.endtime')"
+              ></el-date-picker>
+              <el-button
+                type="primary"
+                class="health-query-btn"
+                :loading="healthLoading"
+                @click="queryDevHealth"
+                >{{ $t("staff.search") }}</el-button
+              >
+            </div>
+            <div v-if="healthResult !== null" style="text-align: left">
+              <div
+                v-if="healthData.length === 0"
+                style="text-align: center; color: #999; padding: 20px 0"
+              >
+                {{ $t("staff.healthEmpty") }}
+              </div>
+              <template v-else>
+                <div class="health-chart-card">
+                  <div class="health-chart-title is-heart">
+                    {{ $t("staff.healthHeartrate") }}
+                    <span>{{ $t("staff.healthUnitBpm") }}</span>
+                  </div>
+                  <div ref="heartChart" class="health-chart"></div>
+                </div>
+                <div class="health-chart-card">
+                  <div class="health-chart-title is-tem">
+                    {{ $t("staff.healthTemperature") }}
+                    <span>{{ $t("staff.healthUnitCelsius") }}</span>
+                  </div>
+                  <div ref="temChart" class="health-chart"></div>
+                </div>
+              </template>
             </div>
           </el-dialog>
 
           <!-- 删除 -->
           <el-dialog
+            class="device-dialog device-confirm-dialog"
             :title="$t('staff.text4')"
-            :visible.sync="deleTpl"
-            style="text-align: center"
+            v-model="deleTpl"
+            width="420px"
+            align-center
           >
-            <el-form>
-              <p
-                style="
-                  line-height: 0px;
-                  margin-bottom: 10px;
-                  color: red;
-                  font-size: 20px;
-                "
-              >
-                {{ $t("staff.text5") }}{{ deleStaff }}{{ $t("staff.text6") }}
-              </p>
-            </el-form>
-            <div slot="footer" class="dialog-footer">
+            <p class="staff-delete-tip">
+              {{ $t("staff.text5") }}{{ deleStaff }}{{ $t("staff.text6") }}
+            </p>
+            <template #footer><div class="dialog-footer">
               <el-button @click="(deleTpl = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
               <el-button type="primary" @click="deleTrue" :loading="loading">{{
                 $t("warning.Sure")
               }}</el-button>
-            </div>
+            </div></template>
           </el-dialog>
           <!--轨迹！-->
 
           <!-- 解除分配信标 -->
           <el-dialog
             :title="$t('staff.text7')"
-            :visible.sync="removeStaff"
-            class="edit"
-            width="50%"
-            style="text-align: center"
+            v-model="removeStaff"
+            class="edit device-dialog"
+            width="640px"
+            align-center
           >
             <el-table
               :data="removeDatas"
@@ -947,7 +928,7 @@
                 show-overflow-tooltip
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(removeStaff = false), (loading = false)">{{
                 $t("warning.Cancel")
               }}</el-button>
@@ -955,201 +936,179 @@
                 type="primary"
                 @click="removeTrue()"
                 :loading="loading"
-                >{{ $t("warning.Sure") }}</el-button
-              >
-            </div>
+                >{{ $t("warning.Sure") }}</el-button>
+            </div></template>
           </el-dialog>
           <!-- 设置角色 -->
           <el-dialog
             :title="$t('staff.text8')"
-            :visible.sync="addWorktype"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="addWorktype"
+            class="edit device-dialog staff-setting-dialog"
+            width="520px"
+            align-center
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
           >
-            <div class="import_type">
-              <el-radio-group size="small">
+            <div class="staff-setting-body">
+              <div class="staff-setting-import">
                 <el-button
                   type="primary"
                   class="add"
-                  style="float: left"
                   @click="addWorktypeRow"
-                  >{{ $t("staff.add") }}</el-button
+                  >{{ $t("staff.add") }}</el-button>
+                <span class="staff-setting-label">{{
+                  $t("staff.import")
+                }}</span>
+                <el-select
+                  v-model="currentProjectid.projectid"
+                  clearable
+                  filterable
+                  @change="importWorktype"
+                  :placeholder="$t('staff.text9')"
                 >
-              </el-radio-group>
-              <el-form style="text-align: center">
-                <el-form-item
-                  style="
-                    width: 60%;
-                    margin-left: 16%;
-                    text-align: left;
-                    margin-top: 14px;
-                  "
-                  :label="$t('staff.import')"
-                >
-                  <el-select
-                    v-model="currentProjectid.projectid"
-                    clearable
-                    filterable
-                    @change="importWorktype"
-                    :placeholder="$t('staff.text9')"
+                  <el-option
+                    v-for="item in projectList()"
+                    :key="item.projectid"
+                    :label="item.name"
+                    :value="item.projectid"
+                  ></el-option>
+                </el-select>
+                <el-tooltip effect="light" placement="right-start">
+                  <template #content
+                    ><div>
+                      <p>{{ $t("staff.text9") }}</p>
+                    </div></template
                   >
-                    <el-option
-                      v-for="item in projectList()"
-                      :key="item.projectid"
-                      :label="item.name"
-                      :value="item.projectid"
-                    ></el-option>
-                  </el-select>
-                  <el-tooltip
-                    class="item"
-                    effect="light"
-                    placement="right-start"
-                    style="
-                      position: absolute;
-                      font-size: 130%;
-                      top: 50%;
-                      transform: translateY(-50%);
-                      margin-left: 5px;
+                  <i class="el-icon-question staff-setting-help" />
+                </el-tooltip>
+              </div>
+              <div class="staff-setting-rows">
+                <div
+                  class="staff-setting-row"
+                  v-for="(item, index) in worktypeList"
+                  :key="item.id || 'new-' + index"
+                >
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleWorktypeRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
                     "
-                  >
-                    <div slot="content">
-                      <p>
-                        {{ $t("staff.text9") }}
-                      </p>
-                    </div>
-                    <i class="el-icon-question" />
-                  </el-tooltip>
-                </el-form-item>
-              </el-form>
+                    >{{ $t("staff.delete") }}</el-button>
+                  <el-image
+                    class="staff-setting-icon"
+                    :src="assetBase + '/image/' + item.colour + '.png'"
+                    fit="fill"
+                    @click="changeIcon(item)"
+                  ></el-image>
+                </div>
+              </div>
             </div>
-
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in worktypeList"
-              :key="item.id"
-              style="margin-top: 20px"
-              class="demo-form-inline"
+            <template #footer
+              ><div class="dialog-footer">
+                <el-button @click="addWorktype = false">{{
+                  $t("warning.Cancel")
+                }}</el-button>
+                <el-button type="primary" @click="addWorktypeRowTrue()">{{
+                  $t("warning.Sure")
+                }}</el-button>
+              </div></template
             >
-              <el-form-item class="work_type_list">
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  class="del"
-                  @click="
-                    deleWorktypeRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  >{{ $t("staff.delete") }}</el-button
-                >
-                <el-image
-                  style="width: 32px; height: 32px; cursor: pointer"
-                  :src="'../../../static/' + item.colour + '.png'"
-                  fit="fill"
-                  @click.native="changeIcon(item)"
-                ></el-image>
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addWorktype = false">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="addWorktypeRowTrue()">{{
-                $t("warning.Sure")
-              }}</el-button>
-            </div>
           </el-dialog>
 
           <!-- 选择角色图标 -->
-          <el-dialog :visible.sync="showIcon" width="25%">
-            <span slot="title"> 选择图标 </span>
+          <el-dialog
+            class="device-dialog staff-icon-dialog"
+            v-model="showIcon"
+            width="420px"
+            align-center
+          >
+            <template #title><span> 选择图标 </span></template>
             <el-radio-group
+              class="staff-icon-group"
               v-model="radio"
               @change="chooseIcon()"
-              style="text-align: left"
             >
               <el-radio :label="1">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc1"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="2">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc2"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="3">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc3"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="4">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc4"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="5">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc5"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="6">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc6"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="7">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc7"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="8">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc8"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="9">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc9"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
               <el-radio :label="10">
                 <el-image
                   style="width: 32px; height: 32px"
                   :src="IconSrc10"
-                  fit="fit"
+                  fit="contain"
                 ></el-image>
               </el-radio>
             </el-radio-group>
@@ -1158,33 +1117,21 @@
           <!-- 设置部门 -->
           <el-dialog
             :title="$t('staff.text10')"
-            :visible.sync="addDepartktype"
-            class="edit"
-            width="30%"
-            style="text-align: center"
+            v-model="addDepartktype"
+            class="edit device-dialog staff-setting-dialog"
+            width="520px"
+            align-center
             :close-on-press-escape="false"
-            :modal-append-to-body="false"
             :append-to-body="true"
           >
-            <el-radio-group size="small">
-              <el-button
-                type="primary"
-                class="add"
-                style="float: left"
-                @click="addDepartRow"
-                >{{ $t("staff.add") }}</el-button
-              >
-            </el-radio-group>
-            <el-form style="text-align: center">
-              <el-form-item
-                style="
-                  width: 60%;
-                  margin-left: 16%;
-                  text-align: left;
-                  margin-top: 14px;
-                "
-                :label="$t('staff.import')"
-              >
+            <div class="staff-setting-body">
+              <div class="staff-setting-import">
+                <el-button type="primary" class="add" @click="addDepartRow">{{
+                  $t("staff.add")
+                }}</el-button>
+                <span class="staff-setting-label">{{
+                  $t("staff.import")
+                }}</span>
                 <el-select
                   v-model="currentProjectid.projectid"
                   clearable
@@ -1199,67 +1146,53 @@
                     :value="item.projectid"
                   ></el-option>
                 </el-select>
-                <el-tooltip
-                  class="item"
-                  effect="light"
-                  placement="right-start"
-                  style="
-                    position: absolute;
-                    font-size: 130%;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    margin-left: 5px;
-                  "
-                >
-                  <div slot="content">
-                    <p>
-                      {{ $t("staff.text11") }}
-                    </p>
-                  </div>
-                  <i class="el-icon-question" />
+                <el-tooltip effect="light" placement="right-start">
+                  <template #content
+                    ><div>
+                      <p>{{ $t("staff.text11") }}</p>
+                    </div></template
+                  >
+                  <i class="el-icon-question staff-setting-help" />
                 </el-tooltip>
-              </el-form-item>
-            </el-form>
-            <el-form
-              label-width="80px"
-              v-for="(item, index) in departList"
-              :key="index"
-              style="margin-top: 20px"
-              class="demo-form-inline"
-            >
-              <el-form-item>
-                <el-input
-                  v-model="item.name"
-                  :maxlength="i8n == 'zh' ? '12' : '30'"
-                  style="float: left; width: 70%"
-                  :disabled="item.id === undefined ? false : true"
-                ></el-input>
-                <el-button
-                  type="primary"
-                  size="small"
-                  style="float: left; margin-left: 20px"
-                  @click="
-                    deleDepartRow(
-                      index,
-                      item.id,
-                      item.name,
-                      item.tenantid,
-                      item.projectid
-                    )
-                  "
-                  class="del"
-                  >{{ $t("staff.delete") }}</el-button
+              </div>
+              <div class="staff-setting-rows">
+                <div
+                  class="staff-setting-row"
+                  v-for="(item, index) in departList"
+                  :key="item.id || 'depart-' + index"
                 >
-              </el-form-item>
-            </el-form>
-            <div slot="footer" class="dialog-footer" style="margin-top: -10px">
-              <el-button @click="addDepartktype = false">{{
-                $t("warning.Cancel")
-              }}</el-button>
-              <el-button type="primary" @click="addDepartRowTrue()">{{
-                $t("warning.Sure")
-              }}</el-button>
+                  <el-input
+                    v-model="item.name"
+                    :maxlength="i8n == 'zh' ? '12' : '30'"
+                    :disabled="item.id === undefined ? false : true"
+                  ></el-input>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    class="del"
+                    @click="
+                      deleDepartRow(
+                        index,
+                        item.id,
+                        item.name,
+                        item.tenantid,
+                        item.projectid
+                      )
+                    "
+                    >{{ $t("staff.delete") }}</el-button>
+                </div>
+              </div>
             </div>
+            <template #footer
+              ><div class="dialog-footer">
+                <el-button @click="addDepartktype = false">{{
+                  $t("warning.Cancel")
+                }}</el-button>
+                <el-button type="primary" @click="addDepartRowTrue()">{{
+                  $t("warning.Sure")
+                }}</el-button>
+              </div></template
+            >
           </el-dialog>
         </el-main>
       </el-container>
@@ -1272,6 +1205,7 @@ import Menu from "../../components/menu/Menu";
 import Asset from "../../components/asset/asset";
 import host from "../../host";
 import util from "../../common/util";
+import { ASSET_BASE } from "../../config/index.js";
 import {
   getMemberList,
   getMemberName,
@@ -1286,7 +1220,7 @@ import {
   getDepartmentType,
   getDevGpsOne,
   getDevGpsAction,
-  delDepartmenType,
+  delDepartmentType,
   delMemberType,
   addMemberType,
   addDepartmentType,
@@ -1295,11 +1229,12 @@ import {
   importMember,
   getBuildGroundList,
   importBranch,
+  getDevHealthListAsc,
 } from "../../axios/api";
 import Location from "./outdoorTrajectory.vue";
 import Trajectory from "./trajectory.vue";
 import Trajectorys from "./trajectory3d.vue";
-import { name } from "file-loader";
+import { FirstAidKit } from "@element-plus/icons-vue";
 
 export default {
   components: {
@@ -1308,39 +1243,41 @@ export default {
     Location,
     Trajectory,
     Trajectorys,
+    FirstAidKit,
   },
   name: "StaffManagement",
   data() {
     return {
       i8n: this.$store.state.i18n,
+      assetBase: ASSET_BASE,
       //时间选择限制
       pickerOptions: {
         shortcuts: [
           {
             text: this.$t("staffmanagement.Lasthour1"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 1);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour3"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 3);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("staffmanagement.Lasthour6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.getTime() - 3600 * 1000 * 6);
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
         ],
@@ -1394,8 +1331,8 @@ export default {
       },
       haveImage: false, //判断添加的员工有没有头像
       delImage: false, //判断员工是否要删除头像
-      ImagePath: host.host + "user/addMemberMapFile",
-      ImagePathEdit: host.host + "user/updateMemberMapFile",
+      ImagePath: host.host + "service/addMemberMapFile",
+      ImagePathEdit: host.host + "service/updateMemberMapFile",
       fileListAdd: [],
       fileListEdit: [],
       dialogImageUrl: "",
@@ -1520,7 +1457,21 @@ export default {
       IconSrc9: "../../../static/9.png",
       IconSrc10: "../../../static/10.png",
       headlistdata: "",
+      healthDialog: false,
+      healthTimeRange: [],
+      healthUsername: "",
+      healthLoading: false,
+      healthResult: null,
+      healthData: [],
+      heartChartInst: null,
+      temChartInst: null,
     };
+  },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
   },
   methods: {
     // 导入
@@ -1548,7 +1499,7 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
+          import("xlsx").then((XLSX) => {
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1588,6 +1539,7 @@ export default {
               $("#articleImageFile").val("");
             }
           });
+          });
         };
         reader.readAsArrayBuffer(f);
       };
@@ -1621,7 +1573,7 @@ export default {
           for (var i = 0; i < length; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          var XLSX = require("xlsx");
+          import("xlsx").then((XLSX) => {
           if (rABS) {
             wb = XLSX.read(btoa(fixdata(binary)), {
               //手动转化
@@ -1659,6 +1611,7 @@ export default {
               });
               $("#articleWorktypeFile").val("");
             }
+          });
           });
         };
         reader.readAsArrayBuffer(f);
@@ -1824,9 +1777,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
-        //表头
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
         let list = tableData;
@@ -1971,9 +1922,7 @@ export default {
           }
         }
       }
-      require.ensure([], () => {
-        const { export_json_to_excel } = require("../../vendor/Export2Excel");
-        //表头
+      import("../../vendor/Export2Excel").then(({ export_json_to_excel }) => {
         const tHeader = exprotHeadertype;
         const filterVal = eHeaders3;
         let list = tableData;
@@ -2109,6 +2058,9 @@ export default {
       this.trajectory = false;
     },
     closePopup3d(data) {
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
+        this.$refs.trajectorys.mapOut();
+      }
       this.trajectory3d = false;
     },
     projectList() {
@@ -2484,7 +2436,7 @@ export default {
           projectid: projectid,
           name: name,
         };
-        delDepartmenType(
+        delDepartmentType(
           JSON.stringify(data),
           this.tenantkey_A,
           this.tenantid_A,
@@ -2757,6 +2709,7 @@ export default {
 
     //重置搜索
     clearBtn() {
+      this.pageCount = 20;
       var that = this;
       this.searchList = {
         username: "", //员工名称
@@ -2767,7 +2720,7 @@ export default {
         depart: "", //部门
         maplabel: "", //工卡号或信标号
         page: 1,
-        count: this.pageCount,
+        count: 20,
         ontime: "", //在线时间
         offtime: "", //离线时间
       };
@@ -3033,6 +2986,246 @@ export default {
       this.actions = true;
     },
 
+    // 设备健康记录：打开弹框
+    openHealthDialog(row) {
+      this.healthDialog = true;
+      this.healthUsername = row.username;
+      this.healthTimeRange = [];
+      this.healthResult = null;
+      this.healthData = [];
+      this.disposeHealthCharts();
+    },
+
+    disposeHealthCharts() {
+      if (this.heartChartInst) {
+        this.heartChartInst.dispose();
+        this.heartChartInst = null;
+      }
+      if (this.temChartInst) {
+        this.temChartInst.dispose();
+        this.temChartInst = null;
+      }
+    },
+
+    // 弹框打开动画结束后，图表尺寸已确定，重新 resize 防止首帧尺寸错误
+    onHealthDialogOpened() {
+      var that = this;
+      this.$nextTick(() => {
+        if (that.heartChartInst) that.heartChartInst.resize();
+        if (that.temChartInst) that.temChartInst.resize();
+      });
+    },
+
+    // 根据接口返回值渲染心率/体温折线图
+    renderHealthCharts() {
+      var that = this;
+      this.disposeHealthCharts();
+      this.$nextTick(() => {
+        if (!that.healthData || that.healthData.length === 0) return;
+        var fullTimes = []; // 完整时间，用于 tooltip
+        var axisTimes = []; // X 轴短标签（只到时分秒），避免标签过长被画布裁切
+        var rawTimes = [];
+        var hearts = [];
+        var tems = [];
+        for (var i = 0; i < that.healthData.length; i++) {
+          var item = that.healthData[i];
+          var t = item.dataTime ? item.dataTime * 1000 : null;
+          rawTimes.push(t);
+          fullTimes.push(
+            t ? util.formatDate.format(new Date(t), "yyyy-MM-dd hh:mm:ss") : "-"
+          );
+          // 0 视为未读数（设备未上报有效值），置为 null 避免误导
+          hearts.push(item.heartrate > 0 ? item.heartrate : null);
+          tems.push(item.tem > 0 ? item.tem : null);
+        }
+        // 同一天只显示时分秒；跨天时补上日期，保证时间可辨识
+        var sameDay = true;
+        if (rawTimes.length > 1 && rawTimes[0] && rawTimes[rawTimes.length - 1]) {
+          sameDay =
+            new Date(rawTimes[0]).toDateString() ===
+            new Date(rawTimes[rawTimes.length - 1]).toDateString();
+        }
+        var axisPattern = sameDay ? "hh:mm:ss" : "MM-dd hh:mm";
+        for (var j = 0; j < rawTimes.length; j++) {
+          axisTimes.push(
+            rawTimes[j]
+              ? util.formatDate.format(new Date(rawTimes[j]), axisPattern)
+              : "-"
+          );
+        }
+        // 每个图单独构建 option，避免共享引用被 echarts 修改
+        var buildOption = function (seriesName, data, unit, color, rgb, scale) {
+          return {
+            color: [color],
+            tooltip: {
+              trigger: "axis",
+              formatter: function (params) {
+                if (!params || !params.length) return "";
+                var p = params[0];
+                var full = fullTimes[p.dataIndex] || p.axisValue;
+                var val =
+                  p.value === null || p.value === undefined ? "-" : p.value;
+                return (
+                  full +
+                  "<br/>" +
+                  p.marker +
+                  seriesName +
+                  "：" +
+                  val +
+                  (unit || "")
+                );
+              },
+            },
+            // containLabel: true 让 echarts 自动预留坐标轴文字空间，标签不会被画布裁切
+            grid: {
+              left: 10,
+              right: 24,
+              top: 24,
+              bottom: 10,
+              containLabel: true,
+            },
+            xAxis: {
+              type: "category",
+              data: axisTimes,
+              boundaryGap: false,
+              axisTick: { alignWithLabel: true },
+              axisLabel: {
+                // 短标签 + 不旋转，保证时间完整显示；重叠时自动抽稀
+                rotate: 0,
+                fontSize: 11,
+                margin: 10,
+                hideOverlap: true,
+                interval: "auto",
+              },
+            },
+            yAxis: {
+              type: "value",
+              scale: !!scale,
+              min: scale
+                ? function (v) {
+                    return Math.floor(v.min - 1);
+                  }
+                : null,
+              max: scale
+                ? function (v) {
+                    return Math.ceil(v.max + 1);
+                  }
+                : null,
+              axisLabel: { fontSize: 11, margin: 10, color: "#64748b" },
+              splitLine: { lineStyle: { type: "dashed", color: "#e2e8f0" } },
+            },
+            series: [
+              {
+                name: seriesName,
+                type: "line",
+                smooth: false,
+                connectNulls: false,
+                symbolSize: 6,
+                lineStyle: { width: 2, color: color },
+                itemStyle: { color: color, borderColor: "#fff", borderWidth: 1 },
+                areaStyle: {
+                  color: {
+                    type: "linear",
+                    x: 0,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [
+                      { offset: 0, color: "rgba(" + rgb + ", 0.22)" },
+                      { offset: 1, color: "rgba(" + rgb + ", 0.02)" },
+                    ],
+                  },
+                },
+                data: data,
+              },
+            ],
+          };
+        };
+        var initChart = function (refName, option, instKey) {
+          var el = that.$refs[refName];
+          if (!el) return;
+          var inst = that.$echarts.init(el);
+          that[instKey] = inst;
+          inst.setOption(option);
+          inst.resize();
+        };
+        initChart(
+          "heartChart",
+          buildOption(
+            that.$t("staff.healthHeartrate"),
+            hearts,
+            that.$t("staff.healthUnitBpm"),
+            "#f43f5e",
+            "244, 63, 94",
+            false
+          ),
+          "heartChartInst"
+        );
+        initChart(
+          "temChart",
+          buildOption(
+            that.$t("staff.healthTemperature"),
+            tems,
+            that.$t("staff.healthUnitCelsius"),
+            "#2f7bff",
+            "47, 123, 255",
+            true
+          ),
+          "temChartInst"
+        );
+      });
+    },
+
+    // 设备健康记录：按时间范围查询接口
+    queryDevHealth() {
+      var that = this;
+      if (!this.healthTimeRange || this.healthTimeRange.length !== 2) {
+        this.$message({
+          message: this.$t("staff.healthTimeRequired"),
+          type: "warning",
+        });
+        return;
+      }
+      let begingTime = util.formatDate.format(
+        new Date(this.healthTimeRange[0]),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+      let endTime = util.formatDate.format(
+        new Date(this.healthTimeRange[1]),
+        "yyyy-MM-dd hh:mm:ss"
+      );
+      begingTime = Date.parse(new Date(begingTime)) / 1000;
+      endTime = Date.parse(new Date(endTime)) / 1000;
+      let query = {
+        projectid: this.$store.state.projectid,
+        username: this.healthUsername,
+        begintime: begingTime,
+        endtime: endTime,
+      };
+      this.healthLoading = true;
+      getDevHealthListAsc(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          console.log("getDevHealthListAsc response:", res);
+          that.healthResult = res;
+          var list = res && res.data ? res.data : [];
+          that.healthData = list;
+          that.renderHealthCharts();
+        })
+        .catch((err) => {
+          console.error("getDevHealthListAsc error:", err);
+          that.healthResult = err;
+          that.healthData = [];
+        })
+        .finally(() => {
+          that.healthLoading = false;
+        });
+    },
+
     searchAction() {
       var that = this;
       let data = {
@@ -3250,9 +3443,10 @@ export default {
       });
     },
     closetrajectoryAction3d() {
-      this.$nextTick(() => {
+      // 同步清理：勿等 nextTick，否则播放器动画仍会访问已关闭弹窗里的 map
+      if (this.$refs.trajectorys && this.$refs.trajectorys.mapOut) {
         this.$refs.trajectorys.mapOut();
-      });
+      }
     },
 
     // 删除员工
@@ -3311,6 +3505,7 @@ export default {
     searchStaff() {
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       var that = this;
       getMemberList(
         this.searchList,
@@ -3326,7 +3521,6 @@ export default {
             type: "success",
           });
         }
-        this.searchList.count = 10;
       });
     },
 
@@ -3679,10 +3873,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -3707,44 +3901,112 @@ export default {
   color: white;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-select .el-input__inner {
+.demo-form-inline :deep(.el-select .el-input__inner) {
   padding-right: 20px;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
 .actionDetails {
-  /* height: 50px; */
-  max-height: 500px;
+  max-height: 56vh;
   overflow: auto;
-  display: flex;
-  flex-wrap: wrap;
-}
-.actionDetails >>> .ivu-timeline {
-  width: 23%;
-  margin-left: 2%;
+  margin-top: 4px;
+  padding: 0 8px 4px;
+  box-sizing: border-box;
   text-align: left;
+}
+.action-record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.action-record {
+  position: relative;
+  margin: 0 !important;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  background: #fbfcfe;
+  box-sizing: border-box;
+}
+.action-record::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #2f7bff;
+}
+.action-record.is-outdoor::before {
+  background: #10b981;
+}
+.action-record-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px !important;
+}
+.action-record-time {
+  margin: 0 !important;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+}
+.action-record-tag {
+  margin: 0 !important;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #2f7bff;
+  background: #eef4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.action-record.is-outdoor .action-record-tag {
+  color: #059669;
+  background: #ecfdf5;
+}
+.action-record-line {
+  margin: 4px 0 0 !important;
+  font-size: 13px;
+  color: #334155;
+}
+.action-record-line span {
+  color: #94a3b8;
+}
+.action-record-empty {
+  margin: 0 !important;
+  padding: 40px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
 }
 
 .action .el-dialog__body .el-form .el-form-item {
@@ -3754,34 +4016,543 @@ export default {
 .action .demo-form-inline .el-form-item .el-form-item__content {
   width: 100%;
 }
+
+/* 轨迹筛选：单行不换行，按弹框宽度等比压缩，避免溢出 */
+.action-filter-form {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+  margin: 0 0 8px !important;
+  padding: 0 8px !important;
+  overflow: hidden !important;
+}
+.action-filter-form .action-filter-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+}
+.action-filter-form .action-filter-name {
+  flex: 1.1 1 0 !important;
+}
+.action-filter-form .action-filter-maplabel {
+  flex: 1.4 1 0 !important;
+}
+.action-filter-form .action-filter-time {
+  flex: 2.2 1 0 !important;
+}
+.action-filter-form .action-filter-actions {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+}
+.action-filter-form .action-filter-item :deep(.el-form-item__label) {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 6px 0 0 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  line-height: 32px;
+}
+.action-filter-form .action-filter-item :deep(.el-form-item__content) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin-left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.action-filter-form .action-filter-item :deep(.el-input),
+.action-filter-form .action-filter-item :deep(.el-date-editor) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+.action-filter-form .action-filter-item :deep(.el-input__wrapper),
+.action-filter-form .action-filter-item :deep(.el-date-editor.el-input__wrapper),
+.action-filter-form .action-filter-item :deep(.el-range-editor.el-input__wrapper) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.action-filter-form .action-filter-actions :deep(.el-form-item__content) {
+  flex: 0 0 auto !important;
+  flex-wrap: nowrap !important;
+  gap: 4px;
+  white-space: nowrap !important;
+}
+.action-filter-form .action-filter-actions .el-button {
+  flex-shrink: 0;
+  margin-left: 0 !important;
+}
 /* .move {
   transform: translateX(4px);
 } */
 
-.trajectory >>> .el-dialog {
-  height: 85%;
-  margin-top: 2% !important;
-}
-.trajectory >>> .el-dialog__header {
-  height: 4%;
-}
-.trajectory >>> .el-dialog__headerbtn {
-  top: 1% !important;
-}
-.trajectory >>> .el-dialog__body {
-  height: 96%;
-  padding-top: 10px !important;
-}
+/* 轨迹弹窗高度见 element-plus-compat.css .el-dialog.trajectory */
 .import_type {
   white-space: nowrap;
 }
 .work_type_list {
   display: flex;
 }
-.work_type_list >>> .el-form-item__content {
+.work_type_list :deep(.el-form-item__content) {
   display: flex;
   width: 100%;
   margin-left: 80px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.staff-filter-flow .terminal-filter-item :deep(.el-input),
+.staff-filter-flow .terminal-filter-item :deep(.el-select),
+.staff-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.staff-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+/* 按钮组保持横向排列并保留间距 */
+.staff-filter-flow .terminal-toolbar-item {
+  display: inline-flex !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  align-items: center !important;
+}
+.staff-filter-flow .terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.staff-filter-flow .terminal-toolbar-item :deep(.el-button),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-dropdown),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-popover__),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-tooltip__),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-popover),
+.staff-filter-flow .terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
+.staff-delete-tip {
+  margin: 8px 0 4px;
+  padding: 0;
+  text-align: center;
+  color: #ef4444;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* 添加/编辑：头像上传居中，表单保持左对齐 */
+.staff-avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.staff-avatar-upload :deep(.el-upload) {
+  margin: 0 auto;
+}
+
+.staff-avatar-upload :deep(.el-upload-list) {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.staff-avatar-upload :deep(.el-upload__tip) {
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.staff-member-form {
+  text-align: left;
+  margin-top: 4px;
+}
+
+.staff-member-form :deep(.el-select),
+.staff-member-form :deep(.el-date-editor) {
+  width: 100%;
+}
+
+/* 角色 / 部门设置：内容居中排布 */
+.staff-setting-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 14px;
+}
+
+.staff-setting-import {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.staff-setting-import .el-button {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  float: none !important;
+}
+
+.staff-setting-label {
+  flex: 0 0 auto;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.staff-setting-import :deep(.el-select) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.staff-setting-help {
+  flex: 0 0 auto;
+  font-size: 16px;
+  color: #94a3b8;
+  cursor: help;
+}
+
+.staff-setting-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 2px 6px 2px 0;
+  box-sizing: border-box;
+}
+
+.staff-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.staff-setting-row :deep(.el-input) {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto !important;
+}
+
+.staff-setting-row .el-button {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  float: none !important;
+}
+
+.staff-setting-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.staff-icon-group {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  gap: 14px 18px;
+}
+
+.staff-icon-group :deep(.el-radio) {
+  margin: 0 !important;
+  height: auto;
+}
+
 </style>
+
+<style>
+/* teleported dialog 布局兜底（弹层挂到 body，需非 scoped） */
+.el-dialog.device-dialog .staff-avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.el-dialog.device-dialog .staff-avatar-upload .el-upload-list {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.el-dialog.device-dialog .staff-avatar-upload .el-upload__tip {
+  width: 100%;
+  text-align: center;
+  margin-top: 8px;
+  color: #94a3b8;
+}
+
+.el-dialog.device-dialog.staff-setting-dialog .el-dialog__body {
+  display: flex;
+  justify-content: center;
+}
+
+.el-dialog.device-dialog.staff-setting-dialog .staff-setting-body {
+  width: 100%;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .el-dialog__body {
+  display: flex;
+  justify-content: center;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .staff-icon-group {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  gap: 14px 18px;
+  padding: 8px 0 12px;
+}
+
+.el-dialog.device-dialog.staff-icon-dialog .staff-icon-group .el-radio {
+  margin: 0 !important;
+}
+</style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.staff-filter-flow .terminal-filter-item .el-input,
+.staff-filter-flow .terminal-filter-item .el-select,
+.staff-filter-flow .terminal-filter-item .el-cascader {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.staff-filter-flow .terminal-toolbar-item {
+  display: inline-flex !important;
+  order: unset !important;
+  align-items: center !important;
+}
+.staff-filter-flow .terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+.staff-filter-flow .terminal-toolbar-item .el-button,
+.staff-filter-flow .terminal-toolbar-item .el-dropdown {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 设备健康弹框查询条样式见 element-plus-compat.css（dialog teleport 后 scoped 无效） */
+
+</style>
+
 

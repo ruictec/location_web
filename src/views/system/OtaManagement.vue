@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -7,54 +7,68 @@
       <el-container class="asi">
         <el-aside><System /></el-aside>
         <el-main>
-          <el-form
-            class="demo-form-inline"
-            :model="searchList"
-            style="display: flex; white-space: nowrap"
-          >
-            <el-form-item
-              :label="$t('otamanagement.devtype')"
-              style="
-                display: flex;
-                width: 20%;
-                margin-left: 2%;
-                margin-right: 0;
-              "
+          <div class="terminal-filter-flow page-panel" :class="filterLangClass">
+            <el-form
+              class="demo-form-inline terminal-filter-form"
+              :model="searchList"
             >
-              <el-select
-                v-model="searchList.devtype"
-                clearable
-                filterable
-                :placeholder="$t('otamanagement.devtypeplaceholder')"
-                style="width: 95%; float: left"
+              <el-form-item
+                :label="$t('otamanagement.devtype')"
+                class="terminal-filter-item"
               >
-                <el-option
-                  v-for="item in devTypeList"
-                  :key="item.index"
-                  :label="item.value"
-                  :value="item.index"
-                ></el-option>
-              </el-select>
-            </el-form-item>
+                <el-select
+                  v-model="searchList.devtype"
+                  clearable
+                  filterable
+                  :placeholder="$t('otamanagement.devtypeplaceholder')"
+                >
+                  <el-option
+                    v-for="item in devTypeList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
 
-            <el-form-item style="margin-left: 2%">
-              <el-button type="primary" class="query" @click="searchInfo()">{{
-                $t("heartbeat.search")
-              }}</el-button>
-              <el-button type="primary" class="reset" @click="clearBtn()">{{
-                $t("heartbeat.reset")
-              }}</el-button>
-              <el-button type="primary" class="uploadBtn" @click="openUpload()">{{
-                $t("otamanagement.upload")
-              }}</el-button>
-            </el-form-item>
-          </el-form>
+              <el-form-item
+                :label="$t('otamanagement.status1')"
+                class="terminal-filter-item"
+              >
+                <el-select
+                  v-model="searchList.status"
+                  clearable
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
 
-          <div class="content_user">
+              <el-form-item class="terminal-toolbar-item">
+                <el-button type="primary" class="query" @click="searchInfo()">{{
+                  $t("heartbeat.search")
+                }}</el-button>
+                <el-button type="primary" class="reset" @click="clearBtn()">{{
+                  $t("heartbeat.reset")
+                }}</el-button>
+                <el-button type="primary" class="uploadBtn" @click="openUpload()">{{
+                  $t("otamanagement.upload")
+                }}</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+
+          <div class="content_user page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="otaData"
-              style="width: 98%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               highlight-current-row
@@ -88,6 +102,14 @@
                 min-width="150"
               ></el-table-column>
               <el-table-column
+                property="status"
+                :label="$t('otamanagement.status')"
+                show-overflow-tooltip
+                align="center"
+                min-width="110"
+                :formatter="formatStatus"
+              ></el-table-column>
+              <el-table-column
                 property="time"
                 :label="$t('otamanagement.time')"
                 show-overflow-tooltip
@@ -99,9 +121,23 @@
                 :label="$t('otamanagement.control')"
                 align="center"
                 fixed="right"
-                min-width="70"
+                min-width="110"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="$t('warning.edit')"
+                    placement="top"
+                  >
+                    <el-button
+                      type="primary"
+                      size="small"
+                      class="icon_button"
+                      @click="openEdit(scope.row)"
+                      ><img src="../../../static/edit2.png"
+                    /></el-button>
+                  </el-tooltip>
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -110,7 +146,7 @@
                   >
                     <el-button
                       type="danger"
-                      class="dels"
+                      class="icon_button"
                       @click="deleteOta(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -120,27 +156,28 @@
             </el-table>
 
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
 
           <el-dialog
+            class="device-dialog"
             :title="$t('otamanagement.uploadtitle')"
-            :visible.sync="uploadVisible"
-            width="32%"
+            v-model="uploadVisible"
+            width="560px"
             @close="resetUpload()"
+            top="8vh"
           >
             <el-form
               :model="uploadForm"
@@ -170,6 +207,21 @@
                   maxlength="128"
                 ></el-input>
               </el-form-item>
+              <el-form-item :label="$t('otamanagement.status1')">
+                <el-select
+                  v-model="uploadForm.status"
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item :label="$t('otamanagement.file')" prop="file">
                 <el-upload
                   ref="upload"
@@ -184,20 +236,69 @@
                   <el-button size="small" type="primary">{{
                     $t("otamanagement.selectfile")
                   }}</el-button>
-                  <div slot="tip" class="el-upload__tip">
+                  <template #tip><div class="el-upload__tip">
                     {{ $t("otamanagement.filetip") }}
-                  </div>
+                  </div></template>
                 </el-upload>
               </el-form-item>
             </el-form>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="uploadVisible = false">{{
                 $t("terminal.cancel")
               }}</el-button>
               <el-button type="primary" @click="submitUpload()">{{
                 $t("terminal.confirm")
               }}</el-button>
-            </div>
+            </div></template>
+          </el-dialog>
+
+          <el-dialog
+            class="device-dialog"
+            :title="$t('otamanagement.edittitle')"
+            v-model="editVisible"
+            width="560px"
+            @close="resetEdit()"
+            align-center
+          >
+            <el-form
+              :model="editForm"
+              ref="editForm"
+              label-width="100px"
+              :rules="editRules"
+            >
+              <el-form-item :label="$t('otamanagement.description')">
+                <el-input
+                  v-model="editForm.description"
+                  type="textarea"
+                  maxlength="128"
+                ></el-input>
+              </el-form-item>
+              <el-form-item :label="$t('otamanagement.status1')" prop="status">
+                <el-select
+                  v-model="editForm.status"
+                  filterable
+                  :placeholder="$t('otamanagement.status2')"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in statusList"
+                    :key="item.index"
+                    :label="item.value"
+                    :value="item.index"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <template #footer>
+              <div class="dialog-footer">
+                <el-button @click="editVisible = false">{{
+                  $t("terminal.cancel")
+                }}</el-button>
+                <el-button type="primary" @click="submitEdit()">{{
+                  $t("terminal.confirm")
+                }}</el-button>
+              </div>
+            </template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -212,6 +313,7 @@ import {
   getDevOtaMapFileList,
   addDevOtaMapFile,
   delDevOta,
+  updateDevOta,
 } from "../../axios/api";
 
 export default {
@@ -230,15 +332,18 @@ export default {
       pageCount: 20,
       searchList: {
         devtype: null,
+        status: null,
         page: 1,
         count: 20,
       },
       currentPage1: 1,
       total: 0,
       uploadVisible: false,
+      editVisible: false,
       uploadForm: {
         devtype: null,
         description: "",
+        status: 1,
         file: null,
       },
       uploadRules: {
@@ -257,9 +362,27 @@ export default {
           },
         ],
       },
+      editForm: {
+        id: null,
+        description: "",
+        status: 1,
+      },
+      editRules: {
+        status: [
+          {
+            required: true,
+            message: this.$t("otamanagement.status2"),
+            trigger: "change",
+          },
+        ],
+      },
     };
   },
   computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
     devTypeList() {
       return [
         { index: 1, value: this.$t("otamanagement.devtype_lora") },
@@ -268,6 +391,12 @@ export default {
         { index: 4, value: this.$t("otamanagement.devtype_vehicle") },
         { index: 5, value: this.$t("otamanagement.devtype_helmet") },
         { index: 6, value: this.$t("otamanagement.devtype_vehicle_4G") },
+      ];
+    },
+    statusList() {
+      return [
+        { index: 0, value: this.$t("otamanagement.statusDisabled") },
+        { index: 1, value: this.$t("otamanagement.statusEnabled") },
       ];
     },
   },
@@ -312,6 +441,12 @@ export default {
       const item = this.devTypeList.find((type) => type.index == row.devtype);
       return item ? item.value : row.devtype;
     },
+    formatStatus(row) {
+      if (row.status === 1 || row.status === "1") {
+        return this.$t("otamanagement.statusEnabled");
+      }
+      return this.$t("otamanagement.statusDisabled");
+    },
     hasDeletePermission() {
       return !(
         (this.$store.state.userInfo.prionum == 5 &&
@@ -327,6 +462,9 @@ export default {
       };
       if (this.searchList.devtype !== null && this.searchList.devtype !== "") {
         params.devtype = this.searchList.devtype;
+      }
+      if (this.searchList.status !== null && this.searchList.status !== "") {
+        params.status = this.searchList.status;
       }
       return params;
     },
@@ -357,6 +495,7 @@ export default {
     clearBtn() {
       this.searchList = {
         devtype: null,
+        status: null,
         page: 1,
         count: this.pageCount,
       };
@@ -365,6 +504,61 @@ export default {
     },
     openUpload() {
       this.uploadVisible = true;
+    },
+    openEdit(row) {
+      this.editForm = {
+        id: row.id,
+        description: row.description || "",
+        status:
+          row.status === 1 || row.status === "1"
+            ? 1
+            : 0,
+      };
+      this.editVisible = true;
+    },
+    resetEdit() {
+      this.editForm = {
+        id: null,
+        description: "",
+        status: 1,
+      };
+      if (this.$refs.editForm) {
+        this.$refs.editForm.resetFields();
+      }
+    },
+    submitEdit() {
+      var that = this;
+      this.$refs.editForm.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        const data = {
+          id: that.editForm.id,
+          status: that.editForm.status,
+          description: that.editForm.description || "",
+        };
+        updateDevOta(
+          data,
+          this.tenantkey_A,
+          this.tenantid_A,
+          this.userName
+        ).then((res) => {
+          if (res.code == 1001) {
+            that.editVisible = false;
+            that.resetEdit();
+            that.getOtaList();
+            that.$message({
+              message: that.$t("otamanagement.editsuccess"),
+              type: "success",
+            });
+          } else {
+            that.$message({
+              message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+          }
+        });
+      });
     },
     handleFileChange(file) {
       this.uploadForm.file = file.raw;
@@ -383,6 +577,7 @@ export default {
       this.uploadForm = {
         devtype: null,
         description: "",
+        status: 1,
         file: null,
       };
       if (this.$refs.upload) {
@@ -409,6 +604,7 @@ export default {
         formData.append("file", that.uploadForm.file);
         // formData.append("devtype", that.uploadForm.devtype);
         formData.append("description", that.uploadForm.description || "");
+        formData.append("status", that.uploadForm.status);
         addDevOtaMapFile(formData).then((res) => {
           if (res.code == 1001) {
             that.uploadVisible = false;
@@ -439,6 +635,10 @@ export default {
         this.$t("otamanagement.deletetip"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -505,6 +705,12 @@ export default {
 .dels:hover {
   background-color: rgb(196, 27, 27);
 }
+.editss {
+  padding: 2px 16px !important;
+}
+.editss:hover {
+  background-color: rgb(25, 86, 201);
+}
 .el-message--success {
   display: -webkit-box !important;
 }
@@ -514,10 +720,10 @@ export default {
 .el-message--warning {
   display: -webkit-box !important;
 }
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .query,
@@ -525,22 +731,245 @@ export default {
 .uploadBtn {
   padding: 8px 12px !important;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
 .el-form-item .el-button {
   margin-left: 4px !important;
 }
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

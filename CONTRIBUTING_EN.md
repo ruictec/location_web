@@ -1,6 +1,8 @@
-# Contributing Guide
+# Contributing
 
-- **Branching**: Create feature branches from `main`.
-- **Commits**: Follow clear commit messages (Conventional Commits recommended).
-- **Code**: Pass validation through `npm run lint` and `npm run build`.
-- **Pull Requests**: Please describe motivation, changes, and testing methods; link to related Issues.
+- Branches:
+  - Vue 3 / Vite changes: branch from `Tianditu-vue3`
+  - Vue 2 / Webpack changes: branch from `Tianditu` or `main`
+- Commits: use clear messages (Conventional Commits recommended).
+- Checks: verify with `npm run build` (and lint when applicable).
+- PRs: describe motivation, changes, and test steps; link Issues; specify the target branch.

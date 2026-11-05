@@ -3,14 +3,19 @@
     <el-button
       :class="btnChange ? 'changeBtn1' : 'changeBtn'"
       @click="changeIcon()"
-      v-bind:icon="iconData"
-    ></el-button>
+    >
+      <i :class="iconData"></i>
+    </el-button>
     <el-menu
       class="el-menu-vertical-demo"
-      :default-active="this.$route.path"
+      :default-active="$route.path"
       :router="true"
     >
-      <el-menu-item index="/usermanagement" v-if="contrForPrioNum != 6">
+      <el-menu-item
+        index="/usermanagement"
+        :class="{ left: show }"
+        v-if="contrForPrioNum != 6"
+      >
         <el-tooltip
           class="item"
           effect="dark"
@@ -18,33 +23,27 @@
           placement="right"
           :disabled="open"
         >
-          <i class="el-icon-user"></i>
+          <i class="el-icon-user menu-side-icon"></i>
         </el-tooltip>
         <span v-show="show">{{ $t("index.usermanagement") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>
               {{ $t("companyorder.tet9") }}
             </p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
 
       <el-menu-item
         index="/companymanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 1 || contrForPrioNum == 2"
       >
         <el-tooltip
@@ -58,26 +57,20 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.Purchasingcompany") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>{{ $t("index.tet10") }}</p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
       <el-menu-item
         index="/customermanagement"
+        :class="{ left: show }"
         v-if="contrForPrioNum == 3 || contrForPrioNum == 4"
       >
         <el-tooltip
@@ -91,21 +84,14 @@
         </el-tooltip>
         <span v-show="show">{{ $t("list.Purchasingcustomer") }}</span>
         <el-tooltip
-          class="item"
+          class="item menu-item-help"
           effect="light"
           placement="right-start"
-          style="
-            position: absolute;
-            font-size: 130%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 2%;
-          "
           v-if="show"
         >
-          <div slot="content">
+          <template #content><div>
             <p>{{ $t("list.tet") }}</p>
-          </div>
+          </div></template>
           <i class="el-icon-question" />
         </el-tooltip>
       </el-menu-item>
@@ -115,7 +101,7 @@
 
 <script>
 export default {
-  name: "Devicemanagement",
+  name: "Usermanagement",
 
   data() {
     return {
@@ -167,9 +153,6 @@ export default {
 </script>
 
 <style scoped>
-.el-menu-item {
-  text-align: left;
-}
 .changeBtn {
   width: 30px;
   height: 50px;
@@ -197,6 +180,21 @@ export default {
   display: inline-block;
   background-color: #909399;
 }
+.menu-side-icon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+}
+.is-active .icon,
+.is-active .menu-side-icon {
+  color: #409eff;
+  background-color: transparent;
+}
 .icon.firm {
   mask: url("../../assets/firm.svg");
   mask-size: contain;
@@ -207,5 +205,9 @@ export default {
 }
 .is-active .icon {
   background-color: #409eff;
+}
+.left {
+  text-align: start !important;
+  padding-left: 40px !important;
 }
 </style>

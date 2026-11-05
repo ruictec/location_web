@@ -1,5 +1,5 @@
 <template>
-  <div :class="contrForPrionum != 5 ? 'home' : ''" style="height: 100%">
+  <div :class="contrForPrionum != 5 ? 'home device-page admin-page' : ''" style="height: 100%">
     <div class="menu_header">
       <Menu />
     </div>
@@ -8,36 +8,21 @@
       <el-container class="asi">
         <el-aside><Data /></el-aside>
         <el-main>
-          <div class="ter_input">
+          <div class="ter_input terminal-filter-flow page-panel" :class="filterLangClass">
             <el-form
-              class="demo-form-inline"
-              style="display: flex; white-space: nowrap"
+              class="demo-form-inline terminal-filter-form"
             >
               <el-form-item
                 :label="$t('test.deveui1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 2%;
-                  margin-right: 0;
-                "
-              >
+               class="terminal-filter-item">
                 <el-input
-                  style="width: 95%; float: left"
                   v-model="searchList.deveui"
                 ></el-input>
               </el-form-item>
               <el-form-item
                 :label="$t('test.msgtype1')"
-                style="
-                  display: flex;
-                  width: 15%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+               class="terminal-filter-item">
                 <el-select
-                  style="width: 95%; float: left"
                   v-model="searchList.msgtype"
                   clearable
                   filterable
@@ -53,18 +38,11 @@
               </el-form-item>
               <el-form-item
                 :label="$t('test.chosetime')"
-                style="
-                  display: flex;
-                  width: 27%;
-                  margin-left: 1%;
-                  margin-right: 0;
-                "
-              >
+               class="terminal-filter-item">
                 <el-date-picker
-                  style="width: 95%; float: left"
                   v-model="tasktime"
                   type="datetimerange"
-                  :picker-options="pickerOptions"
+                  :shortcuts="pickerOptions.shortcuts" :disabled-date="pickerOptions.disabledDate" @calendar-change="(val) => pickerOptions.onPick && pickerOptions.onPick({ minDate: val[0], maxDate: val[1] })"
                   :range-separator="$t('test.to')"
                   :start-placeholder="$t('test.startdate')"
                   :end-placeholder="$t('test.enddate')"
@@ -72,59 +50,52 @@
                 >
                 </el-date-picker>
               </el-form-item>
-              <el-form-item style="margin-left: 0">
+              <el-form-item class="search-actions terminal-toolbar-item">
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchInfo()"
-                  >{{ $t("test.search") }}</el-button
-                >
+                  >{{ $t("test.search") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchPrevious()"
-                  >{{ $t("test.previous") }}</el-button
-                >
+                  >{{ $t("test.previous") }}</el-button>
                 <el-button
                   type="primary"
                   class="search"
                   @click="searchNext()"
-                  >{{ $t("test.next") }}</el-button
-                >
+                  >{{ $t("test.next") }}</el-button>
                 <el-button type="primary" class="reset" @click="clearBtn()">{{
                   $t("test.reset")
-                }}</el-button
-                ><el-button
+                }}</el-button><el-button
                   type="primary"
                   class="reset"
                   @click="startRefresh()"
                   v-if="start"
-                  >{{ $t("test.start") }}</el-button
-                >
+                  >{{ $t("test.start") }}</el-button>
                 <el-button
                   type="primary"
                   class="reset"
                   @click="stopRefresh()"
                   v-if="stop"
-                  >{{ $t("test.stop") }}</el-button
-                >
+                  >{{ $t("test.stop") }}</el-button>
 
                 <el-button
                   type="primary"
                   class="reset"
                   @click="delTestList()"
-                  >{{ $t("test.Batchdelete") }}</el-button
-                >
+                  >{{ $t("test.Batchdelete") }}</el-button>
               </el-form-item>
             </el-form>
           </div>
 
           <!-- 展示 -->
-          <div>
+          <div class="page-panel table-panel">
             <el-table
+              class="device-table"
               ref="multipleTable"
               :data="tableData"
-              style="width: 97%; text-align: center; margin-left: 2%"
               max-height="660"
               border
               @selection-change="handleSelectionChange"
@@ -147,7 +118,7 @@
                 min-width="55"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("test.Frequency")
                   }}</span>
@@ -157,9 +128,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.tet") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -172,7 +143,7 @@
                 align="center"
                 show-overflow-tooltip
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">DR</span>
                   <el-tooltip
                     class="item"
@@ -180,9 +151,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.tet1") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -194,7 +165,7 @@
                 min-width="55"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">RSSI</span>
                   <el-tooltip
                     class="item"
@@ -202,9 +173,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.gwrssi") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -216,7 +187,7 @@
                 min-width="55"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">SNR</span>
                   <el-tooltip
                     class="item"
@@ -224,9 +195,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.gwsnr") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -238,7 +209,7 @@
                 min-width="55"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("test.gwno")
                   }}</span>
@@ -248,9 +219,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.tet2") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -288,7 +259,7 @@
                 min-width="70"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("test.reboot")
                   }}</span>
@@ -298,9 +269,9 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>{{ $t("test.tet3") }}</p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -312,7 +283,7 @@
                 min-width="70"
                 align="center"
               >
-                <template slot="header" slot-scope="scope">
+                <template #header="scope">
                   <span class="cell" style="padding-right: 0">{{
                     $t("test.pktlost")
                   }}</span>
@@ -322,11 +293,11 @@
                     placement="right-start"
                     style="font-size: 130%"
                   >
-                    <div slot="content">
+                    <template #content><div>
                       <p>
                         {{ $t("test.tet4") }}
                       </p>
-                    </div>
+                    </div></template>
                     <i class="el-icon-question" />
                   </el-tooltip>
                 </template>
@@ -355,7 +326,7 @@
                 align="center"
                 min-width="60"
               >
-                <template slot-scope="scope">
+                <template #default="scope">
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -364,7 +335,8 @@
                   >
                     <el-button
                       type="danger"
-                      class="dels"
+                      size="small"
+                      class="dels icon_button"
                       @click="delTer(scope.$index)"
                       ><img src="../../../static/delete.png"
                     /></el-button>
@@ -373,27 +345,32 @@
               </el-table-column>
             </el-table>
             <div
-              class="block"
-              style="text-align: center; width: 100%; margin-top: 1%"
+              class="block device-pagination"
             >
               <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page.sync="currentPage1"
+                v-model:current-page="currentPage1"
                 :page-sizes="[10, 20, 30, 40, 50]"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
-                :page-size="20"
+                v-model:page-size="pageCount"
               >
               </el-pagination>
             </div>
           </div>
           <!-- 批量删除 -->
-          <el-dialog :title="$t('test.tet5')" :visible.sync="del">
+          <el-dialog
+            width="80%"
+            class="device-dialog"
+            :title="$t('test.tet5')"
+            v-model="del"
+            align-center
+          >
             <el-table
               :data="deleteData"
-              style="width: 100%; text-align: left"
-              max-height="660"
+              style="width: 100%"
+              max-height="56vh"
               stripe
             >
               <el-table-column
@@ -505,7 +482,7 @@
                 align="center"
               ></el-table-column>
             </el-table>
-            <div slot="footer" class="dialog-footer">
+            <template #footer><div class="dialog-footer">
               <el-button @click="(del = false), (loading = false)">{{
                 $t("terminal.cancel")
               }}</el-button>
@@ -513,9 +490,8 @@
                 type="primary"
                 @click="deleteTrue"
                 :loading="loading"
-                >{{ $t("terminal.confirm") }}</el-button
-              >
-            </div>
+                >{{ $t("terminal.confirm") }}</el-button>
+            </div></template>
           </el-dialog>
         </el-main>
       </el-container>
@@ -553,33 +529,33 @@ export default {
         shortcuts: [
           {
             text: this.$t("terminal.pickeroptions4"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0));
               // start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 1);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions5"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 2);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
             },
           },
           {
             text: this.$t("terminal.pickeroptions6"),
-            onClick(picker) {
+            value() {
               const end = new Date();
               const start = new Date();
               start.setTime(start.setHours(0, 0, 0, 0) - 3600 * 1000 * 24 * 6);
               // end.setTime(end.setHours(0, 0, 0, 0));
-              picker.$emit("pick", [start, end]);
+              return [start, end];
 
               // const end = new Date();
               // const start = new Date();
@@ -669,6 +645,12 @@ export default {
       ],
     };
   },
+  computed: {
+    filterLangClass() {
+      const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
+      return lang === "en" ? "is-en" : "is-zh";
+    },
+  },
   methods: {
     //分页
     handleCurrentChange(val) {
@@ -735,6 +717,7 @@ export default {
       var that = this;
       this.searchList.page = 1;
       this.currentPage1 = 1;
+      this.searchList.count = this.pageCount;
       if (this.tasktime && this.tasktime.length > 0) {
         this.searchList.begintime =
           Date.parse(new Date(that.tasktime[0])) / 1000;
@@ -764,7 +747,6 @@ export default {
             });
           }
         } else {
-          that.searchList.count = 20;
           that.$message({
             message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
             type: "error",
@@ -822,6 +804,7 @@ export default {
     },
     // 刷新
     clearBtn() {
+      this.pageCount = 20;
       this.tasktime = [];
       this.searchList = {
         tenantid: this.$store.state.userInfo.tenantid,
@@ -830,7 +813,7 @@ export default {
         begintime: "",
         endtime: "",
         page: 1,
-        count: this.pageCount,
+        count: 20,
       };
       this.currentPage1 = 1;
       this.getTrackerTestLists();
@@ -864,6 +847,10 @@ export default {
           this.$t("test.confirmdel3"),
         this.$t("Building.tips"),
         {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          roundButton: false,
           confirmButtonText: this.$t("terminal.confirm"),
           cancelButtonText: this.$t("terminal.cancel"),
           type: "warning",
@@ -988,7 +975,7 @@ export default {
       this.getTrackerTestLists();
     }, 10000);
   },
-  destroyed() {
+  unmounted() {
     clearInterval(this.timer);
   },
 };
@@ -1012,9 +999,6 @@ export default {
   margin-top: 50px;
   width: auto !important;
 }
-.dels {
-  padding: 2px 16px !important;
-}
 /* 改变按钮颜色 */
 .dels:hover {
   background-color: rgb(196, 27, 27);
@@ -1031,10 +1015,10 @@ export default {
   display: -webkit-box !important;
 }
 
-.el-table >>> .el-table__row td {
+.el-table :deep(.el-table__row td) {
   padding: 0 !important;
 }
-.el-table >>> .hover-row td {
+.el-table :deep(.hover-row td) {
   background-color: #d9eafa !important;
 }
 .search,
@@ -1042,23 +1026,243 @@ export default {
   padding: 8px 12px !important;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__label {
+.demo-form-inline :deep(.el-form-item .el-form-item__label) {
   padding: 0;
   line-height: 34px;
 }
 
-.demo-form-inline >>> .el-form-item .el-form-item__content {
+.demo-form-inline :deep(.el-form-item .el-form-item__content) {
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__inner {
+.demo-form-inline :deep(.el-form-item .el-input__inner) {
   height: 34px;
   line-height: 34px;
 }
-.demo-form-inline >>> .el-form-item .el-input__icon {
+.demo-form-inline :deep(.el-form-item .el-input__icon) {
   height: 34px;
   line-height: 34px;
 }
-.el-form-item .el-button {
-  margin-left: 4px !important;
+
+.terminal-filter-flow {
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 16px;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 16px;
 }
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  line-height: 32px;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item :deep(.el-form-item__label) {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor),
+.terminal-filter-flow .terminal-filter-item :deep(.el-cascader) {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  float: none !important;
+  margin: 0 !important;
+  flex: none !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--datetimerange),
+.terminal-filter-flow .terminal-filter-item :deep(.el-date-editor--daterange) {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-filter-flow .terminal-filter-item :deep(.el-input__wrapper),
+.terminal-filter-flow .terminal-filter-item :deep(.el-select__wrapper) {
+  width: 100% !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  float: none !important;
+  order: 999;
+}
+.terminal-toolbar-item :deep(.el-form-item__content) {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button),
+.terminal-toolbar-item :deep(.el-dropdown),
+.terminal-toolbar-item :deep(.el-popover__),
+.terminal-toolbar-item :deep(.el-tooltip__),
+.terminal-toolbar-item :deep(.el-popover),
+.terminal-toolbar-item :deep(.el-tooltip) {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .query,
+.terminal-filter-flow .reset,
+.terminal-filter-flow .add,
+.terminal.terminal-filter-flow .del,
+.terminal-filter-flow .del,
+.terminal-filter-flow .export,
+.terminal-filter-flow .addTer,
+.terminal-filter-flow .addBeacon {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  line-height: 1 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.terminal-toolbar-item :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+.search-actions :deep(.el-button) {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+}
+
 </style>
+
+<style>
+.terminal-filter-flow {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 16px !important;
+  margin-bottom: 16px !important;
+}
+.terminal-filter-flow > .terminal-filter-form.demo-form-inline {
+  display: contents !important;
+}
+.terminal-filter-flow .terminal-filter-item {
+  margin: 0 !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: none !important;
+  padding: 0 8px 0 0 !important;
+  margin: 0 !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow.is-en .terminal-filter-item .el-form-item__label {
+  width: auto !important;
+  min-width: auto !important;
+  flex: 0 0 auto !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-form-item__content {
+  margin-left: 0 !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-input,
+.terminal-filter-flow .terminal-filter-item .el-select,
+.terminal-filter-flow .terminal-filter-item .el-cascader {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+  margin: 0 !important;
+  float: none !important;
+}
+.terminal-filter-flow .terminal-filter-item .el-date-editor.el-input__wrapper,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--datetimerange,
+.terminal-filter-flow .terminal-filter-item .el-date-editor--daterange {
+  width: 320px !important;
+  min-width: 320px !important;
+  max-width: 320px !important;
+}
+.terminal-toolbar-item {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  order: 999;
+}
+.terminal-toolbar-item .el-form-item__content {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.terminal-toolbar-item .el-button,
+.terminal-toolbar-item .el-dropdown {
+  margin: 0 !important;
+}
+/* unified-filter-toolbar-btn-size */
+.terminal-toolbar-row .el-button,
+.terminal-toolbar-row > .el-dropdown .el-button,
+.terminal-toolbar-item .el-button,
+.search-actions .el-button {
+  height: 28px !important;
+  padding: 7px 15px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+</style>
+

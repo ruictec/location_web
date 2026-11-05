@@ -1,12 +1,7 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 import { constantRoutes, resetRouter } from '../router/index.js'
 
-// import createpersistedstate from 'vuex-persistedstate'
-
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
+const store = createStore({
     // state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
     state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
         // 存储数据
@@ -20,7 +15,7 @@ const store = new Vuex.Store({
         },
         userInfo: {},
         userInfoCopy: {},
-        i18n: '',
+        i18n: ((navigator.systemLanguage || navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'),
         projectid: '',
         show: '',
         intoProjectFlag: '',
@@ -67,16 +62,17 @@ const store = new Vuex.Store({
             tbox: true,
             attendance: true,
             task: true,
+            locateManage: false,
             inDoor: true,
             outDoor: true,
-            assetgw: true,
             aoagw: true,
             smoke: true,
             alertor: true,
             blesensor: true,
             camera: true,
             devgw: true,
-            scanbeacon: true
+            scanbeacon: true,
+            audio: false
         },
         warningInfo: {},
         showWarningDialog: true,
@@ -257,5 +253,10 @@ const store = new Vuex.Store({
         // 数据包装
     }
 });
+
+if (!store.state.i18n) {
+  const lan = (navigator.systemLanguage || navigator.language || "").toLowerCase();
+  store.state.i18n = lan.indexOf("zh") === 0 ? "zh" : "en";
+}
 
 export default store

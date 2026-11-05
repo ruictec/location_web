@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 // 说明：改为路由懒加载，降低首屏体积；不改变页面逻辑与路径
 const Login1 = () => import('../views/login/Login1')
 const Register = () => import('../views/login/Register')
@@ -15,6 +14,7 @@ const Config = () => import('../views/project/ProjectConfig')
 const NsConfig = () => import('../views/device/NsConfig')
 const GateWay = () => import('../views/device/GateWay')
 const Terminal = () => import('../views/device/Terminal')
+const AudioRecording = () => import('../views/device/AudioRecording')
 const UserManagement = () => import('../views/user/UserManagement')
 const CompanyManagement = () => import('../views/user/CompanyManagement')
 const CustomerManagement = () => import('../views/user/CustomerManagement')
@@ -24,13 +24,15 @@ const buildingManagement = () => import('../views/locate/buildingManagement')
 const GroundDetails = () => import('../views/locate/GroundDetails')
 const LocationOutdoor = () => import('../views/locate/LocationOutdoor')
 const Outdoor = () => import('../views/locate/Outdoor')
-const Historical = () => import('../views/locate/LocationHistorical')
+// 室外定位-历史轨迹页暂时下线（LocationHistorical），统一使用 HistoryTrajectory
+// const Historical = () => import('../views/locate/LocationHistorical')
 const Indoor = () => import('../views/locate/Indoor')
 const LocationIndoor = () => import('../views/locate/LocationIndoor')
-const LocationIndoorHis = () => import('../views/locate/LocationIndoorHis')
+const DataAnalysis = () => import('../views/locate/DataAnalysis')
+const HistoryTrajectory = () => import('../views/locate/HistoryTrajectory')
 
 
-const StaffManagement = () => import('../views/staff/staffManagement')
+const StaffManagement = () => import('../views/staff/StaffManagement')
 const LogManagement = () => import('../views/log/LogManagement')
 const OtaManagement = () => import('../views/system/OtaManagement')
 const WarningManagement = () => import('../views/warning/WarningManagement')
@@ -42,7 +44,7 @@ const BuildingManagement = () => import('../views/project/BuildingManagement')
 const TerritoryManagement = () => import('../views/territory/TerritoryManagement')
 const UserCenter = () => import('../views/user/UserCenter')
 const Message = () => import('../views/message/Message')
-const AssetManagement = () => import('../views/asset/assetManagement')
+const AssetManagement = () => import('../views/asset/AssetManagement')
 const TBoxManagement = () => import('../views/asset/TBoxManagement')
 const MyOrder = () => import('../views/system/myorder')
 const UserOrder = () => import('../views/system/userorder')
@@ -50,16 +52,9 @@ const OrderDetails = () => import('../views/system/orderdetails')
 const CompanyOrder = () => import('../views/system/companyorder')
 const CheckWork = () => import('../views/staff/checkwork')
 const inspection = () => import('../views/staff/inspection')
+const TaskManagement = () => import('../views/staff/TaskManagement')
+const TaskDetail = () => import('../views/staff/TaskDetail')
 import Layout from '../components/layout'
-
-const originalPush = Router.prototype.push
-//修改原型对象中的push方法 重复路由报错
-Router.prototype.push = function push(location) {
-  return originalPush.call(this, location).catch(err => err)
-}
-
-
-Vue.use(Router)
 
 // 说明：基础路由（无需鉴权），其余按角色在运行时动态注入
 export const constantRoutes = [
@@ -71,6 +66,16 @@ export const constantRoutes = [
       props: true, // 通过props将查询参数传递给组件 
       meta: {
         requireAuth: false
+      }
+    },
+    {
+      path: '/taskdetail',
+      name: 'TaskDetail',
+      component: TaskDetail,
+      meta: {
+        title: 'router.taskDetail',
+        requireAuth: true,
+        noCache: true
       }
     },
 
@@ -204,10 +209,15 @@ export const adminRoutes = [
           component: LocationOutdoor,
           meta: { requireAuth: true }
         },
+        // 室外历史轨迹暂时下线，旧链接跳到定位管理-历史轨迹
         {
           path: 'historical',
-          component: Historical,
-          meta: { requireAuth: true }
+          redirect: (to) => ({
+            path: '/location/historytrajectory',
+            query: to.query || {},
+          }),
+          // component: Historical,
+          // meta: { requireAuth: true }
         },
       ]
     },
@@ -225,7 +235,7 @@ export const adminRoutes = [
         },
         {
           path: 'historical',
-          component: LocationIndoorHis,
+          component: DataAnalysis,
           meta: { requireAuth: true }
         },
       ]
@@ -397,16 +407,26 @@ export const userRoutes = [
           component: GateWay,
           name: 'gateway',
           meta: { title: 'router.gatewayManagement', noCache: true }
+        },
+        {
+          path: 'audiorecording',
+          component: AudioRecording,
+          name: 'audiorecording',
+          meta: { title: 'router.audioRecording', noCache: true }
         }
       ]
     },
 
     {
       path: '/dashboard',
+      name: 'UserDashboard',
       component: Layout,
+      redirect: { name: 'HomeUser' },
       children: [
         {
+          // 空 path 兼容旧链接；alias 兼容曾用过的 /dashboard/index
           path: '',
+          alias: ['index'],
           component: Homeuser,
           name: 'HomeUser',
           meta: { title: 'router.homepage', icon: 'Home', affix: true }
@@ -500,6 +520,12 @@ export const userRoutes = [
           component: inspection,
           name: 'inspection',
           meta: { title: 'router.inspectionManagement', noCache: true }
+        },
+        {
+          path: 'taskmanagement',
+          component: TaskManagement,
+          name: 'taskmanagement',
+          meta: { title: 'router.taskManagement', noCache: true }
         }
       ]
     },
@@ -538,43 +564,55 @@ export const userRoutes = [
           meta: { title: 'router.floorDetails', noCache: true }
         },
         {
+          path: 'historytrajectory',
+          component: HistoryTrajectory,
+          name: 'historytrajectory',
+          meta: { title: 'router.historyTrajectory', noCache: true }
+        },
+        {
           path: 'outdoor',
           component: Outdoor,
           name: 'outdoor',
           redirect: '/location/outdoor/locationoutdoor',
-          meta: { title: 'router.outdoorPositioning', noCache: true },
+          // 菜单已扁平为「室外定位」，父级不参与面包屑，避免多出「定位查询」一层
+          meta: { title: 'router.outdoorPositioning', noCache: true, breadcrumb: false },
           children: [{
             path: 'locationoutdoor',
             component: LocationOutdoor,
             name: 'locationoutdoor',
-            meta: { title: 'router.locationQuery', noCache: true },
+            meta: { title: 'router.outdoorPositioning', noCache: true },
 
           },
+          // 室外历史轨迹页暂时下线，旧链接统一跳到定位管理-历史轨迹
           {
             path: 'historical',
-            component: Historical,
-            name: 'historical',
-            meta: { title: 'router.historicalTrack', noCache: true },
-
+            redirect: (to) => ({
+              path: '/location/historytrajectory',
+              query: to.query || {},
+            }),
+            // component: Historical,
+            // name: 'outdoorHistorical',
+            // meta: { title: 'router.historicalTrack', noCache: true },
           }]
         },
         {
           path: 'indoor',
           component: Indoor,
           name: 'indoor',
-          meta: { title: 'router.indoorPositioning', noCache: true },
+          meta: { title: 'router.indoorPositioning', noCache: true, breadcrumb: false },
           redirect: '/location/indoor/locationindoor',
           children: [{
             path: 'locationindoor',
             component: LocationIndoor,
             name: 'locationindoor',
-            meta: { title: 'router.locationQuery', noCache: true },
+            meta: { title: 'router.indoorPositioning', noCache: true },
 
           },
           {
             path: 'historical',
-            component: LocationIndoorHis,
-            name: 'historical',
+            component: DataAnalysis,
+            name: 'dataAnalysis',
+            // 菜单已提升为「定位管理 > 数据分析」；路径暂保持 historical 兼容旧链接
             meta: { title: 'router.dataAnalysis', noCache: true },
 
           }]
@@ -605,6 +643,13 @@ export const userRoutes = [
           name: 'myorder',
           meta: { title: 'router.myOrder', noCache: true }
         },
+        {
+          path: 'orderdetails',
+          component: OrderDetails,
+          name: 'userOrderDetails',
+          hidden: true,
+          meta: { title: 'router.orderDetails', noCache: true, activeMenu: '/user/myorder' }
+        },
       ]
     },
     {
@@ -616,9 +661,9 @@ export const userRoutes = [
       },
       children: [
         {
-          path: '/',
+          path: '',
           component: Message,
-          name: 'messageuser',
+          name: 'MessageUserPage',
           meta: { title: 'router.messageCenter', noCache: true }
         },
 
@@ -628,18 +673,33 @@ export const userRoutes = [
 
 // 说明：恢复 oldCode 的“基础路由 + 动态注入”方案
 // 仅用基础路由创建 Router，其余按权限在运行时注入
-const createRouter = () => new Router({
-  // mode: 'history',
-  scrollBehavior: () => ({ y: 0 }),
+const createRouterInstance = () => createRouter({
+  history: createWebHashHistory(),
+  scrollBehavior: () => ({ top: 0 }),
   routes: constantRoutes
 })
 
-const router = createRouter()
+const router = createRouterInstance()
 
-// 重置 matcher，用于在切换角色/首次登录后清空已注册的动态路由
+function collectRouteNames(routes, names = []) {
+  routes.forEach((route) => {
+    if (route.name) names.push(route.name)
+    if (route.children && route.children.length) {
+      collectRouteNames(route.children, names)
+    }
+  })
+  return names
+}
+
+const constantRouteNames = collectRouteNames(constantRoutes)
+
+// 重置动态路由，用于在切换角色/首次登录后清空已注册的动态路由
 export function resetRouter () {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher
+  router.getRoutes().forEach((route) => {
+    if (route.name && !constantRouteNames.includes(route.name)) {
+      router.removeRoute(route.name)
+    }
+  })
 }
 
 export default router

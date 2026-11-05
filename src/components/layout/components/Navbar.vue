@@ -18,10 +18,10 @@
       >
         <span
           class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'home' }"
           @click="goLink('home')"
-          style="position: relative"
         >
-          <i class="icon1 home" style="font-size: 28px"></i>
+          <i class="icon1 home"></i>
         </span>
       </el-tooltip>
       <!-- 告警信息 -->
@@ -33,10 +33,10 @@
       >
         <span
           class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'warning' }"
           @click="goLink('warning')"
-          style="position: relative"
         >
-          <i class="icon1 sos" style="font-size: 28px"></i>
+          <i class="icon1 sos"></i>
           <el-badge
             class="warningbox"
             :value="warningNum"
@@ -53,8 +53,12 @@
         placement="bottom"
         v-if="task"
       >
-        <span class="golink hover-effect" @click="goLink('inspection')">
-          <i class="icon1 patrol" style="font-size: 28px"></i>
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'inspection' }"
+          @click="goLink('inspection')"
+        >
+          <i class="icon1 patrol"></i>
         </span>
       </el-tooltip>
       <!-- 行为分析 -->
@@ -65,8 +69,12 @@
         placement="bottom"
         v-if="employee"
       >
-        <span class="golink hover-effect" @click="goLink('trajectory')">
-          <i class="icon1 active" style="font-size: 28px"></i>
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'trajectory' }"
+          @click="goLink('trajectory')"
+        >
+          <i class="icon1 active"></i>
         </span>
       </el-tooltip>
       <!-- 室内定位 -->
@@ -77,9 +85,12 @@
         placement="bottom"
         v-if="inDoor"
       >
-        <span class="golink hover-effect" @click="goLink('indoor')">
-          <i class="icon1 indoor" style="font-size: 28px"></i
-        ></span>
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'indoor' }"
+          @click="goLink('indoor')"
+        >
+          <i class="icon1 indoor"></i></span>
       </el-tooltip>
       <!-- 室外定位 -->
       <el-tooltip
@@ -89,36 +100,55 @@
         placement="bottom"
         v-if="outDoor"
       >
-        <span class="golink hover-effect" @click="goLink('outdoor')">
-          <i class="icon1 outdoor" style="font-size: 28px"></i>
+        <span
+          class="golink hover-effect"
+          :class="{ 'is-active': activeNav === 'outdoor' }"
+          @click="goLink('outdoor')"
+        >
+          <i class="icon1 outdoor"></i>
         </span>
       </el-tooltip>
+
+      <i class="nav-divider"></i>
 
       <!-- 全屏 -->
       <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-      <el-dropdown style="z-index: 999" class="perDropdown">
+      <el-dropdown
+        style="z-index: 999"
+        class="perDropdown"
+        popper-class="nav-menu-popper"
+        placement="bottom-end"
+      >
         <span class="el-dropdown-link perSpan">
-          <i class="icon menu1" style="font-size: 24px"></i>
+          <i class="icon menu1"></i>
         </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="goCenter">{{
-            $t("navbar.PersonalCenter")
-          }}</el-dropdown-item>
-
+        <template #dropdown><el-dropdown-menu>
+          <div class="nav-menu-head">
+            <span class="nav-menu-avatar">{{ userInitial }}</span>
+            <div class="nav-menu-meta">
+              <p class="nav-menu-name">{{ userName }}</p>
+              <p class="nav-menu-sub">{{ roleLabel }}</p>
+            </div>
+          </div>
+          <el-dropdown-item @click="goCenter">
+            <el-icon><User /></el-icon>{{ $t("navbar.PersonalCenter") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="contrForPrioNum == 5 && $store.state.projectTable.length > 1"
-            @click.native="selectProject"
-            >{{ $t("navbar.Selectitem") }}</el-dropdown-item
+            @click="selectProject"
           >
+            <el-icon><SwitchIcon /></el-icon>{{ $t("navbar.Selectitem") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="logoprio == 1 || clogoprio == 1"
-            @click.native="goSetLogo"
-            >{{ $t("navbar.Logosettings") }}</el-dropdown-item
+            @click="goSetLogo"
           >
-          <el-dropdown-item @click.native="goscreen" v-if="i8n == 'zh'">{{
-            $t("index.largescreen")
-          }}</el-dropdown-item>
+            <el-icon><Picture /></el-icon>{{ $t("navbar.Logosettings") }}
+          </el-dropdown-item>
+          <el-dropdown-item @click="goscreen" v-if="i8n == 'zh'">
+            <el-icon><Monitor /></el-icon>{{ $t("index.largescreen") }}
+          </el-dropdown-item>
           <el-dropdown-item
             v-if="
               contrForPrioNum == 1 ||
@@ -126,13 +156,14 @@
               contrForPrioNum == 3 ||
               contrForPrioNum == 4
             "
-            @click.native="sendMessage"
-            >{{ $t("navbar.Sendnotification") }}</el-dropdown-item
+            @click="sendMessage"
           >
-          <el-dropdown-item @click.native="logout">{{
-            $t("navbar.signout")
-          }}</el-dropdown-item>
-        </el-dropdown-menu>
+            <el-icon><Promotion /></el-icon>{{ $t("navbar.Sendnotification") }}
+          </el-dropdown-item>
+          <el-dropdown-item divided class="is-danger" @click="logout">
+            <el-icon><SwitchButton /></el-icon>{{ $t("navbar.signout") }}
+          </el-dropdown-item>
+        </el-dropdown-menu></template>
       </el-dropdown>
 
       <!-- 通知消息 -->
@@ -145,13 +176,13 @@
       >
         <el-dropdown
           style="z-index: 999"
-          @click.native="goMsg()"
+          @click="goMsg()"
           class="perDropdown"
           :divided="true"
         >
           <span class="el-dropdown-link1 el-dropdown-link perSpan1">
             <!-- <i class="perIcon1"> -->
-            <i class="icon bell" style="font-size: 24px"></i>
+            <i class="icon bell"></i>
             <el-badge
               :value="msgtable.length"
               class="msgbox"
@@ -159,9 +190,9 @@
             ></el-badge>
             <!-- </i> -->
           </span>
+          <template #dropdown>
           <el-dropdown-menu
             v-if="msgtable.length > 0"
-            slot="dropdown"
             v-bind:class="[isActive ? 'boxcard' : 'hideClass']"
           >
             <div style="max-height: 200px; overflow: auto">
@@ -184,63 +215,66 @@
             </div>
             <el-dropdown-item class="btnMsgHover">
               <span class="gtMessage">
-                <el-button type="text" size="mini" @click="redCourentMsg()">{{
+                <el-button text size="small" @click="redCourentMsg()">{{
                   $t("navbar.tet")
                 }}</el-button>
               </span>
               <span class="gtMessage1">
-                <el-button type="text" size="mini" @click.native="goMsg()">{{
+                <el-button text size="small" @click="goMsg()">{{
                   $t("navbar.tet1")
                 }}</el-button>
               </span>
             </el-dropdown-item>
           </el-dropdown-menu>
-
-          <el-dropdown-menu style="border: none"></el-dropdown-menu>
+          </template>
         </el-dropdown>
       </el-tooltip>
       <!-- 帮助菜单 -->
-      <el-dropdown style="z-index: 100" class="perDropdown" v-if="i8n == 'zh'">
+      <el-dropdown
+        style="z-index: 100"
+        class="perDropdown"
+        popper-class="nav-menu-popper"
+        placement="bottom-end"
+        v-if="i8n == 'zh'"
+      >
         <span class="el-dropdown-link perSpan">
-          <i class="more icon" style="font-size: 24px"></i>
+          <i class="icon help"></i>
         </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="Onlinedocumentation">
-            {{ $t("navbar.Onlinedocumentation") }}
+        <template #dropdown><el-dropdown-menu>
+          <p class="nav-menu-title">{{ $t("navbar.helpCenter") }}</p>
+          <el-dropdown-item @click="Onlinedocumentation">
+            <el-icon><Document /></el-icon>{{ $t("navbar.Onlinedocumentation") }}
           </el-dropdown-item>
-
-          <el-dropdown-item @click.native="commonproblem">
-            {{ $t("navbar.commonproblem") }}
+          <el-dropdown-item @click="commonproblem">
+            <el-icon><ChatLineRound /></el-icon>{{ $t("navbar.commonproblem") }}
           </el-dropdown-item>
-
           <el-dropdown-item v-if="contrForPrioNum != 5">
-            <a href="javascript:;" class="helpitem">{{
-              $t("navbar.Resourcedownload")
-            }}</a>
+            <el-icon><Download /></el-icon>{{ $t("navbar.Resourcedownload") }}
           </el-dropdown-item>
-        </el-dropdown-menu>
+        </el-dropdown-menu></template>
       </el-dropdown>
       <!-- 显示/隐藏告警弹框 -->
-      <el-button
+      <button
         v-show="showWarnignButton > 0"
-        type="primary"
-        size="mini"
+        type="button"
         class="warning_button"
+        :class="{ 'is-on': $store.state.showWarningDialog }"
         @click="changeShowWarning()"
-        >{{ buttonText }}</el-button
       >
+        <i class="warning_button-dot"></i>{{ buttonText }}
+      </button>
     </div>
     <!-- 设置logo -->
     <el-dialog
       :title="$t('navbar.Setlogo')"
-      :visible.sync="setLogo"
-      class="edit"
-      width="30%"
-      style="text-align: center"
-      :modal-append-to-body="false"
+      v-model="setLogo"
+      class="edit device-dialog"
+      width="480px"
       :append-to-body="true"
+      align-center
     >
       <el-upload
+        class="dialog-upload-center"
         :action="ImagePath"
         list-type="picture-card"
         :file-list="fileListAdd"
@@ -256,76 +290,126 @@
         :on-exceed="handleExceed"
         :before-upload="beforeAvatarUpload"
       >
-        <div slot="tip" class="el-upload__tip">
+        <template #tip><div class="el-upload__tip">
           {{ $t("navbar.tet2") }}
-        </div>
+        </div></template>
         <i class="el-icon-plus"></i>
       </el-upload>
 
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="addCancel">{{ $t("terminal.cancel") }}</el-button>
         <el-button type="primary" @click="addTrue">
-          {{ $t("terminal.confirm") }}</el-button
-        >
-      </div>
+          {{ $t("terminal.confirm") }}</el-button>
+      </div></template>
     </el-dialog>
     <el-dialog
-      :visible.sync="dialogVisible"
-      :modal-append-to-body="false"
+      width="50%"
+      class="device-dialog"
+      :title="$t('navbar.Setlogo')"
+      v-model="dialogVisible"
       :append-to-body="true"
+      align-center
     >
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
 
     <!-- 选择项目 -->
     <el-dialog
-      :title="$t('navbar.Selectitem')"
-      :visible.sync="selectProjects"
-      class="edit padreduce"
-      style="text-align: center"
-      :close-on-press-escape="false"
+      v-model="selectProjects"
+      class="project-select-dialog"
+      modal-class="project-select-mask"
+      :show-close="false"
+      :close-on-press-escape="projectSelectClosable"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
       :append-to-body="true"
-      width="40%"
+      :destroy-on-close="true"
+      width="760px"
+      align-center
     >
-      <div class="project-wrapper">
-        <div
-          class="project-item"
-          v-for="(item, index) in projectTable"
-          :key="index"
-          @click="choseProject(item)"
-          :class="{
-            'active-item': $store.state.projectid === item.projectid,
-          }"
+      <template #header>
+        <div class="ps-modal-title">
+          <span>{{ $t("navbar.Selectitem") }}</span>
+          <el-tooltip effect="dark" placement="bottom" :show-after="200" :z-index="30000" popper-class="project-select-help-tip">
+            <template #content>
+              <div class="ps-help-tip">
+                <p>{{ $t("project.tet9") }}</p>
+                <p>{{ $t("project.tet10") }}</p>
+                <a
+                  class="ps-help-tip-link"
+                  href="https://location.rctiot.com:8079/faq/#%E6%AD%A3%E5%90%91%E5%AE%9A%E4%BD%8D%E5%92%8C%E5%8F%8D%E5%90%91%E5%AE%9A%E4%BD%8D%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  @click.stop
+                >{{ $t("navbar.learnMore") }}</a>
+              </div>
+            </template>
+            <i class="el-icon-question ps-help-q" @click.stop />
+          </el-tooltip>
+        </div>
+        <button
+          v-if="projectSelectClosable"
+          type="button"
+          class="ps-close-btn"
+          aria-label="close"
+          @click="selectProjects = false"
         >
-          <div class="item-header">
-            <div class="item-icon"></div>
-            {{ item.name }}
-            <div
-              v-if="$store.state.projectid === item.projectid"
-              class="isactive"
-            >
-              <i class="icon"></i>
+          <span class="ps-close-icon">×</span>
+        </button>
+      </template>
+      <div class="ps-grid-wrap">
+        <div class="ps-grid">
+          <div
+            class="ps-card"
+            v-for="(item, index) in projectTable"
+            :key="item.projectid || index"
+            @click="choseProject(item)"
+            :class="{
+              'is-active': $store.state.projectid === item.projectid,
+            }"
+          >
+            <div class="ps-card-header">
+              <div class="ps-card-main">
+                <span
+                  class="ps-card-icon"
+                  :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      fill="currentColor"
+                      opacity="0.22"
+                      d="M5.5 4.25h7.2l4.3 4.3V19.5a1.25 1.25 0 0 1-1.25 1.25H5.5A1.25 1.25 0 0 1 4.25 19.5V5.5A1.25 1.25 0 0 1 5.5 4.25Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12.85 4.4v3.85c0 .55.45 1 1 1h3.7L12.85 4.4Z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M8.2 12.1h7.6a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Zm0 3.2h5.2a.75.75 0 0 1 0 1.5H8.2a.75.75 0 0 1 0-1.5Z"
+                    />
+                  </svg>
+                </span>
+                <span class="ps-card-name" :title="item.name">{{ item.name }}</span>
+              </div>
+              <span
+                class="ps-tag"
+                :class="Number(item.type) === 2 ? 'is-reverse' : 'is-forward'"
+              >{{
+                Number(item.type) === 2
+                  ? i8n == "zh"
+                    ? "反向"
+                    : item.entype || "Reverse"
+                  : i8n == "zh"
+                    ? "正向"
+                    : item.entype || "Forward"
+              }}</span>
             </div>
-          </div>
-          <div class="item-info">
-            <div class="key">
-              <span>{{ $t("navbar.number") }}</span>
-              <span>{{ $t("navbar.type") }}</span>
-              <span>{{ $t("navbar.remarks") }}</span>
+            <div class="ps-card-id">
+              {{ $t("navbar.number") }}：{{ item.projectid }}
             </div>
-            <div class="value">
-              <span>{{ item.projectid }}</span>
-              <span>{{ i8n == "zh" ? item.typestr : item.entype }}</span>
-              <el-tooltip
-                class="item"
-                effect="dark"
-                :content="item.memo"
-                placement="bottom-end"
-              >
-                <span>{{ item.memo }}</span>
-              </el-tooltip>
+            <div class="ps-card-desc" :title="item.memo || ''">
+              {{ item.memo || "—" }}
             </div>
           </div>
         </div>
@@ -333,23 +417,19 @@
     </el-dialog>
     <el-dialog
       :title="$t('index.sendmessage')"
-      :visible.sync="showSendMessage"
-      class="edit"
-      width="30%"
-      style="text-align: center"
+      v-model="showSendMessage"
+      class="edit device-dialog"
+      width="560px"
       :close-on-press-escape="false"
-      :modal-append-to-body="false"
       :append-to-body="true"
+      align-center
     >
       <el-form
         :model="sendMessages"
-        style="margin-top: 20px"
-        class="demo-form-inline"
+        label-position="top"
+        class="send-message-form"
       >
-        <el-form-item
-          style="width: 60%; margin-left: 0; text-align: left"
-          :label="$t('navbar.Sendto')"
-        >
+        <el-form-item :label="$t('navbar.Sendto')">
           <el-select
             v-model="sendMessages.tenantid"
             clearable
@@ -375,14 +455,14 @@
           ></el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer" style="margin-top: -10px">
+      <template #footer><div class="dialog-footer">
         <el-button @click="showSendMessage = false">{{
           $t("terminal.cancel")
         }}</el-button>
         <el-button type="primary" @click="sendMsgTrue()">{{
           $t("terminal.confirm")
         }}</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <audio :src="audioSrc" controls="controls" loop hidden ref="audio"></audio>
   </div>
@@ -394,6 +474,15 @@ import Breadcrumb from "./Breadcrumb";
 import Hamburger from "./Hamburger";
 import host from "../../../host.js";
 import Screenfull from "./Screenfull";
+
+const NAV_PATHS = {
+  home: "/dashboard",
+  warning: "/warning/index",
+  inspection: "/staff/inspection",
+  trajectory: "/staff/staffmanagement",
+  indoor: "/location/indoor/locationindoor",
+  outdoor: "/location/outdoor/locationoutdoor",
+};
 import {
   loginout,
   getNotice,
@@ -404,6 +493,18 @@ import {
   insertNoticeList,
 } from "../../../axios/api";
 import { notifyAuthEvent } from "../../../utils/authSession";
+import { userInitial, roleLabelKey } from "../../../utils/navMenu";
+import {
+  User,
+  Switch as SwitchIcon,
+  Picture,
+  Monitor,
+  Promotion,
+  SwitchButton,
+  Document,
+  ChatLineRound,
+  Download,
+} from "@element-plus/icons-vue";
 export default {
   data() {
     return {
@@ -433,8 +534,6 @@ export default {
         tenantid: "",
         msg: "",
       },
-      websock: "",
-      wsuri: host.ws + "user/" + this.$store.state.userInfo.username,
       value: "",
       msgtable: [],
       tenantidData: [],
@@ -448,7 +547,7 @@ export default {
       // imgSrc: require("../../assets/rct.png"),
       imgSrc: "",
       setLogo: false,
-      ImagePath: "v1/user/addMapFileLogo",
+      ImagePath: "v1/service/addMapFileLogo",
       fileListAdd: [],
       dialogImageUrl: "",
       dialogVisible: false,
@@ -460,6 +559,8 @@ export default {
         userName: this.$store.state.userInfo.username,
       },
       selectProjects: false,
+      // 导航栏切换项目可关闭；登录后必选由 Homeuser 控制
+      projectSelectClosable: true,
       showSendMessage: false,
       projectTable: [],
       // projectList: [],
@@ -475,7 +576,7 @@ export default {
       // 音效相关
 
       audioSrc: "",
-      audioTimer: true,
+      audioTimer: null,
     };
   },
   components: {
@@ -485,6 +586,15 @@ export default {
     Screenfull,
     // SizeSelect,
     // Search
+    User,
+    SwitchIcon,
+    Picture,
+    Monitor,
+    Promotion,
+    SwitchButton,
+    Document,
+    ChatLineRound,
+    Download,
   },
   created() {
     this.getProjectLists();
@@ -542,28 +652,7 @@ export default {
     },
 
     goLink(value) {
-      switch (value) {
-        case "warning":
-          this.$router.push({ path: "/warning/index" });
-          break;
-        case "trajectory":
-          this.$router.push({ path: "/staff/staffmanagement" });
-          break;
-        case "indoor":
-          this.$router.push({ path: "/location/indoor/locationindoor" });
-          break;
-        case "outdoor":
-          this.$router.push({ path: "/location/outdoor/locationoutdoor" });
-          break;
-        case "home":
-          this.$router.push({ path: "/dashboard" });
-          break;
-        case "inspection":
-          this.$router.push({ path: "/staff/inspection" });
-          break;
-        default:
-          break;
-      }
+      if (NAV_PATHS[value]) this.$router.push({ path: NAV_PATHS[value] });
     },
     toggleSideBar() {
       this.$store.commit("changeShow", !this.$store.state.show);
@@ -652,14 +741,14 @@ export default {
       return isLt2M;
     },
     getPustMsg() {
-      this.$EventBus.$on("pushData", (msgId) => {
-        //删除id数据
+      this._pushDataHandler = (msgId) => {
         for (let i = 0; i < this.msgtable.length; i++) {
           if (this.msgtable[i].id == msgId) {
             this.msgtable.splice(i, 1);
           }
         }
-      });
+      };
+      this.$EventBus.$on("pushData", this._pushDataHandler);
     },
     //获取通知消息
     getMsg() {
@@ -693,52 +782,66 @@ export default {
           this.tenantid_A,
           this.userName
         ).then((res) => {
-          if (res.code == 1001) {
-            that.warningNum = res.data.size;
-            that.$store.commit("setWarningNum", res.data.size);
-            let sosNumss = that.$store.state.sosNums;
-            if (sosNumss == 0 || sosNumss == "") {
-              if (res.data.warning) {
-                if (res.data.warning.id != that.$store.state.warningInfo.id) {
+          if (res.code != 1001) return;
+          // 切大屏等场景 Navbar 已卸载时 ref 为空，避免 pause 报错
+          const audio = that.$refs && that.$refs.audio;
+          that.warningNum = res.data.size;
+          that.$store.commit("setWarningNum", res.data.size);
+          let sosNumss = that.$store.state.sosNums;
+          if (sosNumss == 0 || sosNumss == "") {
+            if (res.data.warning) {
+              if (res.data.warning.id != that.$store.state.warningInfo.id) {
+                if (that.audioTimer) {
                   clearInterval(that.audioTimer);
                   that.audioTimer = null;
-                  that.$refs.audio.pause();
-                  that.$store.commit("setWarningInfo", res.data.warning);
-                  if (res.data.warning.vtime > 0) {
-                    that.$refs.audio.src =
+                }
+                if (audio) audio.pause();
+                that.$store.commit("setWarningInfo", res.data.warning);
+                if (res.data.warning.vtime > 0) {
+                  if (audio) {
+                    audio.src =
                       "../../../static/video/" +
                       res.data.warning.voice +
                       ".mp3";
-                    that.$refs.audio.currentTime = 0; //从头开始播放
-                    that.$refs.audio.play(); //播放
-                    setTimeout(() => {
-                      that.$refs.audio.pause();
-                    }, res.data.warning.vtime * 1000);
+                    audio.currentTime = 0;
+                    audio.play();
+                  }
+                  setTimeout(() => {
+                    const a = that.$refs && that.$refs.audio;
+                    if (a) a.pause();
+                  }, res.data.warning.vtime * 1000);
 
-                    if (res.data.warning.vcycle > 0) {
-                      that.audioTimer = setInterval(() => {
-                        that.$refs.audio.play(); //播放
-                        setTimeout(() => {
-                          that.$refs.audio.pause();
-                        }, res.data.warning.vtime * 1000);
-                      }, res.data.warning.vcycle * 1000);
-                    }
-                  } else {
+                  if (res.data.warning.vcycle > 0) {
+                    that.audioTimer = setInterval(() => {
+                      const a = that.$refs && that.$refs.audio;
+                      if (a) a.play();
+                      setTimeout(() => {
+                        const a2 = that.$refs && that.$refs.audio;
+                        if (a2) a2.pause();
+                      }, res.data.warning.vtime * 1000);
+                    }, res.data.warning.vcycle * 1000);
+                  }
+                } else {
+                  if (that.audioTimer) {
                     clearInterval(that.audioTimer);
                     that.audioTimer = null;
-                    that.$refs.audio.pause();
                   }
+                  if (audio) audio.pause();
                 }
-              } else {
-                clearInterval(that.audioTimer);
-                that.audioTimer = null;
-                that.$refs.audio.pause();
               }
             } else {
+              if (that.audioTimer) {
+                clearInterval(that.audioTimer);
+                that.audioTimer = null;
+              }
+              if (audio) audio.pause();
+            }
+          } else {
+            if (that.audioTimer) {
               clearInterval(that.audioTimer);
               that.audioTimer = null;
-              that.$refs.audio.pause();
             }
+            if (audio) audio.pause();
           }
         });
       }
@@ -819,9 +922,15 @@ export default {
 
     logout() {
       this.$confirm(this.$t("index.surelogout"), this.$t("Building.tips"), {
+        customClass: "device-message-box",
+        confirmButtonClass: "device-message-confirm",
+        cancelButtonClass: "device-message-cancel",
+        roundButton: false,
         confirmButtonText: this.$t("terminal.confirm"),
         cancelButtonText: this.$t("terminal.cancel"),
         type: "warning",
+        // 避免锁滚动条导致右上角图标位置跳动
+        lockScroll: false,
       })
         .then(() => {
           var that = this;
@@ -884,11 +993,6 @@ export default {
       this.$store.state.showWarningDialog
         ? this.$store.commit("setlargeScreen", true)
         : this.$store.commit("setlargeScreen", false);
-      // if (this.$store.state.showWarningDialog == true) {
-      //   this.$store.commit("setlargeScreen", true);
-      // } else {
-      //   this.$store.commit("setlargeScreen", false);
-      // }
       this.$store.commit("changeWarningDialog", false);
       this.$store.commit("setscreen", false);
     },
@@ -909,12 +1013,13 @@ export default {
       let data = {
         tenantid: this.$store.state.userInfo.tenantid,
       };
-      getProjectFirstList(
-        data,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.username
-      ).then((res) => {
+      const tenantkey =
+        this.tenantkey_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A || (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName || (this.$store.state.userInfo && this.$store.state.userInfo.username);
+      getProjectFirstList(data, tenantkey, tenantid, username).then((res) => {
         if (res.code == 1001) {
           this.projectTable = res.data;
           this.$store.commit("changeProjectTable", this.projectTable);
@@ -945,9 +1050,9 @@ export default {
         tbox: row.projectConfig.tbox,
         attendance: row.projectConfig.attendance,
         task: row.projectConfig.task,
+        locateManage: row.projectConfig.locateManage,
         inDoor: row.projectConfig.inDoor,
         outDoor: row.projectConfig.outDoor,
-        assetgw: row.projectConfig.assetgw,
         aoagw: row.projectConfig.aoagw,
         smoke: row.projectConfig.smoke,
         alertor: row.projectConfig.alertor,
@@ -955,6 +1060,7 @@ export default {
         camera: row.projectConfig.camera,
         devgw: row.projectConfig.devgw,
         scanbeacon: row.projectConfig.scanbeacon,
+        audio: row.projectConfig.audio,
       };
       that.$store.commit("changefunctionParts", data);
 
@@ -1073,9 +1179,12 @@ export default {
       });
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.timer);
     this.timer = null;
+    if (this._pushDataHandler) {
+      this.$EventBus.$off("pushData", this._pushDataHandler);
+    }
   },
   computed: {
     ...mapGetters(["sidebar", "avatar", "device"]),
@@ -1088,11 +1197,25 @@ export default {
     sosNums() {
       return this.$store.state.sosNums;
     },
+    activeNav() {
+      const path = this.$route.path;
+      const entry = Object.entries(NAV_PATHS).find(([, p]) => path === p);
+      return entry ? entry[0] : "";
+    },
+    userInitial() {
+      return userInitial(this.userName);
+    },
+    roleLabel() {
+      const key = roleLabelKey(this.contrForPrioNum);
+      return key ? this.$t(key) : "";
+    },
   },
   watch: {
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
-      this.buttonText = this.$t("navbar.showNotification");
+      this.buttonText = this.$store.state.showWarningDialog
+        ? this.$t("navbar.hideNotification")
+        : this.$t("navbar.showNotification");
 
       Object.assign(
         this.$data.msgtable,
@@ -1127,7 +1250,7 @@ export default {
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
@@ -1165,13 +1288,80 @@ export default {
     line-height: 50px;
     display: flex;
     align-items: center;
+    gap: 4px;
+    overflow: visible;
     &:focus {
       outline: none;
     }
+    /* 所有快捷图标统一槽位，避免下拉/提示包装层把间距撑开 */
+    > .golink,
+    > .right-menu-item,
+    > .perDropdown,
+    > .itemMessage {
+      flex: 0 0 34px;
+      width: 34px;
+      min-width: 34px;
+      max-width: 34px;
+      height: 34px;
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(47, 123, 255, 0.08) !important;
+
+        .icon,
+        .icon1,
+        :deep(.icon) {
+          background-color: #2f7bff;
+        }
+      }
+    }
+    > .golink.is-active {
+      background-color: rgba(47, 123, 255, 0.12) !important;
+
+      .icon1 {
+        background-color: #2f7bff;
+      }
+    }
+    > .right-menu-item :deep(.icon) {
+      width: 17px;
+      height: 17px;
+      background-color: #475569;
+      transition: background-color 0.2s;
+    }
+    > .right-menu-item > :deep(div),
+    > .right-menu-item :deep(.el-tooltip__trigger) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    > .itemMessage :deep(.perDropdown),
+    > .itemMessage :deep(.el-dropdown),
+    > .perDropdown :deep(.el-dropdown),
+    > .perDropdown.el-dropdown {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: 34px;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    > .warning_button {
+      flex: 0 0 auto;
+      margin: 0 0 0 4px !important;
+    }
     .right-menu-item {
-      display: inline-block;
-      padding: 0 8px;
-      height: 100%;
       font-size: 18px;
       color: #5a5e66;
       vertical-align: text-bottom;
@@ -1230,18 +1420,40 @@ export default {
   display: none;
 }
 .el-dropdown-link1 {
-  margin-left: 10px;
+  margin-left: 0;
+  position: relative;
+  overflow: visible !important;
 }
-.msgbox {
-  position: absolute !important;
-  top: -8px;
-  left: 14px;
-  z-index: 10000;
-}
+.msgbox,
 .warningbox {
   position: absolute !important;
-  top: -8px;
-  right: 0px;
+  z-index: 10000;
+  line-height: 1 !important;
+  overflow: visible !important;
+  height: auto !important;
+  width: auto !important;
+}
+.msgbox {
+  top: -3px;
+  left: 10px;
+}
+.warningbox {
+  top: -3px;
+  right: -5px;
+}
+/* EP badge 默认 translateY(-50%) 会被父级裁切，只露出下半截数字 */
+.msgbox :deep(.el-badge__content),
+.msgbox :deep(sup),
+.warningbox :deep(.el-badge__content),
+.warningbox :deep(sup) {
+  position: static !important;
+  transform: none !important;
+  top: auto !important;
+  right: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 1 !important;
 }
 .btnMsgHover {
   background-color: #ffffff !important;
@@ -1268,23 +1480,20 @@ export default {
   display: flex;
 }
 .perDropdown {
-  margin-right: 0;
-  width: 30px;
+  margin: 0;
   cursor: pointer;
   height: 100%;
-}
-.perDropdown:hover .el-dropdown-link {
-  background-color: rgb(248, 248, 248);
+  overflow: visible !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 .perDropdown .el-dropdown-link {
   // padding-bottom: 22px;
 }
-
-.el-dropdown {
-  width: 30px;
-}
 .perDropdown1 {
-  margin-left: 2%;
+  margin-left: 0;
 }
 .hover-effect {
   display: flex !important;
@@ -1294,11 +1503,15 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 .perSpan1 {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible !important;
 }
 .perIcon {
   display: flex;
@@ -1332,118 +1545,69 @@ export default {
   line-height: 34px !important;
 }
 
-.demo-form-inline >>> .el-input__suffix {
+.demo-form-inline :deep(.el-input__suffix) {
   right: 0 !important;
 }
 
+.nav-divider {
+  flex: 0 0 1px;
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+  background: #e2e8f0;
+}
+
 .warning_button {
-  padding: 6px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover {
+    color: #2f7bff;
+    border-color: rgba(47, 123, 255, 0.35);
+    background: #eff6ff;
+  }
+
+  &.is-on {
+    color: #e11d48;
+    background: #fff1f2;
+    border-color: #fecdd3;
+
+    &:hover {
+      background: #ffe4e6;
+    }
+
+    .warning_button-dot {
+      background: #f43f5e;
+      box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.18);
+    }
+  }
+}
+
+.warning_button-dot {
+  width: 6px;
+  height: 6px;
+  margin: 0;
+  border-radius: 50%;
+  background: #94a3b8;
 }
 
 .select-row {
   background: #409eff !important;
 }
 
-/*项目选择 */
-.project-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  transform: translateX(0.2vw);
-}
-.project-item {
-  margin: 0;
-  position: relative;
-  z-index: 1;
-  width: 11.2vw;
-  padding-bottom: 20px;
-  z-index: 0;
-  transition: all 0.3s;
-  background-color: #fff;
-  cursor: pointer;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0.5vw;
-  box-shadow: 3px 3px 4px -2px #d6d6d6;
-}
-
-.project-item:hover {
-  z-index: 2;
-  transform: scale(1.05);
-  -moz-box-shadow: 1px 5px 14px #cccccc;
-  -webkit-box-shadow: 1px 5px 14px #cccccc;
-  box-shadow: 1px 5px 14px #cccccc;
-}
-.item-header {
-  position: relative;
-  height: 40px;
-  background: #409eff;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-}
-.active-item .item-header {
-  background: #ff9b44;
-}
-.item-header .isactive {
-  width: 46px;
-  height: 46px;
-  position: absolute;
-  background: #ffca9c;
-  top: -23px;
-  right: -23px;
-  transform: rotate(45deg);
-}
-.item-header .isactive .icon {
-  position: absolute;
-  bottom: 0;
-  transform: rotate(-45deg);
-  width: 12px;
-  height: 12px;
-  background: #fff;
-  mask: url("../../../assets/pick.svg");
-  mask-size: contain;
-}
-.item-header .item-icon {
-  margin: 0;
-  margin-right: 10px;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  background-color: #fff;
-  mask: url("../../../assets/firm.svg");
-  mask-size: contain;
-  font-size: 18px;
-}
-.item-info {
-  display: flex;
-  margin-top: 14px;
-  justify-self: start;
-}
-.item-info .key {
-  display: flex;
-  flex-direction: column;
-  color: #8c8c8c;
-  margin-right: 10px;
-  margin-left: 10px;
-  white-space: nowrap;
-}
-.item-info .key span {
-  margin-left: 0;
-  margin-top: 4px;
-}
-.item-info .value {
-  display: flex;
-  flex-direction: column;
-  margin-left: 5px;
-}
-.item-info .value span {
-  margin-left: 0;
-  margin-top: 4px;
-  color: #2d2d2d;
-  text-align: left;
-}
 .padreduce .el-dialog__body {
   padding-bottom: 30px;
 }
@@ -1451,31 +1615,30 @@ export default {
   text-align: left !important;
 } */
 
-.helpitem {
-  text-decoration: none;
-  color: #606266;
-}
-.helpitem:hover {
-  color: #409eff;
-}
 .perSpan1 {
-  margin-right: 0;
+  margin: 0;
+  position: relative;
+  overflow: visible !important;
 }
 .el-dropdown-link1 {
-  margin-left: 4px;
+  margin-left: 0;
+  position: relative;
+  overflow: visible !important;
 }
 .el-dropdown-menu__item:hover a {
   color: #409eff;
 }
 .itemMessage {
-  width: 30px;
+  overflow: visible !important;
 }
 .icon {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   display: inline-block;
-  background-color: #4c4c4d;
+  background-color: #475569;
   mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  transition: background-color 0.2s;
 }
 .icon.menu1 {
   mask: url("../../../assets/menu.svg");
@@ -1485,47 +1648,43 @@ export default {
   mask: url("../../../assets/bell.svg");
   mask-size: contain;
 }
-.icon.more {
-  mask: url("../../../assets/more.svg");
+.icon.help {
+  mask: url("../../../assets/help.svg");
   mask-size: contain;
 }
 .icon1 {
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   display: inline-block;
-  background-color: #4c4c4d;
+  background-color: #475569;
   mask-repeat: no-repeat !important;
+  mask-position: center !important;
+  transition: background-color 0.2s;
 }
 .icon1.outdoor {
   mask: url("../../../assets/outdoor.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.indoor {
   mask: url("../../../assets/indoor.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.sos {
   mask: url("../../../assets/sos.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.active {
   mask: url("../../../assets/active.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 
 .icon1.patrol {
   mask: url("../../../assets/patrol.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 .icon1.home {
   mask: url("../../../assets/home.svg");
   mask-size: contain;
-  background-color: #003f9c;
 }
 
 .images {
@@ -1534,20 +1693,11 @@ export default {
   vertical-align: middle;
 }
 .golink {
-  display: inline-block;
-  padding: 0 8px;
-  height: 100%;
+  position: relative;
+  overflow: visible !important;
   font-size: 18px;
   color: #5a5e66;
   vertical-align: text-bottom;
 
-  &.hover-effect {
-    cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.025);
-    }
-  }
 }
 </style>
