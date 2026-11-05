@@ -2,20 +2,22 @@
 
 [中文](README.md) | English
 
-A location tracking and map management platform built with **Vue.js 3.x** (`Tianditu-vue3` branch).
+A location tracking and map management platform built with **Vue.js 3.x**.
 
 ## Branch Overview
 
 | Branch | Description |
 |--------|-------------|
-| `main` | Main branch |
-| `Tianditu` | Vue 2.x + Webpack + Tianditu maps |
-| `Tianditu-vue3` | **Current**: Vue 3.x + Vite + Element Plus + Tianditu maps |
+| `main` | **Default branch**: Vue 3.x + Vite + Element Plus + Tianditu maps (this document's branch) |
+| `Tianditu` | Vue 2.x + Webpack legacy archive |
+
+> GitHub renders the README from the default branch `main`, which is the current Vue 3.x version.
+> For the legacy docs, see the [`Tianditu` branch README](https://github.com/ruictec/location_web/blob/Tianditu/README_EN.md).
 
 ## Quick Navigation
 
 - [🚀 Quick Start](#quick-start)
-- [⚙️ Environment Variables](#environment-variables)
+- [⚙️ Injected Variables](#injected-variables)
 - [📖 Usage Guide](#usage-guide)
 - [🔧 Build Commands](#build-commands)
 - [📁 Project Structure](#project-structure)
@@ -34,7 +36,7 @@ A location tracking and map management platform built with **Vue.js 3.x** (`Tian
 
 ## Technology Stack
 
-**This branch uses the Vue 3.x stack:**
+**The project uses the Vue 3.x stack:**
 
 - 🏗️ **Vue.js 3.4.38** - Frontend framework
 - ⚡ **Vite 5.4** - Build tool
@@ -55,16 +57,33 @@ A location tracking and map management platform built with **Vue.js 3.x** (`Tian
 
 ### Prerequisites
 
-- Node.js 16.20.2+ (recommended to use nvm; see `.nvmrc`)
-- npm >= 8.x
+The `engines` field in `package.json` is the only version declaration in this project:
+
+```json
+"engines": {
+  "node": ">=18.18.0",
+  "npm": ">= 9.0.0"
+}
+```
+
+| Item | Requirement | Note |
+|------|-------------|------|
+| Node.js | `>=18.18.0` | Vite 5 does not support Node 16; verified on Node 22 LTS |
+| npm | `>= 9.0.0` | `package-lock.json` uses `lockfileVersion: 3` (npm 9+ format); older npm may rewrite the lockfile |
+
+> `engines` is **advisory, not enforced**: there is no `.npmrc` (`engine-strict` is off), no
+> `packageManager` field, and no CI version constraint. An older npm only produces an
+> `EBADENGINE` warning instead of failing the install.
+> Verified development environment: Node `v22.22.2` / npm `10.9.7`.
+> `.nvmrc` matches the table above; a plain `nvm use` is enough.
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
+git clone https://github.com/ruictec/location_web.git
 cd location_web
-git checkout Tianditu-vue3
+
+nvm use
 
 # Install dependencies
 npm install
@@ -77,72 +96,53 @@ npm run dev
 
 ### Configuration
 
-#### Development Environment
+All settings live in [`config/app.js`](config/app.js). **The project no longer reads `.env.local`**:
+`resolveAppEnv()` in that file produces the `VUE_APP_*` values, which `vite.config.js` injects into
+`process.env` at build time through `define`. There is no `dotenv` / `loadEnv` / `.env.local` logic
+anywhere in the repo, so edit `config/app.js` instead of creating a `.env` file.
 
-Create a `.env.local` file in the project root:
-
-```bash
-# Backend API and WebSocket
-VUE_APP_API_BASE=http://localhost:14001/v1
-VUE_APP_WS_BASE=ws://localhost:14001/websocket
-
-# Static resources / docs
-VUE_APP_ASSET_BASE=http://localhost:8079
-VUE_APP_DOC_BASE=http://localhost:8078
-VUE_APP_HELP_BASE=http://localhost:8079
-
-# Maps
-VUE_APP_MAP_PROVIDER=tianditu
-VUE_APP_TILE_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png
-VUE_APP_FENGMAP_IMG_BASE=https://developer.fengmap.com/fmAPI/images
-VUE_APP_TIANDITU_KEY=
-
-# Analytics / messaging
-VUE_APP_ENABLE_BAIDU_ANALYTICS=false
-VUE_APP_BAIDU_HM_ID=
-VUE_APP_MQTT_BROKER_URL=tcp://mqtt.example.com:1883
-
-# WeChat Mini Program (do NOT commit secrets)
-VUE_APP_WECHAT_APPID=
-VUE_APP_WECHAT_SECRET=
+```js
+// config/app.js
+const config = {
+  active: 'cloud',   // backend target: cloud | lan | lan1 | docker
+  targets: {         // apiBase, wsBase, assetBase, docBase, helpBase per environment
+    cloud: { /* ... */ },
+  },
+  common: {          // map / analytics / MQTT / WeChat settings
+    mapProvider: 'tianditu',   // tianditu | osm
+    tiandituKey: '',           // never commit a real key
+  },
+}
 ```
 
-#### Production Environment
+`static/` is copied verbatim to `dist/static/` during the build. After deployment you can edit
+`dist/static/config.js` to override **map-related settings** (non-empty values only) without
+rebuilding. Backend endpoints and other values require editing `config/app.js` and rebuilding.
 
-You can override map-related settings at deploy time via `dist/static/config.js` without rebuilding.
+## Injected Variables
 
-## Environment Variables
+`process.env.*` keys read by the code, and where their values come from in `config/app.js`:
 
-| Variable | Default Value | Description |
-|----------|---------------|-------------|
-| **Backend** | | |
-| `VUE_APP_API_BASE` | `http://localhost:14001/v1` | Backend API base URL |
-| `VUE_APP_WS_BASE` | `ws://localhost:14001/websocket` | WebSocket base URL |
-| **Static / Docs** | | |
-| `VUE_APP_ASSET_BASE` | `http://localhost:8079` | Static asset base URL |
-| `VUE_APP_DOC_BASE` | `http://localhost:8078` | Docs / FAQ base URL |
-| `VUE_APP_HELP_BASE` | `http://localhost:8079` | Help docs base URL |
-| **Maps** | | |
-| `VUE_APP_MAP_PROVIDER` | `tianditu` | Map provider (`tianditu` / `osm`) |
-| `VUE_APP_TILE_URL_TEMPLATE` | OSM template | Tile URL template (OSM mode) |
-| `VUE_APP_FENGMAP_IMG_BASE` | Fengmap CDN | Fengmap image base URL |
-| `VUE_APP_TIANDITU_KEY` | `''` | Tianditu API key |
-| **Other** | | |
-| `VUE_APP_ENABLE_BAIDU_ANALYTICS` | `false` | Enable Baidu Analytics |
-| `VUE_APP_BAIDU_HM_ID` | `''` | Baidu HM ID |
-| `VUE_APP_MQTT_BROKER_URL` | example broker | MQTT broker URL |
+| Variable | Source in `config/app.js` |
+|----------|---------------------------|
+| `VUE_APP_API_BASE`, `VUE_APP_WS_BASE` | `targets[active].apiBase` / `wsBase` (dev API is fixed to the `/v1` proxy) |
+| `VUE_APP_ASSET_BASE`, `VUE_APP_DOC_BASE`, `VUE_APP_HELP_BASE` | matching `targets[active]` fields |
+| `VUE_APP_MAP_PROVIDER`, `VUE_APP_TIANDITU_KEY`, `VUE_APP_TILE_URL_TEMPLATE` | matching `common` fields |
+| `VUE_APP_FENGMAP_IMG_BASE`, `VUE_APP_FENGMAP_MAP_URL`, `VUE_APP_FENGMAP_THEME_URL` | matching `common` fields |
+| `VUE_APP_ENABLE_BAIDU_ANALYTICS`, `VUE_APP_BAIDU_HM_ID`, `VUE_APP_MQTT_BROKER_URL` | matching `common` fields |
+| `VUE_APP_WECHAT_APPID`, `VUE_APP_WECHAT_SECRET` | matching `common` fields |
 
 ## Usage Guide
 
-1. **Development**: Create `.env.local` and run `npm run dev`.
+1. **Development**: Set `active` / `targets` / `common` in `config/app.js`, then run `npm run dev`.
 2. **Production build**: Run `npm run build` (output in `dist/`).
 3. **Deploy-time config**: Edit `dist/static/config.js` for map provider / Tianditu key.
 
 ## Important Notes
 
-- `.env` and `.env.local` are gitignored — do not commit secrets.
-- Prefer configuring Tianditu keys in deploy-time `static/config.js`.
-- Baidu Analytics loads only when `VUE_APP_ENABLE_BAIDU_ANALYTICS=true`.
+- `.env` and `.env.local` are **not read** by the build — always use `config/app.js`.
+- Never commit Tianditu keys or WeChat secrets; prefer deploy-time `static/config.js` for keys.
+- Baidu Analytics loads only when `VUE_APP_ENABLE_BAIDU_ANALYTICS` is true (set `common.enableBaiduAnalytics` in `config/app.js`).
 
 ## Build Commands
 
@@ -161,6 +161,7 @@ npm run preview
 
 ```
 location_web/
+├── config/app.js        # Single runtime config entry (backend / maps / analytics / WeChat)
 ├── src/
 │   ├── components/      # Reusable components
 │   ├── views/           # Page components
@@ -170,7 +171,9 @@ location_web/
 │   ├── i18n/            # i18n
 │   ├── shims/           # Third-party adapters (fengmap, etc.)
 │   └── assets/          # Static assets
-├── static/              # Public static files (runtime config.js)
+├── public/              # Images / dashboard assets
+├── scripts/             # Migration and helper scripts
+├── static/              # Runtime static files (config.js, copied to dist/static at build)
 ├── vite.config.js
 └── package.json
 ```
@@ -178,7 +181,7 @@ location_web/
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch from `Tianditu-vue3` (for Vue 3 work)
+2. Create a feature branch from `main`
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
@@ -208,4 +211,5 @@ For technical support and questions, please contact the development team.
 
 ---
 
-**Note**: The `Tianditu-vue3` branch is Vue 3.x + Vite. Use the `Tianditu` branch for Vue 2.x.
+**Note**: The `main` branch is Vue 3.x + Vite. Use the `Tianditu` branch for the Vue 2.x legacy
+version. The GitHub homepage renders this README.
