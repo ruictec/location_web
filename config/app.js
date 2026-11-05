@@ -34,6 +34,15 @@ const config = {
       docBase: 'https://location.rctiot.com:8078',
       helpBase: 'https://location.rctiot.com:8079',
     },
+    lan1: {
+      label: '局域网外网',
+      apiProxy: 'http://192.168.50.117:14001/v1',
+      apiBase: 'http://192.168.50.117:14001/v1',
+      wsBase: 'ws://192.168.50.117:14001/websocket',
+      assetBase: 'https://location.rctiot.com:8079',
+      docBase: 'https://location.rctiot.com:8078',
+      helpBase: 'https://location.rctiot.com:8079',
+    },
     docker: {
       label: 'Docker部署',
       // 本地 npm run dev 时的代理目标（容器名本机解析不了）

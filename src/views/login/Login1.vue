@@ -869,12 +869,14 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
-  /* background: url("../../../static/bg.jpg"); */
-  /* background: url("../../../static/introduce.png");
+  /* 登录页主视觉：与平台浅色蓝白主题一致（#f5f7fb 底、#2f7bff→#22d3ee 点缀）
+     等轴测园区/楼层、基站覆盖、轨迹、电子围栏；矢量背景适配 2K/4K 屏。
+     深色科技风版本保留在 login-bg.svg，改这里一行即可切回。 */
+  background-color: #f5f7fb;
+  background-image: url(../../assets/login-bg.svg);
   background-repeat: no-repeat;
-  background-size: cover; */
-  background: url(../../assets/banner1.png) 0px 0px;
-  background-size: 100% 100%;
+  background-position: center center;
+  background-size: cover;
 }
 
 .poster img {
@@ -1452,7 +1454,7 @@ a {
   flex-direction: column;
   background: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(31, 78, 160, 0.18);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.10);
   overflow: hidden;
 }
 
@@ -1692,12 +1694,13 @@ a {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #4f6a8f;
+  color: #64748b;
 }
 
 .copyright {
   margin: 0;
   cursor: pointer;
+  transition: color 0.2s;
 }
 
 .copyright:hover {
@@ -1706,6 +1709,6 @@ a {
 
 .recommendation {
   margin: 0;
-  color: #7a8ea8;
+  color: #94a3b8;
 }
 </style>
