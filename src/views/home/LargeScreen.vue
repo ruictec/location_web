@@ -875,10 +875,18 @@ export default {
       }, 100);
     },
     //在线资产占比
-    setColumn1() {
-      var ColumnEcharts1 = this.$echarts.init(
-        document.getElementById("total1")
-      );
+    setColumn1(retry = 0) {
+      var el1 = document.getElementById("total1");
+      if (!el1) return;
+      // 容器未完成布局时等下一帧再画：否则 echartsLegacy 会写入兜底 min-width/min-height，
+      // 把三个 33% 宽的小环撑成 360px，导致再次进入大屏时图表被卡片裁掉不显示
+      if (!el1.clientWidth || !el1.clientHeight) {
+        if (retry < 12) requestAnimationFrame(() => this.setColumn1(retry + 1));
+        return;
+      }
+      el1.style.minWidth = "";
+      el1.style.minHeight = "";
+      var ColumnEcharts1 = this.$echarts.init(el1);
       this.memberNum.asset_online_num = this.asset
         ? this.memberNum.asset_online_num
         : 0;
@@ -899,6 +907,8 @@ export default {
         tooltip: {
           //悬浮框
           trigger: "item",
+          formatter: () =>
+            `在线资产：${this.memberNum.asset_online_num || 0} / 资产总数：${this.memberNum.asset_sum_num || 0}`,
         },
         title: [
           {
@@ -976,6 +986,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["55%"],
             hoverAnimation: false,
@@ -990,6 +1001,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["45%"],
             hoverAnimation: false,
@@ -1009,10 +1021,16 @@ export default {
       ColumnEcharts1.resize();
     },
     // 在线车辆占比
-    setColumn2() {
-      var ColumnEcharts2 = this.$echarts.init(
-        document.getElementById("total2")
-      );
+    setColumn2(retry = 0) {
+      var el2 = document.getElementById("total2");
+      if (!el2) return;
+      if (!el2.clientWidth || !el2.clientHeight) {
+        if (retry < 12) requestAnimationFrame(() => this.setColumn2(retry + 1));
+        return;
+      }
+      el2.style.minWidth = "";
+      el2.style.minHeight = "";
+      var ColumnEcharts2 = this.$echarts.init(el2);
       this.memberNum.tbox_online_num = this.tbox
         ? this.memberNum.tbox_online_num
         : 0;
@@ -1031,6 +1049,8 @@ export default {
         tooltip: {
           //悬浮框
           trigger: "item",
+          formatter: () =>
+            `在线车辆：${this.memberNum.tbox_online_num || 0} / 车辆总数：${this.memberNum.tbox_sum_num || 0}`,
         },
         title: [
           {
@@ -1108,6 +1128,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["55%"],
             hoverAnimation: false,
@@ -1122,6 +1143,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["45%"],
             hoverAnimation: false,
@@ -1140,10 +1162,16 @@ export default {
       ColumnEcharts2.resize();
     },
     // 在线人员占比
-    setColumn3() {
-      var ColumnEcharts3 = this.$echarts.init(
-        document.getElementById("total3")
-      );
+    setColumn3(retry = 0) {
+      var el3 = document.getElementById("total3");
+      if (!el3) return;
+      if (!el3.clientWidth || !el3.clientHeight) {
+        if (retry < 12) requestAnimationFrame(() => this.setColumn3(retry + 1));
+        return;
+      }
+      el3.style.minWidth = "";
+      el3.style.minHeight = "";
+      var ColumnEcharts3 = this.$echarts.init(el3);
       this.memberNum.member_online_num = this.employee
         ? this.memberNum.member_online_num
         : 0;
@@ -1165,6 +1193,8 @@ export default {
         tooltip: {
           //悬浮框
           trigger: "item",
+          formatter: () =>
+            `在线人员：${this.memberNum.member_online_num || 0} / 人员总数：${this.memberNum.member_sum_num || 0}`,
         },
         title: [
           {
@@ -1242,6 +1272,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["55%"],
             hoverAnimation: false,
@@ -1256,6 +1287,7 @@ export default {
           {
             name: "",
             type: "pie",
+            silent: true, // 纯装饰环，不响应 hover，避免弹出无意义的 100
             startAngle: 80,
             radius: ["45%"],
             hoverAnimation: false,
@@ -1427,7 +1459,6 @@ export default {
       }
       that.beaconHasData = true;
       let upward = Max;
-      var linderEcharts = this.$echarts.init(columnEl);
 
       var xList = [
         "三天内被扫描",
@@ -1561,8 +1592,6 @@ export default {
       ];
       var linderOption = {
         backgroundColor: "transparent",
-        width: "80%",
-        height: "80%",
         //X轴
         xAxis: {
           nameTextStyle: {
@@ -1615,8 +1644,11 @@ export default {
           },
         },
         grid: {
-          top: "10%",
-          right: "10%",
+          top: 24,
+          right: 12,
+          // 预留旋转后的 X 轴标签高度（containLabel 对 rotate 标签计算不准）
+          bottom: 45,
+          left: 12,
           containLabel: true, // gird 区域是否包含坐标轴的刻度标签
         },
         series: [
@@ -1867,8 +1899,17 @@ export default {
       };
 
       that.$nextTick(() => {
-        linderEcharts.setOption(linderOption, true);
-        linderEcharts.resize();
+        // 等 beaconHasData 的 v-show 生效、容器有真实尺寸后再初始化/复用实例，
+        // 避免在 display:none 时 init 导致画布尺寸不对、图表无法铺满卡片
+        var chart =
+          that.$echarts.getInstanceByDom(columnEl) ||
+          that.$echarts.init(columnEl);
+        chart.setOption(linderOption, true);
+        chart.resize();
+        // 窗口/全屏切换后容器尺寸可能晚一帧才稳定，补一次重算
+        setTimeout(() => {
+          if (!that._unmounted) chart.resize();
+        }, 300);
       });
     },
     // 警告类型
@@ -2757,7 +2798,8 @@ $border: 1px solid red;
 
             #Column {
               width: 100%;
-              height: 240px;
+              // 卡片高 300px，标题 55px，图表取剩余高度，避免固定 240px 在不同分辨率下溢出被裁
+              height: calc(100% - 55px);
             }
 
             .beacon-empty {
