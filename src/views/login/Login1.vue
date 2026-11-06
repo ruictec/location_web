@@ -61,6 +61,41 @@
       </div>
       <div class="recommendation">{{ $t("login.recommendation") }}</div>
     </div>
+
+    <!-- 浏览器兼容性提示：非 Chrome / Firefox / Safari 时弹出 -->
+    <div v-if="browserTipVisible" class="browser-tip-mask">
+      <div class="browser-tip">
+        <h2 class="browser-tip-title">{{ $t("login.browserTipTitle") }}</h2>
+        <p class="browser-tip-desc">{{ $t("login.browserTipDesc") }}</p>
+        <div class="browser-tip-links">
+          <a
+            class="browser-link is-chrome"
+            href="https://www.google.cn/chrome/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="browser-link-name">Chrome</span>
+            <span class="browser-link-sub">{{ $t("login.browserTipDownload") }}</span>
+          </a>
+          <a
+            class="browser-link is-firefox"
+            href="https://www.firefox.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="browser-link-name">Firefox</span>
+            <span class="browser-link-sub">{{ $t("login.browserTipDownload") }}</span>
+          </a>
+        </div>
+        <p class="browser-tip-current">
+          {{ $t("login.browserTipCurrent") }}{{ browserInfo.name }}
+          {{ browserInfo.version }}
+        </p>
+        <button class="browser-tip-btn" type="button" @click="closeBrowserTip">
+          {{ $t("login.browserTipOk") }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -73,6 +108,7 @@ import {
 } from "../../axios/api";
 import { persistTabSession, notifyAuthEvent } from "../../utils/authSession";
 import { injectRoutesByRole } from "../../router/permission";
+import { getBrowserInfo, formatBrowserInfo } from "../../utils/browserInfo";
 
 const REMEMBER_USERNAME_KEY = "login_remember_username";
 // 路由注入由permission.js处理，不再需要导入
@@ -290,6 +326,9 @@ export default {
       agreement: false,
       rePwd: false,
       checked: false,
+      // 浏览器兼容性提示
+      browserTipVisible: false,
+      browserInfo: {},
       showremember: true,
       userInfo: {},
       loginForm: {
@@ -747,6 +786,61 @@ export default {
       );
       return flag;
     },
+    // 记录访问终端的浏览器信息，便于排查兼容性问题（大屏图表、全屏、分辨率等）
+    recordBrowserInfo() {
+      try {
+        const info = getBrowserInfo();
+        sessionStorage.setItem("browserInfo", JSON.stringify(info));
+        window.__browserInfo = info;
+        console.info(
+          "[browser]",
+          formatBrowserInfo(info),
+          "| shell:",
+          !!info.isShellBrowser,
+          "| uaData:",
+          !!info.hasUAData,
+          "| brands:",
+          info.brands || "n/a"
+        );
+        return info;
+      } catch (e) {
+        return null;
+      }
+    },
+    // 非 Chrome / Firefox / Safari 时提示更换浏览器（同一会话只提示一次）
+    checkBrowserSupport() {
+      try {
+        const supported = ["Chrome", "Firefox", "Safari"];
+        const info = this.browserInfo || {};
+        const major = parseInt(String(info.version).split(".")[0], 10) || 0;
+        // macOS 版 360 极速浏览器用系统 WebKit，UA 与 Safari 完全相同（如 Version/14.1），
+        // 只能按 Safari 版本下限兜底；项目建议 Safari 16+（macOS 13+）
+        const isOldSafari = info.name === "Safari" && major > 0 && major < 16;
+        // 壳浏览器（360、QQ 等精简 UA 的 Chromium 内核）虽被识别成 Chrome，也一并提示
+        const isSupported =
+          supported.includes(info.name) && !info.isShellBrowser && !isOldSafari;
+        if (isSupported) return;
+        // 便于排查：打印识别依据
+        console.info(
+          "[browser] unsupported:",
+          info.name,
+          info.version,
+          "| engine:",
+          info.engine,
+          "| shell:",
+          !!info.isShellBrowser,
+          "| oldSafari:",
+          isOldSafari,
+          "| brands:",
+          info.brands || "n/a"
+        );
+        // 每次打开登录页都提示，不做会话去重
+        this.browserTipVisible = true;
+      } catch (e) {}
+    },
+    closeBrowserTip() {
+      this.browserTipVisible = false;
+    },
     onresizes() {
       window.onresize = () => {
         const windowWidth = document.body.clientWidth;
@@ -794,6 +888,8 @@ export default {
 
   mounted() {
     var that = this;
+    this.browserInfo = this.recordBrowserInfo() || {};
+    this.checkBrowserSupport();
     this.clearLegacyCookies();
     this.loadRememberedUsername();
     this.cambiar_login();
@@ -1710,5 +1806,111 @@ a {
 .recommendation {
   margin: 0;
   color: #94a3b8;
+}
+
+/* 浏览器兼容性提示 */
+.browser-tip-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.browser-tip {
+  width: 420px;
+  max-width: 100%;
+  padding: 28px 28px 22px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.28);
+  text-align: center;
+}
+
+.browser-tip-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.browser-tip-desc {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #475569;
+}
+
+.browser-tip-links {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.browser-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.browser-link-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.browser-link-sub {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.browser-link.is-chrome {
+  background: linear-gradient(135deg, #4285f4, #34a853);
+}
+
+.browser-link.is-firefox {
+  background: linear-gradient(135deg, #ff9500, #ff4d2d);
+}
+
+.browser-link:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.browser-tip-current {
+  margin: 0 0 18px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.browser-tip-btn {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: #2f7bff;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: filter 0.2s, box-shadow 0.2s;
+}
+
+.browser-tip-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 22px rgba(47, 123, 255, 0.32);
 }
 </style>
