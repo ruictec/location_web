@@ -124,7 +124,8 @@
   overflow: hidden;
   --el-table-border-color: #eef2f7;
   --el-table-header-bg-color: #f8fafc;
-  --el-table-row-hover-bg-color: rgba(47, 123, 255, 0.06);
+  /* 必须用实色：固定列是 sticky + background: inherit，半透明色会透出下层单元格 */
+  --el-table-row-hover-bg-color: #f3f7ff;
 }
 
 .device-page .device-table th.el-table__cell,
@@ -143,12 +144,14 @@
 
 .device-page .device-table .hover-row td,
 .device-page .terminal-table .hover-row td {
-  background-color: rgba(47, 123, 255, 0.06) !important;
+  /* 实色（原 rgba(47,123,255,0.06) 叠白底）——固定列 sticky 单元格不能是半透明 */
+  background-color: #f3f7ff !important;
 }
 
 .device-page .device-table .current-row td,
 .device-page .terminal-table .current-row td {
-  background-color: rgba(47, 123, 255, 0.1) !important;
+  /* 实色（原 rgba(47,123,255,0.1) 叠白底） */
+  background-color: #eaf2ff !important;
 }
 
 .device-page .device-pagination,

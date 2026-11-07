@@ -249,6 +249,8 @@ export default {
       showDistance: false,
       // 在data中添加一个数组来保存所有文字图层
       textLayers: [],
+      labelLayer: null, // 室外轨迹标注图层（单图层）
+      labelVisibleMap: null, // 当前缩放下各点标注是否显示
       showLine: false,
       vectorLayer: null, // 矢量图层（路线/起终点）
       vectorLayer2: null, // 移动人标图层
@@ -540,13 +542,24 @@ export default {
           });
       }
     },
-    /** 仅刷新时间/距离标注，不影响路线与回放人标 */
+    /** 仅刷新时间/距离标注，不影响路线与回放人标（单图层 + declutter + 像素间距抽稀） */
     refreshTextLabels() {
       const that = this;
+      // 重新查询会重建 map，记录绑定对象，避免绑定到已被替换的旧 map 上
+      if (this.map && this._labelMoveMap !== this.map) {
+        this._labelMoveMap = this.map;
+        this.map.on("moveend", () => {
+          // 缩放/平移后按新的像素间距重新决定哪些点显示标注
+          if (!this.labelLayer) return;
+          this.updateLabelVisibility();
+          this.labelLayer.changed();
+        });
+      }
       (this.textLayers || []).forEach((layer) => {
         this.removeVectorLayer(layer);
       });
       this.textLayers = [];
+      this.labelLayer = null;
       if (!this.map || !this.TrackData || this.TrackData.length === 0) return;
 
       const timeMarks = this.TrackData;
@@ -573,35 +586,97 @@ export default {
         });
       }
 
+      const features = [];
       timeMarks.forEach((item, index) => {
-        const itemStyle = new Style({
-          text: new Text({
-            textAlign: "center",
-            // 标注画在点上方，避免压住轨迹上的人标
-            textBaseline: "bottom",
-            offsetY: -18,
-            font: "bold 13px 微软雅黑",
-            text: that.buildPointLabel(item, index, timeMarks, cumDistM),
-            fill: new Fill({ color: "#587de5" }),
-            stroke: new Stroke({ color: "#ffcc33", width: 3 }),
-          }),
-        });
+        const label = that.buildPointLabel(item, index, timeMarks, cumDistM);
+        if (!label) return;
         const featureItem = new Feature({
           geometry: new Point([item.x, item.y]),
         });
-        featureItem.setStyle(itemStyle);
-        const vectorLayerText = new VectorLayer({
-          source: new VectorSource({
-            features: [featureItem],
-          }),
-          renderMode: "vector",
-          style: null,
-          zIndex: 4,
+        featureItem.set("labelIdx", index);
+        featureItem.set("labelText", label);
+        // 缩放/平移后按像素间距抽稀；首尾点始终显示（见 updateLabelVisibility）
+        featureItem.setStyle((feature) => {
+          const vis = that.labelVisibleMap;
+          if (vis && !vis[feature.get("labelIdx")]) return null;
+          return feature.get("labelStyle");
         });
-        vectorLayerText.set("isHistoricalTrack", true);
-        that.map.addLayer(vectorLayerText);
-        that.textLayers.push(vectorLayerText);
+        featureItem.set(
+          "labelStyle",
+          new Style({
+            text: new Text({
+              textAlign: "center",
+              // 标注画在点上方，避免压住轨迹上的人标
+              textBaseline: "bottom",
+              offsetY: -18,
+              font: "bold 13px 微软雅黑",
+              text: label,
+              lineHeight: 1.3,
+              fill: new Fill({ color: "#2f7bff" }),
+              stroke: new Stroke({ color: "#ffffff", width: 3 }),
+              backgroundFill: new Fill({ color: "rgba(255, 255, 255, 0.92)" }),
+              backgroundStroke: new Stroke({ color: "#ffcc33", width: 1.5 }),
+              padding: [4, 8, 4, 8],
+            }),
+          })
+        );
+        features.push(featureItem);
       });
+      if (!features.length) return;
+
+      this.updateLabelVisibility();
+      const vectorLayerText = new VectorLayer({
+        source: new VectorSource({ features }),
+        declutter: true, // 重叠标签自动隐藏
+        zIndex: 4,
+      });
+      vectorLayerText.set("isHistoricalTrack", true);
+      that.map.addLayer(vectorLayerText);
+      that.textLayers.push(vectorLayerText);
+      that.labelLayer = vectorLayerText;
+      // 首次渲染完成后再按真实视口重新抽稀一次
+      this.map.once("rendercomplete", () => {
+        if (this.labelLayer === vectorLayerText) {
+          this.updateLabelVisibility();
+          vectorLayerText.changed();
+        }
+      });
+    },
+    /** 按当前视图计算各点标注是否显示：相邻标注像素间距过小时抽稀，首尾点必显 */
+    updateLabelVisibility() {
+      const timeMarks = this.TrackData || [];
+      const vis = {};
+      // 地图尚未完成测量（getSize 为 null）时，像素坐标不可用，先回退为全部显示，
+      // 等 rendercomplete 后再重新抽稀，避免重建地图时所有标注被误判隐藏
+      if (!this.map || !timeMarks.length) {
+        this.labelVisibleMap = null;
+        return;
+      }
+      const res = this.map.getView().getResolution();
+      if (!res || !this.map.getSize()) {
+        this.labelVisibleMap = null;
+        return;
+      }
+      const minPx = 96;
+      let last = null;
+      const n = timeMarks.length;
+      timeMarks.forEach((item, index) => {
+        const px = this.map.getPixelFromCoordinate([
+          parseFloat(item.x),
+          parseFloat(item.y),
+        ]);
+        if (!px) return;
+        const isEdge = index === 0 || index === n - 1;
+        if (
+          isEdge ||
+          !last ||
+          Math.hypot(px[0] - last[0], px[1] - last[1]) >= minPx
+        ) {
+          vis[index] = true;
+          last = px;
+        }
+      });
+      this.labelVisibleMap = vis;
     },
     /** 标准矢量底图用深蓝，影像/地形等保持黄色 */
     getRouteStrokeColor() {
@@ -680,26 +755,55 @@ export default {
     buildPointLabel(item, index, trackData, cumDistM) {
       const parts = [];
       if (this.showTime) {
-        const timeStr = this.formatDatetime(item.gpstime);
+        // 密集标注下秒级没有意义，用 MM-DD HH:mm 短格式
+        const sec = parseInt(item.gpstime, 10);
+        const timeStr = Number.isFinite(sec)
+          ? this.formatShortLabelTime(sec)
+          : this.formatDatetime(item.gpstime);
         if (timeStr) parts.push(timeStr);
       }
       if (this.showDistance) {
         const distM = cumDistM[index] || 0;
-        const startT = parseInt(trackData[0].gpstime, 10);
-        const curT = parseInt(item.gpstime, 10);
-        const dt = curT - startT;
-        const avgMps = dt > 0 ? distM / dt : 0;
+        // 速度按“相邻两点”计算：上一段位移 / 上一段耗时
+        let segMps = 0;
+        if (index > 0) {
+          const prev = trackData[index - 1];
+          const segM =
+            this.getDistance(
+              parseFloat(prev.y),
+              parseFloat(prev.x),
+              parseFloat(item.y),
+              parseFloat(item.x)
+            ) * 1000;
+          const t0 = parseInt(prev.gpstime, 10);
+          const t1 = parseInt(item.gpstime, 10);
+          const segDt = Number.isFinite(t0) && Number.isFinite(t1) ? t1 - t0 : 0;
+          if (segM > 0 && segDt > 0) segMps = segM / segDt;
+        }
+        // 去掉「距离:」「平均速度:」前缀，缩短标签宽度（中英文一致）
         parts.push(
-          this.$t("locationoutdoorh.distance") +
-            ":" +
-            this.formatTrackDistance(distM) +
-            "  " +
-            this.$t("locationoutdoorh.avgSpeed") +
-            ":" +
-            this.formatTrackAvgSpeed(avgMps)
+          this.formatTrackDistance(distM) +
+            " · " +
+            this.formatTrackAvgSpeed(segMps)
         );
       }
-      return parts.join("  ");
+      return parts.join("\n");
+    },
+    /** 标注用短时间：MM-DD HH:mm:ss */
+    formatShortLabelTime(sec) {
+      const d = new Date(sec * 1000);
+      const p = (n) => String(n).padStart(2, "0");
+      return (
+        p(d.getMonth() + 1) +
+        "-" +
+        p(d.getDate()) +
+        " " +
+        p(d.getHours()) +
+        ":" +
+        p(d.getMinutes()) +
+        ":" +
+        p(d.getSeconds())
+      );
     },
     // utc转本地
     datetimecut(UTCDateString) {

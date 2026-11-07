@@ -98,16 +98,21 @@ export function getBrowserInfo(ua) {
   const brands = resolveBrands()
   const brandText = brands.map((b) => String(b.brand || '')).join('|')
   const hasUAData = brands.length > 0
+  // 注意：UA-CH 只在安全上下文（HTTPS / localhost）暴露。用 http://IP 访问时，
+  // 正版 Chrome 同样没有 navigator.userAgentData，此时绝不能据此判壳浏览器，否则误报
+  const secureContext =
+    typeof window === 'undefined' ? false : window.isSecureContext !== false
   // iOS 上的 CriOS / FxiOS / EdgiOS 本身不提供 UA-CH，不能据此判为壳浏览器
   const isIOSBrowser = /CriOS|FxiOS|EdgiOS/i.test(userAgent)
   const isShellBrowser =
+    secureContext &&
     browser.name === 'Chrome' &&
     !isIOSBrowser &&
-    (!hasUAData
-      ? isChromium // 桌面 Chrome 90+ 必定提供 navigator.userAgentData，缺失即为魔改内核
-      : !/Google Chrome/i.test(brandText) &&
+    (hasUAData
+      ? !/Google Chrome/i.test(brandText) &&
         !/Microsoft Edge/i.test(brandText) &&
-        !/Opera|Brave|Vivaldi|Yandex/i.test(brandText))
+        !/Opera|Brave|Vivaldi|Yandex/i.test(brandText)
+      : isChromium) // 安全上下文下桌面 Chrome 90+ 必有 UA-CH，缺失即为魔改内核
 
   return {
     name: browser.name,
@@ -120,6 +125,7 @@ export function getBrowserInfo(ua) {
     isChromium,
     isShellBrowser,
     hasUAData,
+    secureContext,
     brands: brandText,
     ua: userAgent
   }

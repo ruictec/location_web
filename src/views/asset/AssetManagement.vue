@@ -658,46 +658,24 @@
               <Trajectorys ref="trajectorys" @closePopup3d="closePopup3d" />
             </el-dialog>
             <el-form
-              class="demo-form-inline"
-              style="
-                display: flex;
-                white-space: nowrap;
-                margin-left: 1%;
-                width: 100%;
-              "
+              class="demo-form-inline action-filter-form"
               :model="actionData"
             >
               <el-form-item
+                class="action-filter-item action-filter-name"
                 :label="$t('asset.AssetName')"
-                class="action-asset-name"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 1%;
-                  width: 24%;
-                "
               >
                 <el-input v-model="actionData.username"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-maplabel"
                 :label="$t('asset.Tagnumber2')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 2%;
-                  width: 26%;
-                "
               >
                 <el-input v-model="actionData.maplabel"></el-input>
               </el-form-item>
               <el-form-item
+                class="action-filter-item action-filter-time"
                 :label="$t('staff.time')"
-                style="
-                  display: flex;
-                  margin-left: 1%;
-                  margin-right: 0;
-                  width: 40%;
-                "
               >
                 <el-date-picker
                   v-model="actionTime"
@@ -708,7 +686,7 @@
                   :end-placeholder="$t('terminal.enddate')"
                 ></el-date-picker>
               </el-form-item>
-              <el-form-item style="margin-left: 1%; width: 20%">
+              <el-form-item class="action-filter-item action-filter-actions">
                 <el-button
                   type="primary"
                   class="query"
@@ -724,38 +702,35 @@
               </el-form-item>
             </el-form>
             <div class="actionDetails">
-              <Timeline v-for="item in actionTableData" :key="item.id">
-                <TimelineItem v-if="item.postype == 1">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
+              <div v-if="actionTableData.length" class="action-record-grid">
+                <div
+                  v-for="item in actionTableData"
+                  :key="item.id"
+                  class="action-record"
+                  :class="item.postype == 1 ? 'is-indoor' : 'is-outdoor'"
+                >
+                  <div class="action-record-head">
+                    <span class="action-record-time">{{ item.gpstime }}</span>
+                    <span class="action-record-tag">{{
+                      item.postype == 1
+                        ? [item.building, item.groundname || item.ground]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : $t("warning.outdoor")
+                    }}</span>
+                  </div>
+                  <p class="action-record-line">
+                    <span>{{ $t("warning.area1") }}</span>{{ item.tranche }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.Building") }}{{ item.building }}
+                  <p class="action-record-line">
+                    <span>{{ $t("tet.Residencetime") }}</span
+                    >{{ formatSeconds(item.remaintime) }}
                   </p>
-                  <p class="content">
-                    {{ $t("LocationIndoorHis.floor") }}{{ item.groundname }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
-                <TimelineItem v-if="item.postype == 2">
-                  <p class="time">
-                    {{ $t("LocationIndoorHis.time") }}{{ item.gpstime }}
-                  </p>
-                  <p class="content">
-                    {{ $t("warning.area1") }}{{ item.tranche }}
-                  </p>
-                  <p class="content">
-                    {{ $t("tet.Residencetime")
-                    }}{{ formatSeconds(item.remaintime) }}
-                  </p>
-                </TimelineItem>
-              </Timeline>
+                </div>
+              </div>
+              <div v-else class="action-record-empty">
+                {{ $t("homepage.noData") }}
+              </div>
             </div>
           </el-dialog>
 
@@ -2915,28 +2890,86 @@ export default {
   line-height: 1 !important;
 }
 
+/* 轨迹弹框记录列表：与员工管理保持一致（卡片网格） */
 .actionDetails {
-  max-height: 500px;
+  max-height: 56vh;
   overflow: auto;
+  margin-top: 4px;
+  padding: 0 8px 4px;
+  box-sizing: border-box;
+  text-align: left;
+}
+.action-record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+.action-record {
+  position: relative;
+  margin: 0 !important;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  background: #fbfcfe;
+  box-sizing: border-box;
+}
+.action-record::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: #2f7bff;
+}
+.action-record.is-outdoor::before {
+  background: #10b981;
+}
+.action-record-head {
   display: flex;
-  flex-wrap: wrap;
-  text-align: left;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px !important;
 }
-.actionDetails :deep(.el-timeline) {
-  width: 23%;
-  margin-left: 2%;
-  margin-right: 0;
-  text-align: left;
+.action-record-time {
+  margin: 0 !important;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
 }
-.actionDetails :deep(.el-timeline-item__wrapper),
-.actionDetails :deep(.el-timeline-item__content) {
-  text-align: left;
+.action-record-tag {
+  margin: 0 !important;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #2f7bff;
+  background: #eef4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.actionDetails :deep(.el-timeline-item__content) p {
-  margin-left: 0;
-  margin-right: 0;
-  width: 100%;
-  text-align: left;
+.action-record.is-outdoor .action-record-tag {
+  color: #059669;
+  background: #ecfdf5;
+}
+.action-record-line {
+  margin: 4px 0 0 !important;
+  font-size: 13px;
+  color: #334155;
+}
+.action-record-line span {
+  color: #94a3b8;
+}
+.action-record-empty {
+  margin: 0 !important;
+  padding: 40px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
 }
 .action .el-dialog__body .el-form .el-form-item {
   padding-right: 0px !important;
@@ -2944,26 +2977,7 @@ export default {
 .action .demo-form-inline .el-form-item .el-form-item__content {
   width: 100%;
 }
-.action .action-asset-name {
-  min-width: 220px;
-}
-.action .action-asset-name :deep(.el-input) {
-  width: 100%;
-}
-.trajectory :deep(.el-dialog) {
-  height: 85%;
-  margin-top: 2% !important;
-}
-.trajectory :deep(.el-dialog__header) {
-  height: 4%;
-}
-.trajectory :deep(.el-dialog__headerbtn) {
-  top: 1% !important;
-}
-.trajectory :deep(.el-dialog__body) {
-  height: 96%;
-  padding-top: 10px !important;
-}
+
 </style>
 
 <style>

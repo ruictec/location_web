@@ -797,6 +797,8 @@ export default {
           formatBrowserInfo(info),
           "| shell:",
           !!info.isShellBrowser,
+          "| secure:",
+          !!info.secureContext,
           "| uaData:",
           !!info.hasUAData,
           "| brands:",

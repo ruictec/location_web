@@ -105,7 +105,6 @@
                   }}</el-radio>
                   <el-radio
                     v-model="devgw"
-                    :disabled="devgwNum != 0"
                     :label="false"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
@@ -118,7 +117,6 @@
                   }}</el-radio>
                   <el-radio
                     v-model="scanbeacon"
-                    :disabled="scanbeaconNum != 0"
                     :label="false"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
@@ -146,7 +144,6 @@
                   <el-radio
                     v-model="staffmanagement"
                     :label="false"
-                    :disabled="staffNum != 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -159,7 +156,6 @@
                   <el-radio
                     v-model="assetManagement"
                     :label="false"
-                    :disabled="assetNum != 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -172,7 +168,6 @@
                   <el-radio
                     v-model="tboxManagement"
                     :label="false"
-                    :disabled="tboxNum != 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -221,7 +216,6 @@
                   <el-radio
                     v-model="aoagw"
                     :label="false"
-                    :disabled="aoagwNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -235,7 +229,6 @@
                   <el-radio
                     v-model="smoke"
                     :label="false"
-                    :disabled="smokeNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -249,7 +242,6 @@
                   <el-radio
                     v-model="alertor"
                     :label="false"
-                    :disabled="alertorNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -263,7 +255,6 @@
                   <el-radio
                     v-model="blesensor"
                     :label="false"
-                    :disabled="blesensorNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -277,7 +268,6 @@
                   <el-radio
                     v-model="camera"
                     :label="false"
-                    :disabled="cameraNum > 0"
                     >{{ $t("functionParts.unshow") }}</el-radio>
                 </p>
               </div>
@@ -313,31 +303,21 @@ export default {
       warningconfig: "true", //人员告警
       warningconfigtbox: "true", //车辆告警
       staffmanagement: "true", //员工管理
-      staffNum: 0, //员工数量
       assetManagement: "true", //资产管理
-      assetNum: 0, //资产数量
       tboxManagement: "true", //车辆管理
-      tboxNum: 0, //车辆数量
       checkwork: "true", //考勤管理
       inspection: "true", //巡检管理
       locateManage: false, //任务管理
       locationoutdoor: "true", //室外定位
       locationindoor: "true", //室内定位
       devgw: "true", //终端管理
-      devgwNum: 0, //终端管理数量
       scanbeacon: "true", //信标管理
-      scanbeaconNum: 0, //信标管理数量
       audio: false, //录音管理
       aoagw: "true", //AOA网关
-      aoagwNum: 0, //AOA网关数量
       smoke: "true", //烟感
-      smokeNum: 0, //烟感数量
       alertor: "true", //报警器
-      alertorNum: 0, //报警器数量
       blesensor: "true", //蓝牙传感器
-      blesensorNum: 0, //蓝牙传感器数量
       camera: "true", //摄像头
-      cameraNum: 0, //摄像头数量
     };
   },
   methods: {
@@ -356,30 +336,20 @@ export default {
           that.warningconfig = res.data.alarmConfig;
           that.warningconfigtbox = res.data.tboxConfig;
           that.staffmanagement = res.data.employee;
-          that.staffNum = res.data.employeeNum;
           that.assetManagement = res.data.asset;
-          that.assetNum = res.data.assetNum;
           that.tboxManagement = res.data.tbox;
-          that.tboxNum = res.data.tboxNum;
           that.checkwork = res.data.attendance;
           that.inspection = res.data.task;
           that.locateManage = !!res.data.locateManage;
           that.locationindoor = res.data.inDoor;
           that.locationoutdoor = res.data.outDoor;
           that.aoagw = res.data.aoagw;
-          that.aoagwNum = res.data.aoagwNum || 0;
           that.smoke = res.data.smoke;
-          that.smokeNum = res.data.smokeNum || 0;
           that.alertor = res.data.alertor;
-          that.alertorNum = res.data.alertorNum || 0;
           that.blesensor = res.data.blesensor;
-          that.blesensorNum = res.data.blesensorNum || 0;
           that.camera = res.data.camera;
-          that.cameraNum = res.data.cameraNum || 0;
           that.devgw = res.data.devgw;
-          that.devgwNum = res.data.devgwNum;
           that.scanbeacon = res.data.scanbeacon;
-          that.scanbeaconNum = res.data.scanbeaconNum;
           that.audio = !!res.data.audio;
         }
       });
@@ -400,13 +370,7 @@ export default {
         });
         return;
       }
-      if (!this.warningconfig && !this.warningconfigtbox) {
-        that.$message({
-          message: that.$t("functionParts.message1"),
-          type: "warning",
-        });
-        return;
-      }
+      // 员工管理 / 资产管理 / 车辆管理 三项中必须保留一项为显示
       if (
         !this.staffmanagement &&
         !this.assetManagement &&
@@ -418,26 +382,8 @@ export default {
         });
         return;
       }
-      if (!this.locationindoor && !this.locationoutdoor) {
-        that.$message({
-          message: that.$t("functionParts.message3"),
-          type: "warning",
-        });
-        return;
-      }
-      if (
-        !this.aoagw &&
-        !this.smoke &&
-        !this.alertor &&
-        !this.blesensor &&
-        !this.camera &&
-        !this.devgw
-      ) {
-        that.$message({
-          message: that.$t("functionParts.message4"),
-          type: "warning",
-        });
-      }
+      // 其余分组（告警管理 / 定位管理 / 设备管理 / 安全管理）不再做前端联动限制，
+      // 由用户自由选择，合法性交由后端校验
       this.attenFlag = this.showBeacon ? false : true;
       let data = {
         projectid: this.$store.state.intoProjectid,

@@ -25,6 +25,12 @@
   --el-table-text-color: #606266;
 }
 
+/*
+ * 固定列注意事项：Element Plus 的固定列是 sticky 单元格 + background: inherit，
+ * 行悬浮/选中高亮必须使用实色（如 #f3f7ff、#eaf2ff），不能使用 rgba 半透明色，
+ * 否则横向滚动时下层单元格会透过固定列显示，造成内容重叠的错觉。
+ */
+
 .el-table th.el-table__cell,
 body .el-table th,
 .el-table thead th {
