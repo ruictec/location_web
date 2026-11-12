@@ -180,7 +180,7 @@
             class="device-dialog"
             :title="$t('warning.title1')"
             v-model="add"
-            width="480px"
+            width="560px"
             align-center
             @close="addCancel(addData)"
           >
@@ -416,7 +416,7 @@
             class="device-dialog"
             :title="$t('warning.title1')"
             v-model="edit"
-            width="480px"
+            width="560px"
             align-center
             @close="editCancel(editData)"
           >
@@ -1647,21 +1647,26 @@ export default {
 .gather-warnum-row:last-child {
   margin-bottom: 0;
 }
+/* 抵消全局 * { margin: 0 auto }：auto 边距会把级标签推右、把输入框压窄 */
+.gather-warnum-row > *,
+.gather-warnum-actions > * {
+  margin: 0 !important;
+}
+/* 级标签左对齐到输入列起点，宽度随文字自适应 */
 .gather-warnum-level {
-  flex: 0 0 64px;
-  width: 64px;
-  color: #606266;
-  font-size: 13px;
+  flex: 0 0 auto;
+  width: auto;
+  color: #64748b;
+  font-size: 12px;
   line-height: 32px;
   white-space: nowrap;
-  text-align: right;
+  text-align: left;
 }
 .gather-warnum-input {
   flex: 1 1 auto;
   min-width: 0;
   width: auto !important;
 }
-.gather-warnum-row :deep(.gather-warnum-input),
 .gather-warnum-row :deep(.gather-warnum-input .el-input__wrapper),
 .gather-warnum-row :deep(.gather-warnum-input .el-input__inner) {
   width: 100% !important;
@@ -1673,13 +1678,13 @@ export default {
   gap: 6px;
 }
 .gather-warnum-btn {
-  padding: 7px 12px !important;
+  padding: 6px 10px !important;
   margin: 0 !important;
-  min-width: 56px;
+  min-width: 48px;
 }
 .gather-warnum-btn-placeholder {
   display: inline-block;
-  width: 56px;
+  width: 48px;
   height: 1px;
 }
 .gather-warnum-help {

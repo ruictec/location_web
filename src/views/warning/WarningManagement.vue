@@ -148,6 +148,7 @@
                 :label="$t('warning.DeviceNo1')"
                 show-overflow-tooltip
                 align="center"
+                min-width="130"
                 :formatter="formatDeveui"
               >
               </el-table-column>
@@ -156,6 +157,7 @@
                 :label="$t('warning.name1')"
                 show-overflow-tooltip
                 align="center"
+                min-width="100"
               >
               </el-table-column>
               <el-table-column
@@ -164,6 +166,7 @@
                 :label="$t('staff.projectname')"
                 show-overflow-tooltip
                 align="center"
+                min-width="110"
               >
               </el-table-column>
               <el-table-column
@@ -171,6 +174,7 @@
                 :label="$t('warning.state1')"
                 show-overflow-tooltip
                 align="center"
+                min-width="100"
               >
               </el-table-column>
               <el-table-column
@@ -178,6 +182,7 @@
                 :label="$t('warning.area')"
                 show-overflow-tooltip
                 align="center"
+                min-width="110"
               >
               </el-table-column>
               <el-table-column
@@ -185,6 +190,7 @@
                 :label="$t('warning.AlertType1')"
                 show-overflow-tooltip
                 align="center"
+                min-width="120"
                 :formatter="formatAlertType"
               >
               </el-table-column>
@@ -194,6 +200,7 @@
                 show-overflow-tooltip
                 :formatter="formatDatetime"
                 align="center"
+                min-width="150"
               >
               </el-table-column>
               <el-table-column
@@ -202,15 +209,35 @@
                 show-overflow-tooltip
                 :formatter="formatDatetime1"
                 align="center"
+                min-width="150"
+              >
+              </el-table-column>
+              <el-table-column
+                property="checktime"
+                :label="$t('warning.checktime')"
+                show-overflow-tooltip
+                :formatter="formatChecktime"
+                align="center"
+                min-width="150"
               >
               </el-table-column>
               <el-table-column
                 fixed="right"
                 :label="$t('warning.operate')"
-                align="center"
-                min-width="90"
+                class-name="operate-col"
+                align="right"
+                header-align="center"
+                min-width="160"
               >
                 <template #default="scope">
+                  <el-button
+                    v-if="!hasChecktime(scope.row)"
+                    type="primary"
+                    size="small"
+                    plain
+                    round
+                    @click="reviewWarning(scope.row)"
+                  >{{ $t("warning.review") }}</el-button>
                   <el-tooltip
                     class="item"
                     effect="dark"
@@ -380,7 +407,12 @@
 <script>
 import Menu from "../../components/menu/Menu";
 import Data from "../../components/data/data";
-import { getWarningList, delWarning, getDevHealthListAsc } from "../../axios/api";
+import {
+  getWarningList,
+  delWarning,
+  getDevHealthListAsc,
+  updateWarnChecktime,
+} from "../../axios/api";
 import util from "../../common/util";
 import { FirstAidKit } from "@element-plus/icons-vue";
 import { jumpToWarningLocation } from "../../utils/warningLocation";
@@ -682,6 +714,18 @@ export default {
       let date = new Date(parseInt(row.statustime) * 1000);
       let date2 = date.toUTCString();
       return this.datetimecut(date2);
+    },
+    // 审核时间：后端为秒级时间戳；若返回的是格式化字符串则原样展示
+    formatChecktime(row) {
+      const v = row && row.checktime;
+      if (!this.hasChecktime(row)) return "";
+      const ts = Number(v);
+      if (!Number.isFinite(ts)) return String(v);
+      return this.datetimecut(new Date(ts * 1000).toUTCString());
+    },
+    hasChecktime(row) {
+      const v = row && row.checktime;
+      return !(v == null || v === "" || v === 0 || v === "0");
     },
     // 聚集告警：新数据 deveui 为门限级别（1/2/3…），旧数据可能是区域名称
     isGatherType(type) {
@@ -1059,9 +1103,87 @@ export default {
       }
     },
 
+    // 审核告警：确认有效或无效
+    reviewWarning(row) {
+      const that = this;
+      this.$confirm(
+        this.$t("warning.reviewMessage"),
+        this.$t("warning.reviewTitle"),
+        {
+          customClass: "device-message-box",
+          confirmButtonClass: "device-message-confirm",
+          cancelButtonClass: "device-message-cancel",
+          distinguishCancelAndClose: true,
+          closeOnClickModal: false,
+          confirmButtonText: this.$t("warning.valid"),
+          cancelButtonText: this.$t("warning.invalid"),
+          type: "warning",
+        }
+      )
+        .then(() => {
+          // 有效：只传 id，不传 checktime 时后端取当前时间
+          updateWarnChecktime(
+            { id: row.id },
+            this.tenantkey_A,
+            this.tenantid_A,
+            this.userName
+          ).then((res) => {
+            if (res.code == 1001) {
+              that.getWarningLists();
+              that.$message({
+                message: that.$t("warning.reviewSuccess"),
+                type: "success",
+              });
+            } else {
+              that.$message({
+                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+                type: "error",
+              });
+            }
+          });
+        })
+        .catch((action) => {
+          // 只有点「无效」才删除；点右上角关闭或 ESC 不做任何处理
+          if (action !== "cancel") return;
+          that.removeWarning(row);
+        });
+    },
+    // 删除单条告警（单条删除 / 审核判定无效共用）
+    removeWarning(row) {
+      const that = this;
+      let tenantid = this.tenantid_A;
+      if (this.contrForPrionum == 5) {
+        tenantid = this.$store.state.userInfo.superid;
+      } else if (this.contrForPrionum == 3 || this.contrForPrionum == 4) {
+        tenantid = this.$store.state.userInfo.tenantid;
+      }
+      const data = {
+        tenantid: tenantid,
+        ids: JSON.stringify([row.id]),
+      };
+      return delWarning(
+        data,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (res.code == 1001) {
+          that.getWarningLists();
+          that.$message({
+            message: that.$t("beacon.deletesuccess"),
+            type: "success",
+          });
+        } else {
+          that.$message({
+            message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+            type: "error",
+          });
+        }
+      });
+    },
+
     //删除
     DelWarningCommand(row) {
-      var that = this;
       if (
         (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
         (this.$store.state.userInfo.prionum == 4 && this.delprio == 2)
@@ -1097,39 +1219,7 @@ export default {
         }
       )
         .then(() => {
-          let data;
-          if (this.contrForPrionum == 5) {
-            data = {
-              tenantid: this.$store.state.userInfo.superid,
-              ids: [row.id],
-            };
-          } else if (this.contrForPrionum == 3 || this.contrForPrionum == 4) {
-            data = {
-              tenantid: this.$store.state.userInfo.tenantid,
-              ids: [row.id],
-            };
-          }
-
-          data.ids = JSON.stringify(data.ids);
-          delWarning(
-            data,
-            this.tenantkey_A,
-            this.tenantid_A,
-            this.userName
-          ).then((res) => {
-            if (res.code == 1001) {
-              that.getWarningLists();
-              that.$message({
-                message: that.$t("beacon.deletesuccess"),
-                type: "success",
-              });
-            } else {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-                type: "error",
-              });
-            }
-          });
+          this.removeWarning(row);
         })
         .catch(() => {});
     },
@@ -1378,6 +1468,14 @@ export default {
 }
 .icon_button:hover {
   background-color: rgb(25, 86, 201);
+}
+/* 操作列按钮统一右对齐：部分行没有审核按钮时也能保持同一条右边界。
+   class-name 会同时加到 th 和 td，这里限定 td，表头保持 header-align 的居中 */
+:deep(td.operate-col .cell) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .el-message--success {

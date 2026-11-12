@@ -1949,6 +1949,8 @@ export default {
             that.userName
           ).then((res) => {
             if (res.code == 1001) {
+              // 只保留告警楼栋的楼层映射，避免混入默认加载的第一栋楼
+              that.groundListCopy = [];
               for (let i = 0; i < res.data.length; i++) {
                 let groundinfo = {
                   groundid: res.data[i].id,
@@ -1958,9 +1960,14 @@ export default {
                 that.groundListCopy.push(groundinfo);
               }
               that.scale = res.data[0].scale;
-              let focusGroup = that.groundListCopy.find(function (item) {
-                return item.groundid == sosData.groundid;
-              });
+              // groundid 匹配不上时退回第一个楼层，避免 focusGroup.newground 抛错中断
+              let focusGroup =
+                that.groundListCopy.find(function (item) {
+                  return item.groundid == sosData.groundid;
+                }) || that.groundListCopy[0] || {};
+              if (isactiveGround1 != null) {
+                that.groundid = isactiveGround1;
+              }
               that.fmapId = res.data[0].filename;
               that.themeId = res.data[0].filetype;
               if (that.map) {
@@ -1970,8 +1977,8 @@ export default {
               that.destroyMap3d();
               that.loadingFun();
               that.onmap(
-                "",
-                focusGroup.newground,
+                sosData.projectid || that.$store.state.intoProjectid,
+                focusGroup.newground || 1,
                 mapInfo,
                 res.data[0].appname,
                 res.data[0].mapkey,
@@ -2357,16 +2364,21 @@ export default {
 
       that.layer.selfAttr = info;
 
-      if (that.showAllGround) {
-        var group = that.map3d.getFloor(mapinfo.newground);
-        that.layer.addTo(group);
-        that.layerList.push(that.layer);
-      } else {
-        var level = that.map3d.getLevel();
-        var group = that.map3d.getFloor(level);
-        that.layer.addTo(group);
-        that.layerList.push(that.layer);
+      // 3D 地图未就绪时无法上屏
+      if (!that.map3d || !that.map3dReady) {
+        return;
       }
+      // 显示全部楼层时用定位点所属楼层，取不到则退回当前楼层，避免 group 为空导致上屏失败
+      var targetFloor =
+        that.showAllGround && mapinfo.newground != null
+          ? mapinfo.newground
+          : that.map3d.getLevel();
+      var group = that.map3d.getFloor(targetFloor);
+      if (!group) {
+        return;
+      }
+      that.layer.addTo(group);
+      that.layerList.push(that.layer);
       this.sostype = false;
     },
     // 2D
@@ -2670,12 +2682,21 @@ export default {
 
     // 删除3D
     delIcon(e) {
-      this.layerList.forEach((item, index) => {
-        if (item.selfAttr.deveui == e.deveui) {
-          item.remove();
-          return this.layerList.splice(index, 1);
+      if (!e || !e.deveui) return;
+      // forEach 里 splice 会跳过元素，导致旧标记残留（新旧叠加看起来位置没变）
+      const remain = [];
+      (this.layerList || []).forEach((item) => {
+        if (item && item.selfAttr && item.selfAttr.deveui == e.deveui) {
+          try {
+            item.remove();
+          } catch (err) {
+            // 标记所属楼层已销毁时 remove 会抛错，忽略即可
+          }
+        } else {
+          remain.push(item);
         }
       });
+      this.layerList = remain;
     },
     hexToRgba(hex, opacity) {
       if (!hex) {
@@ -2906,7 +2927,8 @@ export default {
             isElectronicFence: true,
           };
           polygonMarker.addTo(group);
-          that.fencePolygonMarkers.push(polygonMarker);
+          // 必须保持原始对象，Vue3 Proxy 会让 fengmap 内部 dispose 时报错
+          that.fencePolygonMarkers.push(keepFengmapRaw(polygonMarker));
           var fenceName = fence.name || "";
           if (fenceName) {
             var center = that.getFencePolygonCenter(polygonPoints);
@@ -2933,7 +2955,7 @@ export default {
               isNameLabel: true,
             };
             nameMarker.addTo(group);
-            that.fenceNameMarkers3d.push(nameMarker);
+            that.fenceNameMarkers3d.push(keepFengmapRaw(nameMarker));
           }
         });
       } catch (e) {
@@ -5015,6 +5037,20 @@ export default {
       });
     },
 
+    // 关闭旧连接：先摘掉回调，避免旧连接的 onclose 反过来影响新连接
+    closeOldWebsocket() {
+      const old = this.websock;
+      if (!old) return;
+      old.onmessage = null;
+      old.onclose = null;
+      old.onerror = null;
+      try {
+        old.close();
+      } catch (err) {
+        // 已关闭的连接忽略
+      }
+      this.websock = null;
+    },
     //websock
     initWebsocket() {
       this.websockNum = 1;
@@ -5022,6 +5058,8 @@ export default {
         alert("您的浏览器不支持WebSocket");
         return false;
       }
+      // 重复进入时先断开旧连接，避免多条连接同时接收推送
+      this.closeOldWebsocket();
       this.websock = new WebSocket(this.wsuri);
       this.websock.onopen = this.websocketopen;
       this.websock.onmessage = this.websocketonmessage;
@@ -5034,6 +5072,7 @@ export default {
         alert("您的浏览器不支持WebSocket");
         return false;
       }
+      this.closeOldWebsocket();
       this.websock = new WebSocket(this.wsuri);
       this.websock.onopen = this.websocketopenOne;
       this.websock.onmessage = this.websocketonmessage;
@@ -5055,12 +5094,15 @@ export default {
       // groundid
       var that = this;
       if (res.data != "连接成功") {
-        let data = [];
+        // 兼容三种推送格式：{ devGps: [...] } 包装、数组、单个对象
         var datas = JSON.parse(res.data);
-        if (Array.isArray(datas) == false) {
-          data.push(datas);
-        } else {
+        let data = [];
+        if (Array.isArray(datas)) {
           data = datas;
+        } else if (datas && Array.isArray(datas.devGps)) {
+          data = datas.devGps;
+        } else if (datas) {
+          data.push(datas);
         }
         let isEqual;
         if (data.length > 1) {
@@ -5070,7 +5112,6 @@ export default {
         }
         // 判断是不是UWB定位：数组中的deveui都相同
         if (isEqual) {
-          console.log(11);
           let newData = [
             {
               type:
@@ -5087,14 +5128,14 @@ export default {
           data.forEach((item) => {
             newData[0].pathData.push({ x: item.x, y: item.y });
           });
-          console.log("newData", newData);
           that.handlePushData(newData);
         } else {
           for (let i = 0; i < data.length; i++) {
             if (data[i].deveui) {
-              if (data[i].maptype == 1) {
+              // 与上面的更新分支保持一致：按当前页面模式清理旧标记
+              if (that.mapTypes) {
                 // that.delFeature(data[i]);
-              } else if (data[i].maptype == 2) {
+              } else {
                 that.delIcon(data[i]);
               }
               if (data[i].status != 2) {
@@ -5122,10 +5163,12 @@ export default {
                   }
                 }
                 const type = deviceTypeKey(data[i].devtype);
-                if (data[i].maptype == 1) {
+                // 以当前页面模式为准：推送的 maptype 可能与当前显示模式不一致，
+                // 否则在 3D 页面会走到 2D 的更新分支，导致位置看起来不动
+                if (that.mapTypes) {
                   that.addOrUpdateFeature(type, data[i]);
                   that.applyFilter();
-                } else if (data[i].maptype == 2) {
+                } else {
                   that.groundListCopy.forEach((item) => {
                     if (item.ground == data[i].ground) {
                       data[i].newground = item.newground;
@@ -5148,7 +5191,12 @@ export default {
     },
     close(e) {
       console.log("室内WebSocket关闭");
-      this.websock.close();
+      // 连接已由服务端/浏览器关闭，这里不能再调 this.websock.close()：
+      // 页面会多次 initWebsocket()，旧连接的 onclose 一旦触发就会把新连接关掉
+      const target = e && e.target;
+      if (target && target === this.websock) {
+        this.websock = null;
+      }
     },
     websocketerror(err) {
       console.log("室内WebSocket连接失败");
@@ -5205,7 +5253,15 @@ export default {
         this.searchInfo("", "", this.$route.query.tboxDeveui);
       }, 1000);
     } else {
-      if (this.$route.query.sostype == "true") {
+      if (this.$route.query.warning == "true") {
+        // 告警信息跳转（聚集告警等）：无单设备号，定位数据在 store.sosData 中。
+        // 与室外定位页一致，交给 searchInfo 按告警楼栋/楼层加载点位；
+        // 延时等待 getBuildingByProjectids 把楼栋列表拉回来
+        this.sostype = this.$route.query.sostype == "true";
+        setTimeout(() => {
+          this.searchInfo();
+        }, 1000);
+      } else if (this.$route.query.sostype == "true") {
         this.sostype = true;
         setTimeout(() => {
           this.searchInfo("", "", "", 1);

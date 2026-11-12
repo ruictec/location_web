@@ -333,7 +333,9 @@
                       }}</span>
                     </template>
                   </el-table-column>
+                  <!-- 卡片未展示告警统计时：保留统计弹框入口 -->
                   <el-table-column
+                    v-if="!homeShowAlarmStatCard"
                     :label="$t('homepage.operate')"
                     min-width="50"
                     align="center"
@@ -356,6 +358,28 @@
                           {{ $t("homepage.census") }}
                         </el-button>
                       </el-tooltip>
+                    </template>
+                  </el-table-column>
+                  <!-- 卡片已展示告警统计时：操作列改为显示该类型的告警总数 -->
+                  <el-table-column
+                    v-if="homeShowAlarmStatCard"
+                    :label="$t('homepage.sum')"
+                    min-width="50"
+                    align="center"
+                  >
+                    <template #default="scope">
+                      <span
+                        v-if="
+                          scope.row.warn_status1_num == 0 &&
+                          scope.row.warn_status2_num == 0
+                        "
+                        class="warn-num--zero"
+                        >0</span
+                      >
+                      <span v-else class="warn-num warn-num--total">{{
+                        Number(scope.row.warn_status1_num) +
+                        Number(scope.row.warn_status2_num)
+                      }}</span>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -395,7 +419,11 @@
             </el-card>
           </div>
 
-          <div class="home-bottom-item" v-show="!attenFlag">
+          <!-- 信标状态卡片：与告警统计卡片互斥显示 -->
+          <div
+            class="home-bottom-item"
+            v-show="!attenFlag && !homeShowAlarmStatCard"
+          >
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
@@ -406,6 +434,44 @@
               </template>
               <div class="member">
                 <div id="main7" class="home-chart home-chart-fill"></div>
+              </div>
+            </el-card>
+          </div>
+
+          <!-- 告警统计卡片：与信标状态卡片互斥显示 -->
+          <div
+            class="home-bottom-item"
+            v-show="!attenFlag && homeShowAlarmStatCard"
+          >
+            <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
+              <template #header>
+                <div class="home-card-title">
+                  <span>{{ $t("Breadcrumb.AlarmStatistics") }}</span>
+                  <el-select
+                    v-model="homeWarnTypeIndex"
+                    class="home-warn-select"
+                    size="small"
+                    placeholder="—"
+                    @change="loadHomeWarningWeek"
+                  >
+                    <el-option
+                      v-for="item in homeWarnTypeOptions"
+                      :key="item.index"
+                      :label="item.typestr"
+                      :value="item.index"
+                    ></el-option>
+                  </el-select>
+                  <el-button
+                    class="home-warn-rank-btn"
+                    size="small"
+                    @click="openPersonStat(currentHomeWarnType)"
+                  >
+                    {{ $t("homepage.personStat") }}
+                  </el-button>
+                </div>
+              </template>
+              <div class="member home-warn-body">
+                <div id="homewarningweekdatas" class="home-warn-chart"></div>
               </div>
             </el-card>
           </div>
@@ -595,6 +661,13 @@
               <span class="ww-range">{{ $t("homepage.last7days") }}</span>
             </p>
           </div>
+          <el-button
+            class="ww-person-stat-btn"
+            size="small"
+            @click="openPersonStat(warnWeekStat.name)"
+          >
+            {{ $t("homepage.personStat") }}
+          </el-button>
         </div>
       </template>
       <div class="ww-summary">
@@ -612,6 +685,29 @@
         </div>
       </div>
       <div id="warningweekdatas"></div>
+    </el-dialog>
+
+    <!-- 人员统计（接口待接入） -->
+    <el-dialog
+      v-model="personStatDialog"
+      width="720px"
+      class="person-stat-dialog"
+      @closed="closePersonStat()"
+    >
+      <template #header>
+        <div class="pr-header">
+          <span class="pr-title">{{ $t("homepage.personStat") }}</span>
+          <el-date-picker
+            v-model="personStatDate"
+            type="date"
+            size="small"
+            value-format="YYYY-MM-DD"
+            :clearable="false"
+            @change="renderPersonStat"
+          ></el-date-picker>
+        </div>
+      </template>
+      <div id="personstatchart" class="pr-chart"></div>
     </el-dialog>
 
     <!-- 排行 -->
@@ -713,6 +809,7 @@ import {
   getWarningNum,
   getFristPageUserMapUtil,
   getWarnWeekNumList,
+  getWarningStatRank,
   getDevGpsOne,
   getFenceManageAndPointList,
 } from "../../axios/api";
@@ -810,7 +907,23 @@ export default {
       asset_outdoor_num: 0,
       warningWeek: false,
       myChartWarning: "",
+      myChartHomeWarning: null,
       warnWeekStat: { name: "", open: 0, closed: 0 },
+      // 首页告警统计测试卡片的数据
+      homeWarnWeekStat: { name: "", open: 0, closed: 0 },
+      // 当前选中的告警类型（warnNumList 下标），null 表示未选
+      homeWarnTypeIndex: null,
+      // 首页统计卡片开关：true 显示告警统计卡片（表格显示合计列）；
+      // false 显示信标状态卡片（表格保留统计弹框入口）
+      // 测试结束：后端暂无「告警统计」配置字段，按真实业务逻辑恢复默认显示
+      homeShowAlarmStatCard: false,
+      // 人员统计弹框（接口待接入）
+      personStatDialog: false,
+      personStatDate: "",
+      myChartPersonStat: null,
+      // 当前统计的告警类型名，以及接口原始返回（便于核对数据结构）
+      personStatType: "",
+      personStatRawData: null,
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -1542,6 +1655,12 @@ export default {
         case i18n.global.t("warning.Firealarm"):
           data.type = 8;
           break;
+        case i18n.global.t("warning.CloseContact"):
+          data.type = 9;
+          break;
+        case i18n.global.t("warning.DoorOpenalarm"):
+          data.type = 10;
+          break;
         case i18n.global.t("warning.LowBatteryAlarm"):
           data.type = 11;
           break;
@@ -1597,24 +1716,12 @@ export default {
         }
       );
     },
-    // 绘制一周内每天的告警信息柱状图
-    echartsWarningWeek(warningName, warningDate, warningData1, warningData2) {
-      const chartDom = document.getElementById("warningweekdatas");
-      if (!chartDom) return;
-      this.disposeChart("myChartWarning");
-      const exist = echarts.getInstanceByDom(chartDom);
-      if (exist) exist.dispose();
-      this.myChartWarning = markRaw(echarts.init(chartDom));
-
+    // 构建近七天告警统计柱状图（弹框与首页卡片共用）
+    buildWarningWeekOption(warningDate, warningData1, warningData2) {
       const num = (v) => Number(v) || 0;
       const dates = [...warningDate].reverse();
       const closed = [...warningData2].reverse().map(num);
       const open = [...warningData1].reverse().map(num);
-      this.warnWeekStat = {
-        name: warningName,
-        open: open.reduce((a, b) => a + b, 0),
-        closed: closed.reduce((a, b) => a + b, 0),
-      };
 
       const barSeries = (name, data, tone) => ({
         name,
@@ -1683,7 +1790,302 @@ export default {
         ],
       };
 
-      this.myChartWarning.setOption(option, true);
+      return {
+        option: option,
+        openSum: open.reduce((a, b) => a + b, 0),
+        closedSum: closed.reduce((a, b) => a + b, 0),
+      };
+    },
+    // 绘制一周内每天的告警信息柱状图（弹框）
+    echartsWarningWeek(warningName, warningDate, warningData1, warningData2) {
+      const chartDom = document.getElementById("warningweekdatas");
+      if (!chartDom) return;
+      this.disposeChart("myChartWarning");
+      const exist = echarts.getInstanceByDom(chartDom);
+      if (exist) exist.dispose();
+      this.myChartWarning = markRaw(echarts.init(chartDom));
+
+      const built = this.buildWarningWeekOption(
+        warningDate,
+        warningData1,
+        warningData2
+      );
+      this.warnWeekStat = {
+        name: warningName,
+        open: built.openSum,
+        closed: built.closedSum,
+      };
+      this.myChartWarning.setOption(built.option, true);
+    },
+    // 首页告警统计卡片：绘制同一份图表
+    renderHomeWarningWeek(warningName, warningDate, warningData1, warningData2) {
+      const chartDom = document.getElementById("homewarningweekdatas");
+      if (!chartDom || !chartDom.clientWidth) return;
+      this.disposeChart("myChartHomeWarning");
+      const exist = echarts.getInstanceByDom(chartDom);
+      if (exist) exist.dispose();
+      this.myChartHomeWarning = markRaw(echarts.init(chartDom));
+
+      const built = this.buildWarningWeekOption(
+        warningDate,
+        warningData1,
+        warningData2
+      );
+      this.homeWarnWeekStat = {
+        name: warningName,
+        open: built.openSum,
+        closed: built.closedSum,
+      };
+      this.myChartHomeWarning.setOption(built.option, true);
+    },
+    // 首页告警统计卡片：加载指定（或第一个有数据的）告警类型近七天统计
+    loadHomeWarningWeek(index) {
+      // 卡片未展示告警统计时不需要请求
+      if (!this.homeShowAlarmStatCard) return;
+      const list = this.warnNumList || [];
+      let target = null;
+      let targetIndex = -1;
+      if (index !== undefined && index !== null && list[index]) {
+        target = list[index];
+        targetIndex = Number(index);
+      } else {
+        target = list.find(
+          (item) => Number(item.warn_status1_num) + Number(item.warn_status2_num) > 0
+        );
+        if (target) targetIndex = list.indexOf(target);
+      }
+      if (!target) {
+        this.homeWarnTypeIndex = null;
+        return;
+      }
+      this.homeWarnTypeIndex = targetIndex;
+      const type = this.warnTypeCode(target.typestr);
+      if (type === "") return;
+      const date = new Date();
+      const utc = Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate() - 7,
+        0,
+        0,
+        0
+      );
+      const query = {
+        superid: this.$store.state.userInfo.superid,
+        projectid: this.$store.state.projectid,
+        type: type,
+        time: utc / 1000,
+        timezone: this.timezone,
+      };
+      // 快速切换类型时只渲染最后一次请求的结果
+      const requestId = (this._homeWarnReqId = (this._homeWarnReqId || 0) + 1);
+      getWarnWeekNumList(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then((res) => {
+        if (requestId !== this._homeWarnReqId) return;
+        if (res.code != 1001 || !res.data || !res.data.length) return;
+        const warningName =
+          this.i8n == "zh" ? res.data[0].typestr : res.data[0].entype;
+        const warningDate = [];
+        const warningData1 = [];
+        const warningData2 = [];
+        res.data.forEach((item) => {
+          warningDate.push(item.date);
+          warningData1.push(item.warn_status1_num);
+          warningData2.push(item.warn_status2_num);
+        });
+        this.$nextTick(() => {
+          this.renderHomeWarningWeek(
+            warningName,
+            warningDate,
+            warningData1,
+            warningData2
+          );
+        });
+      });
+    },
+    // 告警类型名称 -> 接口 type 值
+    warnTypeCode(typestr) {
+      const t = i18n.global.t;
+      const map = [
+        [t("homepage.SOSalert"), 1],
+        [t("homepage.gatherwarn"), 2],
+        [t("homepage.crosswarn"), 3],
+        [t("homepage.strandedwarn"), 4],
+        [t("homepage.Unusuallystill"), 5],
+        [t("warning.Tilt"), 6],
+        [t("warning.Dumpalarm"), 7],
+        [t("warning.Firealarm"), 8],
+        [t("warning.CloseContact"), 9],
+        [t("warning.DoorOpenalarm"), 10],
+        [t("warning.LowBatteryAlarm"), 11],
+        [t("warning.HeartbeatAbnormal"), 12],
+        [t("warning.TemperatureAbnormal"), 13],
+      ];
+      const hit = map.find((item) => item[0] === typestr);
+      return hit ? hit[1] : "";
+    },
+    // 告警类型名称 -> 人员统计接口 sort 值
+    warnSortCode(typestr) {
+      const code = this.warnTypeCode(typestr);
+      const map = {
+        1: "sos",
+        2: "gather",
+        3: "crossline",
+        4: "stay",
+        5: "still",
+        6: "tilt",
+        7: "dump",
+        8: "fire",
+        9: "contact",
+        10: "door",
+        11: "lowbat",
+        12: "heartrate",
+        13: "temperature",
+      };
+      return map[code] || "";
+    },
+    // 人员统计弹框：每次打开都回到今天并渲染
+    openPersonStat(typestr) {
+      // 记录当前告警类型，用于接口的 sort 参数
+      this.personStatType = typestr || "";
+      // 每次打开都重置为今天，避免沿用上次选过的日期
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      this.personStatDate = `${d.getFullYear()}-${pad(
+        d.getMonth() + 1
+      )}-${pad(d.getDate())}`;
+      this.personStatDialog = true;
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.renderPersonStat();
+        }, 50);
+      });
+    },
+    // 人员统计：按所选日期与告警类型请求接口，再绘制柱状图
+    renderPersonStat() {
+      const sort = this.warnSortCode(this.personStatType) || "sos";
+      const query = {
+        projectid: this.$store.state.projectid,
+        warndate: this.personStatDate,
+        sort: sort,
+      };
+      const requestId = (this._personStatReqId =
+        (this._personStatReqId || 0) + 1);
+      getWarningStatRank(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      )
+        .then((res) => {
+          if (requestId !== this._personStatReqId) return;
+          if (res.code != 1001) {
+            this.$message({
+              message: this.$store.state.i18n == "zh" ? res.msg : res.enMsg,
+              type: "error",
+            });
+            this.renderPersonStatChart([], sort);
+            return;
+          }
+          this.personStatRawData = res.data;
+          this.renderPersonStatChart(res.data, sort);
+        })
+        .catch(() => {
+          this.renderPersonStatChart([], sort);
+        });
+    },
+    // 人员统计柱状图：x 轴人员、y 轴所选告警类型的次数，降序
+    renderPersonStatChart(list, sort) {
+      const chartDom = document.getElementById("personstatchart");
+      if (!chartDom || !chartDom.clientWidth) return;
+      this.disposeChart("myChartPersonStat");
+      const exist = echarts.getInstanceByDom(chartDom);
+      if (exist) exist.dispose();
+      this.myChartPersonStat = markRaw(echarts.init(chartDom));
+
+      // 接口每行是一个人员的 13 种告警次数，取 sort 指定的字段；0 次的不参与排行
+      const rows = (Array.isArray(list) ? list : [])
+        .map((item) => ({
+          name: item.username || "-",
+          count: Number(item[sort]) || 0,
+        }))
+        .filter((item) => item.count > 0)
+        .sort((a, b) => b.count - a.count);
+
+      const names = rows.map((item) => item.name);
+      const counts = rows.map((item) => item.count);
+
+      const option = {
+        tooltip: {
+          trigger: "axis",
+          axisPointer: { type: "shadow" },
+          backgroundColor: "rgba(255,255,255,0.96)",
+          borderColor: "#e2e8f0",
+          textStyle: { color: "#334155", fontSize: 12 },
+          extraCssText:
+            "box-shadow: 0 6px 20px rgba(15,23,42,0.12); border-radius: 8px;",
+        },
+        grid: { left: 8, right: 16, top: 24, bottom: 8, containLabel: true },
+        xAxis: {
+          type: "category",
+          data: names,
+          axisTick: { show: false },
+          axisLine: { lineStyle: { color: "#e2e8f0" } },
+          axisLabel: {
+            color: "#64748b",
+            fontSize: 12,
+            interval: 0,
+            // 人数较多时斜着显示，避免名字重叠
+            rotate: names.length > 8 ? 30 : 0,
+          },
+        },
+        yAxis: {
+          type: "value",
+          minInterval: 1,
+          axisLabel: { color: "#94a3b8", fontSize: 11 },
+          splitLine: { lineStyle: { color: "#eef2f7", type: "dashed" } },
+        },
+        series: [
+          {
+            type: "bar",
+            barMaxWidth: 32,
+            itemStyle: {
+              borderRadius: [6, 6, 2, 2],
+              color: chartGradient(CHART_TONES.blue, 0, 0, 0, 1),
+            },
+            label: {
+              show: true,
+              position: "top",
+              fontSize: 11,
+              fontWeight: 700,
+              color: CHART_TONES.blue.c1,
+            },
+            data: counts,
+          },
+        ],
+      };
+      // 无数据时给个空态提示，避免只有空坐标轴
+      if (!names.length) {
+        option.graphic = {
+          type: "text",
+          left: "center",
+          top: "middle",
+          silent: true,
+          style: {
+            text: i18n.global.t("buildingmanagement.nodata"),
+            fontSize: 14,
+            fill: "#94a3b8",
+          },
+        };
+      }
+      this.myChartPersonStat.setOption(option, true);
+    },
+    closePersonStat() {
+      this.disposeChart("myChartPersonStat");
     },
     closeWarningWeek() {
       this.disposeChart("myChartWarning");
@@ -3067,6 +3469,20 @@ export default {
               warn_status2_num: 0,
             },
             {
+              // 接触告警，warning_tbl.type=9
+              type: 1,
+              typestr: i18n.global.t("warning.CloseContact"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
+              // 开门告警，warning_tbl.type=10
+              type: 1,
+              typestr: i18n.global.t("warning.DoorOpenalarm"),
+              warn_status1_num: 0,
+              warn_status2_num: 0,
+            },
+            {
               type: 1,
               typestr: i18n.global.t("warning.LowBatteryAlarm"),
               warn_status1_num: 0,
@@ -3096,6 +3512,10 @@ export default {
               });
             });
           }
+          // 首页告警统计卡片（测试）：用第一个有数据的类型加载近七天统计
+          that.$nextTick(() => {
+            that.loadHomeWarningWeek();
+          });
 
           if (that.contrForPrionum == 5) {
             that.memberNum = res.data;
@@ -3307,6 +3727,21 @@ export default {
     }
   },
   computed: {
+    // 有告警数据的类型列表，供首页卡片下拉切换
+    homeWarnTypeOptions() {
+      return (this.warnNumList || [])
+        .map((item, index) => ({ index: index, typestr: item.typestr }))
+        .filter((item) => {
+          const row = this.warnNumList[item.index];
+          return Number(row.warn_status1_num) + Number(row.warn_status2_num) > 0;
+        });
+    },
+    // 卡片当前选中的告警类型名
+    currentHomeWarnType() {
+      const list = this.warnNumList || [];
+      const index = this.homeWarnTypeIndex;
+      return index != null && list[index] ? list[index].typestr : "";
+    },
     isFullscreen() {
       return this.$store.state.isFullscreen;
     },
@@ -3427,6 +3862,12 @@ export default {
     }
     if (this.myChartBeacon) {
       this.myChartBeacon.dispose();
+    }
+    if (this.myChartHomeWarning) {
+      this.myChartHomeWarning.dispose();
+    }
+    if (this.myChartPersonStat) {
+      this.myChartPersonStat.dispose();
     }
     cancelAnimationFrame(this.clearAnim); // 清除requestAnimationFrame
     this.scene = null; // 场景
@@ -4572,6 +5013,16 @@ h4.mb-0 {
   gap: 12px;
   text-align: left;
 }
+/* 告警统计弹框里的人员统计按钮：推到头部右侧 */
+.ww-person-stat-btn {
+  flex: 0 0 auto;
+  height: 26px;
+  /* 与右上角关闭按钮拉开距离 */
+  margin: 0 16px 0 auto !important;
+  padding: 0 12px !important;
+  font-size: 12px;
+  border-radius: 6px;
+}
 .ww-header-icon {
   display: inline-flex;
   align-items: center;
@@ -4675,6 +5126,45 @@ h4.mb-0 {
   line-height: 1.1;
   color: var(--ww-color);
   font-family: "DIN Alternate", Arial, sans-serif;
+}
+/* 告警类型下拉：压缩到卡片头部里 */
+.home-warn-select {
+  flex: 0 0 auto;
+  width: 108px;
+  margin: 0 0 0 8px !important;
+}
+.home-warn-select :deep(.el-select__wrapper) {
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  box-shadow: none;
+  background: #f1f5f9;
+}
+.home-warn-select :deep(.el-select__placeholder),
+.home-warn-select :deep(.el-select__selected-item) {
+  font-size: 12px;
+  color: #475569;
+}
+/* 人员统计按钮：推到卡片头部右侧 */
+.home-warn-rank-btn {
+  flex: 0 0 auto;
+  height: 24px;
+  margin: 0 0 0 auto !important;
+  padding: 0 10px !important;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.home-warn-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.home-warn-chart {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 120px;
 }
 .el-carousel {
   height: 100%;
@@ -4902,6 +5392,12 @@ h4.mb-0 {
 .warn-num--zero {
   color: #b6bfcc;
 }
+/* 告警总数列：中性色，与未解除 / 已解除区分 */
+.warn-num--total {
+  color: #475569;
+  background: rgba(100, 116, 139, 0.1);
+  box-shadow: 0 0 0 1px rgba(100, 116, 139, 0.18) inset;
+}
 .sostable :deep(.cell-point) {
   cursor: pointer;
 }
@@ -4998,5 +5494,36 @@ h4.mb-0 {
 }
 .el-dialog.warn-week-dialog .el-dialog__body {
   padding: 18px 20px 20px;
+}
+
+/* 人员统计弹框（同样 teleport 到 body，需放在非 scoped 块里） */
+.el-dialog.person-stat-dialog {
+  max-width: 92vw;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.el-dialog.person-stat-dialog .el-dialog__header {
+  margin: 0;
+  padding: 16px 48px 14px 20px;
+  border-bottom: 1px solid #f1f4f8;
+}
+.el-dialog.person-stat-dialog .el-dialog__body {
+  padding: 16px 20px 20px;
+}
+.pr-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pr-title {
+  margin: 0 !important;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+}
+.pr-chart {
+  width: 100%;
+  height: 320px;
 }
 </style>

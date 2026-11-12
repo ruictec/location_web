@@ -272,12 +272,7 @@ export default {
   letter-spacing: 0.2px;
 }
 
-@media screen and (max-width: 1400px) {
-  :deep(.el-sub-menu .el-sub-menu__title) {
-    padding-left: 20px !important;
-  }
-}
-
+/* 一级 / 二级菜单的左内边距统一在 element-plus-compat.css 的「侧栏菜单层级对齐」中定义 */
 .sidebar-menu :deep(.el-menu-item),
 .sidebar-menu :deep(.el-sub-menu__title) {
   height: 46px;
@@ -288,11 +283,9 @@ export default {
 }
 
 .el-menu-item {
-  padding-left: 14px !important;
   padding-right: 14px !important;
 }
 .el-sub-menu .el-menu-item {
-  padding-left: 40px !important;
   height: 40px !important;
   line-height: 40px !important;
   margin: 2px 10px !important;
@@ -328,7 +321,6 @@ export default {
   box-shadow: inset 3px 0 0 #2f7bff;
 }
 .el-sub-menu .el-menu-item.is-active {
-  padding-left: 40px !important;
   color: #fff !important;
   background: linear-gradient(
     90deg,

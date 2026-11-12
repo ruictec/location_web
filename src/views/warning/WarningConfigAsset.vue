@@ -191,7 +191,7 @@
             class="device-dialog"
             :title="$t('warning.title1')"
             v-model="add"
-            width="480px"
+            width="560px"
             align-center
             @close="addCancel(addData)"
           >
@@ -437,7 +437,7 @@
             class="device-dialog"
             :title="$t('warning.title6')"
             v-model="edit"
-            width="480px"
+            width="560px"
             align-center
             @close="editCancel(editData)"
           >

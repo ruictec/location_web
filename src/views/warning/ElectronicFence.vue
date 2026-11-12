@@ -566,6 +566,37 @@ import "fengmap/build/fengmap.plugin.markers.min";
 import "fengmap/build/toolBarStyle.css";
 import { applyFengmapLocalLoad } from "../../utils/fengmapAssets";
 import host from "../../host";
+import { markRaw } from "vue";
+
+/** Vue3 Proxy 会破坏 fengmap 的 WebGL 节点（center.set）与 dispose 内部状态，
+ *  所有 fengmap 对象存入响应式数据前必须保持原始对象 */
+function patchFengmapRenderNode(marker) {
+  if (
+    !marker ||
+    marker.__patchedRenderNode ||
+    typeof marker.getRenderNode !== "function"
+  ) {
+    return marker;
+  }
+  const originalGetRenderNode = marker.getRenderNode.bind(marker);
+  marker.getRenderNode = function getCompositeRenderNode() {
+    const node = originalGetRenderNode();
+    if (node && node.center && typeof node.center.set === "function") {
+      return node;
+    }
+    const child = node && node.children && node.children[0];
+    if (child && child.center && typeof child.center.set === "function") {
+      return child;
+    }
+    return node;
+  };
+  marker.__patchedRenderNode = true;
+  return marker;
+}
+
+function keepFengmapRaw(obj) {
+  return obj ? markRaw(patchFengmapRenderNode(obj)) : obj;
+}
 
 import Menu from "../../components/menu/Menu";
 import Data from "../../components/data/data";
@@ -712,7 +743,9 @@ export default {
       editingFenceMarker: null, // 正在编辑的电子围栏标记
       editingFenceData: null, // 正在编辑的电子围栏原始数据
       pendingEditFenceId: null, // 待编辑的电子围栏ID（用于室内电子围栏编辑）
-      isEditFromList: false, // 是否从列表编辑进入的
+      // 标记「从列表编辑进入」的编辑用途弹框：隐藏创建入口、保存成功后自动关闭弹框；
+      // 不再限制可操作的围栏
+      isEditFromList: false,
       iconSrc: "../../../static/beacon.png",
       deviceVectorSource: null,
       deviceVectorLayer: null,
@@ -1296,10 +1329,7 @@ export default {
         return;
       }
 
-      document.oncontextmenu = function (e) {
-        return false;
-      };
-
+      // 浏览器默认右键菜单由弹框打开时统一禁用（见 onIndoorMapDialogOpened）
       that.lastGroupid = group;
       
       // 确保容器已渲染（完全参考ElectronicFenceMap.vue的简单实现）
@@ -1319,7 +1349,7 @@ export default {
             themeID: that.themeId,
             zoomRange: [1, 29],
           });
-          that.map3d = new fengmap.FMMap(mapOpation);
+          that.map3d = keepFengmapRaw(new fengmap.FMMap(mapOpation));
           that.map3d.on("loaded", function () {
             // 地图加载完成后的回调
             console.log("3D地图加载完成");
@@ -1334,6 +1364,10 @@ export default {
     },
     // 弹框打开后的回调
     onIndoorMapDialogOpened() {
+      // 弹框内仅禁用浏览器默认右键菜单；编辑/删除菜单由地图事件自行弹出
+      document.oncontextmenu = function (e) {
+        return false;
+      };
       console.log("弹框已打开，开始加载地图");
       console.log("currentGroundInfo:", this.currentGroundInfo);
       // 弹框打开后，根据maptype加载对应地图
@@ -1400,6 +1434,9 @@ export default {
       this.isEditingFence2d = false;
       this.editingFenceFeature2d = null;
       this.editingFenceId2d = null;
+      // 先清理围栏标记 / 菜单：必须在地图 dispose 之前，
+      // 否则 marker 的渲染节点已随地图销毁，remove() 会报 reading 'parent'
+      this.cleanupFence3d();
       // 清理3D地图（使用dispose方法，参考Arrange3dMap.vue）
       if (this.map3d) {
         try {
@@ -1416,8 +1453,6 @@ export default {
       if (fengMapContainer) {
         fengMapContainer.innerHTML = '';
       }
-      // 清理3D地图电子围栏相关状态
-      this.cleanupFence3d();
       // 清除待编辑的围栏ID
       this.pendingEditFenceId = null;
       // 重置从列表编辑进入的标志
@@ -1430,6 +1465,8 @@ export default {
     },
     // 取消/返回室内地图
     handleCancelIndoorMap() {
+      // 恢复全局右键菜单，避免影响其它页面
+      document.oncontextmenu = null;
       // 直接清理状态，不弹出对话框
       // 如果正在创建3D围栏，先停止
       if (this.isCreatingFence3d) {
@@ -1761,7 +1798,9 @@ export default {
       if (x === undefined || x === null || y === undefined || y === null) {
         return;
       }
-      var marker = that.createCompositeDeviceMarker3d(x, y, imageUrl, alias);
+      var marker = keepFengmapRaw(
+        that.createCompositeDeviceMarker3d(x, y, imageUrl, alias)
+      );
       marker.selfAttr = { isArrangedDevice: true };
       marker.addTo(group);
       that.deviceMarkers3d.push(marker);
@@ -1942,7 +1981,7 @@ export default {
           };
 
           polygonMarker.addTo(group);
-          that.fencePolygonMarkers.push(polygonMarker);
+          that.fencePolygonMarkers.push(keepFengmapRaw(polygonMarker));
 
           // 在围栏中心显示名称，便于多个围栏时区分
           var fenceName = fence.name || "";
@@ -1971,7 +2010,7 @@ export default {
               isNameLabel: true,
             };
             nameMarker.addTo(group);
-            that.fenceNameMarkers3d.push(nameMarker);
+            that.fenceNameMarkers3d.push(keepFengmapRaw(nameMarker));
           }
         });
       } catch (e) {
@@ -1980,21 +2019,22 @@ export default {
     },
     // 清除所有电子围栏标记
     clearAllFenceMarkers() {
-      this.fencePolygonMarkers.forEach(function (marker) {
-        try {
-          marker.remove();
-        } catch (e) {
-          console.error("清除电子围栏标记失败:", e);
-        }
-      });
+      // 地图已销毁、或 marker 被单独移除过时，渲染节点 parent 已失效，
+      // 再调 remove() 会抛错；清理阶段只清空引用即可，异常静默处理
+      if (this.map3d) {
+        [this.fencePolygonMarkers, this.fenceNameMarkers3d].forEach((list) => {
+          (list || []).forEach(function (marker) {
+            try {
+              if (marker && typeof marker.remove === 'function') {
+                marker.remove();
+              }
+            } catch (e) {
+              // 已失效的标记，忽略
+            }
+          });
+        });
+      }
       this.fencePolygonMarkers = [];
-      this.fenceNameMarkers3d.forEach(function (marker) {
-        try {
-          marker.remove();
-        } catch (e) {
-          console.error("清除电子围栏名称标记失败:", e);
-        }
-      });
       this.fenceNameMarkers3d = [];
     },
     // ========== 2D地图电子围栏相关方法 ==========
@@ -2128,41 +2168,18 @@ export default {
           that.currentFenceId = feature.get('fenceId');
           that.currentFenceMarker = feature;
 
-          // 如果是从列表编辑进入的，检查是否允许编辑/删除其他围栏
-          var canOperateOtherFence = !that.isEditFromList || (that.isEditFromList && feature.get('fenceId') === that.pendingEditFenceId);
-          var buttonDisabled = that.isEditFromList && feature.get('fenceId') !== that.pendingEditFenceId;
-          
-          // 更新按钮状态
+          // 菜单 DOM 常驻，复位按钮状态后直接绑定事件（不再限制只能操作某一条围栏）
           var editButton = document.getElementById('editFence2d');
           var deleteButton = document.getElementById('deleteFence2d');
-          
-          if (buttonDisabled) {
-            editButton.style.opacity = '0.5';
-            editButton.style.cursor = 'not-allowed';
-            editButton.style.pointerEvents = 'none';
-            deleteButton.style.opacity = '0.5';
-            deleteButton.style.cursor = 'not-allowed';
-            deleteButton.style.pointerEvents = 'none';
-          } else {
-            editButton.style.opacity = '';
-            editButton.style.cursor = '';
-            editButton.style.pointerEvents = '';
-            deleteButton.style.opacity = '';
-            deleteButton.style.cursor = '';
-            deleteButton.style.pointerEvents = '';
-          }
+          editButton.style.opacity = '';
+          editButton.style.cursor = '';
+          editButton.style.pointerEvents = '';
+          deleteButton.style.opacity = '';
+          deleteButton.style.cursor = '';
+          deleteButton.style.pointerEvents = '';
 
           // 绑定编辑按钮事件
           editButton.onclick = function () {
-            if (!canOperateOtherFence) {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? "只能编辑当前选中的电子围栏" : "Can only edit the currently selected electronic fence",
-                type: "warning",
-              });
-              menuElement.style.display = 'none';
-              that.contextMenuOverlay2d.setPosition(undefined);
-              return;
-            }
             that.startEditFence2d(feature);
             menuElement.style.display = 'none';
             that.contextMenuOverlay2d.setPosition(undefined);
@@ -2170,15 +2187,6 @@ export default {
 
           // 绑定删除按钮事件
           deleteButton.onclick = function () {
-            if (!canOperateOtherFence) {
-              that.$message({
-                message: that.$store.state.i18n == "zh" ? "只能操作当前选中的电子围栏" : "Can only operate the currently selected electronic fence",
-                type: "warning",
-              });
-              menuElement.style.display = 'none';
-              that.contextMenuOverlay2d.setPosition(undefined);
-              return;
-            }
             that.confirmDeleteFence2d(feature);
             menuElement.style.display = 'none';
             that.contextMenuOverlay2d.setPosition(undefined);
@@ -2366,8 +2374,112 @@ export default {
       // 弹出编辑对话框
       that.showFenceDialog = true;
     },
+    // 进入围栏编辑前：提示当前编辑的是哪条；已有未保存编辑时用确认框让用户选择
+    async checkFenceEditStart(fenceId, fenceName) {
+      const zh = this.$store.state.i18n == "zh";
+      let targetName = fenceName;
+      if (!targetName) {
+        const found = (this.fenceManageList || []).find(
+          (f) => f.id === fenceId
+        );
+        targetName = found ? found.name : "";
+      }
+      targetName = targetName || fenceId || "";
+
+      if (this.isEditingFence3d || this.isEditingFence2d) {
+        const currentId = this.isEditingFence3d
+          ? this.editingFenceId
+          : this.editingFenceId2d;
+        const currentName = this.fenceForm.name || currentId || "";
+
+        // 再点同一条：只提示，不重复初始化
+        if (fenceId === currentId) {
+          this.$message({
+            message: zh
+              ? `正在编辑围栏「${currentName}」`
+              : `Currently editing fence "${currentName}"`,
+            type: "info",
+          });
+          return false;
+        }
+
+        try {
+          await this.$confirm(
+            zh
+              ? `请先保存围栏「${currentName}」的编辑，是否保存？`
+              : `Please save changes to fence "${currentName}" first. Save now?`,
+            zh ? "提示" : "Tip",
+            {
+              confirmButtonText: zh ? "保存" : "Save",
+              cancelButtonText: zh ? "放弃并继续" : "Discard & continue",
+              type: "warning",
+              customClass: "device-message-box",
+              confirmButtonClass: "device-message-confirm",
+              cancelButtonClass: "device-message-cancel",
+            }
+          );
+        } catch (e) {
+          // 取消：丢弃 A 的修改并恢复围栏显示。重新渲染会重建全部围栏对象，
+          // 因此不能沿用右键时的旧 marker/feature，需按 id 找到新对象重新进入编辑 B
+          const was3d = this.isEditingFence3d;
+          this.discardCurrentFenceEdit();
+          if (was3d) {
+            const newMarker = (this.fencePolygonMarkers || []).find(
+              (m) => m.selfAttr && m.selfAttr.fenceId === fenceId
+            );
+            if (newMarker) {
+              this.startEditFence3d(newMarker);
+            }
+          } else {
+            const newFeature = (this.fenceFeatures2d || []).find(
+              (f) => f.get('fenceId') === fenceId
+            );
+            if (newFeature) {
+              this.startEditFence2d(newFeature);
+            }
+          }
+          return false;
+        }
+
+        // 确定：等同于点击「结束编辑」，弹出保存对话框，本次不继续编辑新围栏
+        if (this.isEditingFence3d) {
+          this.toggleEditFence3d();
+        } else {
+          this.toggleEditFence2d();
+        }
+        return false;
+      }
+
+      this.$message({
+        message: zh
+          ? `正在编辑围栏「${targetName}」`
+          : `Editing fence "${targetName}"`,
+        type: "info",
+      });
+      return true;
+    },
+    // 放弃当前未保存的围栏编辑，并重新渲染围栏恢复其原始显示
+    discardCurrentFenceEdit() {
+      if (this.isEditingFence3d) {
+        this.stopDrawingFence();
+        this.clearPolygonMarker();
+        this.clearFencePointMarkers();
+        this.isEditingFence3d = false;
+        this.editingFenceId = null;
+        this.editingFenceMarker = null;
+        this.editingFenceData = null;
+      } else if (this.isEditingFence2d) {
+        this.stopEditingFence2d();
+      }
+      this.fencePoints = [];
+      if (this.currentGroundInfo && this.currentGroundInfo.maptype == 2) {
+        this.renderAllFences();
+      } else if (this.currentGroundInfo && this.currentGroundInfo.maptype == 1) {
+        this.renderAllFences2d();
+      }
+    },
     // 开始编辑2D电子围栏
-    startEditFence2d(feature) {
+    async startEditFence2d(feature) {
       var that = this;
       if (!that.map2d || !that.vectorSource2d) {
         return;
@@ -2379,6 +2491,15 @@ export default {
           message: "请先完成或取消创建电子围栏",
           type: "warning",
         });
+        return;
+      }
+
+      // 已有未保存的编辑时弹出确认框：保存 A 或放弃 A 继续编辑新围栏
+      const canProceed2d = await that.checkFenceEditStart(
+        feature.get('fenceId'),
+        feature.get('fenceName') || ''
+      );
+      if (!canProceed2d) {
         return;
       }
 
@@ -2450,18 +2571,6 @@ export default {
     // 确认删除2D电子围栏
     confirmDeleteFence2d(feature) {
       var that = this;
-      
-      // 如果是从列表编辑进入的，不允许删除其他围栏（双重检查）
-      if (that.isEditFromList && that.pendingEditFenceId) {
-        var fenceId = feature.get('fenceId');
-        if (fenceId !== that.pendingEditFenceId) {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? "只能操作当前选中的电子围栏" : "Can only operate the currently selected electronic fence",
-            type: "warning",
-          });
-          return;
-        }
-      }
       
       var fenceId = feature.get('fenceId');
       var fenceName = feature.get('fenceName') || '';
@@ -2653,17 +2762,19 @@ export default {
         var level = that.map3d.getLevel();
         var group = that.map3d.getFloor(level);
 
-        that.currentPolygonMarker = new fengmap.FMPolygonMarker({
-          points: polygonPoints,
-          color: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
-          alpha: that.normalizeFenceOpacity(
-            that.creatingFenceOpacity != null
-              ? that.creatingFenceOpacity
-              : that.fenceForm.opacity
-          ),
-          lineWidth: 2,
-          lineColor: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
-        });
+        that.currentPolygonMarker = keepFengmapRaw(
+          new fengmap.FMPolygonMarker({
+            points: polygonPoints,
+            color: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
+            alpha: that.normalizeFenceOpacity(
+              that.creatingFenceOpacity != null
+                ? that.creatingFenceOpacity
+                : that.fenceForm.opacity
+            ),
+            lineWidth: 2,
+            lineColor: that.creatingFenceColor || that.fenceForm.colour || "#FF0000",
+          })
+        );
 
         that.currentPolygonMarker.addTo(group);
         console.log("多边形标记创建成功");
@@ -2706,7 +2817,7 @@ export default {
         }
 
         pointMarker.addTo(group);
-        that.fencePointMarkers.push(pointMarker);
+        that.fencePointMarkers.push(keepFengmapRaw(pointMarker));
       } catch (e) {
         console.error("添加点标记失败:", e);
       }
@@ -3029,32 +3140,25 @@ export default {
       that.currentFenceId = marker.selfAttr.fenceId;
       that.currentFenceMarker = marker;
 
-      // 如果是从列表编辑进入的，检查是否允许编辑/删除其他围栏
-      var canEditOtherFence = !that.isEditFromList || (that.isEditFromList && marker.selfAttr.fenceId === that.pendingEditFenceId);
-      var editButtonDisabled = that.isEditFromList && marker.selfAttr.fenceId !== that.pendingEditFenceId;
-      var deleteButtonDisabled = that.isEditFromList && marker.selfAttr.fenceId !== that.pendingEditFenceId;
-      
-      // 创建右键菜单（参考Arrange3dMap的样式）
-      var editButtonStyle = editButtonDisabled ? 'opacity: 0.5; cursor: not-allowed; pointer-events: none;' : '';
-      var deleteButtonStyle = deleteButtonDisabled ? 'opacity: 0.5; cursor: not-allowed; pointer-events: none;' : '';
-      var editButtonOnclick = canEditOtherFence ? 'editFence()' : 'void(0)';
-      var deleteButtonOnclick = canEditOtherFence ? 'deleteFence()' : 'void(0)';
+      // 创建右键菜单（参考Arrange3dMap的样式）：按钮始终可用
+      var editButtonStyle = '';
+      var deleteButtonStyle = '';
+      // 不用内联 onclick：fengmap DomMarker 的内容由 SDK 注入，内联事件常不执行，
+      // 改为下面按 id 取到 DOM 后绑定 onclick 属性
       var menuContent = `
         <div style='text-align:left;background: #f1f5f7' class="threecontent">
           <ul id="popup-content">
             <li style="margin-top:5px;text-align:right">
-              <a style="margin-right:5px" href="#" id="fenceMenu-closer" class="ol-popup-closer" onclick="closeFenceMenu()">
+              <a style="margin-right:5px" href="#" id="fenceMenu-closer" class="ol-popup-closer">
                 <img src="../../../static/close.jpg" width="11" height="11"/>
               </a>
             </li>
             <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="${editButtonOnclick}" 
-                      class="el-button el-button--mini BUTTON" 
+              <button id="editFence3dBtn" class="el-button el-button--mini BUTTON" 
                       style="${editButtonStyle}">${that.$t("tet.edit")}</button>
             </li>
             <li style="margin-top:3px;padding-bottom:3px">
-              <button onclick="${deleteButtonOnclick}" 
-                      class="el-button el-button--mini BUTTON DELETE" 
+              <button id="deleteFence3dBtn" class="el-button el-button--mini BUTTON DELETE" 
                       style="${deleteButtonStyle}">${that.$t("tet.delete")}</button>
             </li>
           </ul>
@@ -3094,7 +3198,7 @@ export default {
         content: menuContent,
       };
 
-      that.popMarker = new fengmap.FMDomMarker(ctlOpt);
+      that.popMarker = keepFengmapRaw(new fengmap.FMDomMarker(ctlOpt));
       var level = that.map3d.getLevel();
       var floor = that.map3d.getFloor(level);
       that.popMarker.addTo(floor);
@@ -3110,38 +3214,42 @@ export default {
       };
 
       window.editFence = function() {
-        // 如果是从列表编辑进入的，只能编辑指定的围栏
-        if (that.isEditFromList && that.pendingEditFenceId) {
-          if (marker.selfAttr.fenceId !== that.pendingEditFenceId) {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? "只能编辑当前选中的电子围栏" : "Can only edit the currently selected electronic fence",
-              type: "warning",
-            });
-            window.closeFenceMenu();
-            return;
-          }
-        }
         that.startEditFence3d(marker);
         window.closeFenceMenu();
       };
 
       window.deleteFence = function() {
-        // 如果是从列表编辑进入的，不允许删除其他围栏
-        if (that.isEditFromList && that.pendingEditFenceId) {
-          if (marker.selfAttr.fenceId !== that.pendingEditFenceId) {
-            that.$message({
-              message: that.$store.state.i18n == "zh" ? "只能操作当前选中的电子围栏" : "Can only operate the currently selected electronic fence",
-              type: "warning",
-            });
-            window.closeFenceMenu();
-            return;
-          }
-        }
         that.confirmDeleteFence();
       };
+
+      // 菜单 DOM 由 fengmap 注入，内联 onclick 不生效；按 id 绑定 DOM 属性事件。
+      // 立即 + 延时各绑一次，兼容 SDK 同步/异步插入 DOM（重复赋值无副作用）
+      const bindMenuEvents = () => {
+        const closer = document.getElementById('fenceMenu-closer');
+        const editBtn = document.getElementById('editFence3dBtn');
+        const deleteBtn = document.getElementById('deleteFence3dBtn');
+        if (closer) {
+          closer.onclick = function (e) {
+            e.preventDefault();
+            if (window.closeFenceMenu) window.closeFenceMenu();
+          };
+        }
+        if (editBtn) {
+          editBtn.onclick = function () {
+            if (window.editFence) window.editFence();
+          };
+        }
+        if (deleteBtn) {
+          deleteBtn.onclick = function () {
+            if (window.deleteFence) window.deleteFence();
+          };
+        }
+      };
+      bindMenuEvents();
+      setTimeout(bindMenuEvents, 0);
     },
     // 开始编辑3D电子围栏
-    startEditFence3d(marker) {
+    async startEditFence3d(marker) {
       var that = this;
       if (!that.map3d || !that.currentGroundInfo || that.currentGroundInfo.maptype !== 2) {
         return;
@@ -3156,15 +3264,14 @@ export default {
         return;
       }
 
-      // 如果是从列表编辑进入的，只能编辑指定的围栏
-      if (that.isEditFromList && that.pendingEditFenceId) {
-        if (marker.selfAttr.fenceId !== that.pendingEditFenceId) {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? "只能编辑当前选中的电子围栏" : "Can only edit the currently selected electronic fence",
-            type: "warning",
-          });
-          return;
-        }
+      // 已有未保存的编辑时弹出确认框：保存 A 或放弃 A 继续编辑新围栏
+      const selfAttr = marker.selfAttr || {};
+      const canProceed3d = await that.checkFenceEditStart(
+        selfAttr.fenceId,
+        selfAttr.fenceName || ''
+      );
+      if (!canProceed3d) {
+        return;
       }
 
       // 保存编辑的围栏信息
@@ -3299,7 +3406,7 @@ export default {
             // 如果点击在其他围栏内，不允许编辑
             if (isInOtherFence) {
               that.$message({
-                message: that.$store.state.i18n == "zh" ? "只能编辑当前选中的电子围栏" : "Can only edit the currently selected electronic fence",
+                message: that.$store.state.i18n == "zh" ? "该位置属于其他围栏，请在当前编辑的围栏区域内操作" : "This position belongs to another fence; please operate within the fence being edited",
                 type: "warning",
               });
               return;
@@ -3371,7 +3478,7 @@ export default {
         // 如果点击在其他围栏内，不允许添加点
         if (isInOtherFence) {
           that.$message({
-            message: that.$store.state.i18n == "zh" ? "只能编辑当前选中的电子围栏" : "Can only edit the currently selected electronic fence",
+            message: that.$store.state.i18n == "zh" ? "该位置属于其他围栏，请在当前编辑的围栏区域内操作" : "This position belongs to another fence; please operate within the fence being edited",
             type: "warning",
           });
           return;
@@ -3430,23 +3537,6 @@ export default {
     // 确认删除电子围栏
     confirmDeleteFence() {
       var that = this;
-      
-      // 如果是从列表编辑进入的，不允许删除其他围栏（双重检查）
-      if (that.isEditFromList && that.pendingEditFenceId && that.currentFenceId) {
-        if (that.currentFenceId !== that.pendingEditFenceId) {
-          that.$message({
-            message: that.$store.state.i18n == "zh" ? "只能操作当前选中的电子围栏" : "Can only operate the currently selected electronic fence",
-            type: "warning",
-          });
-          // 关闭右键菜单
-          if (that.popMarker) {
-            that.popMarker.remove();
-            that.popMarker = null;
-            that.popMarkerTip = false;
-          }
-          return;
-        }
-      }
       
       // 关闭右键菜单
       if (that.popMarker) {
@@ -3900,6 +3990,10 @@ export default {
     };
     this.getFenceManageLists();
     this.getFenceManageAndPointLists();
+  },
+  beforeUnmount() {
+    // 弹框未正常关闭时也要恢复全局右键菜单
+    document.oncontextmenu = null;
   },
   watch: {
     //监听中英文 重新渲染下拉框内容

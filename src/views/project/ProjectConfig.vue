@@ -45,6 +45,17 @@
                   }}</el-radio>
                 </p>
               </div>
+              <div class="list_options">
+                <p>{{ $t("list.AlarmStatistics") }}：</p>
+                <p>
+                  <el-radio v-model="showAlarmStat" :label="true">{{
+                    $t("functionParts.show")
+                  }}</el-radio>
+                  <el-radio v-model="showAlarmStat" :label="false">{{
+                    $t("functionParts.unshow")
+                  }}</el-radio>
+                </p>
+              </div>
             </el-collapse-item>
             <el-collapse-item :title="$t('list.alarmmanagement')" name="1" class="config-card-sm">
               <div class="list_options">
@@ -67,6 +78,27 @@
                   <el-radio v-model="warningconfigtbox" :label="false">{{
                     $t("functionParts.unshow")
                   }}</el-radio>
+                </p>
+              </div>
+              <div class="list_options">
+                <p>{{ $t("list.manualAlarmCheck") }}：</p>
+                <p class="config-input-wrap">
+                  <el-input
+                    v-model="manualAlarmCheck"
+                    class="config-time-input"
+                    type="number"
+                    :min="0"
+                  ></el-input>
+                  <span class="config-unit">{{
+                    $t("functionParts.minutes")
+                  }}</span>
+                  <el-tooltip
+                    :content="$t('functionParts.manualAlarmCheckTip')"
+                    placement="top"
+                    :popper-style="{ maxWidth: '260px', lineHeight: '1.5' }"
+                  >
+                    <i class="el-icon-question config-help"></i>
+                  </el-tooltip>
                 </p>
               </div>
             </el-collapse-item>
@@ -300,8 +332,10 @@ export default {
       attenFlag: "",
       showBeacon: "true", //显示信标统计
       showAttendance: "true", //显示考勤统计
+      showAlarmStat: false, //显示告警统计（后端暂无字段，先本地控制）
       warningconfig: "true", //人员告警
       warningconfigtbox: "true", //车辆告警
+      manualAlarmCheck: "", //人工核对告警（分钟），接口参数待后端确定
       staffmanagement: "true", //员工管理
       assetManagement: "true", //资产管理
       tboxManagement: "true", //车辆管理
@@ -333,6 +367,8 @@ export default {
           that.attenFlag = res.data.attenFlag;
           that.showBeacon = res.data.attenFlag ? false : true;
           that.showAttendance = res.data.attenFlag ? true : false;
+          // 后端暂无告警统计字段，先默认不显示
+          that.showAlarmStat = false;
           that.warningconfig = res.data.alarmConfig;
           that.warningconfigtbox = res.data.tboxConfig;
           that.staffmanagement = res.data.employee;
@@ -356,14 +392,18 @@ export default {
     },
     confirmTrue() {
       var that = this;
-      if (this.showBeacon && this.showAttendance) {
+      // 信标状态 / 考勤统计 / 告警统计 三者只能显示一个，且必须显示一个
+      const homeStats = [this.showBeacon, this.showAttendance, this.showAlarmStat];
+      const shownStats = homeStats.filter((v) => v === true || v === "true")
+        .length;
+      if (shownStats > 1) {
         that.$message({
           message: that.$t("functionParts.message5"),
           type: "warning",
         });
         return;
       }
-      if (!this.showBeacon && !this.showAttendance) {
+      if (shownStats === 0) {
         that.$message({
           message: that.$t("functionParts.message6"),
           type: "warning",
@@ -525,6 +565,47 @@ export default {
 .list_options p:nth-of-type(2) :deep(.el-radio) {
   margin-right: 0;
   margin-left: 16px;
+}
+/* 人工核对告警：数字输入框 + 单位「分钟」 */
+.config-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.config-input-wrap > * {
+  margin: 0 !important;
+}
+.config-input-wrap .config-time-input {
+  flex: 0 0 auto;
+  width: 88px;
+}
+.config-input-wrap :deep(.el-input__inner) {
+  text-align: center;
+}
+/* 隐藏数字输入框的上下箭头，避免挤占输入区 */
+.config-input-wrap :deep(input[type="number"]::-webkit-outer-spin-button),
+.config-input-wrap :deep(input[type="number"]::-webkit-inner-spin-button) {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.config-unit {
+  margin: 0 !important;
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+}
+/* 人工核对告警的问号说明 */
+.config-help {
+  margin: 0 !important;
+  flex: 0 0 auto;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.config-help:hover {
+  color: #2f7bff;
 }
 .home {
   height: 100%;

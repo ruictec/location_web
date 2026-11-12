@@ -90,7 +90,7 @@
     <!-- 鼠标左键显示内容 -->
     <el-dialog
       v-model="visible"
-      :width="showBracelet ? '25%' : '20%'"
+      :width="showBracelet ? '25%' : devGateway ? '26%' : '20%'"
       @close="clearInfo()"
       class="Info_dialog outdoor-info-dialog"
       :modal="false"
@@ -239,6 +239,54 @@
             <li>{{ $t("locationoutdoor.time") }}{{ tboxTime }}</li>
             <el-divider class="divider"></el-divider>
           </ul>
+
+          <ul v-show="devGateway" class="gateway-info">
+            <li class="gateway-card-head">
+              <span class="gateway-card-icon"
+                ><i class="el-icon-data-line"></i
+              ></span>
+              <div class="gateway-card-heading">
+                <em>{{ i8n == "zh" ? "基站信息" : "Gateway" }}</em>
+                <strong>{{ gatewayInfo.deveui }}</strong>
+              </div>
+              <span
+                class="gateway-status-badge"
+                :class="'gateway-status-bg-' + gatewayInfo.statusCode"
+              >
+                <i
+                  class="gateway-info-dot"
+                  :class="'gateway-status-' + gatewayInfo.statusCode"
+                ></i>
+                {{ gatewayInfo.status }}
+              </span>
+            </li>
+            <li class="gateway-card-grid">
+              <div class="gateway-cell">
+                <em>{{ $t("inspection.alias") }}</em>
+                <b>{{ gatewayInfo.alias }}</b>
+              </div>
+              <div class="gateway-cell">
+                <em>{{ $t("buildingmanagement.projectname") }}</em>
+                <b>{{ gatewayInfo.projectname }}</b>
+              </div>
+              <div class="gateway-cell">
+                <em>{{ $t("gateway.schemestr") }}</em>
+                <b>{{ gatewayInfo.schemestr }}</b>
+              </div>
+              <div class="gateway-cell">
+                <em>{{ $t("gateway.Networkmode") }}</em>
+                <b>{{ gatewayInfo.network }}</b>
+              </div>
+            </li>
+            <li class="gateway-card-coord">
+              <em>{{ i8n == "zh" ? "坐标" : "Position" }}</em>
+              <b>{{ gatewayInfo.lastx }}, {{ gatewayInfo.lasty }}</b>
+            </li>
+            <li class="gateway-card-foot">
+              <span>{{ $t("gateway.firsttime") }}{{ gatewayInfo.firsttime }}</span>
+              <span>{{ $t("terminal.statustime") }}{{ gatewayInfo.statustime }}</span>
+            </li>
+          </ul>
         </div>
       </div>
     </el-dialog>
@@ -324,6 +372,7 @@ import {
   getBuildingList,
   getGroundList,
   getGround,
+  getGatewayList,
   // getFenceManageWhiteList,
   // getFenceManageWhiteNum,
 } from "../../axios/api";
@@ -391,6 +440,8 @@ export default {
       mapName: "map",
       vectorLayer: null,
       source: null,
+      gatewaySource: null,
+      gatewayLayer: null,
       imgMsg: "",
       edit: false,
 
@@ -433,6 +484,8 @@ export default {
       showBracelet: false, //是否显示手环健康数据
       devTBox: false, //单击显示车辆的信息
       devAsset: false, //单击显示资产的信息
+      devGateway: false, //单击显示基站的信息
+      gatewayInfo: {},
       // 手环信息
       bracelet_eui: "", //设备号
       bracelet_soc: "", //电量
@@ -586,6 +639,8 @@ export default {
       this.tboxType = "";
       this.tboxMaplabel = "";
       this.tboxTime = "";
+      this.devGateway = false;
+      this.gatewayInfo = {};
     },
     //查询
     searchInfo(per, tbox) {
@@ -834,7 +889,11 @@ export default {
             return;
           }
           const features = layer.getSource().getFeatures();
-          if (features.length > 0 && features[0].values_.deveui) {
+          if (
+            features.length > 0 &&
+            features[0].values_.deveui &&
+            !features[0].values_.isGateway
+          ) {
             layersToRemove.push(layer);
           }
         }
@@ -1030,6 +1089,7 @@ export default {
           }
         }
         that.loadBuildings();
+        that.loadGatewayMarkers();
         that.mapClick();
         that.addLine(that.map);
         // that.initializePopup(that.map);
@@ -1122,6 +1182,147 @@ export default {
           }
         }
       });
+    },
+
+    // 移除基站图层（重新加载 / 组件销毁时）
+    clearGatewayLayer() {
+      if (this.gatewayLayer && this.map && this.map.removeLayer) {
+        this.map.removeLayer(this.gatewayLayer)
+      }
+      if (this.gatewaySource) {
+        this.gatewaySource.clear()
+      }
+      this.gatewayLayer = null
+      this.gatewaySource = null
+    },
+
+    // 基站图标：按心跳状态区分在线 / 离线 / 未知，图标下方标注别名
+    gatewayMarkerStyle(feature) {
+      const status = feature.get("gwStatus")
+      let src = "../../../static/basenull.png"
+      if (status == 1) {
+        src = "../../../static/baseon.png"
+      } else if (status == 2) {
+        src = "../../../static/baseoff.png"
+      }
+      // 没配别名时退回设备号，保证图标下方仍有标识
+      const label = feature.get("gwAlias") || feature.get("gwEui") || ""
+      return new OlStyleStyle({
+        image: new OlStyleIcon({ anchor: [0.5, 1], src: src, scale: 1.4 }),
+        text: this.createMarkerText(label),
+      })
+    },
+
+    // 在线状态兜底文案（优先使用接口返回的 hbstatustr）
+    gatewayStatusText(status) {
+      const zh = this.i8n == "zh"
+      if (status == 1) return zh ? "在线" : "Online"
+      if (status == 2) return zh ? "离线" : "Offline"
+      return zh ? "未知" : "Unknown"
+    },
+
+    // 点击基站图标：弹出该基站详情
+    handleGatewayClick(feature) {
+      const v = feature.values_ || {}
+      const status = v.gwStatus
+      this.gatewayInfo = {
+        deveui: v.gwEui || "-",
+        alias: v.gwAlias || "-",
+        status: v.gwStatusText || this.gatewayStatusText(status),
+        statusCode: status == 2 ? 2 : status == 1 ? 1 : 3,
+        projectname: v.gwProject || "-",
+        schemestr: v.gwScheme || "-",
+        network: v.gwNetwork || "-",
+        lastx: v.gwLng,
+        lasty: v.gwLat,
+        firsttime: v.gwFirsttime || "-",
+        statustime: v.gwStatustime || "-",
+      }
+      this.devPer = false
+      this.devTBox = false
+      this.devAsset = false
+      this.showBracelet = false
+      this.devGateway = true
+      this.visible = true
+    },
+
+    // 加载当前项目下的全部基站点位
+    loadGatewayMarkers() {
+      if (!this.map) return
+      const state = this.$store.state
+      const projectid = state.projectid
+      const query = { projectid: projectid }
+      // 权限 5 的基站归属上级租户，与基站管理页的取数方式保持一致
+      if (state.userInfo.prionum == 5 && state.intoProjectSuperid) {
+        query.tenantid = state.intoProjectSuperid
+      }
+      getGatewayList(
+        query,
+        this.tenantkey_A,
+        this.tenantid_A,
+        this.userName
+      ).then(res => {
+        if (res.code != 1001 || !this.map) return
+        const list = (res.data && res.data.list) || []
+        const features = []
+        list.forEach(gw => {
+          // 兜底：接口若未按 projectid 过滤，排除明确属于其它项目的基站
+          const gwPid = gw.projectid
+          if (
+            gwPid != null &&
+            gwPid !== "" &&
+            !Array.isArray(gwPid) &&
+            String(gwPid).indexOf(",") < 0 &&
+            String(gwPid) !== String(projectid)
+          ) {
+            return
+          }
+          const lng = Number(gw.lastx)
+          const lat = Number(gw.lasty)
+          // 仅排除 (0,0)（未布置 / 无 GPS 的默认值）与空值、非法数值；
+          // 经度 0（本初子午线）或纬度 0（赤道）本身是合法坐标，不能一并过滤
+          if (
+            gw.lastx == null ||
+            gw.lastx === "" ||
+            gw.lasty == null ||
+            gw.lasty === "" ||
+            !Number.isFinite(lng) ||
+            !Number.isFinite(lat) ||
+            (lng === 0 && lat === 0)
+          ) {
+            return
+          }
+          // 本页地图是 EPSG:3857，经纬度必须转换；用 gwEui 而非 deveui，
+          // 避免被 clearBtn / delFeature 当成人员图层误删
+          features.push(
+            new OlFeature({
+              isGateway: true,
+              gwEui: gw.deveui,
+              gwStatus: gw.hbstatus,
+              gwAlias: gw.alias,
+              gwStatusText: gw.hbstatustr,
+              gwProject: gw.projectname,
+              gwScheme: gw.schemestr,
+              gwNetwork:
+                this.i8n == "zh" ? gw.networkstr : gw.ennetwork || gw.networkstr,
+              gwLng: lng,
+              gwLat: lat,
+              gwFirsttime: this.formatDate(gw.firsttime),
+              gwStatustime: this.formatDate(gw.statustime),
+              geometry: new OlGeomPoint(fromLonLat([lng, lat])),
+            })
+          )
+        })
+        this.clearGatewayLayer()
+        if (!features.length) return
+        this.gatewaySource = new OlSourceVector({ features: features })
+        this.gatewayLayer = new OlLayerVector({
+          source: this.gatewaySource,
+          style: feature => this.gatewayMarkerStyle(feature),
+          zIndex: 5,
+        })
+        this.map.addLayer(this.gatewayLayer)
+      })
     },
 
     //加载已存在的
@@ -1487,7 +1688,13 @@ export default {
         );
 
         that.battery = "";
+        that.devGateway = false;
         if (feature) {
+          // 基站图标弹出基站信息；与人员重合时人员图层 zIndex 更高，会优先命中人员
+          if (feature.values_.isGateway) {
+            that.handleGatewayClick(feature);
+            return;
+          }
           if (feature.values_.isBuilding) {
             that.handleBuildingClick(feature);
             return;
@@ -1924,7 +2131,10 @@ export default {
           }
           if (layer.getSource().getFeatures().length > 0) {
             const firstFeature = layer.getSource().getFeatures()[0];
-            if (firstFeature.values_ && firstFeature.values_.isBuilding) {
+            if (
+              firstFeature.values_ &&
+              (firstFeature.values_.isBuilding || firstFeature.values_.isGateway)
+            ) {
               return;
             }
             if (e.deveui == firstFeature.values_.deveui) {
@@ -2247,11 +2457,18 @@ export default {
     show1() {
       return this.$store.state.show;
     },
+    currentProjectid() {
+      return this.$store.state.projectid;
+    },
     filterLangClass() {
       return this.$store.state.i18n === "en" ? "is-en" : "is-zh";
     },
   },
   watch: {
+    // 切换项目后刷新基站，避免地图残留上一个项目的点位
+    currentProjectid() {
+      this.loadGatewayMarkers();
+    },
     show1(val) {
       setTimeout(() => {
         this.updateSize();
@@ -2291,6 +2508,7 @@ export default {
     },
   },
   unmounted() {
+    this.clearGatewayLayer();
     this.clearAllVehicleFlash();
     if (this.websock) {
       this.websock.close();
@@ -2562,6 +2780,183 @@ export default {
   list-style: none;
   text-align: left;
   cursor: default;
+}
+/* 基站详情卡片：仅作用于基站面板，不影响人员 / 车辆 / 资产弹框 */
+.gateway-info {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+.gateway-info * {
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+.gateway-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  list-style: none;
+  border-bottom: 1px solid #eef2f7;
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(34, 211, 238, 0.12), transparent 60%),
+    linear-gradient(120deg, rgba(47, 123, 255, 0.12), rgba(47, 123, 255, 0) 70%),
+    #fff;
+}
+.gateway-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  background: linear-gradient(135deg, #22d3ee, #2f7bff);
+  box-shadow: 0 4px 12px rgba(47, 123, 255, 0.32);
+}
+.gateway-card-heading {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.gateway-card-heading em {
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  color: #94a3b8;
+}
+.gateway-card-heading strong {
+  font-family: "DIN Alternate", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1f2937;
+  word-break: break-all;
+}
+.gateway-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.gateway-info-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+.gateway-status-1 {
+  background: #2f7bff;
+  box-shadow: 0 0 6px rgba(47, 123, 255, 0.55);
+}
+.gateway-status-2 {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.55);
+}
+.gateway-status-3 {
+  background: #94a3b8;
+}
+.gateway-status-bg-1 {
+  background: rgba(47, 123, 255, 0.1);
+  border-color: rgba(47, 123, 255, 0.25);
+  color: #2f7bff;
+}
+.gateway-status-bg-2 {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #dc2626;
+}
+.gateway-status-bg-3 {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+.gateway-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px 0;
+  list-style: none;
+  background: #eef2f7;
+}
+.gateway-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 14px;
+  background: #fff;
+}
+/* 奇数项时末项自动铺满一行，避免留出半格空白 */
+.gateway-cell:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+.gateway-cell em {
+  font-style: normal;
+  font-size: 11px;
+  color: #94a3b8;
+}
+.gateway-cell b {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #1f2937;
+  word-break: break-all;
+}
+.gateway-card-coord {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px;
+  list-style: none;
+  border-top: 1px solid #eef2f7;
+  background: #fbfcfe;
+}
+.gateway-card-coord em {
+  font-style: normal;
+  font-size: 11px;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.gateway-card-coord b {
+  font-family: "DIN Alternate", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2f7bff;
+  text-align: right;
+  word-break: break-all;
+}
+.gateway-card-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 14px 11px;
+  list-style: none;
+  border-top: 1px solid #eef2f7;
+  background: #f8fafc;
+}
+.gateway-card-foot span {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #94a3b8;
 }
 #popup-content li.goDev,
 #popup-content li.goDev a {

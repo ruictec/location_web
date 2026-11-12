@@ -2234,6 +2234,22 @@ export const delWarning = (datas, tenantkey_A, tenantid_A, username) => { //根�
     }).then(res => res)
 };
 
+export const updateWarnChecktime = (datas, tenantkey_A, tenantid_A, username) => { //核对告警，编辑核对时间
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/updateWarnChecktime" + JSON.stringify(datas) + tenantkey_A + time_A)
+    return service({
+        url: "service/updateWarnChecktime",
+        method: 'put',
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        data: datas
+    }).then(res => res)
+};
+
 
 export const getAssetList = (query, tenantkey_A, tenantid_A, username) => { //查询资产信息
     let time_A = getTime()
@@ -4068,6 +4084,23 @@ export const getWarnWeekNumList = (query, tenantkey_A, tenantid_A, username) => 
     let sha_A = hex_sha1("/v1/service/getWarnWeekNumList" + tenantkey_A + time_A)
     return service({
         url: "service/getWarnWeekNumList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getWarningStatRank = (query, tenantkey_A, tenantid_A, username) => { //告警排行：按人统计某告警类型在某天的次数
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getWarningStatRank" + tenantkey_A + time_A)
+    return service({
+        url: "service/getWarningStatRank",
         method: 'get',
         processData: false,
         headers: {

@@ -1716,6 +1716,44 @@ body .el-table th,
   vertical-align: middle;
 }
 
+/* ---------- 侧栏菜单层级对齐 ----------
+ * 一级菜单（首页 el-menu-item 与各分组 el-sub-menu__title）共用同一左内边距；
+ * 二级菜单文字需比一级菜单文字更靠右；收缩态只留图标，所有一级项图标居中对齐。
+ */
+#app .sidebar-container .sidebar-menu:not(.el-menu--collapse) > .el-menu-item,
+#app .sidebar-container .sidebar-menu:not(.el-menu--collapse) > .el-sub-menu .el-sub-menu__title {
+  padding-left: 20px !important;
+}
+
+#app .sidebar-container .sidebar-menu:not(.el-menu--collapse) > .el-menu-item > .icon,
+#app .sidebar-container .sidebar-menu:not(.el-menu--collapse) > .el-sub-menu .el-sub-menu__title > .icon {
+  margin: 0 10px 0 0 !important;
+  flex-shrink: 0;
+}
+
+#app .sidebar-container .sidebar-menu:not(.el-menu--collapse) > .el-sub-menu .el-menu--inline > .el-menu-item {
+  padding-left: 64px !important;
+}
+
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-menu-item,
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-sub-menu .el-sub-menu__title {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 4px 6px !important;
+  justify-content: center !important;
+}
+
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-menu-item > .icon,
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-sub-menu .el-sub-menu__title > .icon {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-menu-item > span,
+#app .hideSidebar .sidebar-container .sidebar-menu.el-menu--collapse > .el-sub-menu .el-sub-menu__title > span {
+  display: none !important;
+}
+
 /* 顶栏消息/告警角标：避免 EP translateY(-50%) 被裁切只露下半截 */
 .navbar .msgbox,
 .navbar .warningbox,

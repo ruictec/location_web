@@ -99,6 +99,18 @@ export async function prepareWarningLocation(vm, rawInfo) {
     y: first.y,
     gpstime: first.gpstime != null ? first.gpstime : warning.gpstime,
   };
+  // 告警行可能不带楼栋/楼层（尤其聚集告警），用点位数据兜底，
+  // 否则目标定位页无法切到告警所在楼栋/楼层
+  if (!sosData.buildid && first.buildid) sosData.buildid = first.buildid;
+  if (sosData.groundid == null && first.groundid != null) {
+    sosData.groundid = first.groundid;
+  }
+  if (sosData.ground == null && first.ground != null) {
+    sosData.ground = first.ground;
+  }
+  if (!sosData.projectid && first.projectid) {
+    sosData.projectid = first.projectid;
+  }
   // 单设备：用点位覆盖设备号/名称；聚集告警 deveui 可能是门限级别，保留告警原文
   if (Number(warning.type) !== 2) {
     if (first.deveui) sosData.deveui = first.deveui;

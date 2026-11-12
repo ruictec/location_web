@@ -4848,21 +4848,22 @@ export default {
       this.removeClick();
     },
 
-    //删除点和图层
+    //删除点和图层（跳过非矢量图层，避免 getFeatures 报错）
     delFeatureAndLayer(layer) {
-      layer
-        .getSource()
-        .getFeatures()
-        .forEach(function (feature) {
-          layer.getSource().removeFeature(feature);
-        });
-      // menu_overlay.setPosition(undefined);
+      if (!layer || typeof layer.getSource !== "function") return;
+      const source = layer.getSource();
+      if (!source || typeof source.getFeatures !== "function") return;
+      source.getFeatures().forEach(function (feature) {
+        source.removeFeature(feature);
+      });
       //删除多边形
       this.map.removeLayer(layer);
     },
     //删除点
     delPolygon(e, menu_overlay) {
       var that = this;
+      // 与 delFeature 一致：先记录当前菜单，供 hideCtxMenu 使用
+      that.menu_overlay = menu_overlay;
       if (
         (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
         (this.$store.state.userInfo.prionum == 4 && this.delprio == 2)
@@ -4894,18 +4895,20 @@ export default {
           if (e.values_.id) {
             //遍历所有图层找到匹配feature的图层删除图层
             for (let i = 1; i < LayerArrays.length; i++) {
-              if (
-                (LayerArrays[i].getSource().getFeatures()[0].values_.adj ||
-                  LayerArrays[i].getSource().getFeatures()[0].values_.point) &&
-                JSON.stringify(e.values_.id) ==
-                  (JSON.stringify(
-                    LayerArrays[i].getSource().getFeatures()[0].values_.id
-                  ) ||
-                    JSON.stringify(
-                      LayerArrays[i].getSource().getFeatures()[1].values_.id
-                    ))
-              ) {
-                that.delFeatureAndLayer(LayerArrays[i]);
+              const layer = LayerArrays[i];
+              const source = layer && layer.getSource && layer.getSource();
+              if (!source || typeof source.getFeatures !== "function") continue;
+              const features = source.getFeatures();
+              if (!features.length || !features[0] || !features[0].values_) continue;
+              const v = features[0].values_;
+              if (!(v.adj || v.point)) continue;
+              const second =
+                features[1] && features[1].values_
+                  ? JSON.stringify(features[1].values_.id)
+                  : "";
+              const matchedId = JSON.stringify(v.id) || second;
+              if (JSON.stringify(e.values_.id) == matchedId) {
+                that.delFeatureAndLayer(layer);
               }
             }
             let data3 = {
@@ -4932,7 +4935,7 @@ export default {
             });
             that.currentAdj = "";
             //隐藏菜单
-            menu_overlay.setPosition(undefined);
+            that.hideCtxMenu(menu_overlay);
             return;
           } else {
             //没有保存的点删除
@@ -4940,29 +4943,60 @@ export default {
             //删除相邻点需要先选中再可以删除
             //遍历所有图层找到匹配feature的图层删除图层
             for (let i = 1; i < LayerArrays.length; i++) {
+              const layer = LayerArrays[i];
+              const source = layer && layer.getSource && layer.getSource();
+              if (!source || typeof source.getFeatures !== "function") continue;
+              const features = source.getFeatures();
+              if (!features.length || !features[0] || !features[0].values_) continue;
               if (
-                LayerArrays[i].getSource().getFeatures()[0].values_.point &&
-                that.currentAdj.ol_uid ==
-                  LayerArrays[i].getSource().getFeatures()[0].ol_uid
+                features[0].values_.point &&
+                that.currentAdj &&
+                that.currentAdj.ol_uid == features[0].ol_uid
               ) {
-                that.delFeatureAndLayer(LayerArrays[i]);
+                that.delFeatureAndLayer(layer);
               }
             }
 
             that.currentAdj = "";
             //隐藏菜单
-            menu_overlay.setPosition(undefined);
+            that.hideCtxMenu(menu_overlay);
             return;
           }
         })
         .catch(() => {
-          menu_overlay.setPosition(undefined);
+          that.hideCtxMenu(menu_overlay);
           that.removeClick();
         });
+    },
+    // 安全关闭右键菜单：menu_overlay 初始为空字符串，不能假设它一定是 Overlay
+    hideCtxMenu(overlay) {
+      const list = [overlay, this.menu_overlay].concat(this.ctxMenuOverlays || []);
+      list.forEach(item => {
+        if (item && typeof item.setPosition === "function") {
+          try {
+            item.setPosition(undefined);
+          } catch (e) {
+            // 已销毁的 Overlay 直接忽略
+          }
+        }
+      });
+    },
+    // 移除布置点所在图层并关闭菜单
+    clearArrangedLayer(layer, overlay) {
+      if (layer && layer.getSource) {
+        const source = layer.getSource();
+        if (source && typeof source.getFeatures === "function") {
+          source.getFeatures().forEach(feature => source.removeFeature(feature));
+        }
+        this.map.removeLayer(layer);
+      }
+      this.hideCtxMenu(overlay);
     },
     //删除图标
     delFeature(e, menu_overlay) {
       var that = this;
+      // 删除路径同样要记录当前菜单，否则 catch 里拿到的是初始空字符串
+      that.menu_overlay = menu_overlay;
       if (
         (this.$store.state.userInfo.prionum == 5 && this.delprio == 2) ||
         (this.$store.state.userInfo.prionum == 4 && this.delprio == 2)
@@ -4989,14 +5023,17 @@ export default {
         )
         .then(() => {
           that.removeClick();
-          let num;
+          let num = -1;
           let LayerArrays = that.map.getLayers().getArray();
           for (let i = 1; i < LayerArrays.length; i++) {
+            const layer = LayerArrays[i];
+            const source = layer && layer.getSource && layer.getSource();
+            if (!source || typeof source.getFeatures !== "function") continue;
+            const features = source.getFeatures();
+            if (!features.length || !features[0] || !features[0].values_) continue;
             if (
-              e.values_.x ==
-                LayerArrays[i].getSource().getFeatures()[0].values_.x &&
-              e.values_.y ==
-                LayerArrays[i].getSource().getFeatures()[0].values_.y
+              e.values_.x == features[0].values_.x &&
+              e.values_.y == features[0].values_.y
             ) {
               num = i;
               break;
@@ -5023,15 +5060,7 @@ export default {
                   message: that.$t("buildingmanagement.deletesuccess"),
                   type: "success",
                 });
-                LayerArrays[num]
-                  .getSource()
-                  .getFeatures()
-                  .forEach(function (feature) {
-                    LayerArrays[num].getSource().removeFeature(feature);
-                  });
-
-                menu_overlay.setPosition(undefined);
-                that.map.removeLayer(LayerArrays[num]);
+                that.clearArrangedLayer(LayerArrays[num], menu_overlay);
                 if (that.activeMenu) {
                   that.menuClick(that.activeMenu, that.currentPage2);
                 }
@@ -5057,15 +5086,7 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  LayerArrays[num]
-                    .getSource()
-                    .getFeatures()
-                    .forEach(function (feature) {
-                      LayerArrays[num].getSource().removeFeature(feature);
-                    });
-
-                  menu_overlay.setPosition(undefined);
-                  that.map.removeLayer(LayerArrays[num]);
+                  that.clearArrangedLayer(LayerArrays[num], menu_overlay);
                   that.getBeaconPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
                 } else {
@@ -5088,15 +5109,7 @@ export default {
                     message: that.$t("buildingmanagement.deletesuccess"),
                     type: "success",
                   });
-                  LayerArrays[num]
-                    .getSource()
-                    .getFeatures()
-                    .forEach(function (feature) {
-                      LayerArrays[num].getSource().removeFeature(feature);
-                    });
-
-                  menu_overlay.setPosition(undefined);
-                  that.map.removeLayer(LayerArrays[num]);
+                  that.clearArrangedLayer(LayerArrays[num], menu_overlay);
 
                   that.getGatewayPos(that.intoProjectid, that.currentPage2);
                   that.resetNear();
@@ -5112,7 +5125,7 @@ export default {
           }
         })
         .catch(() => {
-          that.menu_overlay.setPosition(undefined);
+          that.hideCtxMenu(menu_overlay);
           that.removeClick();
         });
     },
