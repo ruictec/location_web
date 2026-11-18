@@ -22,7 +22,19 @@
             }}</el-button>
           </div>
           <el-collapse v-model="activeName" class="options config-collapse">
-            <el-collapse-item :title="$t('list.homepage')" name="6" class="config-card-sm">
+            <el-collapse-item name="6" class="config-card-sm">
+              <template #title>
+                <span class="config-collapse-title">
+                  {{ $t("list.homepage") }}
+                  <el-tooltip
+                    :content="$t('functionParts.homeStatSingleTip')"
+                    placement="top"
+                    :popper-style="{ maxWidth: '260px', lineHeight: '1.5' }"
+                  >
+                    <i class="el-icon-question config-help-icon" @click.stop></i>
+                  </el-tooltip>
+                </span>
+              </template>
               <div class="list_options">
                 <p>{{ $t("list.beaconstatus") }}：</p>
                 <p>
@@ -46,12 +58,12 @@
                 </p>
               </div>
               <div class="list_options">
-                <p>{{ $t("list.AlarmStatistics") }}：</p>
+                <p>{{ $t("list.alarmPersonStat") }}：</p>
                 <p>
-                  <el-radio v-model="showAlarmStat" :label="true">{{
+                  <el-radio v-model="warningStat" :label="true">{{
                     $t("functionParts.show")
                   }}</el-radio>
-                  <el-radio v-model="showAlarmStat" :label="false">{{
+                  <el-radio v-model="warningStat" :label="false">{{
                     $t("functionParts.unshow")
                   }}</el-radio>
                 </p>
@@ -78,27 +90,6 @@
                   <el-radio v-model="warningconfigtbox" :label="false">{{
                     $t("functionParts.unshow")
                   }}</el-radio>
-                </p>
-              </div>
-              <div class="list_options">
-                <p>{{ $t("list.manualAlarmCheck") }}：</p>
-                <p class="config-input-wrap">
-                  <el-input
-                    v-model="manualAlarmCheck"
-                    class="config-time-input"
-                    type="number"
-                    :min="0"
-                  ></el-input>
-                  <span class="config-unit">{{
-                    $t("functionParts.minutes")
-                  }}</span>
-                  <el-tooltip
-                    :content="$t('functionParts.manualAlarmCheckTip')"
-                    placement="top"
-                    :popper-style="{ maxWidth: '260px', lineHeight: '1.5' }"
-                  >
-                    <i class="el-icon-question config-help"></i>
-                  </el-tooltip>
                 </p>
               </div>
             </el-collapse-item>
@@ -332,10 +323,9 @@ export default {
       attenFlag: "",
       showBeacon: "true", //显示信标统计
       showAttendance: "true", //显示考勤统计
-      showAlarmStat: false, //显示告警统计（后端暂无字段，先本地控制）
+      warningStat: false, //显示告警人员统计，后端字段 warningStat
       warningconfig: "true", //人员告警
       warningconfigtbox: "true", //车辆告警
-      manualAlarmCheck: "", //人工核对告警（分钟），接口参数待后端确定
       staffmanagement: "true", //员工管理
       assetManagement: "true", //资产管理
       tboxManagement: "true", //车辆管理
@@ -365,10 +355,11 @@ export default {
       ).then((res) => {
         if (res.code == 1001) {
           that.attenFlag = res.data.attenFlag;
-          that.showBeacon = res.data.attenFlag ? false : true;
-          that.showAttendance = res.data.attenFlag ? true : false;
-          // 后端暂无告警统计字段，先默认不显示
-          that.showAlarmStat = false;
+          // 首页统计卡片三选一，统一用 attenFlag：0=信标状态，1=考勤统计，2=告警人员统计
+          const homeStat = Number(res.data.attenFlag) || 0;
+          that.showBeacon = homeStat === 0;
+          that.showAttendance = homeStat === 1;
+          that.warningStat = homeStat === 2;
           that.warningconfig = res.data.alarmConfig;
           that.warningconfigtbox = res.data.tboxConfig;
           that.staffmanagement = res.data.employee;
@@ -392,8 +383,8 @@ export default {
     },
     confirmTrue() {
       var that = this;
-      // 信标状态 / 考勤统计 / 告警统计 三者只能显示一个，且必须显示一个
-      const homeStats = [this.showBeacon, this.showAttendance, this.showAlarmStat];
+      // 信标状态 / 考勤统计 / 告警人员统计 三者只能显示一个，且必须显示一个
+      const homeStats = [this.showBeacon, this.showAttendance, this.warningStat];
       const shownStats = homeStats.filter((v) => v === true || v === "true")
         .length;
       if (shownStats > 1) {
@@ -424,7 +415,15 @@ export default {
       }
       // 其余分组（告警管理 / 定位管理 / 设备管理 / 安全管理）不再做前端联动限制，
       // 由用户自由选择，合法性交由后端校验
-      this.attenFlag = this.showBeacon ? false : true;
+      // 首页统计卡片三选一，统一用 attenFlag：0=信标状态，1=考勤统计，2=告警人员统计
+      const showBeaconFlag =
+        this.showBeacon === true || this.showBeacon === "true";
+      const showAttendanceFlag =
+        this.showAttendance === true || this.showAttendance === "true";
+      const warningStatFlag =
+        this.warningStat === true || this.warningStat === "true";
+      // 三选一由上面的校验保证，这里按优先级落到单个枚举值
+      this.attenFlag = warningStatFlag ? 2 : showBeaconFlag ? 0 : 1;
       let data = {
         projectid: this.$store.state.intoProjectid,
         attenFlag: this.attenFlag,
@@ -484,6 +483,24 @@ export default {
 }
 .config-head .el-button {
   margin: 0 !important;
+}
+/* 分组标题：文字 + 问号帮助提示 */
+.config-collapse-title {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 !important;
+}
+.config-help-icon {
+  margin: 0 0 0 4px !important;
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.config-help-icon:hover {
+  color: #2f7bff;
 }
 .config-title {
   margin: 0 !important;
@@ -565,47 +582,6 @@ export default {
 .list_options p:nth-of-type(2) :deep(.el-radio) {
   margin-right: 0;
   margin-left: 16px;
-}
-/* 人工核对告警：数字输入框 + 单位「分钟」 */
-.config-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.config-input-wrap > * {
-  margin: 0 !important;
-}
-.config-input-wrap .config-time-input {
-  flex: 0 0 auto;
-  width: 88px;
-}
-.config-input-wrap :deep(.el-input__inner) {
-  text-align: center;
-}
-/* 隐藏数字输入框的上下箭头，避免挤占输入区 */
-.config-input-wrap :deep(input[type="number"]::-webkit-outer-spin-button),
-.config-input-wrap :deep(input[type="number"]::-webkit-inner-spin-button) {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.config-unit {
-  margin: 0 !important;
-  color: #64748b;
-  font-size: 13px;
-  white-space: nowrap;
-}
-/* 人工核对告警的问号说明 */
-.config-help {
-  margin: 0 !important;
-  flex: 0 0 auto;
-  color: #94a3b8;
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.config-help:hover {
-  color: #2f7bff;
 }
 .home {
   height: 100%;

@@ -953,12 +953,62 @@ export default {
     };
   },
   computed: {
+    // 反向项目：人员告警支持「异常静止」类型
+    isReverseProject() {
+      return this.$store.state.projectid === "paqw81ut";
+    },
     filterLangClass() {
       const lang = this.i8n || this.$store.state.i18n || (this.$i18n && this.$i18n.locale);
       return lang === "en" ? "is-en" : "is-zh";
     },
   },
   methods: {
+    // 构建「告警类型」下拉选项。
+    // 项目类型 1 默认带「异常静止」；反向项目（paqw81ut）无论项目类型都补上它。
+    buildTypeList() {
+      const detect = { index: 1, value: this.$t("warning.Detentionalarm") };
+      const gather = { index: 2, value: this.$t("warning.Aggregatealarm") };
+      const abnormalStatic = {
+        index: 3,
+        value: this.$t("warning.Abnormalstatic"),
+      };
+      const crossing = { index: 4, value: this.$t("warning.Passingalarm") };
+      const lowBattery = {
+        index: 6,
+        value: this.$t("warning.LowBatteryAlarm"),
+      };
+      const heartbeat = {
+        index: 7,
+        value: this.$t("warning.HeartbeatAbnormal"),
+      };
+      const temperature = {
+        index: 8,
+        value: this.$t("warning.TemperatureAbnormal"),
+      };
+
+      const projectType = this.$store.state.intoProjectType;
+      let list = [];
+      if (projectType == 1) {
+        list = [
+          detect,
+          gather,
+          abnormalStatic,
+          crossing,
+          lowBattery,
+          heartbeat,
+          temperature,
+        ];
+      } else if (projectType == 2) {
+        list = [detect, gather, crossing, lowBattery, heartbeat, temperature];
+      }
+
+      // 反向项目支持「异常静止」：按 index 插回正确位置，避免顺序错乱
+      if (this.isReverseProject && !list.some((item) => item.index === 3)) {
+        list = [...list, abnormalStatic].sort((a, b) => a.index - b.index);
+      }
+
+      this.typeList = list;
+    },
     // 低电/心跳/体温：角色、区域、定位类型可不设置
     isDeviceMetricType(type) {
       return [6, 7, 8].includes(Number(type));
@@ -972,8 +1022,11 @@ export default {
       if (type === "" || type === null || type === undefined) return false;
       return !this.isDeviceMetricType(type);
     },
-    // 区域必填规则与角色一致
+    // 区域必填规则与角色一致；
+    // 例外：反向项目（paqw81ut）中的「异常静止」不需要区域。
+    // 注意：这里入参是前端下拉的 index，异常静止 = 3（对应后端推送的 type=5）
     isAreaRequired(type) {
+      if (this.isReverseProject && Number(type) === 3) return false;
       return this.isWorktypeRequired(type);
     },
     worktypeTip(type) {
@@ -1780,130 +1833,14 @@ export default {
     };
     this.getWarningLists();
     this.getFenceManageAndPointLists();
-    if (this.$store.state.intoProjectType == 1) {
-      this.typeList = [
-        {
-          index: 1,
-          value: this.$t("warning.Detentionalarm"),
-        },
-        {
-          index: 2,
-          value: this.$t("warning.Aggregatealarm"),
-        },
-        {
-          index: 3,
-          value: this.$t("warning.Abnormalstatic"),
-        },
-        {
-          index: 4,
-          value: this.$t("warning.Passingalarm"),
-        },
-        {
-          index: 6,
-          value: this.$t("warning.LowBatteryAlarm"),
-        },
-        {
-          index: 7,
-          value: this.$t("warning.HeartbeatAbnormal"),
-        },
-        {
-          index: 8,
-          value: this.$t("warning.TemperatureAbnormal"),
-        },
-      ];
-    } else if (this.$store.state.intoProjectType == 2) {
-      this.typeList = [
-        {
-          index: 1,
-          value: this.$t("warning.Detentionalarm"),
-        },
-        {
-          index: 2,
-          value: this.$t("warning.Aggregatealarm"),
-        },
-        {
-          index: 4,
-          value: this.$t("warning.Passingalarm"),
-        },
-        {
-          index: 6,
-          value: this.$t("warning.LowBatteryAlarm"),
-        },
-        {
-          index: 7,
-          value: this.$t("warning.HeartbeatAbnormal"),
-        },
-        {
-          index: 8,
-          value: this.$t("warning.TemperatureAbnormal"),
-        },
-      ];
-    }
+    this.buildTypeList();
   },
   watch: {
     //监听中英文 重新渲染下拉框内容
     "$i18n.locale"() {
       this.i8n = this.$store.state.i18n;
 
-      if (this.$store.state.intoProjectType == 1) {
-        this.typeList = [
-          {
-            index: 1,
-            value: this.$t("warning.Detentionalarm"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Aggregatealarm"),
-          },
-          {
-            index: 3,
-            value: this.$t("warning.Abnormalstatic"),
-          },
-          {
-            index: 4,
-            value: this.$t("warning.Passingalarm"),
-          },
-          {
-            index: 6,
-            value: this.$t("warning.LowBatteryAlarm"),
-          },
-          {
-            index: 7,
-            value: this.$t("warning.HeartbeatAbnormal"),
-          },
-          {
-            index: 8,
-            value: this.$t("warning.TemperatureAbnormal"),
-          },
-        ];
-      } else if (this.$store.state.intoProjectType == 2) {
-        this.typeList = [
-          {
-            index: 1,
-            value: this.$t("warning.Detentionalarm"),
-          },
-          {
-            index: 2,
-            value: this.$t("warning.Aggregatealarm"),
-          },
-          {
-            index: 4,
-            value: this.$t("warning.Passingalarm"),
-          },
-          {
-            index: 6,
-            value: this.$t("warning.LowBatteryAlarm"),
-          },
-          {
-            index: 7,
-            value: this.$t("warning.HeartbeatAbnormal"),
-          },
-          {
-            index: 8,
-            value: this.$t("warning.TemperatureAbnormal"),
-          },
-        ];
-      }
+      this.buildTypeList();
       Object.assign(
         this.$data.addRules,
         this.$options.data.call(this).addRules

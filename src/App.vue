@@ -1260,8 +1260,25 @@ export default {
             }, 10000);
             return;
           }
-          var data = JSON.parse(res.data);
+          // 后端除了英文心跳，还会推中文文本（如「连接成功」），
+          // 直接 JSON.parse 会抛语法错误并中断整条消息处理，这里先兜住
+          if (typeof res.data !== "string") return;
+          const raw = res.data.trim();
+          if (!raw || raw.charAt(0) !== "{") return;
+          let data;
+          try {
+            data = JSON.parse(raw);
+          } catch (e) {
+            return;
+          }
+          if (!data || !Array.isArray(data.list)) return;
           that.$store.commit("setWarningNum", data.size);
+          // 测试大屏是全屏页：只把告警数据转发过去，
+          // 不弹窗、不播放告警音，避免打断现场展示
+          if (that.$route && that.$route.path === "/testscreen") {
+            that.$EventBus.$emit("sosPush", data.list);
+            return;
+          }
           let state = JSON.parse(sessionStorage.getItem("state"));
           for (let i = 0; i < data.list.length; i++) {
             if (data.list[i].deveui && state.userInfo.prionum == 5) {

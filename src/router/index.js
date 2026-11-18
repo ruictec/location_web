@@ -7,6 +7,7 @@ const Homeuser = () => import('../views/home/Homeuser')
 const Beacon = () => import('../views/device/Beacon')
 const Security = () => import('../views/device/Security')
 const Largescreen = () => import('../views/home/LargeScreen')
+const TestScreen = () => import('../views/home/TestScreen')
 const NS = () => import('../views/device/NS')
 const DownLink = () => import('../views/data/DownLink')
 const Location = () => import('../views/project/Location')
@@ -64,6 +65,15 @@ export const constantRoutes = [
       name: 'Largescreen',
       component: Largescreen,
       props: true, // 通过props将查询参数传递给组件 
+      meta: {
+        requireAuth: false
+      }
+    },
+    {
+      // 测试大屏：全屏展示，挂在侧边栏的一级菜单里（仅指定项目显示入口）
+      path: '/testscreen',
+      name: 'TestScreen',
+      component: TestScreen,
       meta: {
         requireAuth: false
       }

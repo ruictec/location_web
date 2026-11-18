@@ -54,7 +54,8 @@ const store = createStore({
         tboxEuis: '',
         sosNums: '',
         functionParts: {
-            attenFlag: '',
+            // 首页统计卡片三选一：0=信标状态，1=考勤统计，2=告警人员统计
+            attenFlag: 0,
             alarmConfig: true,
             tboxConfig: true,
             employee: true,
@@ -240,6 +241,15 @@ const store = createStore({
         },
         changefunctionParts(state, functionParts) {
             state.functionParts = functionParts
+            // 同步到 sessionStorage：否则刷新后 functionParts 会退回登录时的初始值，
+            // 导致首页按旧的 attenFlag 显示卡片（与 setuserInfo 的写法保持一致）
+            try {
+                const raw = sessionStorage.getItem('state')
+                const saved = raw ? JSON.parse(raw) : Object.assign({}, state, { addRoutes: [] })
+                saved.functionParts = functionParts
+                saved.addRoutes = []
+                sessionStorage.setItem('state', JSON.stringify(saved))
+            } catch (e) {}
         },
         setlargeScreen(state, v) {
             state.largeScreen = v

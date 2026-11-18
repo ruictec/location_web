@@ -170,6 +170,12 @@
             $t("list.Myworkorder")
           }}</el-menu-item>
         </el-sub-menu>
+        <!-- 测试大屏：固定在菜单最底部，仅指定项目显示；
+             独立全屏路由，进入后页面自带返回按钮 -->
+        <el-menu-item index="/testscreen" v-if="showTestScreen">
+          <i class="el-icon-data-analysis"></i>
+          <span class="menu-label">{{ $t("list.testScreen") }}</span>
+        </el-menu-item>
       </el-menu>
     </el-scrollbar>
   </div>
@@ -230,6 +236,10 @@ export default {
     },
     isCollapse() {
       return !this.$store.state.show;
+    },
+    // 测试大屏入口：仅指定项目可见（项目切换时自动响应）
+    showTestScreen() {
+      return this.$store.state.projectid === "paqw81ut";
     },
   },
   watch: {

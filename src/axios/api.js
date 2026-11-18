@@ -3717,6 +3717,40 @@ export const getFristPageUserMapUtil = (query, tenantkey_A, tenantid_A, username
 };
 
 
+export const getShipAccessList = (query, tenantkey_A, tenantid_A, username) => { //分页查询进出舱记录（type: 1进舱 2出舱 3进舱 4出舱）
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getShipAccessList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getShipAccessList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
+export const getShipBoardList = (query, tenantkey_A, tenantid_A, username) => { //查询当前在舱人员（上船写入Redis，出舱删除）
+    let time_A = getTime()
+    let sha_A = hex_sha1("/v1/service/getShipBoardList" + tenantkey_A + time_A)
+    return service({
+        url: "service/getShipBoardList",
+        method: 'get',
+        processData: false,
+        headers: {
+            ts: time_A,
+            siginfo: sha_A,
+            tenantid: tenantid_A,
+            username: username
+        },
+        params: query
+    }).then(res => res)
+};
+
 export const superLogin = (datas, tenantkey_A, tenantid_A, username) => { //退出
     let time_A = getTime()
     let sha_A = hex_sha1("/v1/service/superLogin" + JSON.stringify(datas) + tenantkey_A + time_A)

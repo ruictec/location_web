@@ -200,7 +200,7 @@
                 align="center"
                 min-width="130"
               >
-                <template #header="scope">
+                <template #header>
                   <span class="cell" style="padding-right: 0">{{
                     $t("project.Numberbuildings")
                   }}</span>
@@ -221,7 +221,7 @@
                 align="center"
                 min-width="110"
               >
-                <template #header="scope">
+                <template #header>
                   <span class="cell" style="padding-right: 0">{{
                     $t("project.mapNumber")
                   }}</span>
@@ -489,7 +489,7 @@
                     <p>
                       {{ $t("project.tet5") }}
                       <a
-                        :href="assetBase + '/guide/dataforward.html'"
+                        href="https://location.rctiot.com:8079/guide/dataforward.html"
                         target="_blank"
                         >{{ $t("project.tet6") }}</a>
                       。
@@ -2622,7 +2622,6 @@ export default {
                   overlay.setPosition(undefined);
                 }); // 点击关闭的按钮
               });
-            } else {
             }
           }
         }

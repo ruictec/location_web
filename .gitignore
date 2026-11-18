@@ -10,3 +10,11 @@ debug.log
 .env.development.local
 .env.production.local
 rct-platform_oldCode/
+
+# AI 工具目录，不入库
+.workbuddy/
+.codebuddy/
+TEST_SCREEN_API_SPEC.md
+
+# 测试报告与部署配置，不入库
+/test/

@@ -7,7 +7,6 @@ module.exports = {
   NODE_ENV: '"production"',
   VUE_APP_API_BASE: JSON.stringify(appEnv.VUE_APP_API_BASE),
   VUE_APP_WS_BASE: JSON.stringify(appEnv.VUE_APP_WS_BASE),
-  VUE_APP_ASSET_BASE: JSON.stringify(appEnv.VUE_APP_ASSET_BASE),
   VUE_APP_DOC_BASE: JSON.stringify(appEnv.VUE_APP_DOC_BASE),
   VUE_APP_HELP_BASE: JSON.stringify(appEnv.VUE_APP_HELP_BASE),
   VUE_APP_MAP_PROVIDER: JSON.stringify(appEnv.VUE_APP_MAP_PROVIDER),

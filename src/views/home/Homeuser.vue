@@ -333,9 +333,7 @@
                       }}</span>
                     </template>
                   </el-table-column>
-                  <!-- 卡片未展示告警统计时：保留统计弹框入口 -->
                   <el-table-column
-                    v-if="!homeShowAlarmStatCard"
                     :label="$t('homepage.operate')"
                     min-width="50"
                     align="center"
@@ -360,33 +358,12 @@
                       </el-tooltip>
                     </template>
                   </el-table-column>
-                  <!-- 卡片已展示告警统计时：操作列改为显示该类型的告警总数 -->
-                  <el-table-column
-                    v-if="homeShowAlarmStatCard"
-                    :label="$t('homepage.sum')"
-                    min-width="50"
-                    align="center"
-                  >
-                    <template #default="scope">
-                      <span
-                        v-if="
-                          scope.row.warn_status1_num == 0 &&
-                          scope.row.warn_status2_num == 0
-                        "
-                        class="warn-num--zero"
-                        >0</span
-                      >
-                      <span v-else class="warn-num warn-num--total">{{
-                        Number(scope.row.warn_status1_num) +
-                        Number(scope.row.warn_status2_num)
-                      }}</span>
-                    </template>
-                  </el-table-column>
                 </el-table>
               </div>
             </el-card>
           </div>
-          <div class="home-bottom-item" v-show="attenFlag">
+          <!-- 考勤统计卡片：attenFlag=1 -->
+          <div class="home-bottom-item" v-show="attenFlag == 1">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
@@ -403,27 +380,23 @@
                   <span class="atten-today">{{ $t("homepage.Today") }}</span>
                   <span class="atten-chip atten-chip--yes">
                     <i></i>{{ $t("homepage.Attendanceattendance") }}
-                    <b>{{ attendance ? memberNum.member_attendance_num || 0 : 0 }}</b>
+                    <b>{{ memberNum.member_attendance_num || 0 }}</b>
                   </span>
                   <span class="atten-chip atten-chip--no">
                     <i></i>{{ $t("homepage.Unattendedattendance") }}
                     <b>{{
-                      attendance
-                        ? memberNum.member_sum_num - memberNum.member_attendance_num || 0
-                        : 0
+                      (memberNum.member_sum_num || 0) -
+                      (memberNum.member_attendance_num || 0)
                     }}</b>
                   </span>
                 </div>
-                <div id="main6" style="height: 100%; width: 100%"></div>
+                <div id="main6" class="home-chart home-chart-fill"></div>
               </div>
             </el-card>
           </div>
 
-          <!-- 信标状态卡片：与告警统计卡片互斥显示 -->
-          <div
-            class="home-bottom-item"
-            v-show="!attenFlag && !homeShowAlarmStatCard"
-          >
+          <!-- 信标状态卡片：attenFlag=0 -->
+          <div class="home-bottom-item" v-show="attenFlag == 0">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
@@ -438,21 +411,20 @@
             </el-card>
           </div>
 
-          <!-- 告警统计卡片：与信标状态卡片互斥显示 -->
-          <div
-            class="home-bottom-item"
-            v-show="!attenFlag && homeShowAlarmStatCard"
-          >
+          <!-- 告警人员统计卡片：attenFlag=2，按告警类型展示人员排行 -->
+          <div class="home-bottom-item" v-show="attenFlag == 2">
             <el-card class="box-card2 home-stat-card" style="width: 100%; height: 100%">
               <template #header>
                 <div class="home-card-title">
-                  <span>{{ $t("Breadcrumb.AlarmStatistics") }}</span>
+                  <span class="home-warn-title">{{
+                    $t("homepage.alarmPersonStat")
+                  }}</span>
                   <el-select
                     v-model="homeWarnTypeIndex"
                     class="home-warn-select"
                     size="small"
                     placeholder="—"
-                    @change="loadHomeWarningWeek"
+                    @change="loadHomePersonStat"
                   >
                     <el-option
                       v-for="item in homeWarnTypeOptions"
@@ -461,17 +433,20 @@
                       :value="item.index"
                     ></el-option>
                   </el-select>
-                  <el-button
-                    class="home-warn-rank-btn"
+                  <el-date-picker
+                    v-model="homePersonStatDate"
+                    class="home-warn-date"
+                    type="date"
                     size="small"
-                    @click="openPersonStat(currentHomeWarnType)"
-                  >
-                    {{ $t("homepage.personStat") }}
-                  </el-button>
+                    value-format="YYYY-MM-DD"
+                    :clearable="false"
+                    :disabled-date="disabledHomePersonStatDate"
+                    @change="loadHomePersonStat(homeWarnTypeIndex)"
+                  ></el-date-picker>
                 </div>
               </template>
               <div class="member home-warn-body">
-                <div id="homewarningweekdatas" class="home-warn-chart"></div>
+                <div id="homepersonstatchart" class="home-warn-chart"></div>
               </div>
             </el-card>
           </div>
@@ -661,13 +636,6 @@
               <span class="ww-range">{{ $t("homepage.last7days") }}</span>
             </p>
           </div>
-          <el-button
-            class="ww-person-stat-btn"
-            size="small"
-            @click="openPersonStat(warnWeekStat.name)"
-          >
-            {{ $t("homepage.personStat") }}
-          </el-button>
         </div>
       </template>
       <div class="ww-summary">
@@ -685,29 +653,6 @@
         </div>
       </div>
       <div id="warningweekdatas"></div>
-    </el-dialog>
-
-    <!-- 人员统计（接口待接入） -->
-    <el-dialog
-      v-model="personStatDialog"
-      width="720px"
-      class="person-stat-dialog"
-      @closed="closePersonStat()"
-    >
-      <template #header>
-        <div class="pr-header">
-          <span class="pr-title">{{ $t("homepage.personStat") }}</span>
-          <el-date-picker
-            v-model="personStatDate"
-            type="date"
-            size="small"
-            value-format="YYYY-MM-DD"
-            :clearable="false"
-            @change="renderPersonStat"
-          ></el-date-picker>
-        </div>
-      </template>
-      <div id="personstatchart" class="pr-chart"></div>
     </el-dialog>
 
     <!-- 排行 -->
@@ -907,23 +852,12 @@ export default {
       asset_outdoor_num: 0,
       warningWeek: false,
       myChartWarning: "",
-      myChartHomeWarning: null,
       warnWeekStat: { name: "", open: 0, closed: 0 },
-      // 首页告警统计测试卡片的数据
-      homeWarnWeekStat: { name: "", open: 0, closed: 0 },
-      // 当前选中的告警类型（warnNumList 下标），null 表示未选
+      // 首页告警人员统计卡片：当前选中的告警类型（warnNumList 下标），null 表示未选
       homeWarnTypeIndex: null,
-      // 首页统计卡片开关：true 显示告警统计卡片（表格显示合计列）；
-      // false 显示信标状态卡片（表格保留统计弹框入口）
-      // 测试结束：后端暂无「告警统计」配置字段，按真实业务逻辑恢复默认显示
-      homeShowAlarmStatCard: false,
-      // 人员统计弹框（接口待接入）
-      personStatDialog: false,
-      personStatDate: "",
-      myChartPersonStat: null,
-      // 当前统计的告警类型名，以及接口原始返回（便于核对数据结构）
-      personStatType: "",
-      personStatRawData: null,
+      // 卡片选中的统计日期，空值由 loadHomePersonStat 兜底为今天
+      homePersonStatDate: "",
+      myChartHomePersonStat: null,
       contrForPrionum: this.$store.state.userInfo.prionum,
       tenantid_A: this.$store.state.userInfo.tenantid,
       tenantkey_A: this.$store.state.userInfo.tenantkey,
@@ -1268,6 +1202,9 @@ export default {
         console.warn(e);
       }
       const paintBeacon = () => {
+        // 只有信标卡片显示时才画（attenFlag 0=信标，1=考勤，2=告警人员统计）；
+        // 卡片隐藏时 #main7 尺寸为 0，画了也看不见，还会白建 canvas 实例
+        if (Number(this.attenFlag) !== 0) return;
         try {
           this.beaconData = beaconBatTimeNum || {
             beacon_low_3day: 0,
@@ -1283,10 +1220,13 @@ export default {
           console.warn(e);
         }
       };
-      // 立即画一次，再等布局稳定后重画，避免从大屏返回时容器尚未撑开
+      // 立即画一次，再等布局稳定后重画，避免从大屏返回时容器尚未撑开；
+      // 非信标卡片时连重试和定时器都不必挂
       paintBeacon();
-      this.whenChartDomReady("main7", paintBeacon);
-      setTimeout(paintBeacon, 300);
+      if (Number(this.attenFlag) === 0) {
+        this.whenChartDomReady("main7", paintBeacon);
+        setTimeout(paintBeacon, 300);
+      }
     },
     renderPolarCharts() {
       const paint = () => {
@@ -1572,23 +1512,19 @@ export default {
           break;
       }
       for (let i = 0; i < that.rankingData.length; i++) {
+        // 名次徽章改用本地资源（/static/rank/*），不再依赖云端 VUE_APP_ASSET_BASE
         switch (i) {
           case 0:
-            // 说明：示例图片地址改为从环境变量读取基础地址
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/1.png";
+            that.rankingData[i].picurl = "/static/rank/1.png";
             break;
           case 1:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/2.png";
+            that.rankingData[i].picurl = "/static/rank/2.png";
             break;
           case 2:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/3.png";
+            that.rankingData[i].picurl = "/static/rank/3.png";
             break;
           default:
-            that.rankingData[i].picurl =
-              process.env.VUE_APP_ASSET_BASE + "/image/rank/badge.svg";
+            that.rankingData[i].picurl = "/static/rank/badge.svg";
             break;
         }
       }
@@ -1716,7 +1652,7 @@ export default {
         }
       );
     },
-    // 构建近七天告警统计柱状图（弹框与首页卡片共用）
+    // 构建近七天告警统计柱状图（告警统计弹框使用）
     buildWarningWeekOption(warningDate, warningData1, warningData2) {
       const num = (v) => Number(v) || 0;
       const dates = [...warningDate].reverse();
@@ -1817,95 +1753,85 @@ export default {
       };
       this.myChartWarning.setOption(built.option, true);
     },
-    // 首页告警统计卡片：绘制同一份图表
-    renderHomeWarningWeek(warningName, warningDate, warningData1, warningData2) {
-      const chartDom = document.getElementById("homewarningweekdatas");
-      if (!chartDom || !chartDom.clientWidth) return;
-      this.disposeChart("myChartHomeWarning");
-      const exist = echarts.getInstanceByDom(chartDom);
-      if (exist) exist.dispose();
-      this.myChartHomeWarning = markRaw(echarts.init(chartDom));
-
-      const built = this.buildWarningWeekOption(
-        warningDate,
-        warningData1,
-        warningData2
-      );
-      this.homeWarnWeekStat = {
-        name: warningName,
-        open: built.openSum,
-        closed: built.closedSum,
-      };
-      this.myChartHomeWarning.setOption(built.option, true);
-    },
-    // 首页告警统计卡片：加载指定（或第一个有数据的）告警类型近七天统计
-    loadHomeWarningWeek(index) {
-      // 卡片未展示告警统计时不需要请求
+    // 首页告警人员统计卡片：按所选告警类型加载当天的人员排行
+    loadHomePersonStat(index) {
       if (!this.homeShowAlarmStatCard) return;
-      const list = this.warnNumList || [];
-      let target = null;
-      let targetIndex = -1;
-      if (index !== undefined && index !== null && list[index]) {
-        target = list[index];
-        targetIndex = Number(index);
-      } else {
-        target = list.find(
-          (item) => Number(item.warn_status1_num) + Number(item.warn_status2_num) > 0
-        );
-        if (target) targetIndex = list.indexOf(target);
+      // 未选日期时默认今天
+      if (!this.homePersonStatDate) {
+        this.homePersonStatDate = this.todayString();
       }
-      if (!target) {
+      const list = this.warnNumList || [];
+      // 未指定类型时默认选中告警数量最多的那一类
+      let targetIndex = index;
+      if (targetIndex == null || !list[targetIndex]) {
+        targetIndex = this.pickDefaultWarnTypeIndex();
+      }
+      if (targetIndex == null || targetIndex < 0 || !list[targetIndex]) {
         this.homeWarnTypeIndex = null;
+        this.renderHomePersonStatChart([], "");
         return;
       }
       this.homeWarnTypeIndex = targetIndex;
-      const type = this.warnTypeCode(target.typestr);
-      if (type === "") return;
-      const date = new Date();
-      const utc = Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate() - 7,
-        0,
-        0,
-        0
-      );
+      const sort = this.warnSortCode(list[targetIndex].typestr);
+      if (!sort) {
+        this.renderHomePersonStatChart([], "");
+        return;
+      }
       const query = {
-        superid: this.$store.state.userInfo.superid,
         projectid: this.$store.state.projectid,
-        type: type,
-        time: utc / 1000,
-        timezone: this.timezone,
+        warndate: this.homePersonStatDate,
+        sort: sort,
       };
       // 快速切换类型时只渲染最后一次请求的结果
-      const requestId = (this._homeWarnReqId = (this._homeWarnReqId || 0) + 1);
-      getWarnWeekNumList(
+      const requestId = (this._homePersonStatReqId =
+        (this._homePersonStatReqId || 0) + 1);
+      getWarningStatRank(
         query,
         this.tenantkey_A,
         this.tenantid_A,
         this.userName
-      ).then((res) => {
-        if (requestId !== this._homeWarnReqId) return;
-        if (res.code != 1001 || !res.data || !res.data.length) return;
-        const warningName =
-          this.i8n == "zh" ? res.data[0].typestr : res.data[0].entype;
-        const warningDate = [];
-        const warningData1 = [];
-        const warningData2 = [];
-        res.data.forEach((item) => {
-          warningDate.push(item.date);
-          warningData1.push(item.warn_status1_num);
-          warningData2.push(item.warn_status2_num);
+      )
+        .then((res) => {
+          if (requestId !== this._homePersonStatReqId) return;
+          if (res.code != 1001) {
+            this.renderHomePersonStatChart([], sort);
+            return;
+          }
+          this.renderHomePersonStatChart(res.data, sort);
+        })
+        .catch(() => {
+          this.renderHomePersonStatChart([], sort);
         });
-        this.$nextTick(() => {
-          this.renderHomeWarningWeek(
-            warningName,
-            warningDate,
-            warningData1,
-            warningData2
-          );
-        });
+    },
+    // 告警数量最多且大于 0 的类型下标，作为卡片默认选中项
+    pickDefaultWarnTypeIndex() {
+      const list = this.warnNumList || [];
+      let bestIndex = -1;
+      let bestCount = 0;
+      list.forEach((item, i) => {
+        const count =
+          Number(item.warn_status1_num) + Number(item.warn_status2_num);
+        if (count > bestCount) {
+          bestCount = count;
+          bestIndex = i;
+        }
       });
+      return bestIndex;
+    },
+    // 当天日期 YYYY-MM-DD，人员统计接口的 warndate 参数
+    todayString() {
+      const d = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    },
+    // 卡片日期可选范围：最近 6 个月内，且不能选未来日期
+    disabledHomePersonStatDate(date) {
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      const start = new Date();
+      start.setMonth(start.getMonth() - 6);
+      start.setHours(0, 0, 0, 0);
+      return date.getTime() < start.getTime() || date.getTime() > end.getTime();
     },
     // 告警类型名称 -> 接口 type 值
     warnTypeCode(typestr) {
@@ -1948,64 +1874,14 @@ export default {
       };
       return map[code] || "";
     },
-    // 人员统计弹框：每次打开都回到今天并渲染
-    openPersonStat(typestr) {
-      // 记录当前告警类型，用于接口的 sort 参数
-      this.personStatType = typestr || "";
-      // 每次打开都重置为今天，避免沿用上次选过的日期
-      const d = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      this.personStatDate = `${d.getFullYear()}-${pad(
-        d.getMonth() + 1
-      )}-${pad(d.getDate())}`;
-      this.personStatDialog = true;
-      this.$nextTick(() => {
-        setTimeout(() => {
-          this.renderPersonStat();
-        }, 50);
-      });
-    },
-    // 人员统计：按所选日期与告警类型请求接口，再绘制柱状图
-    renderPersonStat() {
-      const sort = this.warnSortCode(this.personStatType) || "sos";
-      const query = {
-        projectid: this.$store.state.projectid,
-        warndate: this.personStatDate,
-        sort: sort,
-      };
-      const requestId = (this._personStatReqId =
-        (this._personStatReqId || 0) + 1);
-      getWarningStatRank(
-        query,
-        this.tenantkey_A,
-        this.tenantid_A,
-        this.userName
-      )
-        .then((res) => {
-          if (requestId !== this._personStatReqId) return;
-          if (res.code != 1001) {
-            this.$message({
-              message: this.$store.state.i18n == "zh" ? res.msg : res.enMsg,
-              type: "error",
-            });
-            this.renderPersonStatChart([], sort);
-            return;
-          }
-          this.personStatRawData = res.data;
-          this.renderPersonStatChart(res.data, sort);
-        })
-        .catch(() => {
-          this.renderPersonStatChart([], sort);
-        });
-    },
-    // 人员统计柱状图：x 轴人员、y 轴所选告警类型的次数，降序
-    renderPersonStatChart(list, sort) {
-      const chartDom = document.getElementById("personstatchart");
+    // 首页告警人员统计柱状图：x 轴人员、y 轴所选告警类型的次数，降序
+    renderHomePersonStatChart(list, sort) {
+      const chartDom = document.getElementById("homepersonstatchart");
       if (!chartDom || !chartDom.clientWidth) return;
-      this.disposeChart("myChartPersonStat");
+      this.disposeChart("myChartHomePersonStat");
       const exist = echarts.getInstanceByDom(chartDom);
       if (exist) exist.dispose();
-      this.myChartPersonStat = markRaw(echarts.init(chartDom));
+      this.myChartHomePersonStat = markRaw(echarts.init(chartDom));
 
       // 接口每行是一个人员的 13 种告警次数，取 sort 指定的字段；0 次的不参与排行
       const rows = (Array.isArray(list) ? list : [])
@@ -2082,10 +1958,7 @@ export default {
           },
         };
       }
-      this.myChartPersonStat.setOption(option, true);
-    },
-    closePersonStat() {
-      this.disposeChart("myChartPersonStat");
+      this.myChartHomePersonStat.setOption(option, true);
     },
     closeWarningWeek() {
       this.disposeChart("myChartWarning");
@@ -2226,45 +2099,88 @@ export default {
       }
     },
 
+    // 应用项目功能配置：只更新配置状态，不触碰地图与定时器
+    applyProjectConfig(config) {
+      if (!config) return;
+      this.attenFlag = config.attenFlag;
+      this.alarmConfig = config.alarmConfig;
+      this.tboxConfig = config.tboxConfig;
+      this.employee = config.employee;
+      this.asset = config.asset;
+      this.tbox = config.tbox;
+      this.attendance = config.attendance;
+      this.task = config.task;
+      this.inDoor = config.inDoor;
+      this.outDoor = config.outDoor;
+      this.camera = config.camera;
+      this.$store.commit("changefunctionParts", {
+        // 首页统计卡片三选一：0=信标状态，1=考勤统计，2=告警人员统计
+        attenFlag: config.attenFlag,
+        alarmConfig: config.alarmConfig,
+        tboxConfig: config.tboxConfig,
+        employee: config.employee,
+        asset: config.asset,
+        tbox: config.tbox,
+        attendance: config.attendance,
+        task: config.task,
+        locateManage: config.locateManage,
+        inDoor: config.inDoor,
+        outDoor: config.outDoor,
+        aoagw: config.aoagw,
+        smoke: config.smoke,
+        alertor: config.alertor,
+        blesensor: config.blesensor,
+        camera: config.camera,
+        devgw: config.devgw,
+        scanbeacon: config.scanbeacon,
+        audio: config.audio,
+      });
+    },
+    // 刷新当前项目的功能配置：不改变已选项目、不弹项目选择框
+    refreshCurrentProjectConfig() {
+      const projectid = this.$store.state.projectid;
+      if (!projectid) return;
+      const tenantkey =
+        this.tenantkey_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantkey);
+      const tenantid =
+        this.tenantid_A ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.tenantid);
+      const username =
+        this.userName ||
+        (this.$store.state.userInfo && this.$store.state.userInfo.username);
+      getProjectFirstList(
+        { tenantid: this.$store.state.userInfo.tenantid },
+        tenantkey,
+        tenantid,
+        username
+      ).then((res) => {
+        if (res.code != 1001 || !Array.isArray(res.data)) return;
+        const found = res.data.find((item) => item.projectid == projectid);
+        if (!found || !found.projectConfig) return;
+        this.applyProjectConfig(found.projectConfig);
+        this.$nextTick(() => {
+          // 配置切到「告警人员统计」时补一次卡片数据（内部有 attenFlag 守卫）
+          this.loadHomePersonStat();
+          // 配置切到「考勤统计」时补绘图表：卡片刚由隐藏变显示，容器尺寸可能还是 0
+          if (Number(this.attenFlag) === 1 && this.attendanceNum.length) {
+            try {
+              this.myEcharts2();
+            } catch (e) {
+              console.warn(e);
+            }
+            this.scheduleHomeChartsResize();
+          }
+        });
+      });
+    },
     choseProject(row) {
       var that = this;
       this.pro = false;
       this.$nextTick(() => {
         setTimeout(() => that.cleanupProjectSelectOverlay(), 50);
       });
-      that.attenFlag = row.projectConfig.attenFlag;
-      that.alarmConfig = row.projectConfig.alarmConfig;
-      that.tboxConfig = row.projectConfig.tboxConfig;
-      that.employee = row.projectConfig.employee;
-      that.asset = row.projectConfig.asset;
-      that.tbox = row.projectConfig.tbox;
-      that.attendance = row.projectConfig.attendance;
-      that.task = row.projectConfig.task;
-      that.inDoor = row.projectConfig.inDoor;
-      that.outDoor = row.projectConfig.outDoor;
-      that.camera = row.projectConfig.camera;
-      let data1 = {
-        attenFlag: row.projectConfig.attenFlag,
-        alarmConfig: row.projectConfig.alarmConfig,
-        tboxConfig: row.projectConfig.tboxConfig,
-        employee: row.projectConfig.employee,
-        asset: row.projectConfig.asset,
-        tbox: row.projectConfig.tbox,
-        attendance: row.projectConfig.attendance,
-        task: row.projectConfig.task,
-        locateManage: row.projectConfig.locateManage,
-        inDoor: row.projectConfig.inDoor,
-        outDoor: row.projectConfig.outDoor,
-        aoagw: row.projectConfig.aoagw,
-        smoke: row.projectConfig.smoke,
-        alertor: row.projectConfig.alertor,
-        blesensor: row.projectConfig.blesensor,
-        camera: row.projectConfig.camera,
-        devgw: row.projectConfig.devgw,
-        scanbeacon: row.projectConfig.scanbeacon,
-        audio: row.projectConfig.audio,
-      };
-      that.$store.commit("changefunctionParts", data1);
+      this.applyProjectConfig(row.projectConfig);
 
       that.getFristPages(row.projectid);
       this.timer = setInterval(() => {
@@ -3050,31 +2966,51 @@ export default {
     },
     //用户视角
     myEcharts2() {
-      if (this.myChartBeacon) {
-        this.myChartBeacon.dispose();
-        this.myChartBeacon = null;
+      // 只清理自己的实例，不动信标图（两张图属于不同卡片）
+      // 可能被多个接口回调重复触发，先销毁旧实例避免重复初始化告警
+      if (this.myChart2) {
+        this.myChart2.dispose();
+        this.myChart2 = null;
       }
       var that = this;
       //初始化echarts实例
       var chartDom = document.getElementById("main6");
-      this.myChart2 = echarts.init(chartDom, "macarons");
-      if (!this.myChart2) return;
-      this.myChart2 = markRaw(this.myChart2);
+      if (!chartDom) return;
+      // 清理 DOM 上可能残留的实例：否则会叠出多个 canvas，
+      // 上层那块透明 canvas 会把鼠标事件吃掉，tooltip 永远不触发
+      const stale =
+        echarts.getInstanceByDom && echarts.getInstanceByDom(chartDom);
+      if (stale) {
+        try {
+          stale.dispose();
+        } catch (e) {}
+      }
+      // 必须一步 markRaw：先赋值给响应式字段会被 Vue 代理，
+      // 之后再 markRaw 已无效，实例变 Proxy 后 zrender 的 tooltip 事件不触发
+      this.myChart2 = markRaw(echarts.init(chartDom));
       if (!this.myChart2) return;
       var option;
       var category = [];
       var barData1 = [];
       var barData2 = [];
-      if (this.attendance) {
-        for (var i = 0; i < this.attendanceNum.length; i++) {
-          barData1.push(-this.attendanceNum[i].member_absenteeism_num);
-          barData2.push(this.attendanceNum[i].member_attendance_num);
-          category.push(this.attendanceNum[i].retime);
-        }
+      // 卡片显示由 attenFlag 控制，这里只按接口返回的数据绘制
+      for (var i = 0; i < this.attendanceNum.length; i++) {
+        barData1.push(-this.attendanceNum[i].member_absenteeism_num);
+        barData2.push(this.attendanceNum[i].member_attendance_num);
+        category.push(this.attendanceNum[i].retime);
       }
       option = {
         tooltip: {
           trigger: "axis",
+          // 挂到 body 上，避免被卡片的 overflow 裁掉
+          appendToBody: true,
+          backgroundColor: "rgba(255,255,255,0.96)",
+          borderColor: "#e2e8f0",
+          padding: [8, 10],
+          textStyle: { color: "#334155", fontSize: 12 },
+          // 全局 * { margin: 0 auto } 会把 absolute 浮层推到中间，用内联样式压回去
+          extraCssText:
+            "margin:0 !important;padding:8px 12px;min-width:156px;box-shadow:0 6px 20px rgba(15,23,42,0.12);border-radius:8px;",
           axisPointer: {
             type: "shadow",
             label: {
@@ -3082,16 +3018,18 @@ export default {
               backgroundColor: "#333",
             },
           },
-          // 显示时，都显示正数
           formatter: (params) => {
-            if (!params.length) return "";
-            let s = params[0].axisValueLabel + "<br/>";
-            for (const iterator of params) {
-              // 如果是负数则反转
-              let d = iterator.data < 0 ? -iterator.data : iterator.data;
-              s += iterator.marker + iterator.seriesName + "：" + d;
-            }
-            return s;
+            if (!params || !params.length) return "";
+            let html = `<div style="margin-bottom:4px;color:#94a3b8;font-size:12px;">${params[0].axisValueLabel}</div>`;
+            params.forEach((item) => {
+              // 缺勤是按负数绘制的，展示时还原成正数
+              const value = Math.abs(Number(item.data) || 0);
+              const color =
+                item.seriesIndex === 0 ? CHART_TONES.blue.c1 : "#94a3b8";
+              // 数值列固定宽度 + 右对齐，避免不同位数时错位
+              html += `<div style="display:flex;align-items:center;font-size:12px;line-height:20px;"><span style="flex:0 0 auto;margin-right:6px;line-height:1;">${item.marker}</span><span style="flex:1 1 auto;">${item.seriesName}</span><b style="flex:0 0 40px;text-align:right;color:${color};font-weight:600;">${value}</b></div>`;
+            });
+            return html;
           },
         },
         legend: {
@@ -3159,10 +3097,8 @@ export default {
     },
 
     myEchartsBeacon() {
-      if (this.myChart2) {
-        this.myChart2.dispose();
-        this.myChart2 = null;
-      }
+      // 不再销毁考勤图实例：两者是不同卡片的图表，
+      // 首页数据回调里会先画考勤图再画信标图，互相 dispose 会导致考勤图闪现后消失
       var that = this;
       this.myChartBeacon = this.ensureChart("main7", "myChartBeacon");
       if (!this.myChartBeacon) return;
@@ -3383,6 +3319,17 @@ export default {
             });
           }
           that.attendanceNum = res.data.attendanceNum ? res.data.attendanceNum : [];
+          // 考勤图表的数据就在本次响应里，直接重绘；
+          // 之前只在 DevUtil 的回调里画，两个接口返回顺序不定会导致图表一直空白
+          that.$nextTick(() => {
+            if (!that.attendanceNum.length) return;
+            try {
+              that.myEcharts2();
+            } catch (e) {
+              console.warn(e);
+            }
+            that.scheduleHomeChartsResize();
+          });
           that.max_num_build = res.data.max_num_build;
           if (that.max_num_build.length > 0) {
             that.max_num_buildName = that.max_num_build[0].building;
@@ -3512,9 +3459,10 @@ export default {
               });
             });
           }
-          // 首页告警统计卡片（测试）：用第一个有数据的类型加载近七天统计
+          // 首页告警人员统计卡片：默认按告警数量最多的类型加载人员排行；
+          // attenFlag != 2 时 loadHomePersonStat 内部直接返回，不会发请求
           that.$nextTick(() => {
-            that.loadHomeWarningWeek();
+            that.loadHomePersonStat();
           });
 
           if (that.contrForPrionum == 5) {
@@ -3691,6 +3639,8 @@ export default {
         this.$store.state.userInfo.prionum == 5 &&
         this.$store.state.projectid
       ) {
+        // 刷新页面时重新拉一次当前项目配置，避免卡片按过期配置显示
+        this.refreshCurrentProjectConfig();
         this.getFristPages(this.$store.state.projectid);
         this.getBuildingByProjectids(this.$store.state.projectid);
         this.timer = setInterval(() => {
@@ -3729,18 +3679,15 @@ export default {
   computed: {
     // 有告警数据的类型列表，供首页卡片下拉切换
     homeWarnTypeOptions() {
-      return (this.warnNumList || [])
-        .map((item, index) => ({ index: index, typestr: item.typestr }))
-        .filter((item) => {
-          const row = this.warnNumList[item.index];
-          return Number(row.warn_status1_num) + Number(row.warn_status2_num) > 0;
-        });
+      // 告警人员统计下拉展示全部告警类型（无数据的类型选中后图表显示暂无数据）
+      return (this.warnNumList || []).map((item, index) => ({
+        index: index,
+        typestr: item.typestr,
+      }));
     },
-    // 卡片当前选中的告警类型名
-    currentHomeWarnType() {
-      const list = this.warnNumList || [];
-      const index = this.homeWarnTypeIndex;
-      return index != null && list[index] ? list[index].typestr : "";
+    // 首页统计卡片三选一：attenFlag 0=信标状态，1=考勤统计，2=告警人员统计
+    homeShowAlarmStatCard() {
+      return Number(this.attenFlag) === 2;
     },
     isFullscreen() {
       return this.$store.state.isFullscreen;
@@ -3823,10 +3770,13 @@ export default {
     },
     "$i18n.locale"() {
       this.myEcharts1();
-      if (this.attenFlag) {
+      if (Number(this.attenFlag) === 1) {
         this.myEcharts2();
-      } else {
+      } else if (Number(this.attenFlag) === 0) {
         this.myEchartsBeacon();
+      } else {
+        // attenFlag=2：重绘告警人员统计卡片
+        this.loadHomePersonStat(this.homeWarnTypeIndex);
       }
       this.myEcharts3();
       this.myEcharts4();
@@ -3863,11 +3813,8 @@ export default {
     if (this.myChartBeacon) {
       this.myChartBeacon.dispose();
     }
-    if (this.myChartHomeWarning) {
-      this.myChartHomeWarning.dispose();
-    }
-    if (this.myChartPersonStat) {
-      this.myChartPersonStat.dispose();
+    if (this.myChartHomePersonStat) {
+      this.myChartHomePersonStat.dispose();
     }
     cancelAnimationFrame(this.clearAnim); // 清除requestAnimationFrame
     this.scene = null; // 场景
@@ -5013,16 +4960,6 @@ h4.mb-0 {
   gap: 12px;
   text-align: left;
 }
-/* 告警统计弹框里的人员统计按钮：推到头部右侧 */
-.ww-person-stat-btn {
-  flex: 0 0 auto;
-  height: 26px;
-  /* 与右上角关闭按钮拉开距离 */
-  margin: 0 16px 0 auto !important;
-  padding: 0 12px !important;
-  font-size: 12px;
-  border-radius: 6px;
-}
 .ww-header-icon {
   display: inline-flex;
   align-items: center;
@@ -5128,10 +5065,36 @@ h4.mb-0 {
   font-family: "DIN Alternate", Arial, sans-serif;
 }
 /* 告警类型下拉：压缩到卡片头部里 */
+/* 告警人员统计卡片头部：标题过长省略，下拉与日期压缩成小尺寸同一行 */
+.home-warn-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .home-warn-select {
-  flex: 0 0 auto;
-  width: 108px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 104px;
   margin: 0 0 0 8px !important;
+}
+.home-warn-date {
+  flex: 0 0 auto;
+  width: 112px;
+  margin: 0 0 0 8px !important;
+}
+.home-warn-date :deep(.el-input__wrapper) {
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  box-shadow: none;
+  background: #f1f5f9;
+}
+.home-warn-date :deep(.el-input__inner) {
+  font-size: 12px;
+  color: #475569;
 }
 .home-warn-select :deep(.el-select__wrapper) {
   min-height: 24px;
@@ -5144,15 +5107,6 @@ h4.mb-0 {
 .home-warn-select :deep(.el-select__selected-item) {
   font-size: 12px;
   color: #475569;
-}
-/* 人员统计按钮：推到卡片头部右侧 */
-.home-warn-rank-btn {
-  flex: 0 0 auto;
-  height: 24px;
-  margin: 0 0 0 auto !important;
-  padding: 0 10px !important;
-  font-size: 12px;
-  border-radius: 6px;
 }
 .home-warn-body {
   display: flex;
@@ -5496,34 +5450,4 @@ h4.mb-0 {
   padding: 18px 20px 20px;
 }
 
-/* 人员统计弹框（同样 teleport 到 body，需放在非 scoped 块里） */
-.el-dialog.person-stat-dialog {
-  max-width: 92vw;
-  border-radius: 14px;
-  overflow: hidden;
-}
-.el-dialog.person-stat-dialog .el-dialog__header {
-  margin: 0;
-  padding: 16px 48px 14px 20px;
-  border-bottom: 1px solid #f1f4f8;
-}
-.el-dialog.person-stat-dialog .el-dialog__body {
-  padding: 16px 20px 20px;
-}
-.pr-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.pr-title {
-  margin: 0 !important;
-  font-size: 15px;
-  font-weight: 600;
-  color: #0f172a;
-}
-.pr-chart {
-  width: 100%;
-  height: 320px;
-}
 </style>

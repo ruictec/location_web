@@ -2239,10 +2239,8 @@ export default {
         style = new OlStyleStyle({
           image: new OlStyleIcon({
             anchor: [0.5, 1],
-            // 说明：图片地址改为从环境变量读取基础地址，默认使用你当前线上地址，便于本地调试
-            src: info.colour
-              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
-              : "../../../static/user1.png",
+            // 角色图标统一走本地资源，规则与 3D 一致
+            src: this.colourIcon(info.colour),
             scale: 1,
           }),
           //设置图片下面显示的字体样式和内容
@@ -3243,6 +3241,17 @@ export default {
       };
       animate();
     },
+    // 角色图标：与 3D（fengmap）的 switch 规则保持一致，
+    // 但资源统一走本地 static 目录，不再依赖 VUE_APP_ASSET_BASE 云端地址
+    // colour 1~10 → static/N.png；11~13 → alarm.png；其它 → user1.png
+    colourIcon(colour) {
+      const n = Number(colour);
+      if (n >= 1 && n <= 10) return `../../../static/${n}.png`;
+      if (n === 11 || n === 12 || n === 13) {
+        return "../../../static/alarm.png";
+      }
+      return "../../../static/user1.png";
+    },
     getFeatureStyle(type, info) {
       let src = "";
 
@@ -3252,11 +3261,9 @@ export default {
           src = "../../../static/usersos.png";
         } else if (info.status === 3) {
           src = "../../../static/user1down.png";
-        } else if (info.colour) {
-          // 说明：图片地址改为从环境变量读取基础地址
-          src = `${process.env.VUE_APP_ASSET_BASE}/image/${info.colour}.png`;
         } else {
-          src = "../../../static/user1.png";
+          // 角色图标改用本地资源（原先是云端 VUE_APP_ASSET_BASE 拼接）
+          src = this.colourIcon(info.colour);
         }
       } else if (type === "asset") {
         src = "../../../static/beacon1.png";
@@ -3547,10 +3554,8 @@ export default {
         style = new OlStyleStyle({
           image: new OlStyleIcon({
             anchor: [0.5, 1],
-            // 说明：图片地址改为从环境变量读取基础地址
-            src: info.colour
-              ? process.env.VUE_APP_ASSET_BASE + "/image/" + info.colour + ".png"
-              : "../../../static/user1.png",
+            // 角色图标统一走本地资源，规则与 3D 一致
+            src: this.colourIcon(info.colour),
             scale: 1,
           }),
           //设置图片下面显示的字体样式和内容

@@ -1009,7 +1009,7 @@
                     >{{ $t("staff.delete") }}</el-button>
                   <el-image
                     class="staff-setting-icon"
-                    :src="assetBase + '/image/' + item.colour + '.png'"
+                    :src="colourIcon(item.colour)"
                     fit="fill"
                     @click="changeIcon(item)"
                   ></el-image>
@@ -1205,7 +1205,6 @@ import Menu from "../../components/menu/Menu";
 import Asset from "../../components/asset/asset";
 import host from "../../host";
 import util from "../../common/util";
-import { ASSET_BASE } from "../../config/index.js";
 import {
   getMemberList,
   getMemberName,
@@ -1249,7 +1248,6 @@ export default {
   data() {
     return {
       i8n: this.$store.state.i18n,
-      assetBase: ASSET_BASE,
       //时间选择限制
       pickerOptions: {
         shortcuts: [
@@ -1474,6 +1472,17 @@ export default {
     },
   },
   methods: {
+    // 角色图标：与室内定位页保持一致，统一走本地 static 资源，
+    // 不再依赖 VUE_APP_ASSET_BASE 云端地址
+    // colour 1~10 → static/N.png；11~13 → alarm.png；其它 → user1.png
+    colourIcon(colour) {
+      const n = Number(colour);
+      if (n >= 1 && n <= 10) return `../../../static/${n}.png`;
+      if (n === 11 || n === 12 || n === 13) {
+        return "../../../static/alarm.png";
+      }
+      return "../../../static/user1.png";
+    },
     // 导入
     importExcel() {
       document.getElementById("articleImageFile").click(); //触发importExcels
